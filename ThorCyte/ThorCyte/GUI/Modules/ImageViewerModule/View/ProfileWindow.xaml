@@ -1,0 +1,33 @@
+﻿<Window x:Class="ThorCyte.ImageViewerModule.View.ProfileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ThorCyte.ImageViewerModule.View"
+        xmlns:sciChart="http://schemas.abtsoftware.co.uk/scichart"
+        mc:Ignorable="d"
+        Title="ProfileWindow" Height="300" Width="300"  Visibility="{Binding}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="32"></RowDefinition>
+        </Grid.RowDefinitions>
+        <!-- Declare a SciChartSurface and bind to data -->
+        <sciChart:SciChartSurface  sciChart:ThemeManager.Theme="Chrome" SeriesSource="{Binding SeriesSource}">
+            <sciChart:SciChartSurface.XAxis>
+                <sciChart:NumericAxis AutoRange="Always" AxisTitle="Length(pixel)"/>
+            </sciChart:SciChartSurface.XAxis>
+            <sciChart:SciChartSurface.YAxis>
+                <sciChart:NumericAxis AutoRange="Never" VisibleRange="{Binding AxisYRange}" AxisTitle="Intensity"
+                                      AxisAlignment="Left"/>
+            </sciChart:SciChartSurface.YAxis>
+        </sciChart:SciChartSurface>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center"
+                    Background="White" Height="32">
+            <TextBlock Text="CF : " Foreground="Black" VerticalAlignment="Top" ></TextBlock>
+            <TextBox Text="{Binding Path=ProfileCf, StringFormat={}{0:f2}%}" 
+                      VerticalAlignment="Top"></TextBox>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,10 @@
+﻿<Window x:Class="TestProtocol.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:regions="http://prismlibrary.com/"
+        xmlns:inf="clr-namespace:ThorCyte.Infrastructure.Commom;assembly=ThorCyte.Infrastructure"
+        Title="MainWindow" SizeToContent="WidthAndHeight">
+    <Grid>
+        <ContentControl Name="ProtocolRegion" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ProtocolRegion}"/>
+    </Grid>
+</Window>

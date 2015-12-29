@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="ThorCyte.ImageViewerModule.View.ImageViewerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:view="clr-namespace:ThorCyte.ImageViewerModule.View"
+             xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <converter:ColorToBrushConverter x:Key="ColorToBrushC"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <ToolBar>
+            <!--<Button Content="line" Command="{Binding DrawRegionCommand}" CommandParameter="Line"/>-->
+            <Button Content="Rectangle" Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle"/>
+            <Button Content="Ellipse" Command="{Binding DrawRegionCommand}" CommandParameter="Ellipse"/>
+            <ToggleButton Content="Dragger"  IsChecked="{Binding IsDragger}" Command="{Binding DraggerCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
+            <Button Content="ZoomIn" Command="{Binding ZoomCommand}" CommandParameter="true"/>
+            <Button Content="ZoomOut" Command="{Binding ZoomCommand}" CommandParameter="false"/>
+            <Button Content="ComputeColor" Command="{Binding ComputeColorCommand}"/>
+            <Button Content="VirtualChannel" Command="{Binding VirtualChannelCommand}"/>
+            <ToggleButton Content="Profile"  IsChecked="{Binding IsProfile}" Command="{Binding ProfileCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
+            <ToggleButton Content="Ruler"  IsChecked="{Binding IsRuler}" Command="{Binding RulerCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
+            <Button Content="Brightness/Contrast" Command="{Binding BrightnessContrastCommand}"/>
+
+        </ToolBar>
+        <ContentControl Grid.Row="1" Content="{Binding CurrentViewport}"/>
+        <!--<ListView Grid.Row="1" ItemsSource="{Binding Viewports}" SelectedItem="{Binding CurrentViewport}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ContentControl Content="{Binding}" Height="300" >
+                    </ContentControl>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>-->
+        <StatusBar  Grid.Row="2">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="0">
+                <TextBlock Text="{Binding MousePointStatus}"></TextBlock>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="0">
+                <TextBlock Text="{Binding CurrentViewport.drawCanvas.Point.Y}"></TextBlock>
+            </StatusBarItem>
+            <Separator Grid.Column="1"/>
+            <StatusBarItem  Grid.Column="2">
+                <DockPanel>
+                    <!--<Image Width="16" Height="16" VerticalAlignment="Center" Source="{Binding IsConnected, Converter={StaticResource BoolToStringC},  ConverterParameter=..\\Resources\\lightgreen.png|..\\Resources\\lightred.png}"></Image>
+                    <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right" Text="{Binding IsConnected, Converter={StaticResource BoolToStringC}, ConverterParameter=Connected|Disconnected}"/>-->
+                </DockPanel>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</UserControl>

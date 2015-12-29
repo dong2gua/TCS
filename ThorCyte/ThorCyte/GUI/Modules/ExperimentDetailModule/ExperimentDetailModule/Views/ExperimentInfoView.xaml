@@ -1,0 +1,120 @@
+﻿<UserControl x:Class="ThorCyte.ExperimentDetailModule.Views.ExperimentInfoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:xwtk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converter="clr-namespace:ThorCyte.ExperimentDetailModule.Converter"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <converter:IntToVisibilityConverter x:Key="intToVisibility"/>
+    </UserControl.Resources>
+        <StackPanel>
+            <Expander Header="Experiment Information" Margin="0,2,0,2">
+                <Grid Margin="6,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.3*"/>
+                        <ColumnDefinition Width="0.7*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Content="Name:"></Label>
+                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentExperiment.Name}"></Label>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Data:"></Label>
+                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding CurrentExperiment.Date}"></Label>
+                    <Label Grid.Row="2" Grid.Column="0" Content="UserName:"></Label>
+                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding CurrentExperiment.UserName}"></Label>
+                    <Label Grid.Row="3" Grid.Column="0" Content="Instrument:"></Label>
+                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding CurrentExperiment.InstrumentType}"></Label>
+                    <Label Grid.Row="4" Grid.Column="0" Content="Version:"></Label>
+                    <Label Grid.Row="4" Grid.Column="1" Content="{Binding CurrentExperiment.SoftwareVersion}"></Label>
+                    <Label Grid.Row="5" Grid.Column="0" Content="Notes:"></Label>
+                    <Label Grid.Row="5" Grid.Column="1" Content="{Binding CurrentExperiment.Notes}"></Label>
+            </Grid> 
+            </Expander>
+            <Expander Header="ScanInfo">
+                <StackPanel Margin="6,0,0,0">
+                    <Grid Margin="0,0,0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.32*"/>
+                            <ColumnDefinition Width="0.68*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Content="Objective:"></Label>
+                        <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentScanInfo.ObjectiveType}"></Label>
+                     </Grid>
+                    <Grid Margin="0,0,0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.32*"/>
+                            <ColumnDefinition Width="0.68*"/>
+                        </Grid.ColumnDefinitions>
+                    <Label  Grid.Column="0" Content="Channels:"></Label>
+                    <StackPanel  Grid.Column="1">
+                        <ListBox ItemsSource="{Binding CurrentScanInfo.ChannelList}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Padding="5,0,5,0" Text="{Binding ChannelId}" />
+                                        <TextBlock Padding="5,0,5,0" Text="{Binding ChannelName}" />
+                                        <TextBlock Padding="5,0,5,0" Text="{Binding WaveLength}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </Grid>
+                <Grid Margin="0,0,0,2" Visibility="{Binding CurrentScanInfo.StreamFrameCount, Converter={StaticResource intToVisibility}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.32*"/>
+                        <ColumnDefinition Width="0.68*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Column="0" Content="Stream Frames:"></Label>
+                    <Label Grid.Column="1" Content="{Binding CurrentScanInfo.StreamFrameCount}"></Label>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>
+                    <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding StreamIndex, Mode=TwoWay}"
+                                      Minimum="1" Maximum="{Binding CurrentScanInfo.StreamFrameCount}"/>
+                </Grid>
+                <Grid Margin="0,0,0,2" Visibility="{Binding CurrentScanInfo.TimingFrameCount, Converter={StaticResource intToVisibility} }">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.32*"/>
+                        <ColumnDefinition Width="0.68*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Column="0" Content="Time Frames:"></Label>
+                    <Label Grid.Column="1" Content="{Binding CurrentScanInfo.TimingFrameCount}"></Label>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>
+                    <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding TimeIndex, Mode=TwoWay}"
+                                      Minimum="1" Maximum="{Binding CurrentScanInfo.TimingFrameCount}"/>
+                </Grid>
+                <Grid Margin="0,0,0,2" Visibility="{Binding CurrentScanInfo.ThirdDimensionSteps, Converter={StaticResource intToVisibility} }">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.32*"/>
+                        <ColumnDefinition Width="0.68*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Column="0" Content="Z Steps:"></Label>
+                    <Label Grid.Column="1" Content="{Binding CurrentScanInfo.ThirdDimensionSteps}"></Label>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>
+                    <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding ThirdIndex, Mode=TwoWay}"
+                                      Minimum="1" Maximum="{Binding CurrentScanInfo.ThirdDimensionSteps}"/>
+                </Grid>
+            </StackPanel>
+            </Expander>
+    </StackPanel>    
+</UserControl>

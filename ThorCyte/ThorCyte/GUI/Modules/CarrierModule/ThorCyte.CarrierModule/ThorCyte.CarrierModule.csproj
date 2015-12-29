@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BCA9ADB7-40CA-407E-837E-BE7D791ABBFE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ThorCyte.CarrierModule</RootNamespace>
+    <AssemblyName>ThorCyte.CarrierModule</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="PresentationFramework.Aero2" />
+    <Reference Include="Prism">
+      <HintPath>..\..\..\..\Tools\Prism\Prism.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Unity.Wpf">
+      <HintPath>..\..\..\..\Tools\Prism\Prism.Unity.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Wpf">
+      <HintPath>..\..\..\..\Tools\Prism\Prism.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Tools\Prism\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ThorCyte.Infrastructure, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Bin\ThorCyte.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Canvases\PlateCanvas.cs" />
+    <Compile Include="Canvases\SlideCanvas.cs" />
+    <Compile Include="CarrierModule.cs" />
+    <Compile Include="Carrier\Carrier.cs" />
+    <Compile Include="Carrier\CarrierDef.cs" />
+    <Compile Include="Carrier\CarrierDefMgr.cs" />
+    <Compile Include="Carrier\CarrierRoom.cs" />
+    <Compile Include="Carrier\Microplate.cs" />
+    <Compile Include="Carrier\MicroplateDef.cs" />
+    <Compile Include="Carrier\RoomDef.cs" />
+    <Compile Include="Carrier\Slide.cs" />
+    <Compile Include="Carrier\SliderDef.cs" />
+    <Compile Include="Common\Converter.cs" />
+    <Compile Include="Common\DrawFunction.cs" />
+    <Compile Include="Common\WaitCursor.cs" />
+    <Compile Include="Graphics\GraphicsBase.cs" />
+    <Compile Include="Graphics\GraphicsCross.cs" />
+    <Compile Include="Graphics\GraphicsEllipse.cs" />
+    <Compile Include="Graphics\GraphicsPolygon.cs" />
+    <Compile Include="Graphics\GraphicsPolyLine.cs" />
+    <Compile Include="Graphics\GraphicsRectangle.cs" />
+    <Compile Include="Graphics\GraphicsRectangleBase.cs" />
+    <Compile Include="Graphics\GraphicsSelectionRectangle.cs" />
+    <Compile Include="Graphics\GraphicWell.cs" />
+    <Compile Include="Graphics\HelperFunctions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Tools\Definitions.cs" />
+    <Compile Include="Tools\GraphicSelectRectangle.cs" />
+    <Compile Include="Tools\Tool.cs" />
+    <Compile Include="Tools\ToolDrag.cs" />
+    <Compile Include="Tools\ToolPointer.cs" />
+    <Compile Include="Tools\ToolSelect.cs" />
+    <Compile Include="Tools\ToolTypeConverter.cs" />
+    <Compile Include="ViewModels\TileViewModel.cs" />
+    <Compile Include="Views\CarrierView.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>CarrierView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CarrierViewC.xaml.cs">
+      <DependentUpon>CarrierViewC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CarrierViewContainer.xaml.cs">
+      <DependentUpon>CarrierViewContainer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlateView.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>PlateView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SlideView.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>SlideView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TileView.xaml.cs">
+      <DependentUpon>TileView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CyteCross.cur" />
+    <Resource Include="Images\Ellipse.CUR" />
+    <Resource Include="Images\fit.png" />
+    <Resource Include="Images\Line.cur" />
+    <Resource Include="Images\Pencil.cur" />
+    <Resource Include="Images\PointerHS.png" />
+    <Resource Include="Images\Polygon.CUR" />
+    <Resource Include="Images\PolyHandle.cur" />
+    <Resource Include="Images\Rectangle.CUR" />
+    <Resource Include="Images\select_all.png" />
+    <Resource Include="Images\select_rect.png" />
+    <Resource Include="Images\Text.cur" />
+    <Resource Include="Images\zoom_down.png" />
+    <Resource Include="Images\zoom_up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\CarrierView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CarrierViewC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CarrierViewContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlateView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SlideView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TileView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Drag.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Drag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y $(TargetPath) $(SolutionDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

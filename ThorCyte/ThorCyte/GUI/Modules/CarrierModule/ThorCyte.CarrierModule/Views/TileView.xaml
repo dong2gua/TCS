@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="ThorCyte.CarrierModule.Views.TileView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" ToolTip="Tile Select Area" SizeChanged="TileView_OnSizeChanged" Background="DarkGray">
+    <ScrollViewer HorizontalScrollBarVisibility="Hidden"  VerticalScrollBarVisibility="Visible">
+        <ItemsControl ItemsSource="{Binding TilesShowInCanvas}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas Background="DarkSlateGray" Height="{Binding ViewHeight}" Width="{Binding ViewWidth}" ToolTip="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type ItemsControl}},Path=DataContext.RegionID}" SizeChanged="FrameworkElement_OnSizeChanged"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Width="{Binding Width}" Height="{Binding Height}" Content="{Binding FieldId}" Command="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type ItemsControl}},Path=DataContext.CmdTileTrigger}" CommandParameter="{Binding}"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+
+
+</UserControl>

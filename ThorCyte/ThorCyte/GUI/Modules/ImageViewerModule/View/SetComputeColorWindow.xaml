@@ -1,0 +1,64 @@
+﻿<Window x:Class="ThorCyte.ImageViewerModule.View.SetComputeColorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ThorCyte.ImageViewerModule.View"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
+        mc:Ignorable="d" 
+        x:Name="Self"
+        Title="Set Compute Color" Height="300" Width="400">
+    <Window.Resources>
+        <converter:ColorToBrushConverter x:Key="ColorToBrushC"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+
+
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal"  Grid.Row="0">
+            <TextBlock Text="ChannelName" TextAlignment="Right" Height="20" Width="80" Margin="5"/>
+            <TextBox  Text="{Binding ChannelName}"  Height="20" Width="120" IsEnabled="{Binding IsNew}"/>
+        </StackPanel>
+        <DataGrid ItemsSource="{Binding ChannelList}" AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="1">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.Header>
+                        <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding DataContext.IsCheckedAll, RelativeSource={RelativeSource AncestorType={x:Type local:SetComputeColorWindow}},Mode=TwoWay}"/>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox  IsChecked="{Binding IsSelected}" Command="{Binding DataContext.SelectionChangedCommand, RelativeSource={RelativeSource AncestorType={x:Type local:SetComputeColorWindow}}}"  CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Channel" Width="160" Binding="{Binding Channel.ChannelName}" IsReadOnly="True"/>
+                <DataGridTemplateColumn Header="Color" Width="160">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" >
+                                <Rectangle Width="80" Height="30" Fill="{Binding Color, Converter={StaticResource ColorToBrushC}}" Stroke="Black"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <xctk:ColorPicker Width="80" Height="30" SelectedColor="{Binding Color}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+        </DataGrid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2">
+            <Button Height="20" Width="60" Margin="5" Content="OK" Command="{Binding ClickOKCommand}" CommandParameter="{Binding ElementName=Self}"/>
+            <Button Height="20" Width="60" Margin="5" Content="Cancel" Command="{Binding ClickCancelCommand}" CommandParameter="{Binding ElementName=Self}"/>
+        </StackPanel>
+    </Grid>
+</Window>
