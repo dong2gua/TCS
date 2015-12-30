@@ -1,7 +1,6 @@
 ﻿using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
-using ThorCyte.Infrastructure.Types;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.Views.ChannelMod;
@@ -83,8 +82,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public override void Deserialize(XmlReader reader)
         {
             base.Deserialize(reader);
-            Setting = ProtocolModule.Instance.;
-            foreach (var channel in SInfo.ChannelList)
+            foreach (var channel in ProtocolModule.Instance.CurrentScanInfo.ChannelList)
             {
                 _chaModel.Channels.Add(channel.ChannelName);
             }

@@ -142,6 +142,10 @@ namespace ThorCyte.ProtocolModule.Models
             DestPort = pDest;
         }
 
+        public ConnectorModel()
+        {
+        }
+
         /// <summary>
         /// Raises the 'ConnectionChanged' event.
         /// </summary>

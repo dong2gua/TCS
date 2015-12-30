@@ -7,6 +7,7 @@ using System.Windows;
 using System.Xml;
 using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
+using Microsoft.Practices.Unity;
 using Prism.Events;
 using Prism.Modularity;
 using Prism.Regions;
@@ -35,7 +36,7 @@ namespace ThorCyte.ProtocolModule
         //Singleton
         public static ProtocolModule Instance
         {
-            get { return _instance ?? (_instance = new ProtocolModule()); }
+            get { return _instance ?? (_instance = ServiceLocator.Current.GetInstance<ProtocolModule>()); }
         }
 
         public MainWindowViewModel MainVm
@@ -76,17 +77,20 @@ namespace ThorCyte.ProtocolModule
         public ProtocolModule()
         {
             _regionViewRegistry = ServiceLocator.Current.GetInstance<IRegionViewRegistry>();
+            ServiceLocator.Current.GetInstance<IUnityContainer>().RegisterInstance<ProtocolModule>(this);
+            EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
+
         }
 
-        private static ScanInfo _currentScanInfo;
-        public static ScanInfo CurrentScanInfo
+        private ScanInfo _currentScanInfo;
+        public ScanInfo CurrentScanInfo
         {
             get { return _currentScanInfo; }
             set { _currentScanInfo = value; }
         }
 
-        private static int _currentScanId;
-        public static int CurrentScanId
+        private int _currentScanId;
+        public int CurrentScanId
         {
             get { return _currentScanId; }
             set { _currentScanId = value; }
@@ -99,12 +103,9 @@ namespace ThorCyte.ProtocolModule
 
         public void Initialize()
         {
-            _regionViewRegistry.RegisterViewWithRegion(RegionNames.ProtocolRegion, typeof(MacroEditor));
             LoadModuleInfos(ModuleInfoPath);
             LoadCombinationModuleTemplates(ComModuleInfoPath);
-
-            //Subscribe experiment loaded event
-            EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
+            _regionViewRegistry.RegisterViewWithRegion(RegionNames.ProtocolRegion, typeof(MacroEditor));
         }
 
         private void ExpLoaded(int scanId)
@@ -260,6 +261,7 @@ namespace ThorCyte.ProtocolModule
                             if (reader.Name == "combination-module")
                             {
                                 var name = reader["name"];
+
                                 module = CreateCombinationModuleFromWorkspace(name, id);
                             }
                             else

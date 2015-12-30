@@ -61,6 +61,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commom\CyteConvert.cs" />
     <Compile Include="Commom\RawDataReader.cs" />
     <Compile Include="Events\ExperimentLoadedEvent.cs" />
     <Compile Include="Events\EventType.cs" />

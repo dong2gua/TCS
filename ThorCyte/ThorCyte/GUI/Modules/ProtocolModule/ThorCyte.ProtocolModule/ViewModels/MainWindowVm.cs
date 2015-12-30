@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
@@ -36,11 +33,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public PannelViewModel PannelVm
         {
             get { return _pannelVm; }
-            set
-            {
-                _pannelVm = value;
-                RaisePropertyChanged("PannelVm");
-            }
+            set { SetProperty(ref _pannelVm, value); }
         }
         #endregion
 

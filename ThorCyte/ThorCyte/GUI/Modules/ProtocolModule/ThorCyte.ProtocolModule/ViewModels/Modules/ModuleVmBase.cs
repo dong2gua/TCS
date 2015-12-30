@@ -2,9 +2,7 @@
 using System.Windows.Controls;
 using System.Xml;
 using ImageProcess;
-using Microsoft.Practices.ServiceLocation;
 using Prism.Mvvm;
-using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 
