@@ -1,1 +1,0 @@
-start %~dp0\ThorCyte\ThorCyte\GUI\Modules\CarrierModule\CarrierModule.sln
