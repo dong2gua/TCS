@@ -79,6 +79,20 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\Arrow.cs" />
+    <Compile Include="Controls\Module.cs" />
+    <Compile Include="Controls\ModuleItemsControl.cs" />
+    <Compile Include="Controls\PannelView.cs" />
+    <Compile Include="Controls\PannelView_ConnectionDragging.cs" />
+    <Compile Include="Controls\PannelView_DragSelection.cs" />
+    <Compile Include="Controls\PannelView_NodeDragging.cs" />
+    <Compile Include="Controls\Port.cs" />
+    <Compile Include="Events\ConnectionDragEvents.cs" />
+    <Compile Include="Events\ConnectorDragEvents.cs" />
+    <Compile Include="Events\ModuleDragCompletedEventArgs.cs" />
+    <Compile Include="Events\ModuleDragEventArgs.cs" />
+    <Compile Include="Events\ModuleDraggingEventArgs.cs" />
+    <Compile Include="Events\ModuleDragStartedEventArgs.cs" />
     <Compile Include="Models\ChannelModel.cs" />
     <Compile Include="Models\CombinationPortInfo.cs" />
     <Compile Include="Models\ConnectorModel.cs" />

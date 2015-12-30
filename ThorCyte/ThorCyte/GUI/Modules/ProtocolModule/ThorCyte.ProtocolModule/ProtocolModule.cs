@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -423,6 +422,9 @@ namespace ThorCyte.ProtocolModule
             MainVm.PannelVm.Connections.Add(connector);
         }
 
-
+        public MacroEditor GetView()
+        {
+            return MacroEditor.Instance;
+        }
     }
 }
