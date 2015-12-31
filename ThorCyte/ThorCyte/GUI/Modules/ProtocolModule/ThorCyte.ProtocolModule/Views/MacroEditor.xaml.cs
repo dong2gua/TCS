@@ -6,6 +6,9 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Microsoft.Practices.ServiceLocation;
+using Microsoft.Practices.Unity;
+using ThorCyte.ProtocolModule.Events;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.ViewModels;
 
@@ -31,11 +34,11 @@ namespace ThorCyte.ProtocolModule.Views
             get { return (MainWindowViewModel)DataContext; }
         }
 
-        private static MacroEditor _macroEdit = new MacroEditor();
+        private static MacroEditor _macroEdit;
 
         public static MacroEditor Instance
         {
-            get { return _macroEdit; }
+            get { return _macroEdit ?? (_macroEdit = ServiceLocator.Current.GetInstance<MacroEditor>()); }
         }
 
         public CreateModuleHandler CreateModule;
@@ -44,10 +47,11 @@ namespace ThorCyte.ProtocolModule.Views
 
         #region Constructors
 
-        private MacroEditor()
+        public MacroEditor()
         {
             InitializeComponent();
             DataContext = MainWindowViewModel.Instance;
+            ServiceLocator.Current.GetInstance<IUnityContainer>().RegisterInstance<MacroEditor>(this);
         }
 
         #endregion

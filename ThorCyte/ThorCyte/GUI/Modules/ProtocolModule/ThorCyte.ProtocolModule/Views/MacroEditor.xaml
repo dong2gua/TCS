@@ -7,7 +7,7 @@
              xmlns:models="clr-namespace:ThorCyte.ProtocolModule.Models"
              xmlns:control="clr-namespace:ThorCyte.ProtocolModule.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300" MinWidth="880" MinHeight="600">
     <UserControl.Resources>
         <ResourceDictionary>
             <RoutedUICommand x:Key="Commands.DeleteSelectedNodes" />
@@ -17,7 +17,6 @@
                 End="{Binding DestPortHotspot}" IsHitTestVisible="False"/>
             </DataTemplate>
 
-            <SolidColorBrush x:Key="BorderBackgroundBrush" Color="{StaticResource WindowBackgroundColor}"/>
             <BitmapImage x:Key="collapseImg" UriSource="../Resource/Images/collapse.png"/>
             <BitmapImage x:Key="expandImg" UriSource="../Resource/Images/expand.png"/>
 
@@ -148,7 +147,7 @@
             <!--Canvas: Create Module-->
             <Border x:Name="PannelBorder" Grid.Row="1" BorderBrush="Black" BorderThickness="1,1,0,1" VerticalAlignment="Top" >
                 <ScrollViewer Focusable="False" HorizontalScrollBarVisibility="Visible" Margin="0,0,0,30">
-                    <control:PannelView x:Name="pannel" Background="White" PreviewKeyDown="PannelKeyDown" Width="670" Height="{Binding ElementName=treeview,Path=ActualHeight}"
+                    <control:PannelView x:Name="pannel" Background="PowderBlue" PreviewKeyDown="PannelKeyDown" Width="670" Height="{Binding ElementName=treeview,Path=ActualHeight}"
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
                             ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown" PreviewMouseLeftButtonUp="OnMouseLeftUp"/>
@@ -179,11 +178,11 @@
                 </Button>
             </StackPanel>
 
-            <Border x:Name="contentBorder" Grid.Row="1" BorderThickness="1,1,0,0" Background="{StaticResource BorderBackgroundBrush}" BorderBrush="Black" Margin="0,0,0,30">
+            <Border x:Name="contentBorder" Grid.Row="1" BorderThickness="1,1,0,0" BorderBrush="Black" Margin="0,0,0,30">
                 <ScrollViewer x:Name="Scroller" VerticalAlignment="Top" Margin="-1,-1,6,0" Height="{Binding ElementName=treeview,Path=ActualHeight}" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <Label Content="{Binding PannelVm.SelectedModuleViewModel.Name}" HorizontalAlignment="Center" FontWeight="Bold" Margin="5" FontSize="15" />
-                        <ContentControl  x:Name="contentControl" Background="{StaticResource BorderBackgroundBrush}" DataContext="{Binding PannelVm.SelectedModuleViewModel}" Content="{Binding View}" VerticalAlignment="Top"/>
+                        <ContentControl  x:Name="contentControl" DataContext="{Binding PannelVm.SelectedModuleViewModel}" Content="{Binding View}" VerticalAlignment="Top"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

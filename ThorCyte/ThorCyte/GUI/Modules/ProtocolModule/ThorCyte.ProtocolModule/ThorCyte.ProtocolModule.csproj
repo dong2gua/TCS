@@ -106,6 +106,7 @@
     <Compile Include="Utils\CollectionItemsChangedEventArgs.cs" />
     <Compile Include="Utils\GlobalConst.cs" />
     <Compile Include="Utils\ImpObservableCollection.cs" />
+    <Compile Include="Utils\VisualUtils.cs" />
     <Compile Include="ViewModels\MainWindowVm.cs" />
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
     <Compile Include="ViewModels\Modules\CombinationModVm.cs" />
@@ -129,6 +130,21 @@
     </Page>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resource\Images\batch.png" />
+    <Resource Include="Resource\Images\collapse.png" />
+    <Resource Include="Resource\Images\expand.png" />
+    <Resource Include="Resource\Images\initialize.png" />
+    <Resource Include="Resource\Images\label.png" />
+    <Resource Include="Resource\Images\label_bak.png" />
+    <Resource Include="Resource\Images\output.png" />
+    <Resource Include="Resource\Images\output_bak.png" />
+    <Resource Include="Resource\Images\refresh.png" />
+    <Resource Include="Resource\Images\repetitive.png" />
+    <Resource Include="Resource\Images\repetitive_bak.png" />
+    <Resource Include="Resource\Images\time.png" />
+    <Resource Include="Resource\Images\toolbox.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y $(TargetPath) $(SolutionDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>
