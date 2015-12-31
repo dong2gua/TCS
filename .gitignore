@@ -4,6 +4,7 @@
 /ThorCyte/ThorCyte/Common/ImageProcess/ImageProcessLib/obj
 /ThorCyte/ThorCyte/Common/ThorCyteInfrastructure/bin
 /ThorCyte/ThorCyte/Common/ThorCyteInfrastructure/obj
+/ThorCyte/ThorCyte/Common/ImageProcess/ImageProcessLib/x64/Debug
 /ThorCyte/ThorCyte/GUI/Application/ThorCyte/ThorCyte/bin
 /ThorCyte/ThorCyte/GUI/Application/ThorCyte/ThorCyte/obj
 /ThorCyte/ThorCyte/GUI/Modules/CarrierModule/TestCarrier/bin
@@ -25,5 +26,4 @@
 /ThorCyte/ThorCyte/GUI/Modules/ReviewModule/bin
 /ThorCyte/ThorCyte/GUI/Modules/ReviewModule/obj
 /BulidLog.txt
-/ThorCyte/ThorCyte/Common/ImageProcess/ImageProcessLib/x64/Debug
-BulidLog.txt
+/ThorCyte/BulidLog.txt
