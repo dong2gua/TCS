@@ -147,7 +147,7 @@
             <!--Canvas: Create Module-->
             <Border x:Name="PannelBorder" Grid.Row="1" BorderBrush="Black" BorderThickness="1,1,0,1" VerticalAlignment="Top" >
                 <ScrollViewer Focusable="False" HorizontalScrollBarVisibility="Visible" Margin="0,0,0,30">
-                    <control:PannelView x:Name="pannel" Background="PowderBlue" PreviewKeyDown="PannelKeyDown" Width="670" Height="{Binding ElementName=treeview,Path=ActualHeight}"
+                    <control:PannelView BorderBrush="Violet" BorderThickness="3" x:Name="pannel" Background="PowderBlue" PreviewKeyDown="PannelKeyDown" Width="670" Height="{Binding ElementName=treeview,Path=ActualHeight}"
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
                             ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown" PreviewMouseLeftButtonUp="OnMouseLeftUp"/>
