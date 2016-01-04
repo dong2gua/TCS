@@ -124,12 +124,12 @@ namespace ThorCyte.ProtocolModule
             XmlTextReader reader = null;
             try
             {
+                var _tempstr = string.Empty;
                 reader = new XmlTextReader(fileName);
                 while (reader.Read())
                 {
                     if (reader.NodeType == XmlNodeType.Element)
                     {
-                        var _tempstr = string.Empty;
                         switch (reader.Name)
                         {
                             case "category":
@@ -138,8 +138,8 @@ namespace ThorCyte.ProtocolModule
                                 {
                                     _categories.Add(_tempstr);
                                 }
-
                                 break;
+
                             case "module":
                                 var info = new ModuleInfo
                                 {

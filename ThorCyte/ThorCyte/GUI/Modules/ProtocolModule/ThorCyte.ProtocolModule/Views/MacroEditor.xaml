@@ -78,7 +78,6 @@
                 <Setter Property="IsSelected" Value="{Binding IsSelected}" />
             </Style>
         </ResourceDictionary>
-
     </UserControl.Resources>
 
     <UserControl.InputBindings>
@@ -89,103 +88,108 @@
         <CommandBinding  Command="{StaticResource Commands.DeleteSelectedNodes}"  Executed="DeleteSelectedNodes_Executed" />
     </UserControl.CommandBindings>
 
-    <Grid x:Name="grid" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+    <Grid x:Name="gridMain" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="8"/>
-            <ColumnDefinition Width="6*"/>
-            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="8"/>
+            <ColumnDefinition Width="240"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+            <StackPanel x:Name="toolPannel"  Orientation="Horizontal" >
+                <ToggleButton Click="ToolboxClick" Padding="-1" Margin="5,2,0,2">
+                    <Image Source="../Resource/Images/toolbox.png" />
+                </ToggleButton>
+                <Button Margin="5,2,0,2"  Padding="-1">
+                    <Image Source="../Resource/Images/batch.png" />
+                </Button>
 
-            <Border>
-                <StackPanel x:Name="toolPannel"  Orientation="Horizontal" >
-                    <ToggleButton Click="ToolboxClick" Padding="-1" Margin="5,2,0,2">
-                        <Image Source="../Resource/Images/toolbox.png" />
-                    </ToggleButton>
-                    <Button Margin="5,2,0,2"  Padding="-1">
-                        <Image Source="../Resource/Images/batch.png" />
-                    </Button>
+                <Button Margin="5,2,0,2"  Padding="-1">
+                    <Image Source="../Resource/Images/repetitive.png"/>
+                </Button>
 
-                    <Button Margin="5,2,0,2"  Padding="-1">
-                        <Image Source="../Resource/Images/repetitive.png"/>
-                    </Button>
+                <Button Margin="5,2,0,2"  Padding="-1">
+                    <Image Source="../Resource/Images/label.png"/>
+                </Button>
 
-                    <Button Margin="5,2,0,2"  Padding="-1">
-                        <Image Source="../Resource/Images/label.png"/>
-                    </Button>
+                <Button Margin="5,2,0,2"  Padding="-1" >
+                    <Image Source="../Resource/Images/initialize.png"/>
+                </Button>
+            </StackPanel>
+        </Border>
 
-                    <Button Margin="5,2,0,2"  Padding="-1" >
-                        <Image Source="../Resource/Images/initialize.png"/>
-                    </Button>
-                </StackPanel>
-            </Border>
+        <!--Protocol TreeView-->
+        <Border x:Name="treePannel" Grid.Row="1" Grid.Column="0" BorderBrush="CadetBlue" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <!--Protocol TreeView-->
-            <TreeView x:Name="treeview" Grid.Row="1" ItemsSource="{Binding PannelVm.ListModuleInfos}" SelectedItemChanged="OnTreeviewSelectedChanged" FontSize="14" Margin="0,0,0,30">
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Items}">
-                        <TextBlock Text="{Binding Name}"/>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </Grid>
+                <TextBox Grid.Row="0" x:Name="serTb" Foreground="LightGray" FontSize="14" Margin="0,0,0,2" BorderThickness="0" GotFocus="SerchBox_GotFocus" LostFocus="SearchBox_LostFocus" KeyUp="SearchBox_KeyUp"/>
 
-        <GridSplitter x:Name="splitter" Grid.Column="1" Width="2" HorizontalAlignment="Center" Margin="0,30,0,0" Background="Gray"/>
+                <TreeView Grid.Row="1" x:Name="treeview" BorderThickness="0" ItemsSource="{Binding PannelVm.ListModuleInfos}" SelectedItemChanged="OnTreeviewSelectedChanged" FontSize="14">
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Items}">
+                            <TextBlock Text="{Binding Name}"/>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </Grid>
+        </Border>
+        
+        <Border >            
 
-        <Grid Grid.Column="2" x:Name="pannelGrid">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
+        </Border>
 
-            <!--Canvas: Create Module-->
-            <Border x:Name="PannelBorder" Grid.Row="1" BorderBrush="Black" BorderThickness="1,1,0,1" VerticalAlignment="Top" >
-                <ScrollViewer Focusable="False" HorizontalScrollBarVisibility="Visible" Margin="0,0,0,30">
-                    <control:PannelView x:Name="pannel" Background="White" PreviewKeyDown="PannelKeyDown" Width="670" Height="{Binding ElementName=treeview,Path=ActualHeight}"
+        <GridSplitter x:Name="splitter1" Grid.Column="1" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
+
+        <!--Canvas: Create Module-->
+        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="CadetBlue" >
+            <control:PannelView x:Name="pannel" Background="LightCyan" PreviewKeyDown="PannelKeyDown" Width="{Binding ElementName=PannelBorder, Path=ActualWidth}" Height="{Binding ElementName=PannelBorder,Path=ActualHeight}"
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
                             ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown" PreviewMouseLeftButtonUp="OnMouseLeftUp"/>
-                </ScrollViewer>
-            </Border>
-        </Grid>
+        </Border>
 
-        <StackPanel x:Name="contentGrid"  Grid.Column="3">
-            <!--<Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>-->
-            <StackPanel Orientation="Horizontal"  HorizontalAlignment="Left" Height="30">
-                <ToggleButton Click="CollapseClick">
-                    <Image x:Name="expandcollapse"  Source="{StaticResource collapseImg}"/>
-                </ToggleButton>
+        <GridSplitter x:Name="splitter2" Grid.Column="3" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
 
-                <Button Click="Refresh_Click" Margin="5,2,0,2" Padding="-1" >
-                    <Image Source="../Resource/Images/refresh.png"/>
-                </Button>
+        <StackPanel x:Name="collapseToolPanel" Grid.Column="4" Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Left" Height="30">
+            <ToggleButton Margin="5,2,0,2" Click="CollapseClick">
+                <Image x:Name="expandcollapse"  Source="{StaticResource collapseImg}"/>
+            </ToggleButton>
 
-                <Button Margin="5,2,0,2" Padding="-1" >
-                    <Image Source="../Resource/Images/time.png"/>
-                </Button>
+            <Button Click="Refresh_Click" Margin="5,2,0,2" Padding="-1" >
+                <Image Source="../Resource/Images/refresh.png"/>
+            </Button>
 
-                <Button Margin="5,2,0,2" Padding="-1" >
-                    <Image Source="../Resource/Images/output.png"/>
-                </Button>
-            </StackPanel>
+            <Button Margin="5,2,0,2" Padding="-1" >
+                <Image Source="../Resource/Images/time.png"/>
+            </Button>
 
-            <Border x:Name="contentBorder" Grid.Row="1" BorderThickness="1,1,0,0" BorderBrush="Black" Margin="0,0,0,30">
-                <ScrollViewer x:Name="Scroller" VerticalAlignment="Top" Margin="-1,-1,6,0" Height="{Binding ElementName=treeview,Path=ActualHeight}" VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
-                        <Label Content="{Binding PannelVm.SelectedModuleViewModel.Name}" HorizontalAlignment="Center" FontWeight="Bold" Margin="5" FontSize="15" />
-                        <ContentControl  x:Name="contentControl" DataContext="{Binding PannelVm.SelectedModuleViewModel}" Content="{Binding View}" VerticalAlignment="Top"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
+            <Button Margin="5,2,0,2" Padding="-1" >
+                <Image Source="../Resource/Images/output.png"/>
+            </Button>
         </StackPanel>
+
+        <Border x:Name="contentGrid" Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="CadetBlue">
+            <ScrollViewer x:Name="Scroller" VerticalAlignment="Top" Margin="-1,-1,6,0" Height="{Binding ElementName=contentGrid,Path=ActualHeight}" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Label Content="{Binding PannelVm.SelectedModuleViewModel.Name}" HorizontalAlignment="Center" FontWeight="Bold" Margin="5" FontSize="15" />
+                    <ContentControl  x:Name="contentControl" DataContext="{Binding PannelVm.SelectedModuleViewModel}" Content="{Binding View}" VerticalAlignment="Top"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+        
+        <StatusBar x:Name="statBar" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5" BorderBrush="CadetBlue" BorderThickness="1" Margin="0,2,0,0">
+            <TextBlock Text="Ready."></TextBlock>
+        </StatusBar>
     </Grid>
 </UserControl>

@@ -38,11 +38,11 @@ namespace ThorCyte.ProtocolModule.Controls
         public static readonly DependencyProperty PortTypeProperty =
             DependencyProperty.Register("PortType", typeof(PortType), typeof(Port));
 
-        internal static readonly DependencyProperty ParentPannelViewProperty =
+        public static readonly DependencyProperty ParentPannelViewProperty =
             DependencyProperty.Register("ParentPannelView", typeof(PannelView), typeof(Port),
                 new FrameworkPropertyMetadata(ParentPannelView_PropertyChanged));
 
-        internal static readonly DependencyProperty ParentModuleProperty =
+        public static readonly DependencyProperty ParentModuleProperty =
             DependencyProperty.Register("ParentModule", typeof(Module), typeof(Port));
 
         #endregion
@@ -88,7 +88,7 @@ namespace ThorCyte.ProtocolModule.Controls
         /// <summary>
         /// Reference to the data-bound parent NetworkView.
         /// </summary>
-        internal PannelView ParentPannelView
+        public PannelView ParentPannelView
         {
             get { return (PannelView)GetValue(ParentPannelViewProperty); }
             set { SetValue(ParentPannelViewProperty, value); }
@@ -97,7 +97,7 @@ namespace ThorCyte.ProtocolModule.Controls
         /// <summary>
         /// Reference to the data-bound parent ModuleVmBase.
         /// </summary>
-        internal Module ParentModule
+        public Module ParentModule
         {
             get { return (Module)GetValue(ParentModuleProperty); }
             set { SetValue(ParentModuleProperty, value); }

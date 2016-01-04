@@ -7,7 +7,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         mc:Ignorable="d" 
         x:Class="TestProtocol.MainWindow"
-        Title="MainWindow" Width="900" Height="700" >
+        Title="MainWindow" Width="900" Height="700">
     <Grid>
         <ContentControl x:Name="ProtocolRegion" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ProtocolRegion}"/>
     </Grid>

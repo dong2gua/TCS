@@ -24,7 +24,7 @@ namespace ThorCyte.ProtocolModule.Controls
             DependencyProperty.Register("ZIndex", typeof(int), typeof(Module),
                 new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        internal static readonly DependencyProperty ParentPannelViewProperty =
+        public static readonly DependencyProperty ParentPannelViewProperty =
             DependencyProperty.Register("ParentPannelView", typeof(PannelView), typeof(Module),
                 new FrameworkPropertyMetadata(ParentNetworkView_PropertyChanged));
 
@@ -89,7 +89,7 @@ namespace ThorCyte.ProtocolModule.Controls
         /// <summary>
         /// Reference to the data-bound parent NetworkView.
         /// </summary>
-        internal PannelView ParentPannelView
+        public PannelView ParentPannelView
         {
             get { return (PannelView)GetValue(ParentPannelViewProperty); }
             set { SetValue(ParentPannelViewProperty, value); }

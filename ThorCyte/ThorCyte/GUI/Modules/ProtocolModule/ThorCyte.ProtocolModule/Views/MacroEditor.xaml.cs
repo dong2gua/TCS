@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,9 +21,9 @@ namespace ThorCyte.ProtocolModule.Views
     /// </summary>
     public partial class MacroEditor : UserControl
     {
-       #region Events
+        #region Events
 
-      //  public static event MacroEditSizeChangedHandler MacroEditSizeChanged;
+        //  public static event MacroEditSizeChangedHandler MacroEditSizeChanged;
 
         public delegate void CreateModuleHandler(Point location);
 
@@ -50,6 +52,7 @@ namespace ThorCyte.ProtocolModule.Views
         public MacroEditor()
         {
             InitializeComponent();
+            serTb.Text = DEFAULT_KEYWORD;
             DataContext = MainWindowViewModel.Instance;
             ServiceLocator.Current.GetInstance<IUnityContainer>().RegisterInstance<MacroEditor>(this);
         }
@@ -138,7 +141,7 @@ namespace ThorCyte.ProtocolModule.Views
             }
         }
 
-        private bool IsChildInTree(DependencyObject child,Type parentType)
+        private bool IsChildInTree(DependencyObject child, Type parentType)
         {
             var parent = child;
             while (parent != null)
@@ -163,12 +166,12 @@ namespace ThorCyte.ProtocolModule.Views
 
         private void OnMouseLeftUp(object sender, MouseButtonEventArgs e)
         {
-            var isModule = IsChildInTree((DependencyObject) e.OriginalSource, typeof (Module));
-            if (isModule) 
+            var isModule = IsChildInTree((DependencyObject)e.OriginalSource, typeof(Module));
+            if (isModule)
             {
                 var vm = ViewModel.GetSelectedModule();
                 ViewModel.PannelVm.SelectedModuleViewModel = vm;
-             }
+            }
             else
             {
                 ViewModel.PannelVm.UnSelectedAll();
@@ -195,54 +198,138 @@ namespace ThorCyte.ProtocolModule.Views
             if (isChecked)
             {
                 treeview.Visibility = Visibility.Collapsed;
-                splitter.Visibility = Visibility.Collapsed;
-                Grid.SetColumn(pannelGrid, 0);
-                Grid.SetColumnSpan(pannelGrid, 3);
+                splitter1.Visibility = Visibility.Collapsed;
+                Grid.SetColumn(PannelBorder, 0);
+                Grid.SetColumnSpan(PannelBorder, 3);
             }
             else
             {
                 treeview.Visibility = Visibility.Visible;
-                splitter.Visibility = Visibility.Visible;
-                Grid.SetColumn(pannelGrid, 2);
-                Grid.SetColumnSpan(pannelGrid, 1);
+                splitter1.Visibility = Visibility.Visible;
+                Grid.SetColumn(PannelBorder, 2);
+                Grid.SetColumnSpan(PannelBorder, 1);
             }
         }
+
+        private List<GridLength> recentGridLengths = new List<GridLength>();
 
         private void CollapseClick(object sender, RoutedEventArgs e)
         {
             var isChecked = (bool)(sender as ToggleButton).IsChecked;
             if (isChecked)
             {
-                treeview.Visibility = Visibility.Collapsed;
-                pannelGrid.Visibility = Visibility.Collapsed;
-                toolPannel.Visibility = Visibility.Collapsed;
-                splitter.Visibility = Visibility.Collapsed;
+                recentGridLengths.Clear();
+                foreach (var t in gridMain.ColumnDefinitions)
+                {
+                    recentGridLengths.Add(t.Width);
+                }
+
+                //Collapse
+                gridMain.ColumnDefinitions[0].Width = new GridLength(0);
+                gridMain.ColumnDefinitions[1].Width = new GridLength(0);
+                gridMain.ColumnDefinitions[2].Width = new GridLength(0);
+                gridMain.ColumnDefinitions[3].Width = new GridLength(0);
+                gridMain.ColumnDefinitions[4].Width = new GridLength(1, GridUnitType.Star);
+
                 expandcollapse.Source = (BitmapImage)Resources["expandImg"];
-                Grid.SetColumn(contentGrid, 0);
-                Grid.SetColumnSpan(contentGrid, 4);
-                //OnSizeChanged(contentBorder.ActualWidth);
+
             }
             else
             {
-                treeview.Visibility = Visibility.Visible;
-                pannelGrid.Visibility = Visibility.Visible;
-                toolPannel.Visibility = Visibility.Visible;
-                splitter.Visibility = Visibility.Visible;
+                for (var i = 0; i < gridMain.ColumnDefinitions.Count; i++)
+                {
+                    gridMain.ColumnDefinitions[i].Width = recentGridLengths[i];
+                }
+
                 expandcollapse.Source = (BitmapImage)Resources["collapseImg"];
-                Grid.SetColumn(contentGrid, 3);
-                Grid.SetColumnSpan(contentGrid, 1);
-                //OnSizeChanged(880);
+            }
+        }
+        #endregion
+
+        private string _searchKeyword;
+        private const string DEFAULT_KEYWORD = "Find...";
+
+        private void SerchBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var searchBox = sender as TextBox;
+            if (searchBox == null) return;
+
+            if (searchBox.Text == DEFAULT_KEYWORD && Equals(searchBox.Foreground, Brushes.LightGray))
+            {
+                searchBox.Text = string.Empty;
+                searchBox.Foreground = (Brush)ForegroundProperty.DefaultMetadata.DefaultValue;
             }
         }
 
-        //private void OnSizeChanged(double newWidth)
-        //{
-        //    if (MacroEditSizeChanged != null)
-        //    {
-        //        MacroEditSizeChanged(newWidth);
-        //    }
-        //}
-        #endregion
+        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var searchBox = sender as TextBox;
+            if (searchBox == null) return;
+
+            if (searchBox.Text == string.Empty)
+            {
+                searchBox.Text = DEFAULT_KEYWORD;
+                searchBox.Foreground = Brushes.LightGray;
+            }
+        }
+
+        private void SearchBox_KeyUp(object sender, KeyEventArgs keyEventArgs)
+        {
+            _searchKeyword = ((TextBox)sender).Text;
+            if (_searchKeyword == string.Empty)
+            {
+                _searchKeyword = DEFAULT_KEYWORD;
+                return;
+            }
+
+            //SetModuleSelection(_searchKeyword);
+
+            FindTreeViewItem(treeview, _searchKeyword).IsSelected = true;
+        }
+
+        private void SetModuleSelection(string moduleKeyWord)
+        {
+            foreach (var item in treeview.Items)
+            {
+                Debug.WriteLine(((TreeViewItemModel)item).Name);
+            }
+        }
+
+        private TreeViewItem FindTreeViewItem(ItemsControl container, string nName)
+        {
+
+            if (container == null || nName == string.Empty)
+            {
+                return null;
+            }
+
+            if ((container as TreeViewItem) != null)
+            {
+                if (((TreeViewItem)container).Name.ToLower().StartsWith(nName.ToLower()))
+                    return (TreeViewItem)container;
+            }
+
+            var count = container.Items.Count;
+            for (var i = 0; i < count; i++)
+            {
+                var subContainer = (TreeViewItem)container.ItemContainerGenerator.ContainerFromIndex(i);
+
+                if (subContainer == null)
+                {
+                    continue;
+                }
+
+                // Search the next level for the object.
+                var resultContainer = FindTreeViewItem(subContainer, nName);
+                if (null != resultContainer)
+                {
+                    return resultContainer;
+                }
+            }
+
+            return null;
+        }
+
 
     }
 }
