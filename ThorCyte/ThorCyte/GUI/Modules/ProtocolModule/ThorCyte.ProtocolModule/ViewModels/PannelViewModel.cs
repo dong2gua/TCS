@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net.Mime;
+using System.Threading;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
@@ -12,6 +15,12 @@ namespace ThorCyte.ProtocolModule.ViewModels
     public sealed class PannelViewModel : BindableBase
     {
         #region Properties and Fields
+
+        private string _statusMessage;
+        public string StatusMessage {
+            get { return _statusMessage; }
+            set { SetProperty(ref _statusMessage, value); }
+        }
 
         private List<TreeViewItemModel> _listModuleInfos = new List<TreeViewItemModel>
         {
@@ -97,6 +106,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         public PannelViewModel()
         {
+            StatusMessage = "Ready.";
             Initialize();
         }
 
@@ -116,8 +126,60 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
         }
 
-        private void Initialize()
+        public void FilterModuleInfo(string mName)
         {
+            StatusMessage = string.Format("Searching for \"{0}\" ...", mName);
+            
+            _listModuleInfos[0].Items.Clear();
+            _listModuleInfos[1].Items.Clear();
+
+            foreach (var name in ProtocolModule.Categories)
+            {
+                _listModuleInfos[0].Items.Add(new TreeViewItemModel
+                {
+                    Name = name,
+                    ItemType = GetModuleType(name)
+                });
+            }
+
+            var filtedModules = new List<ModuleInfo>();
+            filtedModules.Clear();
+            // filt my modules
+            filtedModules.AddRange(ProtocolModule.ModuleInfos.Where(info => !info.IsCombo && info.DisplayName.ToLower().StartsWith(mName.ToLower())));
+
+            // add regular subModules
+            foreach (var info in filtedModules)
+            {
+                foreach (var item in _listModuleInfos[0].Items.Where(item => !info.IsCombo && item.Name == info.Category))
+                {
+                    if (item.Items == null)
+                    {
+                        item.Items = new List<TreeViewItemModel>();
+                    }
+                    item.Items.Add(new TreeViewItemModel
+                    {
+                        Name = info.DisplayName,
+                        ItemType = GetModuleType(info.DisplayName)
+                    });
+                    break;
+                }
+            }
+
+            var rLst = _listModuleInfos[0].Items.Where(item => item.Items == null).ToList();
+
+            foreach (var item in rLst)
+            {
+                _listModuleInfos[0].Items.Remove(item);
+            }
+
+            //StatusMessage = string.Format("Ready.");
+        }
+
+        public void Initialize()
+        {
+            _listModuleInfos[0].Items.Clear();
+            _listModuleInfos[1].Items.Clear();
+            
             foreach (var name in ProtocolModule.Categories)
             {
                 _listModuleInfos[0].Items.Add(new TreeViewItemModel

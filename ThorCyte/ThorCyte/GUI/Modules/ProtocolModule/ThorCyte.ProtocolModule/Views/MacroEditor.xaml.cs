@@ -244,7 +244,6 @@ namespace ThorCyte.ProtocolModule.Views
                 expandcollapse.Source = (BitmapImage)Resources["collapseImg"];
             }
         }
-        #endregion
 
         private string _searchKeyword;
         private const string DEFAULT_KEYWORD = "Find...";
@@ -279,56 +278,23 @@ namespace ThorCyte.ProtocolModule.Views
             if (_searchKeyword == string.Empty)
             {
                 _searchKeyword = DEFAULT_KEYWORD;
+                ((TextBox)sender).Foreground = Brushes.LightGray;
                 return;
             }
 
-            //SetModuleSelection(_searchKeyword);
-
-            FindTreeViewItem(treeview, _searchKeyword).IsSelected = true;
+            SetModuleSelection(_searchKeyword);
         }
 
         private void SetModuleSelection(string moduleKeyWord)
         {
-            foreach (var item in treeview.Items)
-            {
-                Debug.WriteLine(((TreeViewItemModel)item).Name);
-            }
+            ViewModel.PannelVm.FilterModuleInfo(moduleKeyWord); 
+            //foreach (var item in treeview.Items)
+            //{
+            //    Debug.WriteLine(((TreeViewItemModel)item).Name);
+            //}
         }
 
-        private TreeViewItem FindTreeViewItem(ItemsControl container, string nName)
-        {
-
-            if (container == null || nName == string.Empty)
-            {
-                return null;
-            }
-
-            if ((container as TreeViewItem) != null)
-            {
-                if (((TreeViewItem)container).Name.ToLower().StartsWith(nName.ToLower()))
-                    return (TreeViewItem)container;
-            }
-
-            var count = container.Items.Count;
-            for (var i = 0; i < count; i++)
-            {
-                var subContainer = (TreeViewItem)container.ItemContainerGenerator.ContainerFromIndex(i);
-
-                if (subContainer == null)
-                {
-                    continue;
-                }
-
-                // Search the next level for the object.
-                var resultContainer = FindTreeViewItem(subContainer, nName);
-                if (null != resultContainer)
-                {
-                    return resultContainer;
-                }
-            }
-
-            return null;
-        }
+        #endregion
 
 
     }

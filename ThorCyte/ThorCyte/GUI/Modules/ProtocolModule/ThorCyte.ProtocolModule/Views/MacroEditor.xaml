@@ -90,11 +90,11 @@
 
     <Grid x:Name="gridMain" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="220"/>
             <ColumnDefinition Width="8"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="8"/>
-            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="210"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -189,7 +189,7 @@
         </Border>
         
         <StatusBar x:Name="statBar" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5" BorderBrush="CadetBlue" BorderThickness="1" Margin="0,2,0,0">
-            <TextBlock Text="Ready."></TextBlock>
+            <TextBlock Text="{Binding PannelVm.StatusMessage}"/>
         </StatusBar>
     </Grid>
 </UserControl>
