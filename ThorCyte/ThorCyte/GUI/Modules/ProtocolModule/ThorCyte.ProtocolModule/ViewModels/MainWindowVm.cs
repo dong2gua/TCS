@@ -35,6 +35,16 @@ namespace ThorCyte.ProtocolModule.ViewModels
             get { return _pannelVm; }
             set { SetProperty(ref _pannelVm, value); }
         }
+
+
+        private bool _treeviewExpand;
+
+        public bool TreeviewExpand
+        {
+            get { return _treeviewExpand; }
+            set { SetProperty(ref _treeviewExpand, value); }
+        }
+
         #endregion
 
         #region Contructors

@@ -141,12 +141,13 @@
                             <TextBlock Text="{Binding Name}"/>
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
+                    <TreeView.ItemContainerStyle>
+                        <Style>
+                            <Setter Property="TreeViewItem.IsExpanded" Value="{Binding DataContext.TreeviewExpand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeView}}}"/>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
                 </TreeView>
             </Grid>
-        </Border>
-        
-        <Border >            
-
         </Border>
 
         <GridSplitter x:Name="splitter1" Grid.Column="1" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>

@@ -41,7 +41,7 @@
     <module name="Transform"  />
   </category>
 	<category name="Contour">
-		<module name="Channel" reference="ThorCyte.Script.ViewModels.Modules.ChannelModVm,Script" />
+		<module name="Channel" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ChannelModVm" />
 		<module name="Threshold" reference="ThorCyte.Script.ViewModels.Modules.ThresholdModVm,Script" />
 		<module name="Contour"  reference="ThorCyte.Script.ViewModels.Modules.ContourModVm,Script"/>
 	</category>

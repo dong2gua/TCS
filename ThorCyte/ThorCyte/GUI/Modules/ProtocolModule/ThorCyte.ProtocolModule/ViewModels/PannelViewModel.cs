@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
-using System.Threading;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
@@ -17,7 +15,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
         #region Properties and Fields
 
         private string _statusMessage;
-        public string StatusMessage {
+        public string StatusMessage
+        {
             get { return _statusMessage; }
             set { SetProperty(ref _statusMessage, value); }
         }
@@ -112,7 +111,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         #endregion
 
-        #region Methods
+        #region Private Methods
 
         /// <summary>
         /// Event raised then Connections have been removed.
@@ -128,14 +127,22 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         public void FilterModuleInfo(string mName)
         {
+            if (mName == string.Empty)
+            {
+                Initialize();
+                return;
+            }
+
             StatusMessage = string.Format("Searching for \"{0}\" ...", mName);
-            
-            _listModuleInfos[0].Items.Clear();
-            _listModuleInfos[1].Items.Clear();
+
+            foreach (var minfo in ListModuleInfos.Where(info => !Equals(info, null)))
+            {
+                minfo.Items.Clear();
+            }
 
             foreach (var name in ProtocolModule.Categories)
             {
-                _listModuleInfos[0].Items.Add(new TreeViewItemModel
+                ListModuleInfos[0].Items.Add(new TreeViewItemModel
                 {
                     Name = name,
                     ItemType = GetModuleType(name)
@@ -145,12 +152,12 @@ namespace ThorCyte.ProtocolModule.ViewModels
             var filtedModules = new List<ModuleInfo>();
             filtedModules.Clear();
             // filt my modules
-            filtedModules.AddRange(ProtocolModule.ModuleInfos.Where(info => !info.IsCombo && info.DisplayName.ToLower().StartsWith(mName.ToLower())));
+            filtedModules.AddRange(ProtocolModule.ModuleInfos.Where(info => !info.IsCombo && info.DisplayName.ToLower().Contains(mName.ToLower())));
 
             // add regular subModules
             foreach (var info in filtedModules)
             {
-                foreach (var item in _listModuleInfos[0].Items.Where(item => !info.IsCombo && item.Name == info.Category))
+                foreach (var item in ListModuleInfos[0].Items.Where(item => !info.IsCombo && item.Name == info.Category))
                 {
                     if (item.Items == null)
                     {
@@ -165,24 +172,39 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 }
             }
 
-            var rLst = _listModuleInfos[0].Items.Where(item => item.Items == null).ToList();
-
-            foreach (var item in rLst)
+            var cmbfiltedModules = new List<CombinationModVm>();
+            cmbfiltedModules.Clear();
+            cmbfiltedModules.AddRange(ProtocolModule.CombinationModuleDefs.Where(info => info.Name.ToLower().Contains(mName.ToLower())));
+            foreach (var cmod in cmbfiltedModules)
             {
-                _listModuleInfos[0].Items.Remove(item);
+                AddCombinationModuleNode(cmod);
             }
 
-            //StatusMessage = string.Format("Ready.");
+
+            foreach (var _lstModinfo in ListModuleInfos)
+            {
+                var rLst = _lstModinfo.Items.Where(item => item.Items == null).ToList();
+
+                foreach (var item in rLst)
+                {
+                    _lstModinfo.Items.Remove(item);
+                }
+            }
+
+
+            StatusMessage = string.Format("Searching done for \"{0}\" ...", mName);
         }
 
         public void Initialize()
         {
-            _listModuleInfos[0].Items.Clear();
-            _listModuleInfos[1].Items.Clear();
-            
+            foreach (var minfo in ListModuleInfos.Where(info => !Equals(info, null)))
+            {
+                minfo.Items.Clear();
+            }
+
             foreach (var name in ProtocolModule.Categories)
             {
-                _listModuleInfos[0].Items.Add(new TreeViewItemModel
+                ListModuleInfos[0].Items.Add(new TreeViewItemModel
                 {
                     Name = name,
                     ItemType = GetModuleType(name)
@@ -192,7 +214,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             // add regular subModules
             foreach (var info in ProtocolModule.ModuleInfos)
             {
-                foreach (var item in _listModuleInfos[0].Items)
+                foreach (var item in ListModuleInfos[0].Items)
                 {
                     if (!info.IsCombo && item.Name == info.Category)
                     {
@@ -214,6 +236,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
             {
                 AddCombinationModuleNode(cmod);
             }
+
+            StatusMessage = "Ready.";
         }
 
         private ModuleType GetModuleType(string key)
@@ -226,7 +250,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public void AddCombinationModuleNode(CombinationModVm mod)
         {
             // try existing categories
-            foreach (var item in _listModuleInfos[1].Items)
+            foreach (var item in ListModuleInfos[1].Items)
             {
                 if (string.Equals(item.Name, mod.Category))
                 {
@@ -259,7 +283,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
 
             // no category found, create a new category node and add to it
-            _listModuleInfos[1].Items.Add(new TreeViewItemModel
+            ListModuleInfos[1].Items.Add(new TreeViewItemModel
             {
                 Name = mod.Category,
                 ItemType = GetModuleType(mod.Category)

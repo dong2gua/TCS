@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -275,23 +277,39 @@ namespace ThorCyte.ProtocolModule.Views
         private void SearchBox_KeyUp(object sender, KeyEventArgs keyEventArgs)
         {
             _searchKeyword = ((TextBox)sender).Text;
-            if (_searchKeyword == string.Empty)
-            {
-                _searchKeyword = DEFAULT_KEYWORD;
-                ((TextBox)sender).Foreground = Brushes.LightGray;
-                return;
-            }
-
             SetModuleSelection(_searchKeyword);
         }
 
         private void SetModuleSelection(string moduleKeyWord)
         {
-            ViewModel.PannelVm.FilterModuleInfo(moduleKeyWord); 
-            //foreach (var item in treeview.Items)
-            //{
-            //    Debug.WriteLine(((TreeViewItemModel)item).Name);
-            //}
+            //collpse tree view 
+            ManipulateTree(treeview, false);
+            ViewModel.PannelVm.FilterModuleInfo(moduleKeyWord);
+            if (moduleKeyWord == string.Empty)
+            {
+                ManipulateTree(treeview, false);
+                return;
+            }
+            //Expand treeview
+            ManipulateTree(treeview, true);
+        }
+
+
+        /// <summary>
+        /// Collapse or Expand treeview 
+        /// </summary>
+        /// <param name="treeContainer">treeview need to operate</param>
+        /// <param name="mode">true--Expand false--Collapse</param>
+        private void ManipulateTree(ItemsControl treeContainer, bool mode)
+        {
+            var inStyle = new Style
+            {
+                TargetType = typeof(TreeViewItem),
+                BasedOn = (Style)FindResource(typeof (TreeViewItem))
+            };
+
+            inStyle.Setters.Add(new Setter(TreeViewItem.IsExpandedProperty, mode));
+            treeContainer.ItemContainerStyle = inStyle;
         }
 
         #endregion

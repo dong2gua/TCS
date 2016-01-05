@@ -105,6 +105,7 @@ namespace ThorCyte.ProtocolModule
             LoadModuleInfos(ModuleInfoPath);
             LoadCombinationModuleTemplates(ComModuleInfoPath);
             _regionViewRegistry.RegisterViewWithRegion(RegionNames.ProtocolRegion, typeof(MacroEditor));
+            MacroEditor.Instance.CreateModule += CreateModule;
         }
 
         private void ExpLoaded(int scanId)
