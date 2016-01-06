@@ -7,8 +7,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         mc:Ignorable="d" 
         x:Class="TestProtocol.MainWindow"
-        Title="MainWindow" Width="900" Height="700">
+        Title="{Binding CaptionString}" Width="900" Height="730">
     <Grid>
-        <ContentControl x:Name="ProtocolRegion" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ProtocolRegion}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ToolBar Grid.Row="0">
+            <Button Content="Open" Command="{Binding LoadExpCommand}"/>
+        </ToolBar>
+        
+        <ContentControl Grid.Row="1" x:Name="ProtocolRegion" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ProtocolRegion}"/>
     </Grid>
 </Window>

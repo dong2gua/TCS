@@ -77,15 +77,20 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 _selectedChannel = _chaModel.Channels[0];
             }
+
+
+            if (ProtocolModule.Instance.CurrentScanInfo != null)
+            {
+                foreach (var channel in ProtocolModule.Instance.CurrentScanInfo.ChannelList)
+                {
+                    _chaModel.Channels.Add(channel.ChannelName);
+                }
+            }
         }
 
         public override void Deserialize(XmlReader reader)
         {
             base.Deserialize(reader);
-            foreach (var channel in ProtocolModule.Instance.CurrentScanInfo.ChannelList)
-            {
-                _chaModel.Channels.Add(channel.ChannelName);
-            }
         }
 
         #endregion

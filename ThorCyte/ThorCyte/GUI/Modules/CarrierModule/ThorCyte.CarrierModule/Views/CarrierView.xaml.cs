@@ -1,24 +1,16 @@
-﻿using System.Diagnostics;
-using System.Windows.Controls;
+﻿using ThorCyte.CarrierModule.ViewModels;
 
 namespace ThorCyte.CarrierModule.Views
 {
     /// <summary>
     /// Interaction logic for CarrierWindow.xaml
     /// </summary>
-    public partial class CarrierView : UserControl , ICarrierView
+    public partial class CarrierView
     {
         public CarrierView()
         {
             InitializeComponent();
-        }
-
-        public void SetView(UserControl ctlCarri,UserControl ctlTile)
-        {            
-            grid.Children.Clear();            
-            grid.Children.Add(ctlCarri);
-            gridTile.Children.Clear();
-            gridTile.Children.Add(ctlTile);
+            DataContext = new CarrierViewModel();
         }
     }
 }

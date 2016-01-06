@@ -66,10 +66,5 @@ namespace ThorCyte.CarrierModule.Views
         {
             slideCanvas.UpdateScanArea();
         }
-
-        private void buttonAlter_Click(object sender, RoutedEventArgs e)
-        {
-            CarrierModule.Instance.AlterTemplate();
-        }
     }
 }

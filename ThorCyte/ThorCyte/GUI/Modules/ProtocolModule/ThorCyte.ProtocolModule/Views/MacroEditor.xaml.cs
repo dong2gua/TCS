@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
+using ThorCyte.ProtocolModule.Controls;
 using ThorCyte.ProtocolModule.Events;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.ViewModels;
@@ -249,6 +246,13 @@ namespace ThorCyte.ProtocolModule.Views
 
         private string _searchKeyword;
         private const string DEFAULT_KEYWORD = "Find...";
+
+        public void ClearSearch()
+        {
+            serTb.Text = string.Empty;
+            SetModuleSelection(serTb.Text);
+            SearchBox_LostFocus(serTb,new RoutedEventArgs());
+        }
 
         private void SerchBox_GotFocus(object sender, RoutedEventArgs e)
         {

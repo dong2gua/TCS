@@ -55,18 +55,10 @@ namespace ThorCyte.CarrierModule.Views
             plateCanvas.ZoomOut();
         }
 
-        private void buttonFit_Checked(object sender, RoutedEventArgs e)
-        {
-        }
-
         public void UpdateScanArea()
         {
             plateCanvas.UpdateScanArea();
         }
 
-        private void buttonAlter_Click(object sender, RoutedEventArgs e)
-        {
-            CarrierModule.Instance.AlterTemplate();
-        }
     }
 }

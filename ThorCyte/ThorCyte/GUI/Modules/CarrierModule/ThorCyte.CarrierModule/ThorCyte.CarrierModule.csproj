@@ -123,16 +123,11 @@
     <Compile Include="Tools\ToolPointer.cs" />
     <Compile Include="Tools\ToolSelect.cs" />
     <Compile Include="Tools\ToolTypeConverter.cs" />
+    <Compile Include="ViewModels\CarrierViewModel.cs" />
     <Compile Include="ViewModels\TileViewModel.cs" />
     <Compile Include="Views\CarrierView.xaml.cs">
       <SubType>Code</SubType>
       <DependentUpon>CarrierView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\CarrierViewC.xaml.cs">
-      <DependentUpon>CarrierViewC.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\CarrierViewContainer.xaml.cs">
-      <DependentUpon>CarrierViewContainer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PlateView.xaml.cs">
       <SubType>Code</SubType>
@@ -170,14 +165,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\CarrierView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\CarrierViewC.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\CarrierViewContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
