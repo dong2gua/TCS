@@ -5,8 +5,7 @@
              xmlns:canvases="clr-namespace:ThorCyte.CarrierModule.Canvases"
              xmlns:tools="clr-namespace:ThorCyte.CarrierModule.Tools"
              xmlns:Themes1="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" x:Class="ThorCyte.CarrierModule.Views.PlateView"
-             mc:Ignorable="d"
-             Width="Auto" Height="Auto" >
+             mc:Ignorable="d">
     <UserControl.Resources>
         <tools:BoolToOppositeBoolConverter x:Key="oppositeConverter"/>
         <tools:ToolTypeConverter x:Key="convToolType"/>
@@ -263,12 +262,10 @@
             <Button x:Name="buttonZoomOut" ToolTip="Delete Scan Area" Click="buttonZoomOut_Click" >
                 <Image Source="../Images/zoom_down.png"/>
             </Button>
-
-            <Button x:Name="buttonAlterTemplate" ToolTip="Alter View Template" Click="buttonAlter_Click" Content="Tile View" HorizontalAlignment="Right">
-            </Button>
         </ToolBar>
 
-        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Visible" Background="AliceBlue" PanningMode="Both" Template="{DynamicResource ScrollViewerControlTemplate1}">
+        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Visible" Background="AliceBlue" PanningMode="Both" 
+                      Template="{DynamicResource ScrollViewerControlTemplate1}">
             <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" ToolTip="Left CTRL + Mouse Wheel to Zoom"/>
         </ScrollViewer>
 
@@ -283,5 +280,7 @@
             </StatusBarItem>
         </StatusBar>
     </Grid>
+
+
 </UserControl>
 

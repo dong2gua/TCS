@@ -56,5 +56,17 @@ namespace TestCarrier
                 EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(scanid);
             }
         }
+
+        private void Review_Rgeion(object sender, RoutedEventArgs e)
+        {
+            EventAggregator.GetEvent<ShowRegionEvent>().Publish("ReviewModule");
+        }
+
+        private void Analysis_Region(object sender, RoutedEventArgs e)
+        {
+            EventAggregator.GetEvent<ShowRegionEvent>().Publish("AnalysisModule");
+        }
+
     }
+
 }

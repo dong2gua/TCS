@@ -4,26 +4,19 @@
         xmlns:regions="http://prismlibrary.com/"
         xmlns:inf="clr-namespace:ThorCyte.Infrastructure.Commom;assembly=ThorCyte.Infrastructure"
         x:Class="TestCarrier.MainWindow"
-        Title="MainWindow" Height="Auto" Width="Auto">
+        Title="MainWindow">
     <Window.Resources>
-    </Window.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <ToolBar Grid.Row="0" Height="Auto">
-            <Button Content="Open" Click="Open_new"/>
-        </ToolBar>
-
-        <ContentControl x:Name="MainRegion" Grid.Row="1" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}" />
-    </Grid>
-    
-    <!--<StackPanel>
+    </Window.Resources> 
+    <StackPanel>
         <ToolBar Height="Auto">
             <Button Content="Open" Click="Open_new"/>
+            <Button Content="Review" Click="Review_Rgeion"/>
+            <Button Content="Analysis" Click="Analysis_Region"/>
         </ToolBar>
 
-        <ContentControl x:Name="MainRegion" Grid.Row="1" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}" />
-    </StackPanel>-->
+        <ContentControl x:Name="MainRegionRev" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}" Width="100"/>
+        
+        <ContentControl x:Name="MainRegionAnl" regions:RegionManager.RegionName="{x:Static inf:RegionNames.AnalysisCarrierRegion}" Height="100"/>
+
+    </StackPanel>
 </Window>

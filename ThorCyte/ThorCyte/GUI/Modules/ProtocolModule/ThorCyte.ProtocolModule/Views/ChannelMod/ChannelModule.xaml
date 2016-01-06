@@ -7,7 +7,7 @@
     <Expander Header="Channel" IsExpanded="True">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1.2*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="Channel :" Margin="2"/>

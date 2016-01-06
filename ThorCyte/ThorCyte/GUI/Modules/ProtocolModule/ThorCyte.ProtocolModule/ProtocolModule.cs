@@ -110,10 +110,10 @@ namespace ThorCyte.ProtocolModule
 
         private void ExpLoaded(int scanId)
         {
+            Clear();
             CurrentScanId = scanId;
             CurrentScanInfo = ServiceLocator.Current.GetInstance<IExperiment>().GetScanInfo(scanId);
         }
-
 
         private void LoadModuleInfos(string fileName)
         {
@@ -422,6 +422,16 @@ namespace ThorCyte.ProtocolModule
 
             MainVm.PannelVm.Connections.Add(connector);
         }
+
+        private void Clear()
+        {
+            MainVm.PannelVm.Modules.Clear();
+            MainVm.PannelVm.Connections.Clear();
+            MainVm.PannelVm.CombinationModulesInWorkspace.Clear();
+            MainVm.PannelVm.SelectedViewItem = null;
+            MacroEditor.Instance.ClearSearch();
+        }
+
 
         public MacroEditor GetView()
         {

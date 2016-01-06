@@ -263,10 +263,6 @@
             <Button x:Name="buttonZoomOut" ToolTip="Delete Scan Area" Click="buttonZoomOut_Click" >
                 <Image Source="../Images/zoom_down.png"/>
             </Button>
-
-            <Button x:Name="buttonAlterTemplate" ToolTip="Alter View Template" Click="buttonAlter_Click" Content="Tile View" HorizontalAlignment="Right">
-            </Button>
-
         </ToolBar>
 
         <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Grid.Row="1" Grid.Column="0" Background="DarkGray" Template="{DynamicResource ScrollViewerControlTemplate1}">

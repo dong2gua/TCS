@@ -81,6 +81,8 @@ namespace ThorCyte.CarrierModule.ViewModels
             set { SetProperty(ref _tilesShowInCanvas, value); }
         }
 
+        public ScanInfo CurrentScanInfo { get; set; }
+
         public double ViewSizeMax
         {
             get
@@ -245,7 +247,7 @@ namespace ThorCyte.CarrierModule.ViewModels
                     return;
                 }
 
-                var sr = CarrierModule.Instance.CurrentScanInfo.ScanRegionList[args[0]];
+                var sr = CurrentScanInfo.ScanRegionList[args[0]];
                 LoadTiles(sr);
             }
             catch (Exception ex)
