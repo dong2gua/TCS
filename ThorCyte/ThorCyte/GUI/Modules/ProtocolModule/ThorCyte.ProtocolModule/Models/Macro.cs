@@ -69,9 +69,13 @@ namespace ThorCyte.ProtocolModule.Models
             get { return _combinationModuleDefs; }
         }
 
-
         public static ScanInfo CurrentScanInfo { get; set; }
         public static int CurrentScanId { get; set; }
+
+        public static ImpObservableCollection<ConnectorModel> Connections;
+        public static ImpObservableCollection<ModuleVmBase> Modules;
+        public static readonly List<CombinationModVm> CombinationModulesInWorkspace = new List<CombinationModVm>();
+        public static ModuleVmBase SelectedModuleViewModel;
 
 
         private IEventAggregator EventAggregator
@@ -290,9 +294,5 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
         #endregion
-
-
-
-
     }
 }

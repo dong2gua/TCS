@@ -45,59 +45,59 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// <summary>
         /// The collection of _modules in the PannelVm.
         /// </summary>
-        private ImpObservableCollection<ModuleVmBase> _modules;
+        //private ImpObservableCollection<ModuleVmBase> _modules;
 
         public ImpObservableCollection<ModuleVmBase> Modules
         {
             get
             {
-                return _modules ?? (_modules = new ImpObservableCollection<ModuleVmBase>());
+                return Macro.Modules ?? (Macro.Modules = new ImpObservableCollection<ModuleVmBase>());
             }
         }
 
         /// <summary>
         /// The collection of _connections in the PannelVm.
         /// </summary>
-        private ImpObservableCollection<ConnectorModel> _connections;
+        //private ImpObservableCollection<ConnectorModel> _connections;
 
         public ImpObservableCollection<ConnectorModel> Connections
         {
             get
             {
-                if (_connections == null)
+                if (Macro.Connections == null)
                 {
-                    _connections = new ImpObservableCollection<ConnectorModel>();
-                    _connections.ItemsRemoved += connections_ItemsRemoved;
+                    Macro.Connections = new ImpObservableCollection<ConnectorModel>();
+                    Macro.Connections.ItemsRemoved += connections_ItemsRemoved;
                 }
-                return _connections;
+                return Macro.Connections;
             }
         }
 
-        private readonly List<CombinationModVm> _combinationModulesInWorkspace = new List<CombinationModVm>();
+        //private readonly List<CombinationModVm> CombinationModulesInWorkspace = new List<CombinationModVm>();
 
         public List<CombinationModVm> CombinationModulesInWorkspace
         {
-            get { return _combinationModulesInWorkspace; }
+            get { return Macro.CombinationModulesInWorkspace; }
         }
 
 
 
-        private ModuleVmBase _selectedModuleViewModel;
+        //private ModuleVmBase _selectedModuleViewModel;
 
         public ModuleVmBase SelectedModuleViewModel
         {
-            get { return _selectedModuleViewModel; }
+            get { return Macro.SelectedModuleViewModel; }
             set
             {
-                if (_selectedModuleViewModel == value)
+                if (Macro.SelectedModuleViewModel == value)
                 {
                     return;
                 }
 
-                SetProperty(ref _selectedModuleViewModel, value);
-                if (_selectedModuleViewModel != null)
+                SetProperty(ref Macro.SelectedModuleViewModel, value);
+                if (Macro.SelectedModuleViewModel != null)
                 {
-                    _selectedModuleViewModel.Refresh();
+                    Macro.SelectedModuleViewModel.Refresh();
                 }
             }
         }
@@ -109,19 +109,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
             get { return _selectedViewItem; }
             set { SetProperty(ref _selectedViewItem, value); }
         }
-
-        private string _searchKeyWord;
-
-        public string SearchKeyWord
-        {
-            get { return _searchKeyWord; }
-            set
-            {
-                SetProperty(ref _searchKeyWord, value);
-                FilterModuleInfo(_searchKeyWord);
-            }
-        }
-
 
         private IEventAggregator EventAggregator
         {
@@ -338,7 +325,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         public void UnSelectedAll()
         {
-            foreach (var module in _modules)
+            foreach (var module in Modules)
             {
                 module.IsSelected = false;
             }
