@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
@@ -56,7 +55,7 @@ namespace ThorCyte.CarrierModule.ViewModels
         public ICommand CmdTileTrigger { get; private set; }
 
         private double _viewSizeMax;
-        private int _initialViewSize = 600;
+        private int _initialViewSize = 300;
         private double _pxFactor = 1.0; // 1 pixel equals how many length unit?
         private double _p0x;      // ScanRegion real left position
         private double _p0y;      // ScanRegion real top position
@@ -177,8 +176,6 @@ namespace ThorCyte.CarrierModule.ViewModels
                 TileId = _inRegion.ScanFieldList[tItem.FieldId - 1].ScanFieldId,
                 RegionId = _inRegion.RegionId
             });
-
-            Debug.WriteLine("Tile id = " + tItem.FieldId + " Published!");
         }
 
 
@@ -205,7 +202,6 @@ namespace ThorCyte.CarrierModule.ViewModels
             {
                 //if (!IsRectInside(sr.Bound, scanfield.SFRect))
                 //{
-                //    Debug.WriteLine("ScanField(" + scanfield.ScanFieldId + ") is outside of ScanRegion! please check!");
                 //    continue;
                 //}
 
@@ -268,13 +264,8 @@ namespace ThorCyte.CarrierModule.ViewModels
                 var l = sBoudRect.Width >= sBoudRect.Height ? sBoudRect.Width : sBoudRect.Height;
 
                 _pxFactor = l / ViewSizeMax;
-
-                Debug.WriteLine("Calculate pxFactor = " + _pxFactor);
-
                 _p0x = sBoudRect.Left;
                 _p0y = sBoudRect.Top;
-
-                Debug.WriteLine("Calculate p0x = " + _p0x + "; p0y = " + _p0y);
             }
             catch (Exception ex)
             {
@@ -308,25 +299,21 @@ namespace ThorCyte.CarrierModule.ViewModels
             
             if (son.Left+tolerance < parent.Left)
             {
-                Debug.WriteLine("Rect son left = " + son.Left + " < parent left = " + parent.Left);
                 return false;
             }
 
             if (son.Right > parent.Right+tolerance)
             {
-                Debug.WriteLine("Rect son left = " + son.Left + " < parent left = " + parent.Left);
                 return false;
             }
 
             if (son.Top+tolerance < parent.Top)
             {
-                Debug.WriteLine("Rect son top = " + son.Top + " < parent top = " + parent.Top);
                 return false;
             }
 
             if (son.Bottom > parent.Bottom + tolerance)
             {
-                Debug.WriteLine("Rect son bottom = " + son.Bottom + " > parent bottom = " + parent.Bottom);
                 return false;
             }
 

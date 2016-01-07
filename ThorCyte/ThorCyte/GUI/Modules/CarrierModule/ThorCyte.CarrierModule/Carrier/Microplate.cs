@@ -3,7 +3,6 @@ using System.Collections;
 using System.Windows;
 using System.Windows.Shapes;
 using ThorCyte.Infrastructure.Exceptions;
-using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.CarrierModule.Carrier

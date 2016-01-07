@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using ThorCyte.Infrastructure.Exceptions;
-using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.CarrierModule.Carrier

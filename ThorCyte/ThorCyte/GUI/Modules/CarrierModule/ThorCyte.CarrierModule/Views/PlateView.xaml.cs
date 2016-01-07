@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using ThorCyte.CarrierModule.Canvases;
 using ThorCyte.CarrierModule.Carrier;
 using ThorCyte.CarrierModule.Tools;
 

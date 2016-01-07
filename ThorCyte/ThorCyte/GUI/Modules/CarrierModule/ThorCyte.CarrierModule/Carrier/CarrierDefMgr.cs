@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Xml;
-using ThorCyte.CarrierModule.Carrier;
 using ThorCyte.Infrastructure.Exceptions;
 
-namespace ThorCyte.CarrierModule
+namespace ThorCyte.CarrierModule.Carrier
 {
     public class CarrierDefMgr
     {

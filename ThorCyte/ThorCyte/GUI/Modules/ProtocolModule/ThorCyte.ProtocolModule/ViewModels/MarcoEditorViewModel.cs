@@ -11,15 +11,14 @@ namespace ThorCyte.ProtocolModule.ViewModels
     /// <summary>
     /// The view-model for the main window.
     /// </summary>
-    public class MainWindowViewModel : BindableBase
+    public class MarcoEditorViewModel : BindableBase
     {
         #region Properties
-
         readonly List<ChannelModVm> _channelModuleList = new List<ChannelModVm>();
 
-        private static MainWindowViewModel _mainWindowWm = new MainWindowViewModel();
+        private static MarcoEditorViewModel _mainWindowWm = new MarcoEditorViewModel();
 
-        public static MainWindowViewModel Instance
+        public static MarcoEditorViewModel Instance
         {
             get { return _mainWindowWm; }
         }
@@ -40,7 +39,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         #region Contructors
 
-        private MainWindowViewModel()
+        private MarcoEditorViewModel()
         {
             _pannelVm = new PannelViewModel();
         }

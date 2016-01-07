@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -15,7 +13,6 @@ using ThorCyte.CarrierModule.Common;
 using ThorCyte.CarrierModule.Graphics;
 using ThorCyte.CarrierModule.Tools;
 using ThorCyte.Infrastructure.Events;
-using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.CarrierModule.Canvases

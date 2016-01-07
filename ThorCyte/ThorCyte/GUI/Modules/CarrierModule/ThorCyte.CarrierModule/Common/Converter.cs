@@ -6,6 +6,7 @@ namespace ThorCyte.CarrierModule.Common
 {
     public class BooleanToVisibilityConverter : IValueConverter
     {
+        #region BooleanToVisibilityConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (!(value is bool)) return Visibility.Collapsed;
@@ -17,11 +18,12 @@ namespace ThorCyte.CarrierModule.Common
         {
             return value;
         }
+        #endregion
     }
 
     public class BoolInverterConverter : IValueConverter
     {
-        #region IValueConverter Members
+        #region BoolInverterConverter Members
 
         public object Convert(object value, Type targetType, object parameter,
             System.Globalization.CultureInfo culture)

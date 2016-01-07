@@ -102,6 +102,7 @@
     <Compile Include="Models\ConnectorModel.cs" />
     <Compile Include="Models\DataDictionary.cs" />
     <Compile Include="Models\Enums.cs" />
+    <Compile Include="Models\Macro.cs" />
     <Compile Include="Models\ModuleInfo.cs" />
     <Compile Include="Models\PortModel.cs" />
     <Compile Include="Models\TreeViewItemModel.cs" />
@@ -111,7 +112,7 @@
     <Compile Include="Utils\GlobalConst.cs" />
     <Compile Include="Utils\ImpObservableCollection.cs" />
     <Compile Include="Utils\VisualUtils.cs" />
-    <Compile Include="ViewModels\MainWindowVm.cs" />
+    <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
     <Compile Include="ViewModels\Modules\CombinationModVm.cs" />
     <Compile Include="ViewModels\Modules\ModuleVmBase.cs" />

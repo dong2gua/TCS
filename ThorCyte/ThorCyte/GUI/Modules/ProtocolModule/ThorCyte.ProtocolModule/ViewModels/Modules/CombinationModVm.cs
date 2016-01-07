@@ -192,7 +192,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                         break;
                     case "module":
                         string name = reader["name"];
-                        var info = ProtocolModule.GetModuleInfo(name);
+                        var info = Macro.GetModuleInfo(name);
                         ModuleVmBase module = new CombinationModVm();//(ModuleVmBase)Activator.CreateInstance(Type.GetType(info.Reference, true));
                         if (info != null)
                         {

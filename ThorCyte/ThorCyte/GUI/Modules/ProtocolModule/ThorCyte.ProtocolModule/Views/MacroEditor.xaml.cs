@@ -8,6 +8,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
+using Prism.Events;
+using ThorCyte.Infrastructure.Events;
 using ThorCyte.ProtocolModule.Controls;
 using ThorCyte.ProtocolModule.Events;
 using ThorCyte.ProtocolModule.Models;
@@ -18,47 +20,53 @@ namespace ThorCyte.ProtocolModule.Views
     /// <summary>
     /// Interaction logic for ProtocolView.xaml
     /// </summary>
-    public partial class MacroEditor : UserControl
+    public partial class MacroEditor
     {
         #region Events
-
         //  public static event MacroEditSizeChangedHandler MacroEditSizeChanged;
-
         public delegate void CreateModuleHandler(Point location);
-
         #endregion
 
         #region Properties and Fields
+        private const string DefaultKeyword = "Find...";
+        private readonly List<GridLength> _recentGridLengths = new List<GridLength>();
+        private string _searchKeyword;
 
-        public MainWindowViewModel ViewModel
+        public MarcoEditorViewModel ViewModel
         {
-            get { return (MainWindowViewModel)DataContext; }
+            get { return (MarcoEditorViewModel)DataContext; }
         }
 
         private static MacroEditor _macroEdit;
-
         public static MacroEditor Instance
         {
             get { return _macroEdit ?? (_macroEdit = ServiceLocator.Current.GetInstance<MacroEditor>()); }
         }
-
         public CreateModuleHandler CreateModule;
 
+        private IEventAggregator EventAggregator
+        {
+            get { return ServiceLocator.Current.GetInstance<IEventAggregator>(); }
+        }
         #endregion
 
         #region Constructors
-
         public MacroEditor()
         {
             InitializeComponent();
-            serTb.Text = DEFAULT_KEYWORD;
-            DataContext = MainWindowViewModel.Instance;
-            ServiceLocator.Current.GetInstance<IUnityContainer>().RegisterInstance<MacroEditor>(this);
+            ServiceLocator.Current.GetInstance<IUnityContainer>().RegisterInstance(this);
+            EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
+            SerTb.Text = DefaultKeyword;
+            DataContext = MarcoEditorViewModel.Instance;
         }
-
         #endregion
 
         #region Methods
+
+        private void ExpLoaded(int scanId)
+        {
+            ClearSearch();
+        }
 
         private void OnCreateModule(Point location)
         {
@@ -67,7 +75,6 @@ namespace ThorCyte.ProtocolModule.Views
                 CreateModule(location);
             }
         }
-
         /// <summary>
         /// Event raised when the user has started to drag out a _connection.
         /// </summary>
@@ -210,17 +217,16 @@ namespace ThorCyte.ProtocolModule.Views
             }
         }
 
-        private List<GridLength> recentGridLengths = new List<GridLength>();
 
         private void CollapseClick(object sender, RoutedEventArgs e)
         {
             var isChecked = (bool)(sender as ToggleButton).IsChecked;
             if (isChecked)
             {
-                recentGridLengths.Clear();
+                _recentGridLengths.Clear();
                 foreach (var t in gridMain.ColumnDefinitions)
                 {
-                    recentGridLengths.Add(t.Width);
+                    _recentGridLengths.Add(t.Width);
                 }
 
                 //Collapse
@@ -237,21 +243,19 @@ namespace ThorCyte.ProtocolModule.Views
             {
                 for (var i = 0; i < gridMain.ColumnDefinitions.Count; i++)
                 {
-                    gridMain.ColumnDefinitions[i].Width = recentGridLengths[i];
+                    gridMain.ColumnDefinitions[i].Width = _recentGridLengths[i];
                 }
 
                 expandcollapse.Source = (BitmapImage)Resources["collapseImg"];
             }
         }
 
-        private string _searchKeyword;
-        private const string DEFAULT_KEYWORD = "Find...";
 
         public void ClearSearch()
         {
-            serTb.Text = string.Empty;
-            SetModuleSelection(serTb.Text);
-            SearchBox_LostFocus(serTb,new RoutedEventArgs());
+            SerTb.Text = string.Empty;
+            SetModuleSelection(SerTb.Text);
+            SearchBox_LostFocus(SerTb,new RoutedEventArgs());
         }
 
         private void SerchBox_GotFocus(object sender, RoutedEventArgs e)
@@ -259,7 +263,7 @@ namespace ThorCyte.ProtocolModule.Views
             var searchBox = sender as TextBox;
             if (searchBox == null) return;
 
-            if (searchBox.Text == DEFAULT_KEYWORD && Equals(searchBox.Foreground, Brushes.LightGray))
+            if (searchBox.Text == DefaultKeyword && Equals(searchBox.Foreground, Brushes.LightGray))
             {
                 searchBox.Text = string.Empty;
                 searchBox.Foreground = (Brush)ForegroundProperty.DefaultMetadata.DefaultValue;
@@ -273,7 +277,7 @@ namespace ThorCyte.ProtocolModule.Views
 
             if (searchBox.Text == string.Empty)
             {
-                searchBox.Text = DEFAULT_KEYWORD;
+                searchBox.Text = DefaultKeyword;
                 searchBox.Foreground = Brushes.LightGray;
             }
         }
@@ -287,24 +291,23 @@ namespace ThorCyte.ProtocolModule.Views
         private void SetModuleSelection(string moduleKeyWord)
         {
             //collpse tree view 
-            ManipulateTree(treeview, false);
+            ExpandTree(treeview, false);
             ViewModel.PannelVm.FilterModuleInfo(moduleKeyWord);
             if (moduleKeyWord == string.Empty)
             {
-                ManipulateTree(treeview, false);
+                ExpandTree(treeview, false);
                 return;
             }
             //Expand treeview
-            ManipulateTree(treeview, true);
+            ExpandTree(treeview, true);
         }
-
 
         /// <summary>
         /// Collapse or Expand treeview 
         /// </summary>
         /// <param name="treeContainer">treeview need to operate</param>
         /// <param name="mode">true--Expand false--Collapse</param>
-        private void ManipulateTree(ItemsControl treeContainer, bool mode)
+        private void ExpandTree(ItemsControl treeContainer, bool mode)
         {
             var inStyle = new Style
             {
@@ -317,7 +320,6 @@ namespace ThorCyte.ProtocolModule.Views
         }
 
         #endregion
-
 
     }
 }

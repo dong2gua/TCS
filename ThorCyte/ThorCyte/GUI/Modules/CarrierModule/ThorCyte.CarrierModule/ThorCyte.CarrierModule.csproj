@@ -103,7 +103,6 @@
     <Compile Include="Graphics\GraphicsRectangle.cs" />
     <Compile Include="Graphics\GraphicsRectangleBase.cs" />
     <Compile Include="Graphics\GraphicsSelectionRectangle.cs" />
-    <Compile Include="Graphics\GraphicWell.cs" />
     <Compile Include="Graphics\HelperFunctions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -145,15 +144,9 @@
     <Resource Include="Images\CyteCross.cur" />
     <Resource Include="Images\Ellipse.CUR" />
     <Resource Include="Images\fit.png" />
-    <Resource Include="Images\Line.cur" />
-    <Resource Include="Images\Pencil.cur" />
     <Resource Include="Images\PointerHS.png" />
-    <Resource Include="Images\Polygon.CUR" />
-    <Resource Include="Images\PolyHandle.cur" />
-    <Resource Include="Images\Rectangle.CUR" />
     <Resource Include="Images\select_all.png" />
     <Resource Include="Images\select_rect.png" />
-    <Resource Include="Images\Text.cur" />
     <Resource Include="Images\zoom_down.png" />
     <Resource Include="Images\zoom_up.png" />
   </ItemGroup>

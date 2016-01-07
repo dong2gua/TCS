@@ -79,9 +79,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
 
 
-            if (ProtocolModule.Instance.CurrentScanInfo != null)
+            if (Macro.CurrentScanInfo != null)
             {
-                foreach (var channel in ProtocolModule.Instance.CurrentScanInfo.ChannelList)
+                foreach (var channel in Macro.CurrentScanInfo.ChannelList)
                 {
                     _chaModel.Channels.Add(channel.ChannelName);
                 }

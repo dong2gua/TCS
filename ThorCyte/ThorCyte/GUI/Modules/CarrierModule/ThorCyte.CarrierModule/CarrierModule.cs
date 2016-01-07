@@ -1,4 +1,4 @@
-﻿using Microsoft.Practices.ServiceLocation;
+﻿using System.Windows.Controls;
 using Microsoft.Practices.Unity;
 using Prism.Events;
 using Prism.Modularity;
@@ -13,21 +13,25 @@ namespace ThorCyte.CarrierModule
     {
 
         #region Static Members
-        private static CarrierModule _uniqueInstance;
         private readonly IRegionViewRegistry _regionViewRegistry;
-        private readonly IRegionManager _regionManager;
         private readonly IEventAggregator _eventAggregator;
         private readonly IUnityContainer _container;
+        private readonly CarrierView _carrierView;
+        private readonly UserControl _reviewCarrierView;
+        private readonly UserControl _analysisCarrierView;
 
         #endregion
 
         #region Constructor
-        public CarrierModule(IRegionViewRegistry regionViewRegistry, IEventAggregator eventAggregator, IUnityContainer container, IRegionManager regionManager)
+        public CarrierModule(IRegionViewRegistry regionViewRegistry ,IEventAggregator eventAggregator, IUnityContainer container)
         {
             _regionViewRegistry = regionViewRegistry;
             _eventAggregator = eventAggregator;
             _container = container;
-            _regionManager = regionManager;
+            _carrierView = new CarrierView();
+            _reviewCarrierView = new UserControl();
+            _analysisCarrierView = new UserControl();
+            ShowRegionEventHandler("ReviewModule");
         }
         #endregion
 
@@ -37,6 +41,8 @@ namespace ThorCyte.CarrierModule
         public void Initialize()
         {
             _container.RegisterInstance(this);
+            _regionViewRegistry.RegisterViewWithRegion(RegionNames.ReviewCarrierRegion, () => _reviewCarrierView);
+            _regionViewRegistry.RegisterViewWithRegion(RegionNames.AnalysisCarrierRegion, () => _analysisCarrierView);
             _eventAggregator.GetEvent<ShowRegionEvent>().Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
         }
 
@@ -46,45 +52,24 @@ namespace ThorCyte.CarrierModule
             switch (moduleName)
             {
                 case "ReviewModule":
-                    if (_regionManager.Regions[RegionNames.ReviewCarrierRegion].GetView("CarrierView") != null)
+                    if (_analysisCarrierView.Content != null)
                     {
-                        return;
+                        _analysisCarrierView.Content = null;
                     }
-                    theView = _regionManager.Regions[RegionNames.AnalysisCarrierRegion].GetView("CarrierView");
-                    if (theView == null)
-                    {
-                        theView = new CarrierView();
-                    }
-                    else
-                    {
-                        _regionManager.Regions[RegionNames.AnalysisCarrierRegion].Remove(theView);
-                    }
-                    _regionManager.Regions[RegionNames.ReviewCarrierRegion].Add(theView, "CarrierView");
+                    
+                    _reviewCarrierView.Content = _carrierView;
+
                     break;
                 case "AnalysisModule":
-                    if (_regionManager.Regions[RegionNames.AnalysisCarrierRegion].GetView("CarrierView") != null)
+                    if (_reviewCarrierView.Content != null)
                     {
-                        return;
+                        _reviewCarrierView.Content = null;
                     }
-                    theView = _regionManager.Regions[RegionNames.ReviewCarrierRegion].GetView("CarrierView");
-                    if (theView == null)
-                    {
-                        theView = new CarrierView();
-                    }
-                    else
-                    {
-                        _regionManager.Regions[RegionNames.ReviewCarrierRegion].Remove(theView);
-                    }
-                    _regionManager.Regions[RegionNames.AnalysisCarrierRegion].Add(theView, "CarrierView");
-                    break;
-                default:
+
+                    _analysisCarrierView.Content = _carrierView;
+
                     break;
             }
-        }
-
-        public static CarrierModule Instance
-        {
-            get { return _uniqueInstance ?? (_uniqueInstance = ServiceLocator.Current.GetInstance<CarrierModule>()); }
         }
 
 

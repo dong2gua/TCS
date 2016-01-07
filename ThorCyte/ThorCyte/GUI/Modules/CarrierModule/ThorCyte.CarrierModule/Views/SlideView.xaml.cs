@@ -25,7 +25,6 @@ namespace ThorCyte.CarrierModule.Views
         public SlideView()
         {
             InitializeComponent();
-
             buttonToolSelect.PreviewMouseDown += ToolButton_PreviewMouseDown;
             buttonToolDrag.PreviewMouseDown += ToolButton_PreviewMouseDown;
             buttonToolPointer.PreviewMouseDown += ToolButton_PreviewMouseDown;
@@ -51,15 +50,6 @@ namespace ThorCyte.CarrierModule.Views
         void buttonZoomOut_Click(object sender, RoutedEventArgs args)
         {
             slideCanvas.ZoomOut();
-        }
-
-        /// <summary>
-        /// Auto zoom to proper size
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void buttonFit_Checked(object sender, RoutedEventArgs e)
-        {
         }
 
         public void UpdateScanArea()

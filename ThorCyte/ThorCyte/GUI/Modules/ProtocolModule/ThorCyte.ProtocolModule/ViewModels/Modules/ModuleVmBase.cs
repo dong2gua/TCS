@@ -16,7 +16,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public int ScanNo { get; set; }
 
-        public ProtocolModule ParentMacro { get; set; }
+        public Macro ParentMacro { get; set; }
 
         public string DisplayName { get; set; }
 
