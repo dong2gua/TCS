@@ -3,13 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:views="clr-namespace:ThorCyte.CarrierModule.Views"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300" x:Name="Uct">
     <StackPanel>
-        <ContentControl Content="{Binding ShowingView}"></ContentControl>
-        <views:TileView Content="{Binding ShowingTile}"></views:TileView>
-    </StackPanel>
-    
+        <Grid Height="350" Width="{Binding ElementName=Uct,Path=ActualWidth}">
+            <ContentControl Content="{Binding ShowingView}"/>
+        </Grid>
+        <ScrollViewer MaxHeight="350" Width="{Binding ElementName=Uct,Path=ActualWidth}" 
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <ContentControl Content="{Binding ShowingTile}" BorderThickness="3" BorderBrush="Aqua" />
+        </ScrollViewer>
 
+    </StackPanel>
 </UserControl>

@@ -9,22 +9,25 @@ using ThorCyte.Infrastructure.Events;
 
 namespace ThorCyte.CarrierModule
 {
-    public class CarrierModule: IModule
+    public class CarrierModule : IModule
     {
-        private readonly IRegionViewRegistry _regionViewRegistry;
-        private readonly IEventAggregator _eventAggregator;
-        private readonly IUnityContainer _container;
 
         #region Static Members
         private static CarrierModule _uniqueInstance;
+        private readonly IRegionViewRegistry _regionViewRegistry;
+        private readonly IRegionManager _regionManager;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly IUnityContainer _container;
+
         #endregion
 
         #region Constructor
-        public CarrierModule(IRegionViewRegistry regionViewRegistry, IEventAggregator eventAggregator, IUnityContainer container)
+        public CarrierModule(IRegionViewRegistry regionViewRegistry, IEventAggregator eventAggregator, IUnityContainer container, IRegionManager regionManager)
         {
             _regionViewRegistry = regionViewRegistry;
             _eventAggregator = eventAggregator;
             _container = container;
+            _regionManager = regionManager;
         }
         #endregion
 
@@ -33,22 +36,48 @@ namespace ThorCyte.CarrierModule
 
         public void Initialize()
         {
-            _regionViewRegistry.RegisterViewWithRegion(RegionNames.ReviewCarrierRegion, typeof(CarrierView));
-            //_regionViewRegistry.RegisterViewWithRegion(RegionNames.AnalysisCarrierRegion, typeof (CarrierView));
-            ServiceLocator.Current.GetInstance<IUnityContainer>().RegisterInstance(this);
+            _container.RegisterInstance(this);
             _eventAggregator.GetEvent<ShowRegionEvent>().Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
         }
 
         private void ShowRegionEventHandler(string moduleName)
         {
+            object theView;
             switch (moduleName)
             {
                 case "ReviewModule":
-                    
-
-
+                    if (_regionManager.Regions[RegionNames.ReviewCarrierRegion].GetView("CarrierView") != null)
+                    {
+                        return;
+                    }
+                    theView = _regionManager.Regions[RegionNames.AnalysisCarrierRegion].GetView("CarrierView");
+                    if (theView == null)
+                    {
+                        theView = new CarrierView();
+                    }
+                    else
+                    {
+                        _regionManager.Regions[RegionNames.AnalysisCarrierRegion].Remove(theView);
+                    }
+                    _regionManager.Regions[RegionNames.ReviewCarrierRegion].Add(theView, "CarrierView");
                     break;
                 case "AnalysisModule":
+                    if (_regionManager.Regions[RegionNames.AnalysisCarrierRegion].GetView("CarrierView") != null)
+                    {
+                        return;
+                    }
+                    theView = _regionManager.Regions[RegionNames.ReviewCarrierRegion].GetView("CarrierView");
+                    if (theView == null)
+                    {
+                        theView = new CarrierView();
+                    }
+                    else
+                    {
+                        _regionManager.Regions[RegionNames.ReviewCarrierRegion].Remove(theView);
+                    }
+                    _regionManager.Regions[RegionNames.AnalysisCarrierRegion].Add(theView, "CarrierView");
+                    break;
+                default:
                     break;
             }
         }

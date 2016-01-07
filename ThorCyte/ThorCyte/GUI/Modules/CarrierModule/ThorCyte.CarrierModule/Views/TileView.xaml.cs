@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using Microsoft.Practices.ServiceLocation;
-using Prism.Events;
+using System.Windows.Input;
 using ThorCyte.CarrierModule.ViewModels;
-using ThorCyte.Infrastructure.Events;
 
 namespace ThorCyte.CarrierModule.Views
 {
@@ -20,18 +17,12 @@ namespace ThorCyte.CarrierModule.Views
         {
             InitializeComponent();
             vm = new TileViewModel();
-            this.DataContext = vm;
+            DataContext = vm;
         }
-
 
         private void TileView_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            vm.ViewSizeMax = (ActualHeight > ActualWidth ? ActualHeight : ActualWidth) - 20;
-        }
-
-        private void FrameworkElement_OnSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            vm.ViewSizeMax = (ActualHeight > ActualWidth ? ActualHeight : ActualWidth) - 20;
+             //vm.ViewSizeMax = (ActualHeight > ActualWidth ? ActualHeight : ActualWidth);
         }
     }
 }
