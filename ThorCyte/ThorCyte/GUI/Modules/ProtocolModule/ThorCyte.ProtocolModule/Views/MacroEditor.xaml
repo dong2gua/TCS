@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:modules="clr-namespace:ThorCyte.ProtocolModule.ViewModels.Modules"
              xmlns:models="clr-namespace:ThorCyte.ProtocolModule.Models"
              xmlns:control="clr-namespace:ThorCyte.ProtocolModule.Controls"
+             xmlns:modulesBase="clr-namespace:ThorCyte.ProtocolModule.ViewModels.ModulesBase"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" MinWidth="880" MinHeight="600">
     <UserControl.Resources>
@@ -46,9 +46,9 @@
                 </Setter>
             </Style>
 
-            <DataTemplate DataType="{x:Type modules:ModuleVmBase}" >
-                <Grid Width="120" Height="60">
-                    <Rectangle x:Name="bgrect" Fill="LightGray" RadiusX="8" RadiusY="8"/>
+            <DataTemplate DataType="{x:Type modulesBase:ModuleVmBase}" >
+                <Grid Width="120" MinHeight="60">
+                    <Rectangle Fill="LightGray" RadiusX="3" RadiusY="3"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -66,8 +66,8 @@
                         <control:Port DataContext="{Binding InputPorts[2]}" Grid.Column="2" VerticalAlignment="Top" Background="{Binding PortBrush}" PortType="{Binding PortType}"/>
                         <control:Port DataContext="{Binding InputPorts[3]}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left"  Background="{Binding PortBrush}" PortType="{Binding PortType}"/>
                         <control:Port DataContext="{Binding InputPorts[4]}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Background="{Binding PortBrush}" PortType="{Binding PortType}"/>
-                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CaptionString}" ToolTip="{Binding CaptionString}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Name}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CaptionString}" ToolTip="{Binding CaptionString}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" FontStyle="Italic" Foreground="DarkBlue"/>
                         <control:Port DataContext="{Binding OutputPort}" Grid.Row="3" VerticalAlignment="Bottom" Background="{Binding PortBrush}" PortType="{Binding PortType}"/>
                     </Grid>
                 </Grid>

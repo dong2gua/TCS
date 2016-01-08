@@ -3,9 +3,9 @@ using System.Windows;
 using System.Windows.Media;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Utils;
-using ThorCyte.ProtocolModule.ViewModels.Modules;
 using System.Linq;
 using ImageProcess;
+using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 
 namespace ThorCyte.ProtocolModule.Models
 {

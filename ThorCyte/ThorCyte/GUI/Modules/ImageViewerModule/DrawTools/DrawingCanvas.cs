@@ -13,25 +13,36 @@ namespace ThorCyte.ImageViewerModule.DrawTools
     public class DrawingCanvas:Canvas
     {
 
-        public static readonly DependencyProperty DisplayImageProperty = DependencyProperty.Register("DisplayImage", typeof(ImageSource), typeof(DrawingCanvas), new PropertyMetadata(new PropertyChangedCallback(OnDisplayImagePropertyChangedCallback)));
-        public static readonly DependencyProperty ToolProperty = DependencyProperty.Register("Tool", typeof(ToolType), typeof(DrawingCanvas), new PropertyMetadata(ToolType.Pointer));
-        public static readonly DependencyProperty ActualScaleProperty = DependencyProperty.Register("ActualScale", typeof(Tuple<double, double, double>), typeof(DrawingCanvas), new PropertyMetadata(new Tuple<double, double, double>(1, 1,1), OnActualScaleChanged));
-        public static readonly DependencyProperty PointProperty = DependencyProperty.Register("Point", typeof(Point), typeof(DrawingCanvas), new PropertyMetadata(new Point(0, 0)));
-        public ImageSource DisplayImage
+        public static readonly DependencyProperty ImageSizeProperty = DependencyProperty.Register("ImageSize", typeof(Size), typeof(DrawingCanvas), new PropertyMetadata(new Size(0, 0)));
+        public static readonly DependencyProperty ActualScaleProperty = DependencyProperty.Register("ActualScale", typeof(Tuple<double, double, double>), typeof(DrawingCanvas), new PropertyMetadata(new Tuple<double, double, double>(1, 1, 1), OnActualScaleChanged));
+        public static readonly DependencyProperty DisplayImageProperty = DependencyProperty.Register("DisplayImage", typeof(Tuple<ImageSource, Int32Rect>), typeof(DrawingCanvas), new PropertyMetadata(new PropertyChangedCallback(OnDisplayImagePropertyChanged)));
+        public Size ImageSize
         {
-            get { return (ImageSource)GetValue(DisplayImageProperty); }
+            get { return (Size)GetValue(ImageSizeProperty); }
+            set { SetValue(ImageSizeProperty, value); }
+        }
+        public Tuple<double, double, double> ActualScale
+        {
+            get { return (Tuple<double, double, double>)GetValue(ActualScaleProperty); }
+            set { SetValue(ActualScaleProperty, value); }
+        }
+        public Tuple<ImageSource, Int32Rect> DisplayImage
+        {
+            get { return (Tuple<ImageSource, Int32Rect>)GetValue(DisplayImageProperty); }
             set { SetValue(DisplayImageProperty, value); }
         }
+        private readonly Tool[] _tools = new Tool[(int)ToolType.Max];
+        private ToolType _tool;
         public ToolType Tool
         {
             get
             {
-                return (ToolType)GetValue(ToolProperty);
+                return _tool;
             }
             set
             {
-                if ((int)value < 0 || (int)value >= (int)ToolType.Max) return;
-                SetValue(ToolProperty, value);
+                if ((int)value < 0 || (int)value >= (int)ToolType.Max||value==_tool) return;
+                _tool = value;
                 _tools[(int)Tool].SetCursor(this);
                 if (Tool != ToolType.Profile && GraphicsList.Contains(graphicsProfile))
                     GraphicsList.Remove(graphicsProfile);
@@ -45,150 +56,25 @@ namespace ThorCyte.ImageViewerModule.DrawTools
                 if (Tool == ToolType.Ruler && !GraphicsList.Contains(graphicsScaler))
                 {
                     GraphicsList.Add(graphicsScaler);
+                    graphicsScaler.ActualScale = ActualScale;
                     graphicsScaler.Point = new Point(20, ActualHeight - 20);
                     graphicsScaler.RefreshDrawing();
                 }
             }
         }
-        public Tuple<double, double,double> ActualScale
-        {
-            get { return (Tuple<double, double, double>)GetValue(ActualScaleProperty); }
-            set { SetValue(ActualScaleProperty, value); }
-        }
-        public Point Point
-        {
-            get
-            {
-                return (Point)GetValue(PointProperty);
-            }
-            set
-            {
-                SetValue(PointProperty, value);
-            }
-        }
-
-        private GraphicsImage _graphicsImage;
-        public GraphicsImage GraphicsImage
-        {
-            get { return _graphicsImage; }
-        }
-        private GraphicsScaler graphicsScaler;
-
         private readonly VisualCollection _graphicsList;
+        private GraphicsImage _graphicsImage;
+        private GraphicsScaler graphicsScaler;
         private GraphicsRuler graphicsRuler;
         private GraphicsProfile graphicsProfile;
-
-        private static void OnDisplayImagePropertyChangedCallback(DependencyObject property, DependencyPropertyChangedEventArgs e)
+        public Point ZoomMiddlePoint;
+        private Rect _tmpCanvasRect;
+        private Rect _canvasDisplyRect;
+        public Rect CanvasDisplyRect
         {
-            var canvas = property as DrawingCanvas;
-            if (canvas == null) return;
-            
-            var scale = canvas.ActualScale;
-            var imageSource = e.NewValue as ImageSource;
-            if (imageSource == null) return;
-            canvas.LimitX = imageSource.Width > canvas.ActualWidth / scale.Item1 ? 0 : (canvas.ActualWidth / scale.Item1 - imageSource.Width) / 2;
-            canvas.LimitY = imageSource.Height > canvas.ActualHeight / scale.Item2 ? 0 : (canvas.ActualHeight / scale.Item2 - imageSource.Height) / 2;
-            double rectX, rectY;
-            if(canvas._graphicsImage.Rectangle.Width==imageSource.Width&& canvas._graphicsImage.Rectangle.Height == imageSource.Height)
-            {
-                rectX =canvas._graphicsImage.Rectangle.X;
-                rectY = canvas._graphicsImage.Rectangle.Y;
-            }
-            else
-            {
-                rectX = imageSource.Width > canvas.ActualWidth / scale.Item1 ? (-(imageSource.Width - canvas.ActualWidth / scale.Item1) / 2) : canvas.LimitX;
-                rectY = imageSource.Height > canvas.ActualHeight / scale.Item2 ? (-(imageSource.Height - canvas.ActualHeight / scale.Item2) / 2) :canvas.LimitY;
-            }
-            canvas._graphicsImage.SetImage(imageSource, new Rect(rectX, rectY, imageSource.Width, imageSource.Height));
-            canvas._graphicsImage.Clip = new RectangleGeometry(new Rect(canvas.LimitX, canvas.LimitY, Math.Min(canvas.ActualWidth / canvas.ActualScale.Item1, canvas. _graphicsImage.Rectangle.Width), Math.Min(canvas.ActualHeight / canvas.ActualScale.Item2, canvas._graphicsImage.Rectangle.Height)));
-
-            canvas.Drag(0, 0);
+            get { return _canvasDisplyRect; }
         }
-        private static void OnActualScaleChanged(DependencyObject property, DependencyPropertyChangedEventArgs args)
-        {
-            var canvas = property as DrawingCanvas;
-            if (canvas == null) return;
-
-            var scale = canvas.ActualScale;
-            var imageRect = canvas.GraphicsImage.Rectangle;
-            canvas.LimitX = imageRect.Width > canvas.ActualWidth / scale.Item1 ? 0 : (canvas.ActualWidth / scale.Item1 - imageRect.Width) / 2;
-            canvas.LimitY = imageRect.Height > canvas.ActualHeight / scale.Item2 ? 0 : (canvas.ActualHeight / scale.Item2 - imageRect.Height) / 2;
-
-            foreach (var b in canvas.GraphicsList.Cast<GraphicsBase>())
-            {
-                b.ActualScale = scale;
-                if ((b as GraphicsScaler) != null)
-                {
-                    b.RefreshDrawing();
-                    continue;
-                }
-                b.Clip = new RectangleGeometry(new Rect(canvas.LimitX, canvas.LimitY, Math.Min(canvas.ActualWidth / canvas.ActualScale.Item1, imageRect.Width), Math.Min(canvas.ActualHeight / canvas.ActualScale.Item2 , imageRect.Height)));
-            }
-            canvas._graphicsImage.ActualScale = scale;
-            canvas._graphicsImage.Clip = new RectangleGeometry(new Rect(canvas.LimitX, canvas.LimitY, Math.Min(canvas.ActualWidth / canvas.ActualScale.Item1 , imageRect.Width) , Math.Min(canvas.ActualHeight / canvas.ActualScale.Item2 , imageRect.Height ) ));
-            canvas.Drag(0, 0);
-
-        }
-        private readonly Tool[] _tools = new Tool[(int)ToolType.Max];
-
-        public DrawingCanvas()
-        {
-            _graphicsImage = new GraphicsImage();
-            this.AddVisualChild(_graphicsImage);
-            graphicsScaler = new GraphicsScaler();
-            _graphicsList = new VisualCollection(this);
-            _tools[(int)ToolType.Pointer] = new ToolPointer();
-            //_tools[(int)ToolType.Line] = new ToolLine();
-            _tools[(int)ToolType.Dragger] = new ToolDragger();
-            _tools[(int)ToolType.Rectangle] = new ToolRectangle();
-            _tools[(int)ToolType.Ellipse] = new ToolEllipse();
-
-            var toolRuler = new ToolRuler();
-            graphicsRuler = toolRuler.Ruler;
-            _tools[(int)ToolType.Ruler] = toolRuler;
-            var toolProfile = new ToolProfile();
-            graphicsProfile = toolProfile.Profile;
-            _tools[(int)ToolType.Profile] = toolProfile;
-
-            MouseDown += DrawingCanvas_MouseDown;
-            MouseMove += DrawingCanvas_MouseMove;
-            MouseUp += DrawingCanvas_MouseUp;
-            KeyDown += DrawingCanvas_KeyDown;
-            SizeChanged += DrawingCanvas_SizeChanged;
-            LostMouseCapture += DrawingCanvas_LostMouseCapture;
-            Tool = ToolType.Pointer;
-            Focusable = true;
-
-        }
-        public delegate void MousePointHandler(Point point);
-        public event MousePointHandler MousePoint;
-        public delegate Vector MoveVisualRectHandler(Vector vector);
-        public event MoveVisualRectHandler MoveVisualRect;
-        public delegate void CanvasSizeChangedHandler(object sender, SizeChangedEventArgs e);
-        public event CanvasSizeChangedHandler CanvasSizeChanged;
-        protected override int VisualChildrenCount
-        {
-            get
-            {
-                var n = _graphicsList.Count;
-                if (_graphicsImage != null) n++;
-
-                return n;
-            }
-        }
-        protected override Visual GetVisualChild(int index)
-        {
-            if (index > 0 && index <= _graphicsList.Count)
-                return _graphicsList[index - 1];
-
-            if (_graphicsImage != null && index == 0)
-                return _graphicsImage;
-
-
-            throw new ArgumentOutOfRangeException("index");
-        }
-
-        internal GraphicsBase this[int index]
+        public GraphicsBase this[int index]
         {
             get
             {
@@ -200,30 +86,77 @@ namespace ThorCyte.ImageViewerModule.DrawTools
                 return null;
             }
         }
-
-        internal int Count
+        public int Count
         {
             get
             {
                 return _graphicsList.Count;
             }
         }
-
-		internal int SelectionCount
+        public int SelectionCount
         {
             get { return _graphicsList.OfType<GraphicsBase>().Count(g => g.IsSelected); }
         }
-
-        internal VisualCollection GraphicsList
+        public VisualCollection GraphicsList
         {
             get { return _graphicsList; }
         }
-
-        internal IEnumerable<GraphicsBase> Selection
+        public IEnumerable<GraphicsBase> Selection
         {
             get { return from GraphicsBase o in _graphicsList where o.IsSelected select o; }
         }
 
+        public delegate void MousePointHandler(Point point);
+        public event MousePointHandler MousePoint;
+        public delegate void UpdateDisplayImageHandler(Rect canvasDisplayRect);
+        public event UpdateDisplayImageHandler UpdateDisplayImage;
+
+        private static void OnDisplayImagePropertyChanged(DependencyObject property, DependencyPropertyChangedEventArgs e)
+        {
+            var canvas = property as DrawingCanvas;
+            if (canvas == null) return;
+            var value = e.NewValue as Tuple<ImageSource, Int32Rect>;
+            if (value == null) return;
+
+            canvas._graphicsImage.SetImage(value.Item1, new Rect(value.Item2.X, value.Item2.Y, value.Item2.Width, value.Item2.Height));
+            canvas._graphicsImage.RefreshDrawing();
+        }
+        private static void OnActualScaleChanged(DependencyObject property, DependencyPropertyChangedEventArgs args)
+        {
+            var canvas = property as DrawingCanvas;
+            if (canvas == null) return;
+
+            var scale = canvas.ActualScale;
+            var oldScale = args.OldValue as Tuple<double, double, double>;
+            var newScale = args.NewValue as Tuple<double, double, double>;
+
+            double width = canvas.ActualWidth / newScale.Item3/ newScale.Item1;
+            double height = canvas.ActualHeight / newScale.Item3 / newScale.Item2;
+            double x = (canvas._canvasDisplyRect.X - canvas.ZoomMiddlePoint.X) / oldScale.Item3 * newScale.Item3 + canvas.ZoomMiddlePoint.X;
+            double y = (canvas._canvasDisplyRect.Y - canvas.ZoomMiddlePoint.Y) / oldScale.Item3 * newScale.Item3 + canvas.ZoomMiddlePoint.Y;
+            canvas._canvasDisplyRect = new Rect(x, y, width, height);
+            canvas.TestVirtualBound();
+            foreach (var b in canvas.GraphicsList.Cast<GraphicsBase>())
+            {
+                b.ActualScale = scale;
+                b.RefreshDrawing();
+                b.Clip = new RectangleGeometry(new Rect(0, 0, canvas.ActualWidth / canvas.ActualScale.Item1, canvas.ActualHeight / canvas.ActualScale.Item2));
+            }
+            canvas._graphicsImage.ActualScale = scale;
+            canvas._graphicsImage.RefreshDrawing();
+            canvas._graphicsImage.Clip = new RectangleGeometry(new Rect(0, 0, canvas.ActualWidth / canvas.ActualScale.Item1, canvas.ActualHeight / canvas.ActualScale.Item2));
+
+            if (canvas.UpdateDisplayImage != null)
+                canvas.UpdateDisplayImage(canvas._canvasDisplyRect);
+        }
+        private void DrawingCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            _canvasDisplyRect.Width = ActualWidth / ActualScale.Item3/ActualScale.Item1;
+            _canvasDisplyRect.Height = ActualHeight / ActualScale.Item3 / ActualScale.Item2;
+            graphicsScaler.Point = new Point(20, ActualHeight - 20);
+            graphicsScaler.RefreshDrawing();
+            RefreshVirtualBound();
+        }
         private void DrawingCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (_tools[(int)Tool] == null) return;
@@ -231,20 +164,24 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             var point = e.GetPosition(this);
             point.X /= ActualScale.Item1;
             point.Y /= ActualScale.Item2;
+            _tmpCanvasRect = new Rect(CanvasDisplyRect.Location, CanvasDisplyRect.Size);
+            var actualPoint = ConvertToActualPoint(point, _tmpCanvasRect, ActualScale.Item3);
             Focus();
-            _tools[(int)Tool].OnMouseDown(this, e, point);
+            _tools[(int)Tool].OnMouseDown(this, e, actualPoint);
             e.Handled = true;
         }
         private void DrawingCanvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (_tools[(int)Tool] == null) return;
-
+            if (e.LeftButton == MouseButtonState.Pressed)
+            { }
             var point = e.GetPosition(this);
             point.X /= ActualScale.Item1;
             point.Y /= ActualScale.Item2;
-            Point = point;
-            _tools[(int)Tool].OnMouseMove(this, e, point);
-            if (MousePoint != null) MousePoint(new Point(point.X-_graphicsImage.Rectangle.Left,point.Y - _graphicsImage.Rectangle.Top));
+            var actualPoint = Tool == ToolType.Dragger ? ConvertToActualPoint(point, _tmpCanvasRect, ActualScale.Item3) : 
+                                                         ConvertToActualPoint(point, CanvasDisplyRect, ActualScale.Item3);
+            _tools[(int)Tool].OnMouseMove(this, e, actualPoint);
+            if (MousePoint != null) MousePoint(actualPoint);
             e.Handled = true;
         }
         private void DrawingCanvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -254,27 +191,11 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             var point = e.GetPosition(this);
             point.X /= ActualScale.Item1;
             point.Y /= ActualScale.Item2;
+            _tmpCanvasRect = new Rect(CanvasDisplyRect.Location, CanvasDisplyRect.Size);
+            var actualPoint = ConvertToActualPoint(point, _tmpCanvasRect, ActualScale.Item3);
 
-            _tools[(int)Tool].OnMouseUp(this, e, point);
+            _tools[(int)Tool].OnMouseUp(this, e, actualPoint);
             e.Handled = true;
-        }
-        private void DrawingCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (CanvasSizeChanged != null) CanvasSizeChanged(sender,e);
-            var imageRect = GraphicsImage.Rectangle;
-            LimitX = imageRect.Width > ActualWidth / ActualScale.Item1 ? 0 : (ActualWidth / ActualScale.Item1 - imageRect.Width) / 2;
-            LimitY = imageRect.Height > ActualHeight / ActualScale.Item2 ? 0 : (ActualHeight / ActualScale.Item2 - imageRect.Height) / 2;
-
-            _graphicsImage.Clip = new RectangleGeometry(new Rect(LimitX, LimitY, Math.Min( this.ActualWidth / this.ActualScale.Item1, _graphicsImage.Rectangle.Width), Math.Min(this.ActualHeight / this.ActualScale.Item2, _graphicsImage.Rectangle.Height)  ));
-            for (int i = 0; i < _graphicsList.Count; i++)
-            {
-                var graphics = _graphicsList[i] as GraphicsBase;
-                if (graphics != null)
-                {
-                    graphics.Clip = new RectangleGeometry(new Rect(LimitX, LimitY, Math.Min(this.ActualWidth / this.ActualScale.Item1, _graphicsImage.Rectangle.Width) , Math.Min(this.ActualHeight / this.ActualScale.Item2, _graphicsImage.Rectangle.Height) ));
-                }
-            }
-            Drag(0, 0);
         }
         private void DrawingCanvas_LostMouseCapture(object sender, MouseEventArgs e)
         {
@@ -297,6 +218,125 @@ namespace ThorCyte.ImageViewerModule.DrawTools
                 SelectAll();
             }
 
+        }
+
+        public DrawingCanvas()
+        {
+            _graphicsImage = new GraphicsImage(this);
+            this.AddVisualChild(_graphicsImage);
+            graphicsScaler = new GraphicsScaler();
+            _graphicsList = new VisualCollection(this);
+
+            var toolRuler = new ToolRuler();
+            graphicsRuler = toolRuler.Ruler;
+            var toolProfile = new ToolProfile();
+            graphicsProfile = toolProfile.Profile;
+            _tools[(int)ToolType.Pointer] = new ToolPointer();
+            //_tools[(int)ToolType.Line] = new ToolLine();
+            _tools[(int)ToolType.Dragger] = new ToolDragger();
+            _tools[(int)ToolType.Rectangle] = new ToolRectangle();
+            _tools[(int)ToolType.Ellipse] = new ToolEllipse();
+            _tools[(int)ToolType.Ruler] = toolRuler;
+            _tools[(int)ToolType.Profile] = toolProfile;
+
+            MouseDown += DrawingCanvas_MouseDown;
+            MouseMove += DrawingCanvas_MouseMove;
+            MouseUp += DrawingCanvas_MouseUp;
+            KeyDown += DrawingCanvas_KeyDown;
+            SizeChanged += DrawingCanvas_SizeChanged;
+            LostMouseCapture += DrawingCanvas_LostMouseCapture;
+            Tool = ToolType.Pointer;
+            Focusable = true;
+        }
+        public void SetPixelSize(double xPixelSize,double yPixelSize)
+        {
+            graphicsRuler.XPixelSize = xPixelSize;
+            graphicsRuler.YPixelSize = yPixelSize;
+            graphicsScaler.XPixelSize = xPixelSize;
+            graphicsScaler.YPixelSize = yPixelSize;
+        }
+        protected override int VisualChildrenCount
+        {
+            get
+            {
+                var n = _graphicsList.Count;
+                if (_graphicsImage != null) n++;
+
+                return n;
+            }
+        }
+        protected override Visual GetVisualChild(int index)
+        {
+            if (index > 0 && index <= _graphicsList.Count)
+                return _graphicsList[index - 1];
+
+            if (_graphicsImage != null && index == 0)
+                return _graphicsImage;
+
+
+            throw new ArgumentOutOfRangeException("index");
+        }
+        public void Move(double deltaX, double deltaY)
+        {
+            if (this.SelectionCount <= 0) return;
+            double left = ImageSize.Width, right = 0, top = ImageSize.Height, bottom = 0;
+            foreach (var o in this.Selection)
+            {
+                left = Math.Min(left, o.Rectangle.Left);
+                right = Math.Max(right, o.Rectangle.Right);
+                top = Math.Min(top, o.Rectangle.Top);
+                bottom = Math.Max(bottom, o.Rectangle.Bottom);
+            }
+            if (left + deltaX < 0) deltaX = 0;
+            else if (right + deltaX > ImageSize.Width) deltaX = ImageSize.Width - right;
+            if (top + deltaY < 0) deltaY = 0;
+            else if (bottom + deltaY > ImageSize.Height) deltaY = ImageSize.Height - bottom;
+            foreach (var o in this.Selection)
+            {
+                o.Move(deltaX, deltaY);
+            }
+        }
+        public void Drag(double deltaX, double deltaY)
+        {
+            _canvasDisplyRect.X -= deltaX;
+            _canvasDisplyRect.Y -= deltaY;
+            RefreshVirtualBound();
+        }
+        public void SelectAll()
+        {
+            for (var i = 0; i < this.Count; i++)
+            {
+                var g = this[i];
+                g.IsSelected = true;
+            }
+        }
+        public void UnselectAll()
+        {
+            for (var i = 0; i < this.Count; i++)
+            {
+                this[i].IsSelected = false;
+            }
+        }
+        public void DeleteSelection()
+        {
+
+            for (var i = this.Count - 1; i >= 0; i--)
+            {
+                if (!this[i].IsSelected) continue;
+                this.GraphicsList.RemoveAt(i);
+            }
+
+        }
+        public void DeleteAll()
+        {
+            if (this.GraphicsList.Count <= 0) return;
+            this.GraphicsList.Clear();
+        }
+        private Point ConvertToActualPoint(Point displayPoint, Rect canvasRect, double scale)
+        {
+            var x = (displayPoint.X / scale + canvasRect.X) ;
+            var y = (displayPoint.Y / scale + canvasRect.Y) ;
+            return new Point(x, y);
         }
         private void CancelCurrentOperation()
         {
@@ -323,87 +363,65 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             ReleaseMouseCapture();
             Cursor = Cursors.Arrow;
         }
-        public void Move(double deltaX, double deltaY)
+        private void TestGraphicsBound(GraphicsBase obj)
         {
-            var imageRect = _graphicsImage.Rectangle;
-            double left = imageRect.Right, ritht = imageRect.Left, top = imageRect.Bottom, bottom = imageRect.Top;
-            foreach (var o in this.Selection)
+            if (_canvasDisplyRect.Width > ImageSize.Width)
+                _canvasDisplyRect.X = ImageSize.Width / 2 - _canvasDisplyRect.Width / 2;
+            else
             {
-                left = Math.Min(left, o.Rectangle.Left);
-                ritht = Math.Max(ritht, o.Rectangle.Right);
-                top = Math.Min(top, o.Rectangle.Top);
-                bottom = Math.Max(bottom, o.Rectangle.Bottom);
+                if (_canvasDisplyRect.Left < 0) _canvasDisplyRect.X = 0;
+                else if (_canvasDisplyRect.Right > ImageSize.Width) _canvasDisplyRect.X = ImageSize.Width - _canvasDisplyRect.Width;
             }
-            deltaX = left + deltaX > imageRect.Left ? deltaX : imageRect.Left - left;
-            deltaX = ritht + deltaX < imageRect.Right ? deltaX : imageRect.Right - ritht;
-            deltaY = top + deltaY > imageRect.Top ? deltaY : imageRect.Top - top;
-            deltaY = bottom + deltaY < imageRect.Bottom ? deltaY : imageRect.Bottom - bottom;
-            foreach (var o in this.Selection)
+            if (_canvasDisplyRect.Height > ImageSize.Height)
+                _canvasDisplyRect.Y = ImageSize.Height / 2 - _canvasDisplyRect.Height / 2;
+            else
             {
-                o.Move(deltaX, deltaY);
-            }
-        }
-        public double LimitX { get; set; }
-        public double LimitY { get; set; }
-        public void Drag(double deltaX, double deltaY)
-        {
-          var  imageRect = _graphicsImage.Rectangle;
-            deltaX = imageRect.Left + deltaX > -(imageRect.Width - this.ActualWidth / ActualScale.Item1) ? deltaX : -(imageRect.Width - this.ActualWidth / ActualScale.Item1) - imageRect.Left;
-            deltaX = imageRect.Left + deltaX < LimitX ? deltaX : LimitX - imageRect.Left;
-            deltaY = imageRect.Top + deltaY > -(imageRect.Height - this.ActualHeight / ActualScale.Item2) ? deltaY : -(imageRect.Height - this.ActualHeight / ActualScale.Item2) - imageRect.Top;
-            deltaY = imageRect.Top + deltaY < LimitY ? deltaY : LimitY - imageRect.Top;
-            for (int i = 0; i < this.Count; i++)
-            {
-                this[i].Move(deltaX, deltaY);
-            }
-            this._graphicsImage.Move(deltaX, deltaY);
-        }
-        public void Drag2(double deltaX, double deltaY)
-        {
-            var imageRect = _graphicsImage.Rectangle;
-            if ((imageRect.Left + deltaX < -(imageRect.Width - this.ActualWidth / ActualScale.Item1) && (imageRect.Width > this.ActualWidth / ActualScale.Item1)) ||
-               imageRect.Left + deltaX > LimitX ||
-               (imageRect.Top + deltaY < -(imageRect.Height - this.ActualHeight / ActualScale.Item2) && (imageRect.Height > this.ActualHeight / ActualScale.Item2)) ||
-               imageRect.Top + deltaY > LimitY
-               )
-            {
-                var x = -imageRect.Left - (imageRect.Width - this.ActualWidth) / 2;
-                var y = -imageRect.Top - (imageRect.Height - this.ActualHeight) / 2;
-                var v = MoveVisualRect(new Vector(x, y));
-                this._graphicsImage.Move(v.X, v.Y);
-            }
-            Drag(deltaX, deltaY);
-        }
-
-        public void SelectAll()
-        {
-            for (var i = 0; i < this.Count; i++)
-            {
-                var g = this[i];
-                    g.IsSelected = true;
-            }
-        }
-        public void UnselectAll()
-        {
-            for (var i = 0; i < this.Count; i++)
-            {
-                this[i].IsSelected = false;
-            }
-        }
-        public void DeleteSelection()
-        {
-
-            for (var i = this.Count - 1; i >= 0; i--)
-            {
-                if (!this[i].IsSelected) continue;
-                this.GraphicsList.RemoveAt(i);
+                if (_canvasDisplyRect.Top < 0) _canvasDisplyRect.Y = 0;
+                else if (_canvasDisplyRect.Bottom > ImageSize.Height) _canvasDisplyRect.Y = ImageSize.Height - _canvasDisplyRect.Height;
             }
 
         }
-        public void DeleteAll()
+        private void RefreshVirtualBound()
         {
-            if (this.GraphicsList.Count <= 0) return;
-            this.GraphicsList.Clear();
+            TestVirtualBound();
+            foreach (var b in GraphicsList.Cast<GraphicsBase>())
+            {
+                b.RefreshDrawing();
+                b.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth / ActualScale.Item1, ActualHeight / ActualScale.Item2));
+            }
+
+            _graphicsImage.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth / ActualScale.Item1, ActualHeight / ActualScale.Item2));
+            if (((_canvasDisplyRect.Left < _graphicsImage.Rectangle.Left && _graphicsImage.Rectangle.Left > 0) ||
+                (_canvasDisplyRect.Top < _graphicsImage.Rectangle.Top && _graphicsImage.Rectangle.Top > 0) ||
+                (_canvasDisplyRect.Right > _graphicsImage.Rectangle.Right && _graphicsImage.Rectangle.Right < ImageSize.Width) ||
+                (_canvasDisplyRect.Bottom > _graphicsImage.Rectangle.Bottom && _graphicsImage.Rectangle.Bottom < ImageSize.Height))
+                && UpdateDisplayImage != null)
+                UpdateDisplayImage(_canvasDisplyRect);
+            else { }
+                _graphicsImage.RefreshDrawing();
+
+        }
+        private void TestVirtualBound()
+        {
+            if (_canvasDisplyRect.Width > ImageSize.Width)
+                _canvasDisplyRect.X = ImageSize.Width / 2 - _canvasDisplyRect.Width / 2;
+            else
+            {
+                if (_canvasDisplyRect.Left < 0)
+                    _canvasDisplyRect.X = 0;
+                else if (_canvasDisplyRect.Right > ImageSize.Width)
+                    _canvasDisplyRect.X = ImageSize.Width - _canvasDisplyRect.Width;
+            }
+            if (_canvasDisplyRect.Height > ImageSize.Height)
+                _canvasDisplyRect.Y = ImageSize.Height / 2 - _canvasDisplyRect.Height / 2;
+            else
+            {
+                if (_canvasDisplyRect.Top < 0)
+                    _canvasDisplyRect.Y = 0;
+                else if (_canvasDisplyRect.Bottom > ImageSize.Height)
+                    _canvasDisplyRect.Y = ImageSize.Height - _canvasDisplyRect.Height;
+            }
+
         }
 
     }

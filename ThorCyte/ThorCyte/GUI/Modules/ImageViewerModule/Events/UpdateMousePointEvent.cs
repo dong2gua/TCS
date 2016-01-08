@@ -14,6 +14,7 @@ namespace ThorCyte.ImageViewerModule.Events
     }
     public class MousePointStatus
     {
+        public double Scale { get; set; }
         public Point Point { get; set; }
         public double GrayValue { get; set; }
         public bool IsComputeColor { get; set; }

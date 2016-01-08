@@ -9,8 +9,6 @@
 
     public enum OpenVirMode { None, New, Edit }
 
-    public enum ScanModType { FieldScan = 1, MosaicScan = 2 }
-
     /// <summary>
     /// Summary description for ThresholdMod.
     /// </summary>
@@ -32,20 +30,36 @@
     {
         None = 0,
 
-        SmtScanDetectors = 1,
-        SmtFieldScan,
+        //According to category
+        SmtOutputCategory,
 
-        SmtOutputProcessedImage = 10,
-        SmtOutputImageVIew,
 
-        SmtFilter = 20,
+        SmtFilterCategory,
 
-        SmtContourChannel = 40,
-        SmtContourThreshold,
-        SmtContourContour,
 
-        SmtEventEvent = 50,
-        SmtEventPhantom,
+        SmtOperationCategory,
+
+
+        SmtContourCategory,
+        SmtChannelModule,
+        SmtThresholdModule,
+
+        SmtEventCategory,
+
+        SmtExperimentalCategory,
+        SmtAdvancedImageAnalysisCategory,
+        SmtCustomModulesCategory
+        //SmtOutputProcessedImage = 10,
+        //SmtOutputImageVIew,
+
+        //SmtFilter = 20,
+
+        //SmtContourChannel = 40,
+        //SmtContourThreshold,
+        //SmtContourContour,
+
+        //SmtEventEvent = 50,
+        //SmtEventPhantom,
     }
 
 }

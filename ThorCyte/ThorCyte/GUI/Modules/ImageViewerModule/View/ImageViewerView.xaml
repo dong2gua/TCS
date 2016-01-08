@@ -5,45 +5,116 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:view="clr-namespace:ThorCyte.ImageViewerModule.View"
              xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
+             xmlns:xct="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:control="clr-namespace:ThorCyte.ImageViewerModule.Control"
+             xmlns:drawtool="clr-namespace:ThorCyte.ImageViewerModule.DrawTools"
+             xmlns:selector="clr-namespace:ThorCyte.ImageViewerModule.Selector"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="800">
     <UserControl.Resources>
-        <converter:ColorToBrushConverter x:Key="ColorToBrushC"/>
+        <!--<converter:ColorToBrushConverter x:Key="ColorToBrushC"/>-->
+        <selector:ViewportSelector x:Key="ViewportSelector">
+            <selector:ViewportSelector.OneViewportDataTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                    </Grid>
+                </DataTemplate>
+            </selector:ViewportSelector.OneViewportDataTemplate>
+            <selector:ViewportSelector.HorizontalViewportDataTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                        <ContentControl Grid.Row="0" Grid.Column="1" Content="{Binding Viewports[1]}"/>
+                    </Grid>
+                </DataTemplate>
+            </selector:ViewportSelector.HorizontalViewportDataTemplate>
+            <selector:ViewportSelector.VerticalViewportDataTemplate>
+                <DataTemplate>
+                    <Grid Background="Blue">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                        <ContentControl Grid.Row="1" Grid.Column="0" Content="{Binding Viewports[1]}"/>
+                    </Grid>
+                </DataTemplate>
+            </selector:ViewportSelector.VerticalViewportDataTemplate>
+            <selector:ViewportSelector.AllViewportDataTemplate>
+                <DataTemplate>
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                        <ContentControl Grid.Row="0" Grid.Column="1" Content="{Binding Viewports[1]}"/>
+                        <ContentControl Grid.Row="1" Grid.Column="0" Content="{Binding Viewports[2]}"/>
+                        <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding Viewports[3]}"/>
+                    </Grid>
+                </DataTemplate>
+            </selector:ViewportSelector.AllViewportDataTemplate>
+        </selector:ViewportSelector>
     </UserControl.Resources>
-    <Grid>
+    <Grid IsEnabled="{Binding ImageViewEnable}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <ToolBar>
+        <StackPanel Orientation="Horizontal">
             <!--<Button Content="line" Command="{Binding DrawRegionCommand}" CommandParameter="Line"/>-->
-            <Button Content="Rectangle" Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle"/>
-            <Button Content="Ellipse" Command="{Binding DrawRegionCommand}" CommandParameter="Ellipse"/>
-            <ToggleButton Content="Dragger"  IsChecked="{Binding IsDragger}" Command="{Binding DraggerCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
-            <Button Content="ZoomIn" Command="{Binding ZoomCommand}" CommandParameter="true"/>
-            <Button Content="ZoomOut" Command="{Binding ZoomCommand}" CommandParameter="false"/>
-            <Button Content="ComputeColor" Command="{Binding ComputeColorCommand}"/>
-            <Button Content="VirtualChannel" Command="{Binding VirtualChannelCommand}"/>
-            <ToggleButton Content="Profile"  IsChecked="{Binding IsProfile}" Command="{Binding ProfileCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
-            <ToggleButton Content="Ruler"  IsChecked="{Binding IsRuler}" Command="{Binding RulerCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
-            <Button Content="Brightness/Contrast" Command="{Binding BrightnessContrastCommand}"/>
+            <Button  Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle">
+                <Image Source="..\resources\Rectangle.png"/>
+            </Button>
+            <Button  Command="{Binding DrawRegionCommand}" CommandParameter="Ellipse">
+                <Image Source="..\resources\ellipse.png"/>
+            </Button>
+            <ToggleButton   IsChecked="{Binding IsDragger}" Command="{Binding DraggerCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
+                <Image Source="..\resources\Drag.png"/>
+            </ToggleButton>
+            <Button  Command="{Binding ZoomCommand}" CommandParameter="true">
+                <Image Source="..\resources\ZoomIn.png"/>
+            </Button>
+            <Button  Command="{Binding ZoomCommand}" CommandParameter="false">
+                <Image Source="..\resources\ZoomOut.png"/>
+            </Button>
+            <Button  Command="{Binding ComputeColorCommand}">
+                <Image Source="..\resources\ComputeColor.png"/>
+            </Button>
+            <Button  Command="{Binding VirtualChannelCommand}">
+                <Image Source="..\resources\VirtualChannel.png"/>
+            </Button>
+            <ToggleButton   IsChecked="{Binding IsProfile}" Command="{Binding ProfileCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
+                <Image Source="..\resources\Profile.png"/>
+            </ToggleButton>
+            <ToggleButton   IsChecked="{Binding IsRuler}" Command="{Binding RulerCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
+                <Image Source="..\resources\Ruler.png"/>
+            </ToggleButton>
+            <Button  Command="{Binding BrightnessContrastCommand}">
+                <Image Source="..\resources\Brightness.png"/>
+            </Button>
+            <xct:DropDownButton x:Name="dropDownButton">
+                <Image Source="..\resources\Window-New.png"/>
+                <xct:DropDownButton.DropDownContent >
+                    <control:SelectViewportCanvas x:Name="selectViewportCanvas" Background="Gray" />
+                </xct:DropDownButton.DropDownContent>
+            </xct:DropDownButton>
+            <ToggleButton Height="54" Width="54"  IsChecked="{Binding IsAspectRatio}" Command="{Binding AspectRatioCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
+                <TextBlock Text="µ" FontSize="36"/>
+            </ToggleButton>
+        </StackPanel>
+        <ContentControl Grid.Row="1" Content="{Binding ViewportType}"  ContentTemplateSelector="{StaticResource ViewportSelector}"></ContentControl>
 
-        </ToolBar>
-        <ContentControl Grid.Row="1" Content="{Binding CurrentViewport}"/>
-        <!--<ListView Grid.Row="1" ItemsSource="{Binding Viewports}" SelectedItem="{Binding CurrentViewport}">
-            <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal"/>
-                </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ContentControl Content="{Binding}" Height="300" >
-                    </ContentControl>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>-->
         <StatusBar  Grid.Row="2">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -58,16 +129,6 @@
             </StatusBar.ItemsPanel>
             <StatusBarItem Grid.Column="0">
                 <TextBlock Text="{Binding MousePointStatus}"></TextBlock>
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="0">
-                <TextBlock Text="{Binding CurrentViewport.drawCanvas.Point.Y}"></TextBlock>
-            </StatusBarItem>
-            <Separator Grid.Column="1"/>
-            <StatusBarItem  Grid.Column="2">
-                <DockPanel>
-                    <!--<Image Width="16" Height="16" VerticalAlignment="Center" Source="{Binding IsConnected, Converter={StaticResource BoolToStringC},  ConverterParameter=..\\Resources\\lightgreen.png|..\\Resources\\lightred.png}"></Image>
-                    <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right" Text="{Binding IsConnected, Converter={StaticResource BoolToStringC}, ConverterParameter=Connected|Disconnected}"/>-->
-                </DockPanel>
             </StatusBarItem>
         </StatusBar>
     </Grid>

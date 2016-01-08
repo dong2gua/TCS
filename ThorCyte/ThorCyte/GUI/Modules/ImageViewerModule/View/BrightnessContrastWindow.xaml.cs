@@ -22,6 +22,7 @@ namespace ThorCyte.ImageViewerModule.View
         public BrightnessContrastWindow()
         {
             InitializeComponent();
+            ColorScale.Fill= new LinearGradientBrush(Colors.Black, Colors.White, 0);
         }
     }
 }

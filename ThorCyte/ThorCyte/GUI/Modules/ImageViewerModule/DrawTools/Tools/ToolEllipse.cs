@@ -11,13 +11,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         {
             var point = position;
 
-            AddNewObject(drawingCanvas,
-                new GraphicsEllipse(
-                    point.X,
-                    point.Y,
-                    point.X + 1,
-                    point.Y + 1,
-                    drawingCanvas.ActualScale));
+            AddNewObject(drawingCanvas, new GraphicsEllipse(point, drawingCanvas));
         }
 
         public override void OnMouseMove(DrawingCanvas drawingCanvas, MouseEventArgs e, Point position)
@@ -37,6 +31,10 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         public override void OnMouseUp(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             base.OnMouseUp(drawingCanvas, e, position);
+        }
+        public override void SetCursor(DrawingCanvas drawingCanvas)
+        {
+            drawingCanvas.Cursor = Cursors.Hand;
         }
 
     }

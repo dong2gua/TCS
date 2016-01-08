@@ -265,9 +265,8 @@
             </Button>
         </ToolBar>
 
-        <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Grid.Row="1" Grid.Column="0" Background="DarkGray" Template="{DynamicResource ScrollViewerControlTemplate1}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1" Grid.Column="0" Background="DarkGray" >
             <canvases:SlideCanvas x:Name="slideCanvas" HorizontalAlignment="Center"  VerticalAlignment="Center" Margin="10" 
-				Background="Gainsboro" Width="375" Height="125" 
 				ToolTip="Left CTRL + Mouse Wheel to Zoom"/>
         </ScrollViewer>
         <StatusBar DockPanel.Dock="Bottom" Height="24" Grid.Row="2" Grid.Column="0">

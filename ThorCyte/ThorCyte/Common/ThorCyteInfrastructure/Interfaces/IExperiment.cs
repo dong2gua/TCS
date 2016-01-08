@@ -13,6 +13,7 @@ namespace ThorCyte.Infrastructure.Interfaces
         public string InstrumentType { set; get; }
         public string SoftwareVersion { set; get; }
         public string Notes { set; get; }
+        public int IntensityBits { set; get; }
     }
 
     public class ScanInfo

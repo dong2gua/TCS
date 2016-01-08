@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using ThorCyte.Infrastructure.Commom;
 using ThorCyte.ProtocolModule.Models;
+using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {

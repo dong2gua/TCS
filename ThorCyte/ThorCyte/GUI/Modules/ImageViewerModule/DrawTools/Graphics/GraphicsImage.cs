@@ -12,8 +12,9 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         //    _imageSource = imageSource;
         //    _rect = new Rect(new Point(0, 0), size);
         //}
-        public GraphicsImage()
+        public GraphicsImage(DrawingCanvas canvas)
         {
+            Canvas = canvas;
         }
         public void SetImage(ImageSource imageSource, Rect rect)
         {
@@ -34,7 +35,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 
         public override void Draw(DrawingContext drawingContext)
         {
-            drawingContext.DrawImage(ImageSource, Rectangle);
+            drawingContext.DrawImage(ImageSource,ConvertToDisplayRect(Rectangle));
         }
         public override int HandleCount { get { return 0; } }
         public override Point GetHandle(int handleNumber) { return new Point(0, 0); }

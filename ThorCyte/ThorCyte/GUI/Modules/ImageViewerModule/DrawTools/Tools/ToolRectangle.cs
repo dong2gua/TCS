@@ -11,7 +11,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         public override void OnMouseDown(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             var point = position;
-            var rectangle = new GraphicsRectangle(point.X, point.Y, point.X + 1, point.Y + 1, drawingCanvas.ActualScale);
+            var rectangle = new GraphicsRectangle(point, drawingCanvas);
             AddNewObject(drawingCanvas, rectangle);
         }
 
@@ -31,6 +31,11 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         {
             base.OnMouseUp(drawingCanvas, e, position);
         }
+        public override void SetCursor(DrawingCanvas drawingCanvas)
+        {
+            drawingCanvas.Cursor = Cursors.Hand;
+        }
+
     }
 
 }

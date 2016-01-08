@@ -11,7 +11,7 @@
         <converter:IntToVisibilityConverter x:Key="intToVisibility"/>
     </UserControl.Resources>
         <StackPanel>
-            <Expander Header="Experiment Information" Margin="0,2,0,2">
+        <Expander Header="Experiment Information" Margin="0,2,0,2" IsExpanded="{Binding IsInitialized, Mode=OneWay}">
                 <Grid Margin="6,0,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.3*"/>
@@ -39,7 +39,7 @@
                     <Label Grid.Row="5" Grid.Column="1" Content="{Binding CurrentExperiment.Notes}"></Label>
             </Grid> 
             </Expander>
-            <Expander Header="ScanInfo">
+        <Expander Header="ScanInfo" IsExpanded="{Binding IsInitialized, Mode=OneWay}">
                 <StackPanel Margin="6,0,0,0">
                     <Grid Margin="0,0,0,2">
                         <Grid.ColumnDefinitions>

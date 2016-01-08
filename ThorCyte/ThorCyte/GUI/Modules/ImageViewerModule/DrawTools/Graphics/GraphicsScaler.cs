@@ -12,15 +12,49 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         {
         }
         public Point Point;
+        public double XPixelSize { get; set; }
+        public double YPixelSize { get; set; }
 
 
         public override void Draw(DrawingContext drawingContext)
         {
-            var start = new Point(Point.X / ActualScale.Item1 , Point.Y / ActualScale.Item1);
-            var End = new Point(Point.X / ActualScale.Item1 + 100 , Point.Y / ActualScale.Item1);
-            drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), start, End);
-            var format = GetFormattedText("100");
-            var textPoint = new Point(Point.X / ActualScale.Item1 + 50 - format.Width/2 , (Point.Y - 20) / ActualScale.Item1);
+            if (XPixelSize == 0) return;
+            int textLength;
+            double displayLength, unitC = 1;
+            var realLength = 200 / ActualScale.Item3 / ActualScale.Item1* XPixelSize;
+            var unit = "µm";
+            var digits =(int)Math.Floor( Math.Log10(realLength));
+            int tmp = (int)(realLength / Math.Pow(10, digits));
+            if (tmp >= 5) tmp = 5;
+            else if (tmp >= 2) tmp = 2;
+            else if (tmp >= 1) tmp = 1;
+            else if (tmp >= 10 || tmp < 1) throw new Exception();
+            else throw new Exception();
+            if(digits>=6)
+            {
+                unit = "m";
+                textLength = tmp *(int) Math.Pow(10, digits - 6);
+                unitC = (int)Math.Pow(10, 6);
+           }
+            else if (digits>=3)
+            {
+                unit = "mm";
+                textLength = tmp * (int)Math.Pow(10, digits - 3);
+                unitC = (int)Math.Pow(10, 3);
+            }
+            else
+            {
+                textLength = tmp * (int)Math.Pow(10, digits);
+            }
+            displayLength = textLength * unitC * ActualScale.Item3/ XPixelSize;
+
+            var start = new Point(Point.X / ActualScale.Item1 , Point.Y / ActualScale.Item2);
+            var end = new Point(Point.X / ActualScale.Item1 + displayLength, Point.Y / ActualScale.Item2);
+            drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), start, end);
+            drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth),new Point( start.X,start.Y-5/ActualScale.Item2), start);
+            drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), new Point(end.X, end.Y - 5 / ActualScale.Item2), end);
+            var format = GetFormattedText(textLength.ToString()+" "+unit);
+            var textPoint = new Point(Point.X / ActualScale.Item1 + displayLength/2 - format.Width/2 , (Point.Y - 20) / ActualScale.Item2);
             drawingContext.DrawText(format, textPoint);
 
         }

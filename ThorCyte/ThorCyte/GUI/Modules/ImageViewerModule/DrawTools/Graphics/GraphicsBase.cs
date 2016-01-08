@@ -22,7 +22,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         protected double RectangleTop;
         protected double RectangleRight;
         protected double RectangleBottom;
-
+        protected DrawingCanvas Canvas;
         protected double HandleSize
         {
             get { return 12.0 / Math.Min(ActualScale.Item1, ActualScale.Item2); }
@@ -138,7 +138,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                 DrawTracker(drawingContext);
             }
         }
-
         public virtual void DrawTracker(DrawingContext drawingContext)
         {
             for (var i = 1; i <= HandleCount; i++)
@@ -182,13 +181,12 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         {
             var point = GetHandle(handleNumber);
             var sizeX = HandleSize;
-            return new Rect(point.X - sizeX / 2, point.Y - sizeX / 2, sizeX, sizeX);
+            return  new Rect(point.X - sizeX / 2, point.Y - sizeX / 2, sizeX, sizeX);
         }
         protected Point VerifyPoint(Point point)
         {
-            var bound = Clip as RectangleGeometry;
-            if (bound == null) return point;
-            var rect = bound.Rect;
+            if (Canvas == null) return point;
+            var rect = new Rect(0,0,Canvas.ImageSize.Width, Canvas.ImageSize.Height);
             if (rect.IsEmpty) return point;
             if (rect.Contains(point)) return point;
 
@@ -210,7 +208,24 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 
             return new Point(x, y);
         }
-
+        protected Rect ConvertToDisplayRect(Rect actualRect)
+        {
+            var canvasRect = Canvas.CanvasDisplyRect;
+            var scale = Canvas.ActualScale.Item3;
+            var x = (actualRect.X - canvasRect.X) * scale;
+            var y = (actualRect.Y - canvasRect.Y) * scale;
+            var width = actualRect.Width * scale;
+            var height = actualRect.Height * scale;
+            return new Rect(x, y, width, height);
+        }
+        protected Point ConvertToDisplayPoint(Point actualPoint)
+        {
+            var canvasRect = Canvas.CanvasDisplyRect;
+            var scale = Canvas.ActualScale.Item3;
+            var x = (actualPoint.X - canvasRect.X) * scale;
+            var y = (actualPoint.Y - canvasRect.Y) * scale;
+            return new Point(x, y);
+        }
 
 
 

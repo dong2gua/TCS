@@ -9,45 +9,30 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
     public class GraphicsRuler : GraphicsLine
     {
-        public GraphicsRuler()
+        public double XPixelSize { get; set; }
+        public double YPixelSize { get; set; }
+        public void UpdatePoint(Point point, DrawingCanvas canvas)
         {
+            Canvas = canvas;
+            ActualScale = Canvas.ActualScale;
+            point = VerifyPoint(point);
+            LineStart = point;
+            LineEnd = point;
+            RectangleLeft = point.X;
+            RectangleTop = point.Y;
+            RectangleRight = point.X;
+            RectangleBottom = point.Y;
         }
-        public void UpdatePoint(Point start, Point end, Tuple<double, double, double> actualScale)
-        {
-            LineStart = start;
-            LineEnd = end;
-            RectangleLeft = Math.Min(LineStart.X, LineEnd.X);
-            RectangleTop = Math.Min(LineStart.Y, LineEnd.Y);
-            RectangleRight = Math.Max(LineStart.X, LineEnd.X);
-            RectangleBottom = Math.Max(LineStart.X, LineEnd.X);
-            ActualScale = actualScale;
-
-        }
-        public GraphicsRuler(Point start, Point end, Tuple<double, double, double> actualScale)
-        {
-
-            LineStart = start;
-            LineEnd = end;
-            RectangleLeft = Math.Min(LineStart.X, LineEnd.X);
-            RectangleTop = Math.Min(LineStart.Y, LineEnd.Y);
-            RectangleRight = Math.Max(LineStart.X, LineEnd.X);
-            RectangleBottom = Math.Max(LineStart.X, LineEnd.X);
-            ActualScale = actualScale;
-        }
-
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
-            //drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), LineStart, LineEnd);
-            double value = Math.Sqrt(Math.Abs(LineStart.X - LineEnd.X) * Math.Abs(LineStart.X - LineEnd.X) + Math.Abs(LineStart.Y - LineEnd.Y) * Math.Abs(LineStart.Y - LineEnd.Y))/ActualScale.Item3;
+            double value = Math.Sqrt(Math.Pow((LineStart.X - LineEnd.X) * XPixelSize, 2) + Math.Pow((LineStart.Y - LineEnd.Y) * YPixelSize, 2));
             var format = GetFormattedText(value.ToString("0.00"));
-            drawingContext.DrawText(format, LineEnd);
+            drawingContext.DrawText(format,ConvertToDisplayPoint(LineEnd));
             base.Draw(drawingContext);
         }
         FormattedText GetFormattedText(string text)
         {
-
-
             var typeface = new Typeface(new FontFamily(), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
 
             return new FormattedText(text, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight,

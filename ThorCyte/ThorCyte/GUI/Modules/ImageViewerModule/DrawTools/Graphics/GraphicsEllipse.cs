@@ -7,20 +7,22 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
     public class GraphicsEllipse : GraphicsRectangleBase
     {
 
-        public GraphicsEllipse(double left, double top, double right, double bottom,Tuple<double, double,double> actualScale)
+        public GraphicsEllipse(Point point, DrawingCanvas canvas)
         {
-            RectangleLeft = left;
-            RectangleTop = top;
-            RectangleRight = right;
-            RectangleBottom = bottom;
-            ActualScale = actualScale;
+            Canvas = canvas;
+            ActualScale = Canvas.ActualScale;
+            point = VerifyPoint(point);
+            RectangleLeft = point.X;
+            RectangleTop = point.Y;
+            RectangleRight = point.X;
+            RectangleBottom = point.Y;
         }
 
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
 
-            var r = Rectangle;
+            var r = ConvertToDisplayRect(Rectangle);
 
             var center = new Point((r.Left + r.Right) / 2.0, (r.Top + r.Bottom) / 2.0);
 

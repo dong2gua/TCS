@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.Infrastructure.Types;
 using ImageProcess;
+using System.Windows;
 namespace ThorCyte.ImageViewerModule.Model
 {
     public class ChannelImage : BindableBase
@@ -23,11 +24,11 @@ namespace ThorCyte.ImageViewerModule.Model
         public Channel ChannelInfo { get; set; }
         public string ChannelName { get; set; }
         //public int ChannelId { get; set; }
-        private BitmapSource _image;
-        public BitmapSource Image
+        private Tuple<ImageSource, Int32Rect> _image;
+        public Tuple< ImageSource,Int32Rect> Image
         {
             get { return _image; }
-            set { SetProperty<BitmapSource>(ref _image, value, "Image"); }
+            set { SetProperty<Tuple<ImageSource, Int32Rect>>(ref _image, value, "Image"); }
         }
         private BitmapSource _thumbnail;
         public BitmapSource Thumbnail
@@ -37,7 +38,7 @@ namespace ThorCyte.ImageViewerModule.Model
         }
         public ImageData ImageData { get; set; }
         public ImageData ThumbnailImageData { get; set; }
-        public double Brightness { get; set; }
+        public int Brightness { get; set; }
         public double Contrast { get; set; }
         public bool IsComputeColor { get; set; }
         public Dictionary<Channel,Color> ComputeColorDic { get; set; }

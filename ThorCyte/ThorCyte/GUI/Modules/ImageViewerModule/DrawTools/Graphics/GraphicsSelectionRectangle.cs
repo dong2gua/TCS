@@ -7,13 +7,15 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
     class GraphicsSelectionRectangle : GraphicsRectangleBase
     {
 
-        public GraphicsSelectionRectangle(double left, double top, double right, double bottom, Tuple<double, double, double> actualScale)
+        public GraphicsSelectionRectangle(Point point, DrawingCanvas canvas)
         {
-            RectangleLeft = left;
-            RectangleTop = top;
-            RectangleRight = right;
-            RectangleBottom = bottom;
-            ActualScale = actualScale;
+            Canvas = canvas;
+            ActualScale = Canvas.ActualScale;
+            point = VerifyPoint(point);
+            RectangleLeft = point.X;
+            RectangleTop = point.Y;
+            RectangleRight = point.X;
+            RectangleBottom = point.Y;
         }
 
         public override void Draw(DrawingContext drawingContext)
@@ -24,7 +26,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             dashStyle.Dashes.Add(4);
             var dashedPen = new Pen(Brushes.White, GraphicsLineWidth) { DashStyle = dashStyle };
 
-            drawingContext.DrawRectangle(null, dashedPen, Rectangle);
+            drawingContext.DrawRectangle(null, dashedPen, ConvertToDisplayRect(Rectangle));
         }
 
         public override bool Contains(Point point)

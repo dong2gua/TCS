@@ -7,7 +7,7 @@ using System;
 
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
-    public class GraphicsLine : GraphicsBase
+    public abstract class GraphicsLine : GraphicsBase
     {
         protected Point LineStart;
         protected Point LineEnd;
@@ -16,32 +16,19 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             get { return LineStart; }
             set { LineStart = value; }
         }
-
         public Point End
         {
             get { return LineEnd; }
             set { LineEnd = value; }
         }
 
-        //public GraphicsLine(Point start, Point end, Tuple<double, double> actualScale)
-        //{
-
-        //    LineStart = start;
-        //    LineEnd = end;
-        //    RectangleLeft = Math.Min(LineStart.X, LineEnd.X);
-        //    RectangleTop = Math.Min(LineStart.Y, LineEnd.Y);
-        //    RectangleRight = Math.Max(LineStart.X, LineEnd.X);
-        //    RectangleBottom = Math.Max(LineStart.X, LineEnd.X);
-        //    ActualScale = actualScale;
-        //}
-
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
             drawingContext.DrawLine(
                 new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth),
-                LineStart,
-                LineEnd);
+                ConvertToDisplayPoint(LineStart),
+                ConvertToDisplayPoint(LineEnd));
             base.Draw(drawingContext);
         }
         public override int HandleCount { get { return 2; } }
@@ -54,6 +41,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             switch (handleNumber)
             {
                 case 1:
+                    return Cursors.SizeAll;
                 case 2:
                     return Cursors.SizeAll;
                 default:
@@ -88,7 +76,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             {
                 for (var i = 1; i <= HandleCount; i++)
                 {
-                    if (GetHandleRectangle(i).Contains(point))
+                    if (GetHandleRectangle(i).Contains(ConvertToDisplayPoint( point)))
                         return i;
                 }
             }

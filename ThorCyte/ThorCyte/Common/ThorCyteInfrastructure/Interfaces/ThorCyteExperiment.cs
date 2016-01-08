@@ -39,7 +39,8 @@ namespace ThorCyte.Infrastructure.Interfaces
         private string _activeRunNum = string.Empty;
         private string _carrierId = string.Empty;
         private CarrierType _carrierType = CarrierType.None;
-       
+        private double _fieldWidth;
+        private double _fieldHeight;
         #endregion
 
         #region Properties
@@ -85,7 +86,8 @@ namespace ThorCyte.Infrastructure.Interfaces
             _experimentInfo = new ExperimentInfo
             {
                 InstrumentType = InstrumentType,
-                UserName = string.Empty
+                UserName = string.Empty,
+                IntensityBits = 14 //14bits
             };
         }
         private static string FindspecifiedFile(string path, string extension)
@@ -278,6 +280,8 @@ namespace ThorCyte.Infrastructure.Interfaces
         {
             if (element != null)
             {
+                _fieldHeight = element.ParseAttributeToDouble("field-height");
+                _fieldWidth = element.ParseAttributeToDouble("field-width");
                 IEnumerable<ScanRegion> regions = GetScanRegions(element);
                 foreach (var region in regions)
                 {
@@ -304,11 +308,10 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         private void BuildTiles(IEnumerable<ScanRegion> scanRegions)
         {
-            double width = _firstScanInfo.TileWidth*_firstScanInfo.XPixcelSize;
-            double height = _firstScanInfo.TiledHeight*_firstScanInfo.YPixcelSize;
+           
             foreach (var scanRegion in scanRegions)
             {
-                scanRegion.BulidTiles(width, height, XInterval, YInterval, ScanPathType.LeftToRight);
+                scanRegion.BulidTiles(_fieldWidth, _fieldHeight, XInterval, YInterval, ScanPathType.LeftToRight);
             }
         }
 

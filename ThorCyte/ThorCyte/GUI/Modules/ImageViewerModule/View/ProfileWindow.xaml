@@ -6,28 +6,26 @@
         xmlns:local="clr-namespace:ThorCyte.ImageViewerModule.View"
         xmlns:sciChart="http://schemas.abtsoftware.co.uk/scichart"
         mc:Ignorable="d"
-        Title="ProfileWindow" Height="300" Width="300"  Visibility="{Binding}">
+        Title="ProfileWindow" Height="300" Width="400"  WindowStyle="ToolWindow" Style="{StaticResource {x:Type Window}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="32"></RowDefinition>
         </Grid.RowDefinitions>
         <!-- Declare a SciChartSurface and bind to data -->
-        <sciChart:SciChartSurface  sciChart:ThemeManager.Theme="Chrome" SeriesSource="{Binding SeriesSource}">
+        <sciChart:SciChartSurface  sciChart:ThemeManager.Theme="Chrome" SeriesSource="{Binding SeriesSource}" >
             <sciChart:SciChartSurface.XAxis>
-                <sciChart:NumericAxis AutoRange="Always" AxisTitle="Length(pixel)"/>
+                <sciChart:NumericAxis AutoRange="Always" AxisTitle="Length(pixel)"   Margin="0,0,0,-10"/>
             </sciChart:SciChartSurface.XAxis>
             <sciChart:SciChartSurface.YAxis>
-                <sciChart:NumericAxis AutoRange="Never" VisibleRange="{Binding AxisYRange}" AxisTitle="Intensity"
+                <sciChart:NumericAxis AutoRange="Never" VisibleRange="{Binding AxisYRange}" AxisTitle="Intensity"  Margin="0,0,-10,0"
                                       AxisAlignment="Left"/>
             </sciChart:SciChartSurface.YAxis>
         </sciChart:SciChartSurface>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center"
-                    Background="White" Height="32">
-            <TextBlock Text="CF : " Foreground="Black" VerticalAlignment="Top" ></TextBlock>
-            <TextBox Text="{Binding Path=ProfileCf, StringFormat={}{0:f2}%}" 
-                      VerticalAlignment="Top"></TextBox>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" >
+            <Label Content="CF : " Margin="20,0,5,0" ></Label>
+            <TextBox Text="{Binding Path=ProfileCf, StringFormat={}{0:f2}%}" />
         </StackPanel>
     </Grid>
 </Window>

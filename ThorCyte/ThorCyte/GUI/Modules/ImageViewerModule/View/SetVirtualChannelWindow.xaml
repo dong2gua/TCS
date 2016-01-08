@@ -9,7 +9,7 @@
         xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
         mc:Ignorable="d"
         x:Name="Self"
-        Title="Set Virtual Channel" Height="300" Width="400">
+        Title="Set Virtual Channel" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow" Style="{StaticResource {x:Type Window}}">
     <Window.Resources>
         <ObjectDataProvider x:Key="OperatorEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -24,11 +24,16 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
+        
         <StackPanel Orientation="Horizontal"  Grid.Row="0">
-            <TextBlock Text="ChannelName" TextAlignment="Right" Height="20" Width="80" Margin="5"/>
+            <Label Content="Channel Name:"  VerticalAlignment="Center"   Margin="20,0"/>
             <TextBox  Text="{Binding ChannelName}"  Height="20" Width="120" IsEnabled="{Binding IsNew}"/>
         </StackPanel>
-        <GroupBox Grid.Row="1" Header="Properties">
+        <GroupBox Grid.Row="1">
+            <GroupBox.Header>
+                <TextBlock Text="Properties" />
+
+            </GroupBox.Header>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -39,11 +44,11 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0" Text="First Channel:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="0" Grid.Row="0"   Text="First Channel:"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <ComboBox Grid.Column="1" Grid.Row="0" Height="20" Width="100" ItemsSource="{Binding ChannelList}" SelectedItem="{Binding Channel1}"  DisplayMemberPath="ChannelName"/>
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Operator:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <ComboBox Grid.Column="1" Grid.Row="1" Height="20" Width="100" ItemsSource="{Binding Source={StaticResource OperatorEnum} }" SelectedItem="{Binding Operator}" />
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="Second Channel:" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=0}"/>
+                <TextBlock Grid.Column="0" Grid.Row="2"  Text="Second Channel:" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=0}"/>
                 <ComboBox Grid.Column="1" Grid.Row="2" Height="20" Width="100" ItemsSource="{Binding ChannelList}" SelectedItem="{Binding Channel2}"  DisplayMemberPath="ChannelName" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=0}" IsEnabled="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=2}"/>
                 <TextBlock Grid.Column="0" Grid.Row="2" Text="Operand:" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=1}" />
                 <TextBox Grid.Column="1" Grid.Row="2" Height="20" Width="100" Text="{Binding Operand}" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=1}" />

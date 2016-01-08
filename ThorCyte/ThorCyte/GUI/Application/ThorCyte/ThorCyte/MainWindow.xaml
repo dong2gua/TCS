@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:regions="http://prismlibrary.com/"
         xmlns:inf="clr-namespace:ThorCyte.Infrastructure.Commom;assembly=ThorCyte.Infrastructure"
-        Title="MainWindow" Height="350" Width="525" Style ="{StaticResource {x:Type Window}}" Icon="ThorCyte.png">
+        Title="MainWindow" Height="1024" Width="1280" Style ="{StaticResource {x:Type Window}}" Icon="ThorCyte.png" MinWidth="1280" MinHeight="1024">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="70"/>

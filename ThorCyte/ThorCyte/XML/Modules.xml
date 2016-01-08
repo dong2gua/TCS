@@ -7,13 +7,6 @@
 			<module name="Channel Label"  />
 		</modules>
 	</category>
-	<category name="Scan">
-		<modules>
-			<module name="Detectors" reference="ThorCyte.Script.ViewModels.Modules.PmtModVm,Script"/>
-			<module name="FieldScan" disp-name="Field Scan" reference="ThorCyte.Script.ViewModels.Modules.FieldScanModVm,Script"/>
-			<module name="MosaicScan" disp-name="Mosaic Scan"/>
-		</modules>
-	</category>
 	<category name="Output">
 		<modules>
 			<module name="GlobalImage" disp-name="Processed Image"/>
@@ -42,7 +35,7 @@
   </category>
 	<category name="Contour">
 		<module name="Channel" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ChannelModVm" />
-		<module name="Threshold" reference="ThorCyte.Script.ViewModels.Modules.ThresholdModVm,Script" />
+		<module name="Threshold" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ThresholdModVm" />
 		<module name="Contour"  reference="ThorCyte.Script.ViewModels.Modules.ContourModVm,Script"/>
 	</category>
 	<category name="Event">

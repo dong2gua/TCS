@@ -20,7 +20,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             SelectionChangedCommand = new DelegateCommand<ComputeColorItem>(OnSelectionChanged);
             ClickOKCommand = new DelegateCommand<SetComputeColorWindow>(OnClickOK);
             ClickCancelCommand = new DelegateCommand<SetComputeColorWindow>(OnClickCancel);
-
+            ChannelName = "newcomputecolor";
+            if (channels == null || computeColors == null) return;
             _channels = channels;
             _computeColors = computeColors;
             ChannelList = new List<ComputeColorItem>();
@@ -29,8 +30,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 var item = new ComputeColorItem() { IsSelected = false, Channel = o, Color = Colors.Red };
                 ChannelList.Add(item);
             }
-
-            ChannelName = "newcomputecolor";
         }
         private bool _isNew;
         public bool IsNew

@@ -10,7 +10,16 @@ namespace ThorCyte.ImageViewerModule.View
         public ImageViewerView()
         {
             InitializeComponent();
-            this.DataContext = new ImageViewerViewModel();
+            vm= new ImageViewerViewModel();
+            this.DataContext = vm;
+            selectViewportCanvas.OnClick += SelectViewportCanvas_OnClick;
         }
+        ImageViewerViewModel vm;
+        private void SelectViewportCanvas_OnClick(int select)
+        {
+            dropDownButton.IsOpen = false;
+            vm.OnViewportTypeChange(select);
+        }
+
     }
 }

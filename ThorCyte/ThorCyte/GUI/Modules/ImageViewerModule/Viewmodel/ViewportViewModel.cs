@@ -21,10 +21,20 @@ using System.Windows.Input;
 using Prism.Commands;
 using System.Windows;
 using System.Diagnostics;
+using ThorCyte.Infrastructure.Events;
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ViewportViewModel : BindableBase
     {
+        private double _aspectRatio = 1;
+        public double AspectRatio
+        {
+            get { return _aspectRatio; }
+            set {
+                SetProperty<double>(ref _aspectRatio, value, "AspectRatio");
+                Scale = new Tuple<double, double, double>(VisualScale, VisualScale * _aspectRatio, DataScale);
+            }
+        }
         private ObservableCollection<ChannelImage> _channelImages;
         public ObservableCollection<ChannelImage> ChannelImages
         {
@@ -37,7 +47,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             get { return _currentChannelImage; }
             set
             {
-                if (value == _currentChannelImage) return;
+                //if (value == _currentChannelImage) return;
                 _currentChannelImage = value;
                 if (_currentChannelImage != null)
                 {
@@ -48,94 +58,106 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 OnPropertyChanged("CurrentChannelImage");
             }
         }
-        private BitmapSource _image;
-        public BitmapSource Image
-        {
-            get { return _image; }
-            set { SetProperty<BitmapSource>(ref _image, value, "Image"); }
-        }
-
         private Tuple<double, double, double> _scale = new Tuple<double, double, double>(1, 1, 1);
         public Tuple<double, double, double> Scale
         {
             get { return _scale; }
             set { SetProperty<Tuple<double, double, double>>(ref _scale, value, "Scale"); }
         }
+        private Size _imageSize;
+        public Size ImageSize
+        {
+            get { return _imageSize; }
+            set { SetProperty<Size>(ref _imageSize, value, "ImageSize"); }
+
+        }
+        private bool _isShown;
+        public bool IsShown
+        {
+            get { return _isShown; }
+            set
+            {
+                if (value == _isShown) return;
+                _isShown = value;
+                if(_isShown&&IsActive)
+                RefreshChannel();
+            }
+        }
+        public bool IsActive { get;private set; }
+        public DrawTools.DrawingCanvas DrawingCanvas { get; set; }
+        private double CanvasActualWidth;
+        private double CanvasActualHeight;
         UpdateCurrentChannelEvent _updateCurrentChannelEvent;
         UpdateMousePointEvent _updateMousePointEvent;
         OperateChannelEvent _operateChannelEvent;
         public ICommand ListViewDeleteCommand { get; private set; }
         public ICommand ListViewEditCommand { get; private set; }
-        private Size ImageSize;
         private Int32Rect VisualRect;
         private double VisualScale;
         private double DataScale;
         private double ActualScale;
         private const int ThumbnailSize = 80;
-        private Point ZoomCenterPoint;
-        private int CanvasWidth = 512;
-        private int CanvasHeight = 512;
-        IData _iData;
-        private double AspectRatio;
+        private IData _iData;
         private int _scanId;
         private int _regionId;
         private int _tileId;
+        private int _maxBits;
+        private ScanInfo _scanInfo;
         private bool _isTile { get { return _tileId > 0; } }
-
+        private FrameIndex _frameIndex=new FrameIndex() { StreamId=1, TimeId=1 , ThirdStepId=1 };
         public void Zoomin()
         {
             ActualScale *= 1.5;
-            if (_isTile) CalcZoomForTile();
-            else CalcZoom();
+            CalcZoom();
         }
         public void Zoomout()
         {
 
             ActualScale /= 1.5;
-            if (_isTile) CalcZoomForTile(); 
-            else CalcZoom();
+            CalcZoom();
         }
         private void CalcZoom()
         {
-            if (CurrentChannelImage == null) return;
-            var lastDataScale = DataScale;
-            var s = Math.Min(((double)CanvasWidth  / (double)ImageSize.Width), ((double)CanvasHeight  / (double)ImageSize.Height));
+            var s = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height / _aspectRatio));
             if (ActualScale > 4) ActualScale = 4;
             else if (ActualScale < s) ActualScale = s;
-            if (ActualScale > 1)
+            if (_isTile)
             {
-                DataScale = 1;
                 VisualScale = ActualScale;
+                DataScale = 1;
             }
             else
             {
-                DataScale = ActualScale;
-                VisualScale = 1;
-            }
-            var width =(int)Math.Min( ( CanvasWidth+100)/DataScale, ImageSize.Width);
-            var height =(int) Math.Min(( CanvasHeight + 100) / DataScale, ImageSize.Height);
-            int x, y;
-            x = (int)(ZoomCenterPoint.X - (ZoomCenterPoint.X - VisualRect.X) / lastDataScale * DataScale);
-            y = (int)(ZoomCenterPoint.Y - (ZoomCenterPoint.Y - VisualRect.Y) / lastDataScale * DataScale);
-            if (x < 0) x = 0;
-            else if (x + width > ImageSize.Width) x = (int)(ImageSize.Width - width);
-            if (y < 0) y = 0;
-            else if (y + height > ImageSize.Height) y = (int)(ImageSize.Height - height);
+                if (ActualScale > 1)
+                {
+                    DataScale = 1;
+                    VisualScale = ActualScale;
+                }
+                else
+                {
+                    DataScale = ActualScale;
+                    VisualScale = 1;
+                }
 
+            }
+            Scale = new Tuple<double, double, double>(VisualScale, VisualScale * _aspectRatio, DataScale);
+            var status = new MousePointStatus() { Scale = ActualScale};
+            _updateMousePointEvent.Publish(status);
+
+        }
+
+        public void UpdateDisplayImage(Rect canvasRect)
+        {
+            if (_isTile) return;
+            if (CurrentChannelImage == null) return;
+            var width = (int)Math.Min((canvasRect.Width + 500 ) , ImageSize.Width);
+            var height = (int)Math.Min((canvasRect.Height + 500 ), ImageSize.Height);
+            int x, y;
+            x = (int)Math.Max(canvasRect.X - 250, 0);
+            y = (int)Math.Max(canvasRect.Y - 250, 0);
             VisualRect = new Int32Rect(x, y, width, height);
             CurrentChannelImage.ImageData = getData(_currentChannelImage, VisualRect, DataScale);
             UpdateBitmap(CurrentChannelImage);
-            Scale = new Tuple<double, double, double>(VisualScale, VisualScale, DataScale);
-        }
-        private void CalcZoomForTile()
-        {
-            if (CurrentChannelImage == null) return;
-            var s = Math.Min(((double)CanvasWidth / (double)ImageSize.Width), ((double)CanvasHeight / (double)ImageSize.Height));
-            if (ActualScale > 4) ActualScale = 4;
-            else if (ActualScale < s) ActualScale = s;
-            VisualScale = ActualScale;
-            DataScale = 1;
-            Scale = new Tuple<double, double, double>(VisualScale, VisualScale, DataScale);
         }
         public ViewportViewModel()
         {
@@ -145,56 +167,41 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _operateChannelEvent = eventAggregator.GetEvent<OperateChannelEvent>();
             ListViewDeleteCommand = new DelegateCommand<object>(OnListViewDelete);
             ListViewEditCommand = new DelegateCommand<object>(OnListViewEdit);
-
-            ColorPicker a;
         }
         public void OnMousePoint(Point point)
         {
-            int x = (int)(point.X / DataScale);
-            int y = (int)(point.Y / DataScale);
+            int x = (int)(point.X );
+            int y = (int)(point.Y );
             if (x >= ImageSize.Width || x < 0 || y >= ImageSize.Height || y < 0) return;
-            var gv =0;
-            //var gv = CurrentChannelImage.ImageData[point.X + point.Y * ImageSize.Height*DataScale];
-            var status = new MousePointStatus() { Point = new Point(x, y) , GrayValue=gv,IsComputeColor=CurrentChannelImage.IsComputeColor};
+            var index = (int)(x * DataScale) - (int)(VisualRect.X * DataScale) + ((int)(y * DataScale) - (int)(VisualRect.Y * DataScale)) * (int)(VisualRect.Width * DataScale);
+            if (index >= CurrentChannelImage.ImageData.Length||index<0) return;
+            var gv = CurrentChannelImage.ImageData[index];
+            var status = new MousePointStatus() {Scale=ActualScale, Point = new Point(x*_scanInfo.XPixcelSize, y * _scanInfo.YPixcelSize), GrayValue = gv, IsComputeColor = CurrentChannelImage.IsComputeColor };
             _updateMousePointEvent.Publish(status);
 
         }
-        public Vector OnMoveVisualRect(Vector vector)
-        {
-            if (CurrentChannelImage == null) return new Vector(0,0);
-            if(_isTile) return new Vector(0, 0);
-            var lastX = VisualRect.X;
-            var lastY = VisualRect.Y;
-
-            VisualRect.X += (int)(vector.X/DataScale);
-            VisualRect.Y += (int)(vector.Y/DataScale);
-            if (VisualRect.X < 0) VisualRect.X = 0;
-            else if (VisualRect.X+VisualRect.Width > ImageSize.Width) VisualRect.X = (int)(ImageSize.Width - VisualRect.Width);
-            if (VisualRect.Y < 0) VisualRect.Y = 0;
-            else if (VisualRect.Y+VisualRect.Height > ImageSize.Height) VisualRect.Y = (int)(ImageSize.Height - VisualRect.Height);
-            
-            CurrentChannelImage.ImageData= getData(CurrentChannelImage, VisualRect, DataScale);
-            UpdateBitmap(CurrentChannelImage);
-            return new Vector( (VisualRect.X-lastX)*DataScale, (VisualRect.Y - lastY) * DataScale);
-        }
         public void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            CanvasWidth = (int)e.NewSize.Width;
-            CanvasHeight = (int)e.NewSize.Height;
-            CalcZoom();
+            CanvasActualWidth = (int)e.NewSize.Width;
+            CanvasActualHeight = (int)e.NewSize.Height;
         }
+        
 
         private ImageData getData(ChannelImage channel, Int32Rect rect, double scale)
         {
             ImageData data;
-            if(channel.IsComputeColor)
+            if (channel.IsComputeColor)
             {
                 channel.ComputeColorDicWithData = getComputeDictionary(channel.ComputeColorDic, rect, scale);
                 data = getComputeData(channel.ComputeColorDicWithData, rect, scale);
 
             }
-           else if (channel.ChannelInfo.IsvirtualChannel)
-                data = getVirtualData(channel.ChannelInfo as VirtualChannel, rect, scale);
+            else if (channel.ChannelInfo.IsvirtualChannel)
+            {
+                var dic = new Dictionary<Channel, ImageData>();
+                TraverseVirtualChannel(dic, channel.ChannelInfo as VirtualChannel, rect, scale);
+                data = getVirtualData(channel.ChannelInfo as VirtualChannel, dic);
+            }
             else
             {
                 data = getActiveData(channel.ChannelInfo, rect, scale);
@@ -204,19 +211,19 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         private ImageData getThumbnailData(ChannelImage channel, Int32Rect rect, double scale)
         {
             if (_isTile)
-                return getData(channel, rect, scale).Resize((int)(rect.Width * scale), (int)(rect.Height * scale));
+                return getData(channel, rect, scale);
             else
                 return getData(channel, rect, scale);
         }
         private ImageData getActiveData(Channel channelInfo, Int32Rect rect, double scale)
         {
             if (_isTile)
-                return _iData.GetTileData(_scanId, _regionId, channelInfo.ChannelId, 1, _tileId, 1);
+                return _iData.GetTileData(_scanId, _regionId, channelInfo.ChannelId, _frameIndex.StreamId, _tileId, _frameIndex.TimeId).Resize((int)(rect.Width * scale), (int)(rect.Height * scale));
             else
-                return _iData.GetData(_scanId, _regionId, channelInfo.ChannelId, 1, scale, rect);
+                return _iData.GetData(_scanId, _regionId, channelInfo.ChannelId, _frameIndex.TimeId, scale, rect);
         }
-        
-        private void  TraverseVirtualChannel(Dictionary<Channel, ImageData>  dic ,VirtualChannel channel,Int32Rect rect,double scale)
+
+        private void TraverseVirtualChannel(Dictionary<Channel, ImageData> dic, VirtualChannel channel, Int32Rect rect, double scale)
         {
             if (channel.FirstChannel.IsvirtualChannel)
                 TraverseVirtualChannel(dic, channel.FirstChannel as VirtualChannel, rect, scale);
@@ -225,7 +232,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 if (!dic.ContainsKey(channel.FirstChannel))
                     dic.Add(channel.FirstChannel, getActiveData(channel.FirstChannel, rect, scale));
             }
-            if(channel.SecondChannel!=null)
+            if (channel.SecondChannel != null)
             {
                 if (channel.SecondChannel.IsvirtualChannel)
                     TraverseVirtualChannel(dic, channel.SecondChannel as VirtualChannel, rect, scale);
@@ -237,14 +244,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
 
             }
         }
-        private ImageData getVirtualData(VirtualChannel channel, Int32Rect rect,double scale)
+        private ImageData getVirtualData(VirtualChannel channel, Dictionary<Channel, ImageData> dic )
         {
-            var dic = new Dictionary<Channel, ImageData>();
-            TraverseVirtualChannel(dic, channel as VirtualChannel, rect, scale);
 
             ImageData data1 = null, data2 = null;
-            if(dic.ContainsKey(channel.FirstChannel))
-            data1 = dic[channel.FirstChannel];
+            if (dic.ContainsKey(channel.FirstChannel))
+                data1 = dic[channel.FirstChannel];
 
             if (channel.Operator != ImageOperator.Multiply && channel.Operator != ImageOperator.Invert)
             {
@@ -256,44 +261,22 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             switch (channel.Operator)
             {
                 case ImageOperator.Add:
-                    for (int i= 0; i < result.XSize * result.YSize; i++)
-                    {
-                        var elemt = data1.DataBuffer[i] + data2.DataBuffer[i];
-                        result.DataBuffer[i] = elemt > ushort.MaxValue ? ushort.MaxValue : (ushort)elemt;
-                    }
+                    result = data1.Add(data2,_maxBits);
                     break;
                 case ImageOperator.Subtract:
-                    for (int i = 0; i < result.XSize * result.YSize; i++)
-                    {
-                        var elemt = data1.DataBuffer[i] - data2.DataBuffer[i];
-                        result.DataBuffer[i] = elemt < ushort.MinValue ? ushort.MinValue : (ushort)elemt;
-                    }
+                    result = data1.Sub(data2);
                     break;
                 case ImageOperator.Invert:
-                    for (int i = 0; i < result.XSize * result.YSize; i++)
-                    {
-                        var elemt = ushort.MaxValue- data1.DataBuffer[i];
-                        result.DataBuffer[i] = (ushort)elemt;
-                    }
+                    result = data1.Invert(_maxBits);
                     break;
                 case ImageOperator.Max:
-                    for (int i = 0; i < result.XSize * result.YSize; i++)
-                    {
-                        result.DataBuffer[i] = Math.Max(data1.DataBuffer[i], data2.DataBuffer[i]);
-                    }
+                    result = data1.Max(data2);
                     break;
                 case ImageOperator.Min:
-                    for (int i = 0; i < result.XSize * result.YSize; i++)
-                    {
-                        result.DataBuffer[i] = Math.Min(data1.DataBuffer[i], data2.DataBuffer[i]);
-                    }
+                    result = data1.Min(data2);
                     break;
                 case ImageOperator.Multiply:
-                    for (int i = 0; i < result.XSize * result.YSize; i++)
-                    {
-                        var elemt = data1.DataBuffer[i] *channel.Operand;
-                        result.DataBuffer[i] = elemt > ushort.MaxValue ? ushort.MaxValue : (ushort)elemt;
-                    }
+                    result = data1.MulConstant(channel.Operand,_maxBits);
                     break;
                 default:
                     break;
@@ -303,37 +286,34 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         private ImageData getComputeData(Dictionary<Channel, Tuple<ImageData, Color>> dic, Int32Rect rect, double scale)
         {
-            var data = new ImageData((uint)(rect.Width* scale), (uint)(rect.Height * scale),false);
+            var data = new ImageData((uint)(rect.Width * scale), (uint)(rect.Height * scale), false);
             foreach (var o in dic)
             {
-                var d = ToComputeColor(o.Value.Item1.DataBuffer, o.Value.Item2);
-                for (int i = 0; i < data.DataBuffer.Length; i++)
-                {
-                    var elemt = d[i] + data.DataBuffer[i];
-                    data.DataBuffer[i] = elemt > ushort.MaxValue ? ushort.MaxValue : (ushort)elemt;
-                }
+                var d = ToComputeColor(o.Value.Item1, o.Value.Item2);
+                data = data.Add(d);
+                d.Dispose();
             }
             return data;
         }
-        private ushort[] ToComputeColor(ushort[] data, Color color)
+        private ImageData ToComputeColor(ImageData data, Color color)
         {
             var n = data.Length;
-            ushort[] computeData = new ushort[n * 3];
+            var computeData = new ImageData(data.XSize, data.YSize, false);
             for (int i = 0; i < n; i++)
             {
                 computeData[i * 3] = (ushort)((double)color.B * (double)(data[i]) / 255.0);
                 computeData[i * 3 + +1] = (ushort)((double)color.G * (double)(data[i]) / 255.0);
                 computeData[i * 3 + 2] = (ushort)((double)color.R * (double)(data[i]) / 255.0);
-                //computeData[i * YSize * 4 + j * 4 + 3] = 255;
+                //computeData[i * 3 + 3] = 255;
             }
             return computeData;
         }
-        private Dictionary<Channel, Tuple<ImageData, Color>> getComputeDictionary(Dictionary<Channel, Color> ComputeColorDictionary, Int32Rect rect ,double scale)
+        private Dictionary<Channel, Tuple<ImageData, Color>> getComputeDictionary(Dictionary<Channel, Color> ComputeColorDictionary, Int32Rect rect, double scale)
         {
             var datadic = new Dictionary<Channel, ImageData>();
             foreach (var o in ComputeColorDictionary)
             {
-                if(o.Key.IsvirtualChannel)
+                if (o.Key.IsvirtualChannel)
                     TraverseVirtualChannel(datadic, o.Key as VirtualChannel, rect, scale);
                 else
                 if (!datadic.ContainsKey(o.Key))
@@ -343,7 +323,15 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             var dic = new Dictionary<Channel, Tuple<ImageData, Color>>();
             foreach (var o in ComputeColorDictionary)
             {
-                var data = datadic[o.Key];
+                ImageData data;
+                if (!o.Key.IsvirtualChannel)
+                {
+                    data = datadic[o.Key];
+                }
+                else
+                {
+                    data = getVirtualData(o.Key as VirtualChannel, datadic);
+                }
                 dic.Add(o.Key, new Tuple<ImageData, Color>(data, o.Value));
             }
             return dic;
@@ -354,49 +342,57 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             if (channelImage.Contrast == 1 && channelImage.Brightness == 0)
                 result = channelImage.ImageData;
             else
-                result = channelImage.ImageData.SetBrightnessAndContrast(channelImage.Contrast,(ushort) channelImage.Brightness);
-            channelImage.Image = result.ToBitmapSource();
+                result = channelImage.ImageData.SetBrightnessAndContrast(channelImage.Contrast, channelImage.Brightness, _maxBits);
+            channelImage.Image =new Tuple<ImageSource, Int32Rect>( result.ToBitmapSource(_maxBits),VisualRect);
         }
 
-    private void UpdateThumbnail(ChannelImage channelImage)
+        private void UpdateThumbnail(ChannelImage channelImage)
         {
             ImageData result = null;
             if (channelImage.Contrast == 1 && channelImage.Brightness == 0)
                 result = channelImage.ThumbnailImageData;
             else
-                result = channelImage.ThumbnailImageData.MulConstant((ushort)channelImage.Contrast).AddConstant((ushort)channelImage.Brightness);
-            channelImage.Thumbnail = result.ToBitmapSource();
+                result = channelImage.ThumbnailImageData.SetBrightnessAndContrast(channelImage.Contrast,channelImage.Brightness,_maxBits);
+            channelImage.Thumbnail = result.ToBitmapSource(_maxBits);
         }
-        public void Initialization(IData iData, ScanInfo scanInfo, int scanId, int regionId, int tileId)
+
+        public void Initialization(IData iData, ScanInfo scanInfo,ExperimentInfo experimentInfo, int scanId, int regionId, int tileId)
         {
+            if (tileId * _tileId <= 0) DrawingCanvas.DeleteAll();
             _iData = iData;
             _scanId = scanId;
             _regionId = regionId;
             _tileId = tileId;
-            var channels = scanInfo.ChannelList;
-            var virtualChannels = scanInfo.VirtualChannelList;
-            var computeColors = scanInfo.ComputeColorList;
-            if(_isTile)
+            _maxBits = experimentInfo.IntensityBits;
+            _scanInfo = scanInfo;
+            if (_isTile)
             {
-                var width = (int)(scanInfo.TileWidth );
-                var height = (int)(scanInfo.TileWidth);
+                var width = (int)(_scanInfo.TileWidth);
+                var height = (int)(_scanInfo.TileWidth);
                 ImageSize = new Size(width, height);
-                DataScale = 1;
-                VisualScale = Math.Min(((double)CanvasWidth / (double)ImageSize.Width), ((double)CanvasHeight / (double)ImageSize.Height));
-                Scale = new Tuple<double, double, double>(VisualScale, VisualScale, DataScale);
+                DataScale = 1; 
+                VisualScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height));
+                Scale = new Tuple<double, double, double>(VisualScale, VisualScale * _aspectRatio, DataScale);
                 ActualScale = DataScale;
             }
             else
             {
-                var width = (int)(scanInfo.ScanRegionList[regionId].Bound.Width / scanInfo.XPixcelSize);
-                var height = (int)(scanInfo.ScanRegionList[regionId].Bound.Height / scanInfo.YPixcelSize);
+                var width = (int)(_scanInfo.ScanRegionList[regionId].Bound.Width / _scanInfo.XPixcelSize);
+                var height = (int)(_scanInfo.ScanRegionList[regionId].Bound.Height / _scanInfo.YPixcelSize);
                 ImageSize = new Size(width, height);
-                DataScale = Math.Min(((double)CanvasWidth / (double)ImageSize.Width), ((double)CanvasHeight / (double)ImageSize.Height));
+                DataScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height));
                 VisualScale = 1;
-                Scale = new Tuple<double, double, double>(VisualScale, VisualScale, DataScale);
+                Scale = new Tuple<double, double, double>(VisualScale, VisualScale * _aspectRatio, DataScale);
                 ActualScale = DataScale;
             }
-
+            RefreshChannel();
+            IsActive = true;
+        }
+        public void RefreshChannel()
+        {
+            var channels = _scanInfo.ChannelList;
+            var virtualChannels = _scanInfo.VirtualChannelList;
+            var computeColors = _scanInfo.ComputeColorList;
             _channelImages = new ObservableCollection<ChannelImage>();
             VisualRect = new Int32Rect(0, 0, (int)ImageSize.Width, (int)ImageSize.Height);
             foreach (var o in channels)
@@ -429,8 +425,20 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             }
             OnPropertyChanged("ChannelImages");
             CurrentChannelImage = _channelImages.FirstOrDefault();
-        }
 
+        }
+        public void FrameDisplay(FrameIndex frameIndex)
+        {
+            _frameIndex = frameIndex;
+            var rect = new Int32Rect(0, 0, (int)ImageSize.Width, (int)ImageSize.Height);
+            foreach (var o in _channelImages)
+            {
+                o.ThumbnailImageData= getThumbnailData(o, VisualRect, Math.Min(ThumbnailSize / ImageSize.Width, ThumbnailSize / ImageSize.Height));
+                UpdateThumbnail(o);
+            }
+            OnPropertyChanged("ChannelImages");
+            CurrentChannelImage = _channelImages.FirstOrDefault();
+        }
 
         public void AddVirtualChannel(VirtualChannel virtrualChannel)
         {
@@ -448,7 +456,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             {
                 if (o.ChannelInfo == virtrualChannel)
                 {
-                    //o.ImageData = getVirtualData(virtrualChannel, VisualRect, DataScale);
+                    o.ThumbnailImageData = getThumbnailData(o, new Int32Rect(0, 0, (int)ImageSize.Width, (int)ImageSize.Height), Math.Min(ThumbnailSize / ImageSize.Width, ThumbnailSize / ImageSize.Height));
+                    UpdateThumbnail(o);
                     CurrentChannelImage = o;
                 }
             }
@@ -464,6 +473,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                     break;
                 }
             }
+
         }
         public void AddComputeColor(ComputeColor computeColor)
         {
@@ -478,11 +488,13 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         public void EditComputeColor(ComputeColor computeColor)
         {
-            foreach (var o in _channelImages.Where(x=>x.IsComputeColor))
+            foreach (var o in _channelImages.Where(x => x.IsComputeColor))
             {
                 if (o.ChannelName == computeColor.Name)
                 {
                     o.ComputeColorDic = computeColor.ComputeColorDictionary;
+                    o.ThumbnailImageData = getThumbnailData(o, new Int32Rect(0, 0, (int)ImageSize.Width, (int)ImageSize.Height), Math.Min(ThumbnailSize / ImageSize.Width, ThumbnailSize / ImageSize.Height));
+                    UpdateThumbnail(o);
                     CurrentChannelImage = o;
                 }
             }
@@ -501,7 +513,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
 
 
-        public void UpdateBrightnessContrast(double brightness, double contrast)
+        public void UpdateBrightnessContrast(int brightness, double contrast)
         {
             CurrentChannelImage.Brightness = brightness;
             CurrentChannelImage.Contrast = contrast;

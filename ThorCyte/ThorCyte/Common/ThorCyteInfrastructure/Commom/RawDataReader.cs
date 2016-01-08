@@ -14,7 +14,7 @@ namespace ThorCyte.Infrastructure.Commom
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool SetFilePointerEx(IntPtr hFile, long liDistanceToMove, out long lpNewFilePointer, uint dwMoveMethod);
 
-        unsafe public static bool ReadBuffer(string filePath, ushort[] buffer, int offset, int count)
+        unsafe public static bool ReadBuffer(string filePath, IntPtr buffer, int offset, int count)
         {
             FileStream fs = File.Open(filePath, FileMode.Open);
             if (null == fs) throw new ArgumentNullException();
@@ -25,9 +25,10 @@ namespace ThorCyte.Infrastructure.Commom
                 long unused;
                 if (!SetFilePointerEx(nativeHandle, offset, out unused, 0))
                     return false;
-                fixed (ushort* pFirst = &buffer[0])
-                    if (!ReadFile(nativeHandle, new IntPtr(pFirst), bytesToRead, out bytesToRead, IntPtr.Zero))
-                        return false;
+                ushort* pFirst = (ushort*) buffer.ToPointer();
+                if (!ReadFile(nativeHandle, new IntPtr(pFirst), bytesToRead, out bytesToRead, IntPtr.Zero))
+                      return false;
+
                 if (bytesToRead < 2 * count)
                     return false;
                 return true;

@@ -15,7 +15,7 @@ namespace ThorCyte.ImageViewerModule
         }
         public void Initialize()
         {
-            _regionViewRegistry.RegisterViewWithRegion(RegionNames.TabRegion, typeof(ImageViewerView));
+            _regionViewRegistry.RegisterViewWithRegion(RegionNames.ImageViewerRegion, typeof(ImageViewerView));
         }
     }
 }

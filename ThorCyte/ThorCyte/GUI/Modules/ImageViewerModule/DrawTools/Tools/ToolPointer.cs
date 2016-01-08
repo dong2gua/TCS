@@ -76,9 +76,9 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                     drawingCanvas.UnselectAll();
                 }
 
-                var r = new GraphicsSelectionRectangle(point.X, point.Y, point.X + 1, point.Y + 1, drawingCanvas.ActualScale)
+                var r = new GraphicsSelectionRectangle(point, drawingCanvas)
                 {
-                    Clip = new RectangleGeometry(new Rect(drawingCanvas.LimitX, drawingCanvas.LimitY, Math.Min(drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.GraphicsImage.Rectangle.Width) , Math.Min(drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2, drawingCanvas.GraphicsImage.Rectangle.Height)))
+                    Clip = new RectangleGeometry(new Rect(0, 0, drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2))
                 };
 
                 drawingCanvas.GraphicsList.Add(r);

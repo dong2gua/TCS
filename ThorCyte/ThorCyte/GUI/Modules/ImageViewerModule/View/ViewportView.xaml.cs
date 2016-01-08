@@ -29,21 +29,19 @@ namespace ThorCyte.ImageViewerModule.View
         public ViewportView()
         {
             InitializeComponent();
-            var vm = new ViewportViewModel();
-            this.DataContext = vm;
-            drawCanvas.MousePoint += new DrawingCanvas.MousePointHandler(vm.OnMousePoint);
-            drawCanvas.MoveVisualRect += new DrawingCanvas.MoveVisualRectHandler(vm.OnMoveVisualRect);
-            drawCanvas.CanvasSizeChanged += new DrawingCanvas.CanvasSizeChangedHandler(vm.OnCanvasSizeChanged);
-            //ThorImageExperiment experiment = new ThorImageExperiment();
-            //experiment.Load("D:\\ThorCyte\\Data\\2D_1024_100Tiles\\Experiment.xml");
-            //var scanInfo = experiment.GetScanInfo(1);
-            //var _channels = scanInfo.ChannelList;
-            //var _virtualChannels = scanInfo.VirtualChannelList;
-            //var _computeColors = scanInfo.ComputeColorList;
-            //var imageData = new ThorImageData();
-            //imageData.SetExperimentInfo(experiment);
-            //var data = imageData.GetData(1, 0, 0, 1);
-            //drawCanvas.DisplayImage = data.ToBitmapSource();
+        }
+
+        private void ExpandList_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.listView.Visibility == Visibility.Collapsed)
+            {
+                this.listView.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.listView.Visibility = Visibility.Collapsed;
+            }
+
         }
     }
 }

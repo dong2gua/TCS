@@ -22,11 +22,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                 var dy = point.Y - _lastPoint.Y;
 
                 _lastPoint = point;
-                var sw = new Stopwatch();
-                sw.Start();
-                drawingCanvas.Drag2(dx, dy);
-                sw.Stop();
-                Log.GetInstance().Write( sw.ElapsedMilliseconds.ToString()+"    ");
+                drawingCanvas.Drag(dx, dy);
             }
         }
 

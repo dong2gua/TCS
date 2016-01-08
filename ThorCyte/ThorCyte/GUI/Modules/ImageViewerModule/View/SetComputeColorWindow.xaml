@@ -8,21 +8,19 @@
         xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
         mc:Ignorable="d" 
         x:Name="Self"
-        Title="Set Compute Color" Height="300" Width="400">
+        Title="Set Compute Color" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow" Style="{StaticResource {x:Type Window}}">
     <Window.Resources>
         <converter:ColorToBrushConverter x:Key="ColorToBrushC"/>
     </Window.Resources>
-    <Grid>
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
-
-
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal"  Grid.Row="0">
-            <TextBlock Text="ChannelName" TextAlignment="Right" Height="20" Width="80" Margin="5"/>
-            <TextBox  Text="{Binding ChannelName}"  Height="20" Width="120" IsEnabled="{Binding IsNew}"/>
+            <Label Content="Channel Name:"  VerticalAlignment="Center"   Margin="20,0"/>
+            <TextBox  Text="{Binding ChannelName}"  Height="20" Width="120" IsEnabled="{Binding IsNew}" VerticalAlignment="Center"/>
         </StackPanel>
         <DataGrid ItemsSource="{Binding ChannelList}" AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="1">
             <DataGrid.Columns>

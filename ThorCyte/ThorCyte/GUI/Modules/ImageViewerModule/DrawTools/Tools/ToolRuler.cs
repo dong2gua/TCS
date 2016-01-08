@@ -16,7 +16,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         public override void OnMouseDown(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             var point = position;
-            Ruler.UpdatePoint(point, new Point(point.X + 1, point.Y + 1), drawingCanvas.ActualScale);
+            Ruler.UpdatePoint(point, drawingCanvas);
             AddNewObject(drawingCanvas, Ruler);
 
         }
@@ -49,7 +49,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         protected static void AddNewObject(DrawingCanvas drawingCanvas, GraphicsBase o)
         {
             drawingCanvas.UnselectAll();
-            o.Clip = new RectangleGeometry(new Rect(drawingCanvas.LimitX, drawingCanvas.LimitY, Math.Min(drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.GraphicsImage.Rectangle.Width), Math.Min(drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2, drawingCanvas.GraphicsImage.Rectangle.Height)));
+            o.Clip = new RectangleGeometry(new Rect(0, 0, drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2));
             o.RefreshDrawing();
             if (!drawingCanvas.GraphicsList.Contains(o))
                 drawingCanvas.GraphicsList.Add(o);

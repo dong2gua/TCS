@@ -10,20 +10,21 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
     public class GraphicsRectangle : GraphicsRectangleBase
     {
 
-        public GraphicsRectangle(double left, double top, double right, double bottom,  Tuple<double, double, double> actualScale)
+        public GraphicsRectangle(Point point, DrawingCanvas canvas)
         {
-            RectangleLeft = left;
-            RectangleTop = top;
-            RectangleRight = right;
-            RectangleBottom = bottom;
-            ActualScale = actualScale;
+            Canvas = canvas;
+            ActualScale = Canvas.ActualScale;
+            point = VerifyPoint(point);
+            RectangleLeft = point.X;
+            RectangleTop = point.Y;
+            RectangleRight = point.X;
+            RectangleBottom = point.Y;
         }
-        public Rect RealRect { get; set; }
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
 
-            drawingContext.DrawRectangle(null, new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), Rectangle);
+            drawingContext.DrawRectangle(null, new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), ConvertToDisplayRect(Rectangle));
 
             base.Draw(drawingContext);
         }

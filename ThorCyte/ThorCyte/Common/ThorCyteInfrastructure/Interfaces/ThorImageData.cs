@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using FreeImageAPI;
@@ -103,7 +104,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             if (!Check2DIds(scanId, scanRegionId, channelId, 1, timingFrameId))
                 return null;
 
-            ImageData image = new ImageData((uint)regionRect.Width, (uint)regionRect.Height);
+            IntPtr imageHandle = Marshal.AllocHGlobal(regionRect.Width * regionRect.Height*2);
             Int32Rect tileRect = new Int32Rect();
             tileRect.Width = _experiment.GetScanInfo(scanId).TileWidth;
             tileRect.Height = _experiment.GetScanInfo(scanId).TiledHeight;
@@ -146,13 +147,16 @@ namespace ThorCyte.Infrastructure.Interfaces
                     else
                         tilePosY = (tileRect.Y + tileRect.Height) - (rect.Y + rect.Height);
 
-                    tasks.Add(Task.Factory.StartNew(() => ReadTiffData(filePath, image.DataBuffer, rect.X - regionRect.X, rect.Y - regionRect.Y,
+                    tasks.Add(Task.Factory.StartNew(() => ReadTiffData(filePath, imageHandle, rect.X - regionRect.X, rect.Y - regionRect.Y,
                         rect.Width, rect.Height, (uint)regionRect.Width, tilePosX, tilePosY)));
                 }
             }
             if (tasks.Count > 0)
                 Task.WaitAll(tasks.ToArray());
-            return image.Resize((int)(regionRect.Width * scale), (int)(regionRect.Height * scale));
+
+            ImageData image = GetDataFromBuffer(imageHandle,regionRect.Width,regionRect.Height, scale);
+            Marshal.FreeHGlobal(imageHandle);
+            return image;
         }
 
         //2D tile and stream raw data
@@ -165,7 +169,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             if (scanInfo.ImageFormat == ImageFileFormat.Tiff)
             {
                 ImageInfo imageInfo = GetImageInfo(scanId, scanRegionId, channelId, _imageInfo2DDictionary);
-                if (tileId > imageInfo.SRegion.ScanFieldList.Count - 1 || tileId < 0)
+                if (tileId > imageInfo.SRegion.ScanFieldList.Count || tileId <= 0)
                     return null;
 
                 int timePointIndex;
@@ -189,7 +193,7 @@ namespace ThorCyte.Infrastructure.Interfaces
                 image = new ImageData((uint)scanInfo.TileWidth, (uint)scanInfo.TiledHeight);
                 string filePath = imageInfo.ImagePath + string.Format("\\{0}_{1}_{2}_{3}_{4}.tif", imageInfo.ChannelName,
                     String.Format("{0:D4}", scanRegionId + 1),
-                    String.Format("{0:D4}", tileId + 1),
+                    String.Format("{0:D4}", tileId),
                     String.Format("{0:D4}", 1),
                     String.Format("{0:D4}", timePointIndex));
                 if (File.Exists(filePath))
@@ -197,11 +201,11 @@ namespace ThorCyte.Infrastructure.Interfaces
             }
             else
             {
-                if (tileId > scanInfo.ScanRegionList[scanRegionId].ScanFieldList.Count - 1 || tileId < 0)
+                if (tileId > scanInfo.ScanRegionList[scanRegionId].ScanFieldList.Count || tileId <= 0)
                     return null;
                 string path = scanInfo.DataPath + string.Format("\\Image_{0}_{1}.raw",
                     String.Format("{0:D4}", scanRegionId + 1),
-                    String.Format("{0:D4}", tileId + 1));
+                    String.Format("{0:D4}", tileId));
                 if (File.Exists(path))
                 {
                     image = new ImageData((uint)scanInfo.TileWidth, (uint)scanInfo.TiledHeight);
@@ -264,39 +268,46 @@ namespace ThorCyte.Infrastructure.Interfaces
             return imageInfo;
         }
 
-        private void ReadTiffData(string filePath, ushort[] buffer, int startX, int startY, uint sizeRow)
+        private void ReadTiffData(string filePath, IntPtr buffer, int startX, int startY, uint sizeRow)
         {
             FIBITMAP fi = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_TIFF, filePath, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
             uint width = FreeImage.GetWidth(fi);
             uint height = FreeImage.GetHeight(fi);
-            for (int i = 0; i < height; i++)
+
+            unsafe
             {
-                int startIndex = (int)(startX + sizeRow * (startY + height - i - 1));
-                IntPtr ptr = FreeImage.GetScanLine(fi, i);
-                unsafe
+                ushort* des = (ushort*)buffer.ToPointer();
+                for (int i = 0; i < height; i++)
                 {
+                    int startIndex = (int)(startX + sizeRow * (startY + height - i - 1));
+                    IntPtr ptr = FreeImage.GetScanLine(fi, i);
                     ushort* buf = (ushort*)ptr.ToPointer();
                     for (int x = 0; x < width; x++)
-                        buffer[startIndex + x] = buf[x];
+                        des[startIndex + x] = buf[x];
                 }
             }
+            
             FreeImage.Unload(fi);
         }
 
-        private void ReadTiffData(string filePath, ushort[] buffer, int startX, int startY, int width, int height, uint sizeRow, int tilePosX, int tilePosY)
+        private void ReadTiffData(string filePath, IntPtr buffer, int startX, int startY, int width, int height, uint sizeRow, int tilePosX, int tilePosY)
         {
             FIBITMAP fi = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_TIFF, filePath, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
-            for (int i = 0; i < height; i++)
+            unsafe
             {
-                int startIndex = (int)(startX + sizeRow * (startY + height - i - 1));
-                IntPtr ptr = FreeImage.GetScanLine(fi, i + tilePosY);
-                unsafe
+                ushort* desBuff = (ushort*)buffer.ToPointer();
+                for (int i = 0; i < height; i++)
                 {
+                    int startIndex = (int)(startX + sizeRow * (startY + height - i - 1));
+                    IntPtr ptr = FreeImage.GetScanLine(fi, i + tilePosY);
+
                     ushort* buf = (ushort*)ptr.ToPointer();
                     for (int x = 0; x < width; x++)
-                        buffer[startIndex + x] = buf[tilePosX + x];
+                        desBuff[startIndex + x] = buf[tilePosX + x];
+
                 }
             }
+            
             FreeImage.Unload(fi);
         }
 
@@ -372,6 +383,17 @@ namespace ThorCyte.Infrastructure.Interfaces
             if (rect.Width > 0 && rect.Height > 0)
                 return rect;
             return Int32Rect.Empty;
+        }
+
+
+        private ImageData GetDataFromBuffer(IntPtr buffer, int width, int height, double scale)
+        {
+            int scaleWidth = (int)(width*scale);
+            int scaleHeight = (int)(height*scale);
+            var image = new ImageData((uint) scaleWidth, (uint) scaleHeight);
+            ImageProcessLib.Resize16U(buffer, width, height, image.DataBuffer, scaleWidth, scaleHeight, 1);
+            return image;
+
         }
     }
 }

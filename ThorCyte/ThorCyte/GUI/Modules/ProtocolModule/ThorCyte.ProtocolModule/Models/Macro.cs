@@ -11,6 +11,7 @@ using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
+using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 
 namespace ThorCyte.ProtocolModule.Models
 {

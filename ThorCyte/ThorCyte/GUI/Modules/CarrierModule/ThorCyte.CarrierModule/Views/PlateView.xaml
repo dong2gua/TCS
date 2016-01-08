@@ -264,8 +264,8 @@
             </Button>
         </ToolBar>
 
-        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Visible" Background="AliceBlue" PanningMode="Both" 
-                      Template="{DynamicResource ScrollViewerControlTemplate1}">
+        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto"  PanningMode="Both" VerticalScrollBarVisibility="Auto" >
+                      <!--Template="{DynamicResource ScrollViewerControlTemplate1}">-->
             <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" ToolTip="Left CTRL + Mouse Wheel to Zoom"/>
         </ScrollViewer>
 

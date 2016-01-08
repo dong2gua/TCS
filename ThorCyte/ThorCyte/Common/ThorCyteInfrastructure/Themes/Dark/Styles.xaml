@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:controls ="clr-namespace:ThorCyte.Infrastructure.Controls"
                     xmlns:darkBlendTheme="clr-namespace:DarkBlendTheme"
                     mc:Ignorable="d">
 
@@ -3189,4 +3190,16 @@
         </Setter>
     </Style>
     
+    <Style TargetType="{x:Type controls:DockPanelSplitter}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:DockPanelSplitter}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

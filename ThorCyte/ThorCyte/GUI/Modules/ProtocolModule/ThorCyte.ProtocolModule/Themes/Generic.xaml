@@ -20,16 +20,15 @@
                 <ControlTemplate TargetType="{x:Type control:Module}">
                     <Grid>
                         <Border x:Name="selectionBorder" Background="{TemplateBinding Background}" BorderBrush="DarkGray" BorderThickness="2"
-                                 Margin="{TemplateBinding Margin}" Padding="{TemplateBinding Padding}" CornerRadius="8">
+                                 Margin="{TemplateBinding Margin}" Padding="{TemplateBinding Padding}" CornerRadius="3">
                             <ContentPresenter/>
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="selectionBorder" Property="BorderBrush" Value="Red"/>
-                            <Setter TargetName="selectionBorder" Property="BorderThickness" Value="2"/>
+                            <Setter TargetName="selectionBorder" Property="BorderThickness" Value="1"/>
                         </Trigger>
-
                         <Trigger Property="IsSelected" Value="False">
                             <Setter TargetName="selectionBorder" Property="Background" Value="LightGray"/>
                             <Setter TargetName="selectionBorder" Property="BorderThickness" Value="1"/>

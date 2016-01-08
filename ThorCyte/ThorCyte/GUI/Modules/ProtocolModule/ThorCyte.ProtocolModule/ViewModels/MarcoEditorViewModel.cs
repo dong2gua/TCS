@@ -5,6 +5,7 @@ using System.Windows;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
+using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 
 namespace ThorCyte.ProtocolModule.ViewModels
 {

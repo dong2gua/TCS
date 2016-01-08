@@ -28,17 +28,13 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         protected static void AddNewObject(DrawingCanvas drawingCanvas, GraphicsBase o)
         {
             drawingCanvas.UnselectAll();
-            o.Clip = new RectangleGeometry(new Rect(drawingCanvas.LimitX, drawingCanvas.LimitY, Math.Min( drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.GraphicsImage.Rectangle.Width),Math.Min( drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2, drawingCanvas.GraphicsImage.Rectangle.Height )));
+            o.Clip = new RectangleGeometry(new Rect(0, 0, drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2));
 
             o.IsSelected = true;
             drawingCanvas.GraphicsList.Add(o);
             drawingCanvas.CaptureMouse();
         }
 
-        public override void SetCursor(DrawingCanvas drawingCanvas)
-        {
-            drawingCanvas.Cursor = Cursors.IBeam;
-        }
 
     }
 }

@@ -12,7 +12,14 @@ namespace ThorCyte.ExperimentDetailModule.ViewModels
         private IExperiment _experiment;
 
         private ExperimentInfo _experimentInfo;
+
         private bool _isInitialized;
+
+        public bool IsInitialized
+        {
+            get { return _isInitialized; }
+            set { SetProperty(ref _isInitialized, value); }
+        }
 
         public ExperimentInfo CurrentExperiment
         {
@@ -69,7 +76,7 @@ namespace ThorCyte.ExperimentDetailModule.ViewModels
             _eventAggregator = eventAggregator;
             _eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(Loaded);
             StreamIndex = TimeIndex = ThirdIndex = 0;
-            _isInitialized = false;
+            IsInitialized = false;
         }
 
         private void Loaded(int scanId)
@@ -78,12 +85,12 @@ namespace ThorCyte.ExperimentDetailModule.ViewModels
             CurrentExperiment = _experiment.GetExperimentInfo();
             CurrentScanInfo = _experiment.GetScanInfo(scanId);
             StreamIndex = TimeIndex = ThirdIndex = 1;
-            _isInitialized = true;
+            IsInitialized = true;
         }
 
         private void FrameChanged()
         {
-            if (_isInitialized)
+            if (IsInitialized)
             {
                 _eventAggregator.GetEvent<FrameChangedEvent>().Publish(new FrameIndex()
                 {

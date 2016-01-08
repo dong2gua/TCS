@@ -13,6 +13,10 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -105,6 +109,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Control\HistogramPanel.cs" />
+    <Compile Include="Control\SelectViewportCanvas.cs" />
     <Compile Include="Converter\OperatorConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
     <Compile Include="DrawTools\DrawingCanvas.cs" />
@@ -135,8 +141,9 @@
     <Compile Include="Log.cs" />
     <Compile Include="Model\ChannelImage.cs" />
     <Compile Include="Model\ComputeColorItem.cs" />
+    <Compile Include="Selector\ViewportSelector.cs" />
     <Compile Include="Viewmodel\ImageViewerViewModel.cs" />
-    <Compile Include="Viewmodel\ProfileViewMoel.cs" />
+    <Compile Include="Viewmodel\ProfileViewModel.cs" />
     <Compile Include="Viewmodel\SetComputeColorViewModel.cs" />
     <Compile Include="Viewmodel\ViewportViewModel.cs" />
     <Compile Include="Viewmodel\SetVirtualChannelViewModel.cs" />
@@ -217,12 +224,26 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\Tools\FreeImage.dll">
-      <Link>FreeImage.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Resource Include="Resources\Brightness.png" />
+    <Resource Include="Resources\ComputeColor.png" />
+    <Resource Include="Resources\Drag.png" />
+    <Resource Include="Resources\ellipse.png" />
+    <Resource Include="Resources\New.png" />
+    <Resource Include="Resources\Profile.png" />
+    <Resource Include="Resources\Rectangle.png" />
+    <Resource Include="Resources\Ruler.png" />
+    <Resource Include="Resources\VirtualChannel.png" />
+    <Resource Include="Resources\Window-New.png" />
+    <Resource Include="Resources\ZoomIn.png" />
+    <Resource Include="Resources\ZoomOut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\expand.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y $(TargetPath) $(SolutionDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

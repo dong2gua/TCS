@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows.Input;
-using Microsoft.Practices.ServiceLocation;
+﻿using System.Windows.Input;
 using Microsoft.Practices.Unity;
 using Microsoft.Win32;
 using Prism.Commands;
@@ -18,6 +15,7 @@ namespace ThorCyte.HeaderModule.ViewModels
         private IEventAggregator _eventAggregator;
         private IExperiment _experiment;
         private IData _data;
+        private string _currentTab;
 
         public ICommand OpenCommand { get; set; }
         public ICommand CloseCommand { get; set; }
@@ -70,7 +68,11 @@ namespace ThorCyte.HeaderModule.ViewModels
         private void SelectTab(object obj)
         {
             var str = obj as string;
-            _eventAggregator.GetEvent<ShowRegionEvent>().Publish(str);
+            if (_currentTab != str)
+            {
+                _currentTab = str;
+                _eventAggregator.GetEvent<ShowRegionEvent>().Publish(str); 
+            }         
         }
     }
 }

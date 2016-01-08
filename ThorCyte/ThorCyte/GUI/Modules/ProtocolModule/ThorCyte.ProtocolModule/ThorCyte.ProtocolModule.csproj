@@ -78,7 +78,8 @@
       <HintPath>..\..\..\..\Bin\ThorCyte.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="Xceed.Wpf.Toolkit">
+    <Reference Include="Xceed.Wpf.Toolkit, Version=2.5.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Tools\Xceed.Wpf.Toolkit.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -91,6 +92,7 @@
     <Compile Include="Controls\PannelView_DragSelection.cs" />
     <Compile Include="Controls\PannelView_NodeDragging.cs" />
     <Compile Include="Controls\Port.cs" />
+    <Compile Include="Converts\ThresholdMethodConvert.cs" />
     <Compile Include="Events\ConnectionDragEvents.cs" />
     <Compile Include="Events\ConnectorDragEvents.cs" />
     <Compile Include="Events\ModuleDragCompletedEventArgs.cs" />
@@ -115,13 +117,17 @@
     <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
     <Compile Include="ViewModels\Modules\CombinationModVm.cs" />
-    <Compile Include="ViewModels\Modules\ModuleVmBase.cs" />
+    <Compile Include="ViewModels\ModulesBase\ModuleVmBase.cs" />
+    <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
     <Compile Include="ViewModels\PannelViewModel.cs" />
-    <Compile Include="Views\ChannelMod\ChannelModule.xaml.cs">
+    <Compile Include="Views\Modules\ChannelModule.xaml.cs">
       <DependentUpon>ChannelModule.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MacroEditor.xaml.cs">
       <DependentUpon>MacroEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\ThresholdModule.xaml.cs">
+      <DependentUpon>ThresholdModule.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -129,11 +135,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\ChannelMod\ChannelModule.xaml">
+    <Page Include="Views\Modules\ChannelModule.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MacroEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\ThresholdModule.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

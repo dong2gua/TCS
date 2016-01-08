@@ -21,7 +21,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         public override void OnMouseDown(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             var point = position;
-            Profile.UpdatePoint(point, new Point(point.X + 1, point.Y + 1), drawingCanvas.ActualScale);
+            Profile.UpdatePoint(point, drawingCanvas);
             AddNewObject(drawingCanvas, Profile);
 
         }
@@ -51,18 +51,18 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
             //drawingCanvas.Tool = ToolType.Pointer;
             drawingCanvas.Cursor = Cursors.Arrow;
             drawingCanvas.ReleaseMouseCapture();
-            _event.Publish(new ProfilePoints() { StartPoint =new Point( Profile.Start.X-drawingCanvas.GraphicsImage.Rectangle.X,Profile.Start.Y-drawingCanvas.GraphicsImage.Rectangle.Y), EndPoint = new Point(Profile.End.X - drawingCanvas.GraphicsImage.Rectangle.X, Profile.End.Y - drawingCanvas.GraphicsImage.Rectangle.Y) });
+            _event.Publish(new ProfilePoints() { StartPoint =new Point( Profile.Start.X* drawingCanvas.ActualScale.Item3, Profile.Start.Y * drawingCanvas.ActualScale.Item3), EndPoint = new Point(Profile.End.X * drawingCanvas.ActualScale.Item3, Profile.End.Y * drawingCanvas.ActualScale.Item3) });
         }
         protected static void AddNewObject(DrawingCanvas drawingCanvas, GraphicsBase o)
         {
             drawingCanvas.UnselectAll();
-            o.Clip = new RectangleGeometry(new Rect(drawingCanvas.LimitX, drawingCanvas.LimitY, Math.Min(drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.GraphicsImage.Rectangle.Width), Math.Min(drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2, drawingCanvas.GraphicsImage.Rectangle.Height)));
+            o.Clip = new RectangleGeometry(new Rect(0, 0, drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2));
             o.RefreshDrawing();
-
             if (!drawingCanvas.GraphicsList.Contains(o))
                 drawingCanvas.GraphicsList.Add(o);
             drawingCanvas.CaptureMouse();
         }
+
 
         public override void SetCursor(DrawingCanvas drawingCanvas)
         {

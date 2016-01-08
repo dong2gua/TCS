@@ -9,11 +9,23 @@ namespace ThorCyte.ProtocolModule.Models
 
         private static Dictionary<string, ModuleType> _moduleTypeDic = new Dictionary<string, ModuleType>
         {
-            {GlobalConst.ImageViewName,ModuleType.SmtOutputImageVIew},
-            {GlobalConst.FilterName,ModuleType.SmtFilter},
-            {GlobalConst.ChannelName,ModuleType.SmtContourChannel},
-            {GlobalConst.PmtName,ModuleType.SmtScanDetectors},
-            {GlobalConst.FieldScanName,ModuleType.SmtFieldScan}
+            {GlobalConst.OutputCateName,ModuleType.SmtOutputCategory},
+
+            {GlobalConst.FilterCateName,ModuleType.SmtFilterCategory},
+
+            {GlobalConst.OperationCateName,ModuleType.SmtOperationCategory},
+
+            {GlobalConst.ContourCateName,ModuleType.SmtContourCategory},
+            {GlobalConst.ChannelModuleName,ModuleType.SmtChannelModule},
+            {GlobalConst.ThresholdModuleName,ModuleType.SmtThresholdModule},
+
+            {GlobalConst.EventCateName,ModuleType.SmtEventCategory},
+
+            {GlobalConst.ExperimentalCateName,ModuleType.SmtExperimentalCategory},
+
+            {GlobalConst.AdvancedImageAnalysisCateName,ModuleType.SmtAdvancedImageAnalysisCategory},
+
+            {GlobalConst.CustomModulesCateName,ModuleType.SmtCustomModulesCategory}
         };
 
         public static Dictionary<string, ModuleType> ModuleTypeDic

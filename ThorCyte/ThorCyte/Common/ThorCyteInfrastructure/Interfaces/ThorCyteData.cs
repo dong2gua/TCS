@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using ThorCyte.Infrastructure.Types;
@@ -27,9 +26,9 @@ namespace ThorCyte.Infrastructure.Interfaces
     {
         public ThorCyteImageInfo Info { get; set; }
         public Scanfield ScanField { get; set; }
-        public ushort[] DataBuffer { get; private set; }
+        public IntPtr DataBuffer { get; private set; }
 
-        public MergeInfo(ushort[] dataBuffer)
+        public MergeInfo(IntPtr dataBuffer)
         {
             DataBuffer = dataBuffer;
         }
@@ -103,7 +102,6 @@ namespace ThorCyte.Infrastructure.Interfaces
                 _imageInfoDict[key] = GetImageInfo(scanId, scanRegionId, channelId);
             }
             ThorCyteImageInfo imageInfo = _imageInfoDict[key];
-            //ImageData data = SyncMerge(imageInfo);
             ImageData data = ParallelMerge(imageInfo);
             Stopwatch.StartNew();
             Debug.WriteLine("times : {0} ms", watch.ElapsedMilliseconds);
@@ -118,8 +116,8 @@ namespace ThorCyte.Infrastructure.Interfaces
             double xpixelSize = info.XPixcelSize;
             double ypixelSize = info.YPixcelSize;
             Rect bound = scanRegion.Bound;
-            var totalWidth = (uint) Math.Ceiling(bound.Width/info.XPixcelSize);
-            var totalHeight = (uint) Math.Ceiling(bound.Height/info.YPixcelSize);
+            var totalWidth = (uint) Math.Round((decimal)bound.Width/(decimal)info.XPixcelSize);
+            var totalHeight = (uint) Math.Round((decimal)bound.Height/(decimal)info.YPixcelSize);
             return new ThorCyteImageInfo
             {
                 SRegion = scanRegion,
@@ -133,6 +131,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             };
 
         }
+
 
         private void TryInitImageType()
         {
@@ -157,39 +156,6 @@ namespace ThorCyte.Infrastructure.Interfaces
                     string.Format("{0}_{1}_{2}{3}", scanRegionId + 1, fieldNo, channelId, _extension));
         }
 
-        private ImageData SyncMerge(ThorCyteImageInfo imageInfo)
-        {
-            ScanRegion scanRegion = imageInfo.SRegion;
-            Rect bound = scanRegion.Bound;
-            uint totalWidth = imageInfo.XSize;
-            uint totalHeight = imageInfo.YSize;
-            int tileHeight = imageInfo.TileHeight;
-            int tileWidth = imageInfo.TileWidth;
-            int channelId = imageInfo.ChannelId;
-            double xpixelSize = imageInfo.XPixselSize;
-            double ypixelSize = imageInfo.YPixselSize;
-            List<Scanfield> scanFields = scanRegion.ScanFieldList;
-            var data = new ImageData(totalWidth, totalHeight);
-            foreach (Scanfield scanField in scanFields)
-            {
-                int scanFieldId = scanField.ScanFieldId;
-                string filename = GetImageFileName(scanRegion.RegionId, channelId, scanFieldId);
-                Rect rect = scanField.SFRect;
-                int copiedX = rect.Right > bound.Right
-                    ? CalcPixelsToBeCopied(rect.Width + (bound.Right - rect.Right), xpixelSize)
-                    : tileWidth;
-                int copiedY = rect.Bottom > bound.Bottom
-                    ? CalcPixelsToBeCopied(rect.Height + (bound.Bottom - rect.Bottom), ypixelSize)
-                    : tileHeight;
-                var startX = (int) (Math.Floor(rect.X - bound.X)/xpixelSize);
-                var startY = (int) (Math.Floor(rect.Y - bound.Y)/ypixelSize);
-                startX = (int) (totalWidth - startX - copiedX);
-                FillBuffer(data.DataBuffer, startX, startY, (int) totalWidth, copiedX, copiedY, tileWidth - copiedX,
-                    tileHeight - copiedY, filename, _imageType);
-            }
-            return data;
-        }
-
 
         private ImageData ParallelMerge(ThorCyteImageInfo imageInfo)
         {
@@ -204,6 +170,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             {
                 var mergeInfo = new MergeInfo(data.DataBuffer) {ScanField = scanFields[i], Info = imageInfo};
                 tasks[i] = Task.Factory.StartNew(ParallelMergeCallback, mergeInfo);
+                //ParallelMergeCallback(mergeInfo);// for test and debug
             }
             Task.WaitAll(tasks);
             return data;
@@ -218,99 +185,220 @@ namespace ThorCyte.Infrastructure.Interfaces
         {
             ThorCyteImageInfo imageInfo = state.Info;
             Scanfield scanField = state.ScanField;
-            ushort[] dataBuffer = state.DataBuffer;
+            IntPtr dataBuffer = state.DataBuffer;
             int scanFieldId = scanField.ScanFieldId;
             ScanRegion scanRegion = imageInfo.SRegion;
-            Rect bound = scanRegion.Bound;
             uint totalWidth = imageInfo.XSize;
-            int tileHeight = imageInfo.TileHeight;
+            uint totalHeight = imageInfo.YSize;
             int tileWidth = imageInfo.TileWidth;
-            int channelId = imageInfo.ChannelId;
-            double xpixelSize = imageInfo.XPixselSize;
-            double ypixelSize = imageInfo.YPixselSize;
-            string filename = GetImageFileName(scanRegion.RegionId, channelId, scanFieldId);
-            Rect rect = scanField.SFRect;
-            int copiedX = rect.Right > bound.Right
-                ? CalcPixelsToBeCopied(rect.Width + (bound.Right - rect.Right), xpixelSize)
-                : tileWidth;
-            int copiedY = rect.Bottom > bound.Bottom
-                ? CalcPixelsToBeCopied(rect.Height + (bound.Bottom - rect.Bottom), ypixelSize)
-                : tileHeight;
-            var startX = (int) (Math.Floor(rect.X - bound.X)/xpixelSize);
-            var startY = (int) (Math.Floor(rect.Y - bound.Y)/ypixelSize);
-            startX = (int) (totalWidth - startX - copiedX);
-            FillBuffer(dataBuffer, startX, startY, (int) totalWidth, copiedX, copiedY, tileWidth - copiedX,
+            int channelId = imageInfo.ChannelId; 
+            string filename = GetImageFileName(scanRegion.RegionId, channelId, scanFieldId);      
+            Int32Rect vaild = GetScanFieldValidBound(scanField.SFRect, imageInfo);
+            int startX = vaild.X;
+            int startY = vaild.Y;
+            var copiedX = vaild.Width;
+            int copiedY = vaild.Height;
+            FillBuffer(dataBuffer, startX, startY, (int) totalWidth, (int)totalHeight,copiedX, copiedY, tileWidth - copiedX,
                 0, filename, _imageType);
         }
 
-
-        private void FillBuffer(ushort[] total, int startX, int startY, int totalWidth, int copiedX,
-            int copiedY, string filename, ImageType type)
+        private static void FillBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
+            int copiedX, int copiedY, string filename, ImageType type)
         {
-            FillBuffer(total, startX, startY, totalWidth, copiedX, copiedY, 0, 0, filename, type);
+            FillBuffer(total, startX, startY, totalWidth, totalHeight, copiedX, copiedY, 0, 0, filename, type);
         }
 
-        private void FillBuffer(ushort[] total, int startX, int startY, int totalWidth, int copiedX,
-            int copiedY, int tilePosX, int tilePosY, string filename, ImageType type)
+        private static void FillBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
+            int copiedX, int copiedY, int tilePosX, int tilePosY, string filename, ImageType type)
         {
             switch (type)
             {
                 case ImageType.Jpeg:
-                    FillJpegBuffer(total, startX, startY, totalWidth, copiedX, copiedY, tilePosX, tilePosY, filename);
+                    FillJpegBuffer(total, startX, startY, totalWidth, totalHeight, copiedX, copiedY, tilePosX, tilePosY,
+                        filename);
                     break;
+
                 case ImageType.Tiff:
-                    FillTiffBuffer(total, startX, startY, totalWidth, copiedX, copiedY, tilePosX, tilePosY, filename);
+                    FillTiffBuffer(total, startX, startY, totalWidth, totalHeight, copiedX, copiedY, tilePosX, tilePosY,
+                        filename);
                     break;
                 default:
                     throw new ArgumentException("image type is none");
             }
-
         }
 
-        private static void FillJpegBuffer(ushort[] total, int startX, int startY, int totalWidth, int copiedX,
-            int copiedY, int tilePosX, int tilePosY, string filename)
+        private static void FillJpegBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
+            int copiedX, int copiedY, int tilePosX, int tilePosY, string filename)
         {
-            FIBITMAP dib = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_JPEG, filename, 0);
-            FIBITMAP gray = FreeImage.ConvertToGreyscale(dib);
-            uint width = FreeImage.GetWidth(gray);
-            var height = (int) FreeImage.GetHeight(gray);
-            var lineData = new byte[width];
+            FIBITMAP dib = FIBITMAP.Zero;
+            FIBITMAP gray = FIBITMAP.Zero;
+            try
+            {
+                dib = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_JPEG, filename, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
+                gray = FreeImage.ConvertToGreyscale(dib);
+                FillJpegBuffer(gray, total, startX, startY, totalWidth,totalHeight, copiedX, copiedY, tilePosX, tilePosY);
+
+            }
+            finally
+            {
+                FreeImage.Unload(dib);
+                FreeImage.Unload(gray);
+            }
+        }
+
+        private static void FillJpegBuffer(FIBITMAP source, IntPtr dest, int startX, int startY, int totalWidth,
+            int totalHeight, int copiedX, int copiedY, int tilePosX, int tilePosY)
+        {
+            var width = (int) FreeImage.GetWidth(source);
+            var height = (int) FreeImage.GetHeight(source);
+            // avoid out of range exception during the copy
+            // check and change the copy length
+            copiedX = CalcPixelsToBeCopied(tilePosX, copiedX, width);
+            copiedY = CalcPixelsToBeCopied(tilePosY, copiedY, height);
+            copiedX = CalcPixelsToBeCopied(startX, copiedX, totalWidth);
+            copiedY = CalcPixelsToBeCopied(startY, copiedY, totalHeight);
             int offset = startY*totalWidth + startX;
-            for (int i = height - tilePosY - 1; i >= height - copiedY - tilePosY; i--)
+            int y = startY;
+            bool isLittleEndian = FreeImage.IsLittleEndian();
+            const int leftShift = 6;
+            unsafe
             {
-                IntPtr line = FreeImage.GetScanLine(gray, i);
-                Marshal.Copy(line, lineData, 0, (int) width);
-                ushort[] ushortLineData = Array.ConvertAll(lineData, b => (ushort) (b << 8));
-                Array.Copy(ushortLineData, tilePosX, total, offset, copiedX);
-                startY++;
-                offset = startY*totalWidth + startX;
+                var pDest = (byte*) dest.ToPointer();
+                if (isLittleEndian)
+                {
+                    for (int i = height - tilePosY - 1; i >= height - copiedY - tilePosY; i--)
+                    {
+                        IntPtr line = FreeImage.GetScanLine(source, i);
+                        var pLine = (byte*) line.ToPointer();
+                        for (int j = 0; j < copiedX; j++)
+                        {
+                            var value = (ushort) ((pLine[tilePosX + j] << leftShift) & 0xFFFF);
+                            var hi = (byte)((value >> 8) & (0xFF));
+                            var low = (byte) (value & 0xFF);
+                            pDest[2*(offset + j)] = low;
+                            pDest[2*(offset + j) + 1] = hi;
+                        }
+                        y++;
+                        offset = y*totalWidth + startX;
+                    }
+                }
+                else
+                {
+                    for (int i = height - tilePosY - 1; i >= height - copiedY - tilePosY; i--)
+                    {
+                        IntPtr line = FreeImage.GetScanLine(source, i);
+                        var pLine = (byte*) line.ToPointer();
+                        for (int j = 0; j < copiedX; j++)
+                        {
+                            var value = (ushort)((pLine[tilePosX + j] << leftShift) & 0xFFFF);
+                            var hi = (byte)((value >> 8) & (0xFF));
+                            var low = (byte)(value & 0xFF);
+                            pDest[2*(offset + j)] = hi;
+                            pDest[2*(offset + j) + 1] = low;
+                        }
+                        y++;
+                        offset = y*totalWidth + startX;
+                    }
+                }
             }
         }
 
-        private static void FillTiffBuffer(ushort[] total, int startX, int startY, int totalWidth, int copiedX,
+        private static void FillTiffBuffer(IntPtr total, int startX, int startY, int totalWidth,int totalHeight, int copiedX,
             int copiedY, int tilePosX, int tilePosY, string filename)
         {
-            FIBITMAP gray = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_TIFF, filename, 0);
-            uint width = FreeImage.GetWidth(gray);
-            var height = (int)FreeImage.GetHeight(gray);
-            uint bitsPerPixel = FreeImage.GetBPP(gray);
-            uint stride = (width * bitsPerPixel + 7) / 8;          
-            const int size = sizeof(ushort);
-            var lineData = new byte[stride];
-            int offset = startY * totalWidth * size + startX * size;
-            for (int i = height - 1 - tilePosY; i >= height - copiedY; i--)
+
+            FIBITMAP gray = FIBITMAP.Zero;
+            try
             {
-                IntPtr line = FreeImage.GetScanLine(gray, i);
-                Marshal.Copy(line, lineData, 0, (int)stride);
-                Buffer.BlockCopy(lineData, tilePosX*size, total, offset, copiedX*size);
-                startY++;
-                offset = startY*totalWidth*size + startX*size;
+                gray = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_TIFF, filename, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
+                FillTiffBuffer(gray, total, startX, startY, totalWidth, totalHeight, copiedX, copiedY, tilePosX,
+                    tilePosY);
+            }
+            finally
+            {
+                FreeImage.Unload(gray);
             }
         }
+
+
+        private static void FillTiffBuffer(FIBITMAP source, IntPtr dest, int startX, int startY, int totalWidth,
+            int totalHeight, int copiedX, int copiedY, int tilePosX, int tilePosY)
+        {
+            var width = (int) FreeImage.GetWidth(source);
+            var height = (int) FreeImage.GetHeight(source);
+            // avoid out of range exception during the copy
+            // check and change the copy length
+            copiedX = CalcPixelsToBeCopied(tilePosX, copiedX, width);
+            copiedY = CalcPixelsToBeCopied(tilePosY, copiedY, height);
+            copiedX = CalcPixelsToBeCopied(startX, copiedX, totalWidth);
+            copiedY = CalcPixelsToBeCopied(startY, copiedY, totalHeight);
+            int y = startY;
+            int offset = y*totalWidth + startX;
+            unsafe
+            {
+                var pDest = (ushort*) dest.ToPointer();
+
+                for (int i = height - tilePosY - 1; i >= height - copiedY - tilePosY; i--)
+                {
+                    IntPtr line = FreeImage.GetScanLine(source, i);
+                    var pLine = (ushort*) line.ToPointer();
+                    for (int j = 0; j < copiedX; j++)
+                    {
+                        pDest[offset + j] = pLine[tilePosX + j];
+                    }
+                    y++;
+                    offset = y*totalWidth + startX;
+                }
+            }
+        }
+
 
         private int CalcPixelsToBeCopied(double len, double step)
         {
-            return (int) Math.Floor(len/step);
+            //return (int) Math.Floor(len/step);
+            return (int) Math.Round((decimal) len/(decimal) step);
+        }
+
+        private static int CalcPixelsToBeCopied(int start, int len, int limit)
+        {          
+            return start + len <= limit ? len : limit - start;
+        }
+
+        private Int32Rect Intersect(Int32Rect rect1, Int32Rect rect2)
+        {
+            Int32Rect rect = Int32Rect.Empty;
+            Int32Rect left = rect1.X <= rect2.X ? rect1 : rect2;
+            Int32Rect right = rect1.X > rect2.X ? rect1 : rect2;
+            if ((right.X > left.X + left.Width) || (right.Y + right.Height < left.Y) || (right.Y > left.X + left.Height))
+            {
+                return rect;
+            }
+            rect = new Int32Rect { X = right.X, Y = left.Y > right.Y ? left.Y : right.Y };
+            if (right.X + right.Width <= left.X + left.Width)
+                rect.Width = right.Width;
+            else
+                rect.Width = left.Width + left.X - right.X;
+            if (right.Height <= left.Height)
+            {
+                if ((left.Y > right.Y) && (right.Y < left.Y + left.Height))
+                    rect.Height = right.Y + right.Height - left.Y;
+                else if ((left.Y <= right.Y) && (left.Y + left.Height >= right.Y + right.Height))
+                    rect.Height = right.Height;
+                else
+                    rect.Height = left.Y + left.Height - right.Y;
+            }
+            else
+            {
+                if (right.Y + right.Height <= left.Y + left.Height)
+                    rect.Height = right.Y + right.Height - left.Y;
+                else if ((left.Y > right.Y) && (right.Y + right.Height > left.Y + left.Height))
+                    rect.Height = left.Height;
+                else
+                    rect.Height = left.Y + left.Height - right.Y;
+            }
+            if (rect.Width > 0 && rect.Height > 0)
+                return rect;
+            return Int32Rect.Empty;
         }
 
         /// <summary>
@@ -329,9 +417,9 @@ namespace ThorCyte.Infrastructure.Interfaces
         /// the rectangle part in the scan region bound
         /// </summary>
         /// <returns></returns>
-        private Rect GetScanFieldValidBound(Rect scanFieldBound, ThorCyteImageInfo imageInfo)
-        {
-            Rect scanRegionBound = imageInfo.SRegion.Bound;
+        private Int32Rect GetScanFieldValidBound(Rect scanFieldBound, ThorCyteImageInfo imageInfo)
+        {          
+            Rect scanRegionBound = imageInfo.SRegion.Bound;            
             int tileWidth = imageInfo.TileWidth;
             int tileHeight = imageInfo.TileHeight;
             double xPixelSize = imageInfo.XPixselSize;
@@ -340,16 +428,25 @@ namespace ThorCyte.Infrastructure.Interfaces
                 ? CalcPixelsToBeCopied(scanFieldBound.Width + (scanRegionBound.Right - scanFieldBound.Right), xPixelSize)
                 : tileWidth;
             int copiedY = scanFieldBound.Bottom > scanRegionBound.Bottom
-                ? CalcPixelsToBeCopied(scanFieldBound.Height + (scanRegionBound.Bottom - scanFieldBound.Bottom), yPixelSize)
+                ? CalcPixelsToBeCopied(scanFieldBound.Height + (scanRegionBound.Bottom - scanFieldBound.Bottom),
+                    yPixelSize)
                 : tileHeight;
-            var totalWidth = (int) imageInfo.XSize;
-            var startX = (int) ((scanFieldBound.X - scanRegionBound.X)/xPixelSize);
-            var startY = (int)((scanFieldBound.Y - scanRegionBound.Y) / yPixelSize);
-                
+            var totalWidth = (int) (imageInfo.XSize);
+            var startX = (int) Math.Round((decimal) (scanFieldBound.X - scanRegionBound.X)/(decimal) xPixelSize);
+            var startY = (int) Math.Round((decimal) (scanFieldBound.Y - scanRegionBound.Y)/(decimal) yPixelSize);
             startX = totalWidth - startX - copiedX;
-            return new Rect(startX, startY, copiedX, copiedY);
+            return new Int32Rect(startX, startY, copiedX, copiedY);
         }
-        
+
+        private ImageData GetResizedData(ImageData original, int width, int height, double scale)
+        {
+            var scaleWidth = (int)(width * scale);
+            var scaleHeight = (int)(height * scale);
+            var image = new ImageData((uint)scaleWidth, (uint)scaleHeight);        
+            ImageProcessLib.Resize16U(original.DataBuffer, width, height, image.DataBuffer, scaleWidth, scaleHeight, 1);
+            return image;
+        }
+
         private void Clear()
         {
             _extension = string.Empty;
@@ -414,71 +511,80 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId,
             int timingFrameId)
-        {
-            return streamFrameId == 0 && planeId == 0 && timingFrameId == 0
-                ? GetData(scanId, scanRegionId, channelId)
-                : null;
+        {         
+            return GetData(scanId, scanRegionId, channelId);
         }
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int timingFrameId, double scale,
             Int32Rect regionRect)
         {
+
             if (scale <= 0.0 || !regionRect.HasArea || regionRect.X < 0 || regionRect.Y < 0)
                 return null;
-            var myRegionRect = new Rect(regionRect.X, regionRect.Y, regionRect.Width, regionRect.Height);
-            var image = new ImageData((uint)regionRect.Width, (uint)regionRect.Height);
+            var original = new ImageData((uint) regionRect.Width, (uint) regionRect.Height);
             ThorCyteImageInfo imageInfo = GetImageInfo(scanId, scanRegionId, channelId);         
             int tileCount = imageInfo.SRegion.ScanFieldList.Count;
-
-            var tasks = new List<Task>(tileCount);
+            var tasks = new List<Task>(tileCount);           
             for (int i = 0; i < tileCount; i++)
             {
                 Scanfield scanField = imageInfo.SRegion.ScanFieldList[i];
-                Rect tileRect = GetScanFieldValidBound(scanField.SFRect, imageInfo);
+                Int32Rect tileRect = GetScanFieldValidBound(scanField.SFRect, imageInfo);
 
-                Rect rect = Rect.Intersect(myRegionRect, tileRect);
-                if (rect != Rect.Empty)
-                {
-                    
+                Int32Rect rect = Intersect(regionRect, tileRect);
+                if (rect != Int32Rect.Empty)
+                {                   
                     string filePath = GetImageFileName(scanRegionId, channelId, scanField.ScanFieldId);
                     if (File.Exists(filePath))
                     {
-                        var tilePosX = (int)(rect.X - tileRect.X);
-                        var tilePosY = (int)(rect.Y - tileRect.Y);
+                        int tilePosX = rect.X - tileRect.X;
+                        int tilePosY = rect.Y - tileRect.Y;
                         tasks.Add(
                             Task.Factory.StartNew(
                                 () =>
-                                    FillBuffer(image.DataBuffer, (int) (rect.X - myRegionRect.X),
-                                        (int) (rect.Y - myRegionRect.Y),
-                                        (int) myRegionRect.Width, (int) rect.Width, (int) rect.Height, tilePosX,
-                                        tilePosY,
-                                        filePath, _imageType)));
+                                    FillBuffer(original.DataBuffer, rect.X - regionRect.X,
+                                        rect.Y - regionRect.Y,
+                                        regionRect.Width, regionRect.Height, rect.Width, rect.Height, tilePosX,
+                                        tilePosY, filePath, _imageType)));
+
+                        // for test and debug
+                        //FillBuffer(original.DataBuffer, rect.X - regionRect.X,
+                        //    rect.Y - regionRect.Y,
+                        //    regionRect.Width, regionRect.Height, rect.Width, rect.Height, tilePosX,
+                        //    tilePosY, filePath, _imageType);
                     }
                 }
             }
+
             if (tasks.Count > 0)
+            {
                 Task.WaitAll(tasks.ToArray());
-            return image.Resize((int)(regionRect.Width * scale), (int)(regionRect.Height * scale));
+            }
+
+            ImageData image = GetResizedData(original, regionRect.Width, regionRect.Height, scale);
+            original.Dispose();
+            return image;
         }
+
+        
+
 
         public ImageData GetTileData(int scanId, int scanRegionId, int channelId, int streamFrameId, int tileId,
             int timingFrameId)
         {
-            return GetTileData(scanId, scanRegionId, channelId, streamFrameId, 0, tileId, timingFrameId);
+            return GetTileData(scanId, scanRegionId, channelId, 0, 0, tileId, 0);
         }
 
         public ImageData GetTileData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId,
-            int tileId,
-            int timingFrameId)
+            int tileId, int timingFrameId)
         {
-            if (streamFrameId == 0 && planeId == 0 && tileId == 0 || timingFrameId == 0)
+            if (tileId > 0)
             {
                 ScanInfo info = _experiment.GetScanInfo(scanId);
                 int width = info.TileWidth;
                 int height = info.TiledHeight;
                 string name = GetImageFileName(scanRegionId, channelId, tileId);
                 var data = new ImageData((uint) (width), (uint) (height));
-                FillBuffer(data.DataBuffer, 0, 0, width, width, height, name, _imageType);
+                FillBuffer(data.DataBuffer, 0, 0, width, height, width, height, name, _imageType);
                 return data;
 
             }
@@ -490,15 +596,12 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int timingFrameId)
         {
-            return GetData(scanId, scanRegionId, channelId, 0, 0, timingFrameId);
+            return GetData(scanId, scanRegionId, channelId);
         }
 
         #endregion
 
         #endregion
-
-
-
 
     }
 }

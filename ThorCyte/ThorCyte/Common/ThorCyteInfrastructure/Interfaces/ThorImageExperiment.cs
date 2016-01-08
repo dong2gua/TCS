@@ -33,6 +33,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             _scanInfos.Add(_currentScanInfo);
             _experimentInfo = new ExperimentInfo();
             _experimentInfo.InstrumentType = "ThorImage";
+            _experimentInfo.IntensityBits = 14;
             _currentScanInfo.DataPath = Path.GetDirectoryName(experimentPath);
             _currentScanInfo.ScanId = 1;
             _currentScanInfo.ResolutionUnit = ResUnit.Micron;

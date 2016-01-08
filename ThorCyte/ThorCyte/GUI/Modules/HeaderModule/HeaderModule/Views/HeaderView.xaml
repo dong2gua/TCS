@@ -20,7 +20,7 @@
         <Border BorderThickness="1" Grid.Row="1" CornerRadius="5" BorderBrush="CadetBlue">
         <WrapPanel Margin="5" >
             <Button Margin="2" Width="70" Height="35" FontSize="18" Command="{Binding TabCommand}" CommandParameter="ReviewModule">Review</Button>
-            <Button Margin="2" Width="70" Height="35" FontSize="18" Command="{Binding TabCommand}" CommandParameter="AnalysisMoudel">Analysis</Button>
+            <Button Margin="2" Width="70" Height="35" FontSize="18" Command="{Binding TabCommand}" CommandParameter="AnalysisModule">Analysis</Button>
         </WrapPanel>
         </Border>
     </Grid>

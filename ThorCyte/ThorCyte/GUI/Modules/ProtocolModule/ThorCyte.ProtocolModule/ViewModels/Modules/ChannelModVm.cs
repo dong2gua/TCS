@@ -2,8 +2,8 @@
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
-using ThorCyte.ProtocolModule.Utils;
-using ThorCyte.ProtocolModule.Views.ChannelMod;
+using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
+using ThorCyte.ProtocolModule.Views.Modules;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
@@ -66,8 +66,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         {
             _hasImage = true;
             View = new ChannelMod();
-            ModType = ModuleType.SmtContourChannel;
-            Name = GlobalConst.ChannelName;
+            ModType = ModuleType.SmtContourCategory;
             InputPorts[0].DataType = PortDataType.MultiChannelImage;
             OutputPort.DataType = PortDataType.GrayImage;
             OutputPort.ParentModule = this;

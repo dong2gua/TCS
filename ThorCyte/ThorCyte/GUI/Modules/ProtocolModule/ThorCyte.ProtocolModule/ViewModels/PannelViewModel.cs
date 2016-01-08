@@ -10,6 +10,7 @@ using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
+using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 using ThorCyte.ProtocolModule.Views;
 
 namespace ThorCyte.ProtocolModule.ViewModels
@@ -79,8 +80,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             get { return Macro.CombinationModulesInWorkspace; }
         }
-
-
 
         //private ModuleVmBase _selectedModuleViewModel;
 
