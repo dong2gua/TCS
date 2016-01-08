@@ -118,6 +118,7 @@
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
     <Compile Include="ViewModels\Modules\CombinationModVm.cs" />
     <Compile Include="ViewModels\ModulesBase\ModuleVmBase.cs" />
+    <Compile Include="ViewModels\Modules\ExperimentModVm.cs" />
     <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
     <Compile Include="ViewModels\PannelViewModel.cs" />
     <Compile Include="Views\Modules\ChannelModule.xaml.cs">
@@ -125,6 +126,9 @@
     </Compile>
     <Compile Include="Views\MacroEditor.xaml.cs">
       <DependentUpon>MacroEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\ExperimentModule.xaml.cs">
+      <DependentUpon>ExperimentModule.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Modules\ThresholdModule.xaml.cs">
       <DependentUpon>ThresholdModule.xaml</DependentUpon>
@@ -140,6 +144,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MacroEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\ExperimentModule.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -5,16 +5,17 @@
 			<module name="Batch" />
 			<module name="Repetitive Scan"  />
 			<module name="Channel Label"  />
+			<module name="Experiment" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ExperimentModVm"/>
 		</modules>
 	</category>
 	<category name="Output">
 		<modules>
 			<module name="GlobalImage" disp-name="Processed Image"/>
-			<module name="ImageView" disp-name="Image View" reference="ThorCyte.Script.ViewModels.Modules.ImageViewModVm,Script"/>
+			<module name="ImageView" disp-name="Image View"/>
 		</modules>
 	</category>
 	<category name="Filter">
-		<module name="Filter" reference="ThorCyte.Script.ViewModels.Modules.FilterModVm,Script" />
+		<module name="Filter"/>
 		<module name="Erode"/>
 		<module name="Dilate"/>
 		<module name="Open"/>
@@ -36,11 +37,11 @@
 	<category name="Contour">
 		<module name="Channel" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ChannelModVm" />
 		<module name="Threshold" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ThresholdModVm" />
-		<module name="Contour"  reference="ThorCyte.Script.ViewModels.Modules.ContourModVm,Script"/>
+		<module name="Contour"/>
 	</category>
 	<category name="Event">
-		<module name="Event" reference="ThorCyte.Script.ViewModels.Modules.EventModVm,Script"/>
-		<module name="Phantom" reference="ThorCyte.Script.ViewModels.Modules.PhantomModVm,Script"/>
+		<module name="Event"/>
+		<module name="Phantom"/>
 		<module name="ScanAreaEvent" disp-name="Scan Area Event" />
 		<module name="OverlapParentChild" disp-name="Association"  />
 		<module name="OverlapParentChild2" disp-name="Association 2" />
@@ -97,23 +98,14 @@
       <module name ="AnisotropicDiffusion" disp-name="Anisotropic Diffusion" test="true"  />
       <module name ="BinaryThinning" disp-name="Binary Thinning" test="true"  />
       <module name ="GrayScaleMathematicalMorphology" disp-name="GrayScale Math Morph" test="true" />
-      <!--module name ="buildNNGraph" disp-name="Build NN Graph" test="true"  reference="CompuCyte.Script.buildNNGraphModule,CompuCyte.Script" /-->
-      <!--module name ="ComputeDensityMap" disp-name="Compute Density Map" test="true"  reference="CompuCyte.Script.ComputeDensityMapModule,CompuCyte.Script" /-->
-      <!--module name ="LinkEdges" disp-name="Link Edges" test="true"  reference="CompuCyte.Script.LinkEdgesModule,CompuCyte.Script" /-->
       <module name="NewAdd"  />
       <module name="NewSubtract"/>
       <module name="NewMask" />
       <module name="NewTransform" />
-      <!--module name="NewScanArea" disp-name="New Scan Area Event" reference="CompuCyte.Script.ScanAreaModule2,CompuCyte.Script" /-->
-      <!--module name="NewContour" disp-name="New Contour" reference="CompuCyte.Script.NewContourModule,CompuCyte.Script" /-->
-      <!--module name="RichardsonLucyDeconv" disp-name="Richardson Lucy Deconvolution" reference="CompuCyte.Script.RichardsonLucyDeconModule,CompuCyte.Script" /-->
       <module name="WienerDeconvolutionDeconv" disp-name="Wiener Deconvolution" />
-      <!--module name="psfFromStraightEdges" disp-name="PSF From Edges" reference="CompuCyte.Script.psfFromStraightEdgesModule,CompuCyte.Script"/-->
-      <!--module name="MNDetection" disp-name="MN Detection" reference="CompuCyte.Script.MNDetectionMod,CompuCyte.Script" /-->
-    
   </category>
   <category name ="Custom Modules" test="true">
-    <module name="DetectPlatelet" disp-name="Detect Platelets" test="true"  reference="CompuCyte.Script.PlateletDetectionModule,CompuCyte.Script" />
-    <module name ="DetectCometsFromHeads" disp-name="Detect Comets from Heads" test="true"  reference="CompuCyte.Script.DetectCometsFromHeadsMod,CompuCyte.Script" />
+    <module name="DetectPlatelet" disp-name="Detect Platelets" test="true"/>
+    <module name ="DetectCometsFromHeads" disp-name="Detect Comets from Heads" test="true"/>
   </category>
 </categories>

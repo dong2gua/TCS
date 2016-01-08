@@ -187,6 +187,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
+            
+            
+            
             if (_img == null)
             {
                 throw new CyteException("ChannelModVm", "Invaild execution image is null");

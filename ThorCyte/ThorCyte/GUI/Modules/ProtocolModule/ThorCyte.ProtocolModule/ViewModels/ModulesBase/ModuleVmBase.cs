@@ -277,11 +277,8 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
             {
                 _outputPort.Image = img;
             }
-        }
 
-        public void SetScanNo()
-        {
-
+            InputImage.Dispose();
         }
 
         public void Serialize(XmlWriter writer)

@@ -32,13 +32,28 @@ namespace ThorCyte.ProtocolModule.Models
         #endregion
 
         #region Fields and Properties
-        public static ImageData CurrentImage { set; get; }
+
+        private static ImageData _currentImage;
+        public static ImageData CurrentImage {
+            get { return _currentImage; }
+            set
+            {
+                if(_currentImage.Equals(value)) return;
+                
+                if (_currentImage != null)
+                {
+                    _currentImage.Dispose();
+                }
+                _currentImage = value;
+            }
+        }
         public delegate ModuleVmBase CreateCombinationModuleFromWorkspaceHandler(string name, int id);
         public static CreateCombinationModuleFromWorkspaceHandler CreateCombinationModuleFromWorkspace;
         public delegate ModuleVmBase CreateModuleHandler(ModuleInfo info);
         public static CreateModuleHandler CreateModule;
         public delegate void CreateConnectorHandler(int inPortId, int outPortId, int inPortIndex, int outPortIndex);
         public static CreateConnectorHandler CreateConnector;
+
 
         private static Macro _uniqueInstance;
         public static Macro Instance
