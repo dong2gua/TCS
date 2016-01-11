@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<categories version="7.0.0.7">
-	<category name="System">
-		<modules>
-			<module name="Batch" />
-			<module name="Repetitive Scan"  />
-			<module name="Channel Label"  />
-			<module name="Experiment" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ExperimentModVm"/>
-		</modules>
-	</category>
+<categories>
 	<category name="Output">
 		<modules>
 			<module name="GlobalImage" disp-name="Processed Image"/>

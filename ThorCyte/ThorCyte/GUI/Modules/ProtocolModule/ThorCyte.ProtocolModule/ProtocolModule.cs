@@ -2,6 +2,7 @@
 using Prism.Modularity;
 using Prism.Regions;
 using ThorCyte.Infrastructure.Commom;
+using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Views;
 
 namespace ThorCyte.ProtocolModule
@@ -17,6 +18,8 @@ namespace ThorCyte.ProtocolModule
 
         public void Initialize()
         {
+            var moduleinfos = ModuleInfoMgr.Instance;
+            var macro = Macro.Instance;
             _regionViewRegistry.RegisterViewWithRegion(RegionNames.ProtocolRegion, typeof(MacroEditor));
         }
     }

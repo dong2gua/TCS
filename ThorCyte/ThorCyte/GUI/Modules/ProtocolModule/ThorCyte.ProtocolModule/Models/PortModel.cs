@@ -5,7 +5,7 @@ using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Utils;
 using System.Linq;
 using ImageProcess;
-using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
+using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.Models
 {
@@ -44,7 +44,7 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
-        public ModuleVmBase ParentModule { get; set; }
+        public ModuleBase ParentModule { get; set; }
 
         public bool IsImageDataType
         {
@@ -130,14 +130,27 @@ namespace ThorCyte.ProtocolModule.Models
             set { _image = value; }
         }
 
+        private int _scanId;
+        public int ScanId
+        {
+            get { return _scanId; }
+            set { SetProperty(ref _scanId, value); }
+        }
 
-        //private BioComponent _component;
 
-        //public BioComponent Component
-        //{
-        //    get { return _component; }
-        //    set { _component = value; }
-        //}
+        private int _regionId;
+        public int RegionId
+        {
+            get { return _regionId; }
+            set { SetProperty(ref _regionId, value); }
+        }
+
+        private int _tileId;
+        public int TileId
+        {
+            get { return _tileId; }
+            set { SetProperty(ref _tileId, value); }
+        }
 
         private Brush _portBrush = Brushes.LightGray;
 
@@ -229,7 +242,7 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
-        public PortModel(ModuleVmBase parent, PortType type = PortType.None, PortDataType dataType = PortDataType.None)
+        public PortModel(ModuleBase parent, PortType type = PortType.None, PortDataType dataType = PortDataType.None)
         {
             ParentModule = parent;
             PortType = type;

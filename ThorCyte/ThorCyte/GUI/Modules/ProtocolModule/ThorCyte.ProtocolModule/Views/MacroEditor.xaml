@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:models="clr-namespace:ThorCyte.ProtocolModule.Models"
              xmlns:control="clr-namespace:ThorCyte.ProtocolModule.Controls"
-             xmlns:modulesBase="clr-namespace:ThorCyte.ProtocolModule.ViewModels.ModulesBase"
+             xmlns:modulesBase="clr-namespace:ThorCyte.ProtocolModule.ViewModels.Modules"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" MinWidth="880" MinHeight="600">
     <UserControl.Resources>
@@ -46,7 +46,7 @@
                 </Setter>
             </Style>
 
-            <DataTemplate DataType="{x:Type modulesBase:ModuleVmBase}" >
+            <DataTemplate DataType="{x:Type modulesBase:ModuleBase}" >
                 <Grid Width="120" MinHeight="60">
                     <Rectangle Fill="LightGray" RadiusX="3" RadiusY="3"/>
                     <Grid>
@@ -172,6 +172,10 @@
 
             <Button Margin="5,2,0,2" Padding="-1" >
                 <Image Source="../Resource/Images/output.png"/>
+            </Button>
+
+            <Button Margin="5,2,0,2" Padding="-1" Command="{Binding StartMacroCommand}">
+                <Image Source="../Resource/Images/play.png"/>
             </Button>
         </StackPanel>
 

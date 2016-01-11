@@ -5,24 +5,16 @@ using ImageProcess;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
-using ThorCyte.ProtocolModule.ViewModels.Modules;
 
-namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
+namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
-    public abstract class ModuleVmBase : BindableBase
+    public abstract class ModuleBase : BindableBase
     {
-        #region Properties and Fields
+        #region Properties
 
         public int Id { get; set; }
-
         public int ScanNo { get; set; }
-
-        public Macro ParentMacro { get; set; }
-
         public string DisplayName { get; set; }
-
-        public virtual string CaptionString { get; set; }
-
         public ModuleType ModType { get; set; }
 
         private ContentControl _view;
@@ -40,37 +32,26 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
         }
 
         private ImageData _inputImage;
-
         public ImageData InputImage
         {
             get { return _inputImage; }
         }
 
-        protected bool _hasImage = false;
-
+        private bool _hasImage;
         public bool HasImage
         {
+            set { _hasImage = value; }
             get { return _hasImage; }
         }
 
-        public bool OutPortExists
-        {
-            get { return _outputPort != null; }
-        }
-
-        private bool _enabled = true;
-
+        private bool _enabled;
         public bool Enabled
         {
             get { return _enabled; }
             set { _enabled = value; }
         }
 
-        /// <summary>
-        /// List of output connectors (connections points) attached to the node.
-        /// </summary>
-        private PortModel _outputPort = new PortModel(PortType.OutPort);
-
+        private PortModel _outputPort;
         public PortModel OutputPort
         {
             get { return _outputPort; }
@@ -78,7 +59,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
         }
 
         private int _x;
-
         public int X
         {
             get { return _x; }
@@ -93,7 +73,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
         }
 
         private int _y;
-
         public int Y
         {
             get { return _y; }
@@ -108,7 +87,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
         }
 
         private string _name;
-
         public string Name
         {
             get { return _name; }
@@ -122,11 +100,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
             }
         }
 
-        /// <summary>
-        /// Set to 'true' when the module is selected.
-        /// </summary>
         private bool _isSelected;
-
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -140,34 +114,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
             }
         }
 
-        /// <summary>
-        /// A helper property that retrieves a list (a new list each time) of all connections attached to the module. 
-        /// </summary>
-        public ICollection<ConnectorModel> AttachedConnections
-        {
-            get
-            {
-                var attachedConnections = new List<ConnectorModel>();
+        public virtual string CaptionString { get; set; }
 
-                foreach (var port in InputPorts)
-                {
-                    attachedConnections.AddRange(port.AttachedConnections);
-                }
-
-                if (_outputPort != null)
-                {
-                    attachedConnections.AddRange(_outputPort.AttachedConnections);
-                }
-
-                return attachedConnections;
-            }
-        }
-
-        /// <summary>
-        /// List of input connectors (connections points) attached to the node.
-        /// </summary>
         private ImpObservableCollection<PortModel> _inputPorts;
-
         public ImpObservableCollection<PortModel> InputPorts
         {
             get
@@ -189,25 +138,55 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
             }
         }
 
+        public ICollection<ConnectorModel> AttachedConnections
+        {
+            get
+            {
+                var attachedConnections = new List<ConnectorModel>();
+
+                foreach (var port in InputPorts)
+                {
+                    attachedConnections.AddRange(port.AttachedConnections);
+                }
+
+                if (_outputPort != null)
+                {
+                    attachedConnections.AddRange(_outputPort.AttachedConnections);
+                }
+
+                return attachedConnections;
+            }
+        }
+        public bool OutPortExists
+        {
+            get { return _outputPort != null; }
+        }
+
         #endregion
 
         #region Constructors
 
-        protected ModuleVmBase()
+        protected ModuleBase()
         {
+            _outputPort = new PortModel(PortType.OutPort);
+            _enabled = true;
+            _hasImage = false;
         }
-
-
 
         #endregion
 
-        #region Methods
+        #region Virtual Methods and Properties
+
         public virtual void OnSerialize(XmlWriter writer) { }
         public virtual void OnDeserialize(XmlReader reader) { }
         public virtual void OnExecute() { }
         public virtual void Initialize() { }
         public virtual void Refresh() { }
         public virtual void OnSetScanNo() { }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Event raised when connectors are added to the node.
@@ -231,12 +210,11 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
             }
         }
 
-
         public void Execute()
         {
             try
             {
-                if (_hasImage)	// set the input image from the first image input port
+                if (_hasImage)    // set the input image from the first image input port
                 {
                     foreach (var port in _inputPorts)
                     {
@@ -271,23 +249,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
             return _inputPorts.Count > index ? _inputPorts[index] : null;
         }
 
-        protected void SetOutputImage(ImageData img)
-        {
-            if (img != null)
-            {
-                _outputPort.Image = img;
-            }
-
-            InputImage.Dispose();
-        }
-
         public void Serialize(XmlWriter writer)
         {
-            if (this is CombinationModVm)
-                writer.WriteStartElement("combination-module");
-            else
-                writer.WriteStartElement("module");
-
+            writer.WriteStartElement("module");
             writer.WriteAttributeString("id", Id.ToString());
             writer.WriteAttributeString("name", Name);
             writer.WriteAttributeString("enabled", _enabled.ToString().ToLower());
@@ -304,6 +268,13 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
             OnDeserialize(reader);
         }
 
+        protected void SetOutputImage(ImageData img)
+        {
+            if (img != null)
+            {
+                _outputPort.Image = img;
+            }
+        }
 
         #endregion
     }

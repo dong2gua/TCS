@@ -1,18 +1,17 @@
-﻿using System.Xml;
+﻿using System.Diagnostics;
+using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
-using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 using ThorCyte.ProtocolModule.Views.Modules;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
-    public class ChannelModVm : ModuleVmBase
+    public class ChannelModVm : ModuleBase
     {
         #region Properties and Fields
 
         private ImageData _img;
-
         public override string CaptionString
         {
             get { return _chaModel != null ? _selectedChannel : string.Empty; }
@@ -42,9 +41,20 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
         }
 
+        private int _selectedIndex;
+        public int SelectedIndex
+        {
+            get { return _selectedIndex; }
+            set { SetProperty(ref _selectedIndex, value); }
+        }
+
         #endregion
 
         #region Methods
+
+        public ChannelModVm()
+        {
+        }
 
         public override void OnDeserialize(XmlReader reader)
         {
@@ -53,28 +63,31 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {            
+            _img = Macro.CurrentDataMgr.GetTileData(InputPorts[0].ScanId, InputPorts[0].RegionId, SelectedIndex, 0, 0,
+                InputPorts[0].TileId, 0);
+            //_dataMgr.GetTileData()
+
             if (_img == null)
             {
-                throw new CyteException("ChannelModVm","Invaild execution image is null");
+                throw new CyteException("ChannelModVm", "Invaild execution image is null");
             }
 
             SetOutputImage(_img);
+            _img.Dispose();
             _img = null;
         }
 
         public override void Initialize()
         {
-            _hasImage = true;
+            HasImage = true;
             View = new ChannelMod();
             ModType = ModuleType.SmtContourCategory;
-            InputPorts[0].DataType = PortDataType.MultiChannelImage;
             OutputPort.DataType = PortDataType.GrayImage;
             OutputPort.ParentModule = this;
-            InputPorts[0].ParentModule = this;
 
             if (_chaModel.Channels.Count > 0)
             {
-                _selectedChannel = _chaModel.Channels[0];
+                SelectedChannel = _chaModel.Channels[0];
             }
 
 

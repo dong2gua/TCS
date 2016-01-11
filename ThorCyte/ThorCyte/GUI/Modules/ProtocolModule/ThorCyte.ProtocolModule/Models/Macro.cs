@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml;
 using ImageProcess;
@@ -11,23 +9,16 @@ using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
-using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 
 namespace ThorCyte.ProtocolModule.Models
 {
     public class Macro
     {
-        #region Constants
-        private const string ModuleInfoPath = @"..\..\..\..\..\..\Xml\Modules.xml";
-        private const string ComModuleInfoPath = @"..\..\..\..\..\..\Xml\CombinationModules.xml";
-        #endregion
 
         #region Constants
         private Macro()
         {
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
-            LoadModuleInfos(ModuleInfoPath);
-            LoadCombinationModuleTemplates(ComModuleInfoPath);
         }
         #endregion
 
@@ -47,13 +38,9 @@ namespace ThorCyte.ProtocolModule.Models
                 _currentImage = value;
             }
         }
-        public delegate ModuleVmBase CreateCombinationModuleFromWorkspaceHandler(string name, int id);
-        public static CreateCombinationModuleFromWorkspaceHandler CreateCombinationModuleFromWorkspace;
-        public delegate ModuleVmBase CreateModuleHandler(ModuleInfo info);
-        public static CreateModuleHandler CreateModule;
-        public delegate void CreateConnectorHandler(int inPortId, int outPortId, int inPortIndex, int outPortIndex);
-        public static CreateConnectorHandler CreateConnector;
 
+        public delegate void ClearHandler();
+        public static ClearHandler Clear;
 
         private static Macro _uniqueInstance;
         public static Macro Instance
@@ -61,174 +48,32 @@ namespace ThorCyte.ProtocolModule.Models
             get { return _uniqueInstance ?? (_uniqueInstance = new Macro()); }
         }
 
-        private static readonly List<string> _categories = new List<string>();
-        internal static List<string> Categories
-        {
-            get { return _categories; }
-        }
-
-        private static readonly List<ModuleInfo> _sysModuleInfos = new List<ModuleInfo>();
-        internal static List<ModuleInfo> SysModuleInfos
-        {
-            get { return _sysModuleInfos; }
-        }
-
-        private static readonly List<ModuleInfo> _moduleInfos = new List<ModuleInfo>();
-        internal static List<ModuleInfo> ModuleInfos
-        {
-            get { return _moduleInfos; }
-        }
-
-        private static readonly List<CombinationModVm> _combinationModuleDefs = new List<CombinationModVm>();
-        internal static List<CombinationModVm> CombinationModuleDefs
-        {
-            get { return _combinationModuleDefs; }
-        }
-
-        public static ScanInfo CurrentScanInfo { get; set; }
-        public static int CurrentScanId { get; set; }
+        public static ScanInfo CurrentScanInfo { get; private set; }
+        public static int CurrentScanId { get; private set; }
+        public static IData CurrentDataMgr { get; private set; }
 
         public static ImpObservableCollection<ConnectorModel> Connections;
-        public static ImpObservableCollection<ModuleVmBase> Modules;
-        public static readonly List<CombinationModVm> CombinationModulesInWorkspace = new List<CombinationModVm>();
-        public static ModuleVmBase SelectedModuleViewModel;
+        public static ImpObservableCollection<ModuleBase> Modules;
+        public static ModuleBase SelectedModuleViewModel;
 
-
+        private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
         {
-            get { return ServiceLocator.Current.GetInstance<IEventAggregator>(); }
+            get
+            {
+                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
         }
+
         #endregion
 
         #region Methods
-
         private void ExpLoaded(int scanId)
         {
+            Clear(); 
             CurrentScanId = scanId;
             CurrentScanInfo = ServiceLocator.Current.GetInstance<IExperiment>().GetScanInfo(scanId);
-        }
-
-        private void LoadModuleInfos(string fileName)
-        {
-            if (!File.Exists(fileName))
-            {
-                throw new CyteException("ProtocolModule.LoadModuleInfo", "Module info file does not exist.");
-            }
-
-            XmlTextReader reader = null;
-            try
-            {
-                var tempstr = string.Empty;
-                reader = new XmlTextReader(fileName);
-                while (reader.Read())
-                {
-                    if (reader.NodeType == XmlNodeType.Element)
-                    {
-                        switch (reader.Name)
-                        {
-                            case "category":
-                                tempstr = reader["name"];
-                                if (!string.Equals(tempstr, GlobalConst.Systemstr))
-                                {
-                                    _categories.Add(tempstr);
-                                }
-                                break;
-
-                            case "module":
-                                var info = new ModuleInfo
-                                {
-                                    Category = tempstr,
-                                    Name = reader["name"],
-                                    Reference = reader["reference"] ?? string.Empty,
-                                    DisplayName = reader["disp-name"] ?? reader["name"]
-                                };
-                                if (string.Equals(tempstr, GlobalConst.Systemstr))
-                                {
-                                    _sysModuleInfos.Add(info);
-                                }
-                                else
-                                {
-                                    _moduleInfos.Add(info);
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                if (reader == null || reader.LineNumber == 0) // file open error
-                {
-                    throw;
-                }
-
-                // read error
-                var msg = string.Format("Error reading {0} at line {1}.", fileName, reader.LineNumber);
-                throw new CyteException("ProtocolModule.LoadModuleInfo", msg);
-            }
-            finally
-            {
-                if (reader != null)
-                {
-                    reader.Close();
-                }
-            }
-        }
-
-        // load combination module definitions at startup
-        private static void LoadCombinationModuleTemplates(string path)
-        {
-            if (!File.Exists(path))
-                return;
-
-            XmlTextReader reader = null;
-            try
-            {
-                reader = new XmlTextReader(path);
-                while (reader.Read())
-                {
-                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "combination-module")
-                    {
-                        var temp = new CombinationModVm();
-                        temp.CreateFromXml(reader);
-                        AddCombinationModuleTemplate(temp);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new CyteException("ProtocolModule.LoadCombinationModuleDefs", ex.Message);
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-            }
-        }
-
-
-        private static void AddCombinationModuleTemplate(CombinationModVm cmod)
-        {
-            _combinationModuleDefs.Add(cmod);
-            var info = new ModuleInfo
-            {
-                Category = cmod.Category,
-                Guid = cmod.Guid,
-                IsCombo = true
-            };
-            info.DisplayName = info.Name;
-            _moduleInfos.Add(info);
-        }
-
-
-        public static ModuleInfo GetModuleInfo(string name)
-        {
-            return _moduleInfos.FirstOrDefault(info => info.Name == name);
-        }
-
-        public static ModuleInfo GetModuleInfoByDisplayName(string name)
-        {
-            return _moduleInfos.FirstOrDefault(info => info.DisplayName == name);
+            CurrentDataMgr = ServiceLocator.Current.GetInstance<IData>();
         }
 
         /// <summary>
@@ -245,24 +90,19 @@ namespace ThorCyte.ProtocolModule.Models
                     {
                         case "module":
                             var id = XmlConvert.ToInt32(reader["id"]);
-                            ModuleVmBase module;
+                            ModuleBase module;
                             if (reader.Name == "combination-module")
                             {
-                                var name = reader["name"];
-
-                                module = CreateCombinationModuleFromWorkspace(name, id);
+                                throw new CyteException("Macro.Load","Combination module does not support yet.");
                             }
-                            else
+                            var info = ModuleInfoMgr.GetModuleInfo(reader["name"]);
+                            if (info == null)
+                                throw new CyteException("Macro.Load", string.Format("Could not create module [{0}].\nModule is not defined in modules.xml.", reader["name"]));
+                            if (string.IsNullOrEmpty(info.Reference))
                             {
-                                var info = GetModuleInfo(reader["name"]);
-                                if (info == null)
-                                    throw new CyteException("Macro.LoadMacro", string.Format("Could not create module [{0}].\nModule is not defined in modules.xml.", reader["name"]));
-                                if (string.IsNullOrEmpty(info.Reference))
-                                {
-                                    continue;
-                                }
-                                module = CreateModule(info);
+                                continue;
                             }
+                            module = CreateModule(info);
 
                             module.Id = id;
                             module.Enabled = Convert.ToBoolean(reader["enabled"]);
@@ -309,6 +149,71 @@ namespace ThorCyte.ProtocolModule.Models
                 }
             }
         }
+
+        public static ModuleBase CreateModule(ModuleInfo modInfo)
+        {
+            try
+            {
+                if (modInfo.IsCombo) throw new CyteException("Macro.CreateModule", "Combination module does not support.");// create combination module
+                var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
+                module.Name = modInfo.Name;
+                module.DisplayName = modInfo.DisplayName;
+                Modules.Add(module);
+                return module;
+            }
+            catch (Exception ex)
+            {
+                throw new CyteException("Macro.CreateModule", string.Format("Could not create module [{0}].", modInfo.Reference) + ex.Message);
+            }
+        }
+
+        private void CreateConnector(int inPortId, int outPortId, int inPortIndex, int outPortIndex)
+        {
+            ModuleBase inModule = null;
+            ModuleBase outModule = null;
+
+            foreach (var module in Modules)
+            {
+                if (module.Id == inPortId)
+                {
+                    inModule = module;
+                }
+                else if (module.Id == outPortId)
+                {
+                    outModule = module;
+                }
+
+                if (inModule != null && outModule != null)
+                {
+                    break;
+                }
+            }
+
+            if (inModule == null || outModule == null)
+            {
+                return;
+            }
+            var connector = new ConnectorModel(outModule.OutputPort, inModule.InputPorts[inPortIndex]);
+            Connections.Add(connector);
+        }
+
+
+        public static void Run()
+        {
+            //Find the Experiment module.
+            var expMod = Modules.FirstOrDefault(m => m is ExperimentModVm);
+            if (expMod == null) return;
+
+            foreach (var region in CurrentScanInfo.ScanRegionList)
+            {
+                foreach (var tile in region.ScanFieldList)
+                {
+                    ((ExperimentModVm)expMod).AnalyzeImage(region.RegionId, tile.ScanFieldId);
+                }
+            }
+        }
+
+
         #endregion
     }
 }

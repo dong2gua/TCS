@@ -3,7 +3,7 @@
     /// <summary>
     /// Summary description for Port.
     /// </summary>
-    public enum PortDataType { None, BinaryImage, GrayImage, MultiChannelImage, Image, Event, Setting, Flag }
+    public enum PortDataType { None,BinaryImage, GrayImage, MultiChannelImage, Image, Event, Setting, Flag }
 
     public enum PortType { None = 0, InPort, OutPort }
 
@@ -31,6 +31,9 @@
         None = 0,
 
         //According to category
+        SmtSystemCategory,
+        SmtExperimentModule,
+
         SmtOutputCategory,
 
 

@@ -29,10 +29,14 @@ namespace TestProtocol.ViewModels
         }
 
         private IExperiment _experiment;
+        private IData _dataMgr;
 
-        private static IEventAggregator EventAggregator
+        private static IEventAggregator _eventAggregator;
+        public static IEventAggregator EventAggregator
         {
-            get { return ServiceLocator.Current.GetInstance<IEventAggregator>(); }
+            get {
+                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
         }
 
 
@@ -49,16 +53,20 @@ namespace TestProtocol.ViewModels
             if (openFileDialog1.FileName.ToUpper().EndsWith("RUN.XML"))
             {
                 _experiment = new ThorCyteExperiment();
+                _dataMgr = new ThorCyteData();
                 var dir = openFileDialog1.FileName.Replace(openFileDialog1.SafeFileName, string.Empty);
                 _experiment.Load(dir);
             }
             else
             {
                 _experiment = new ThorImageExperiment();
+                _dataMgr = new ThorImageData();
                 _experiment.Load(openFileDialog1.FileName);
             }
-
-            ServiceLocator.Current.GetInstance<IUnityContainer>().RegisterInstance(_experiment);
+            _dataMgr.SetExperimentInfo(_experiment);
+            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
+            container.RegisterInstance(_experiment);
+            container.RegisterInstance(_dataMgr);
 
             const int scanid = 1;
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(scanid);
