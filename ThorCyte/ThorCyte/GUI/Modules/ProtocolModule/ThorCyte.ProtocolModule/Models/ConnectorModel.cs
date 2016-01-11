@@ -175,7 +175,10 @@ namespace ThorCyte.ProtocolModule.Models
 
         public void TransferExecute()
         {
+            _destPort.ScanId = _sourcePort.ScanId;
             _destPort.Image = _sourcePort.Image;
+            _destPort.RegionId = _sourcePort.RegionId;
+            _destPort.TileId = _sourcePort.TileId;
             _destPort.ParentModule.Execute();
         }
 

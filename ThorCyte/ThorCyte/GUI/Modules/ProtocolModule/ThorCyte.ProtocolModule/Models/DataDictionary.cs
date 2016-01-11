@@ -9,6 +9,9 @@ namespace ThorCyte.ProtocolModule.Models
 
         private static Dictionary<string, ModuleType> _moduleTypeDic = new Dictionary<string, ModuleType>
         {
+            {GlobalConst.Systemstr,ModuleType.SmtSystemCategory},
+            {GlobalConst.ExperimentModuleName,ModuleType.SmtExperimentModule},
+
             {GlobalConst.OutputCateName,ModuleType.SmtOutputCategory},
 
             {GlobalConst.FilterCateName,ModuleType.SmtFilterCategory},

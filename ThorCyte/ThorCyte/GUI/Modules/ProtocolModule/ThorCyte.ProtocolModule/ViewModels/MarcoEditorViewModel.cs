@@ -2,10 +2,11 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
+using Prism.Commands;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
-using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 
 namespace ThorCyte.ProtocolModule.ViewModels
 {
@@ -15,6 +16,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
     public class MarcoEditorViewModel : BindableBase
     {
         #region Properties
+        public ICommand StartMacroCommand { get; private set; }
+
         readonly List<ChannelModVm> _channelModuleList = new List<ChannelModVm>();
 
         private static MarcoEditorViewModel _mainWindowWm = new MarcoEditorViewModel();
@@ -43,6 +46,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private MarcoEditorViewModel()
         {
             _pannelVm = new PannelViewModel();
+            StartMacroCommand = new DelegateCommand(Macro.Run);
         }
 
         #endregion
@@ -190,7 +194,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// <summary>
         /// Delete the moduleVm from the view-model.Also deletes any connections to or from the moduleVm.
         /// </summary>
-        public void DeleteModule(ModuleVmBase moduleVm)
+        public void DeleteModule(ModuleBase moduleVm)
         {
             // Remove all connections attached to the moduleVm.
             PannelVm.Connections.RemoveRange(moduleVm.AttachedConnections);
@@ -200,9 +204,9 @@ namespace ThorCyte.ProtocolModule.ViewModels
         }
 
 
-        public ModuleVmBase GetSelectedModule()
+        public ModuleBase GetSelectedModule()
         {
-            ModuleVmBase moduleVmVm = null;
+            ModuleBase moduleVmVm = null;
             int count = 0;
             for (var i = PannelVm.Modules.Count - 1; i >= 0; i--)
             {

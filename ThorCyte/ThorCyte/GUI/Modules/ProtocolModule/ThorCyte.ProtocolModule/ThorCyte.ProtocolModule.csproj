@@ -116,8 +116,7 @@
     <Compile Include="Utils\VisualUtils.cs" />
     <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
-    <Compile Include="ViewModels\Modules\CombinationModVm.cs" />
-    <Compile Include="ViewModels\ModulesBase\ModuleVmBase.cs" />
+    <Compile Include="ViewModels\Modules\ModuleBase.cs" />
     <Compile Include="ViewModels\Modules\ExperimentModVm.cs" />
     <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
     <Compile Include="ViewModels\PannelViewModel.cs" />
@@ -156,7 +155,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resource\Images\play.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\Images\batch.png" />
     <Resource Include="Resource\Images\collapse.png" />
@@ -172,6 +173,7 @@
     <Resource Include="Resource\Images\time.png" />
     <Resource Include="Resource\Images\toolbox.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y $(TargetPath) $(SolutionDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>

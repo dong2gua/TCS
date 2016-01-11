@@ -3,12 +3,11 @@ using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
-using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 using ThorCyte.ProtocolModule.Views.Modules;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
-    public class ThresholdModVm : ModuleVmBase
+    public class ThresholdModVm : ModuleBase
     {
         #region Properties and fields
         private ImageData _img;

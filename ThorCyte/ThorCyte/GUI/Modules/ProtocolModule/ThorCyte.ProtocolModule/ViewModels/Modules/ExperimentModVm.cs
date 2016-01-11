@@ -1,18 +1,12 @@
 ﻿using System.Collections.ObjectModel;
-using ImageProcess;
-using Microsoft.Practices.ServiceLocation;
-using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.ProtocolModule.Models;
-using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
+using ThorCyte.ProtocolModule.Utils;
+using ThorCyte.ProtocolModule.Views.Modules;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
-    public class ExperimentModVm : ModuleVmBase
+    public class ExperimentModVm : ModuleBase
     {
-        private IData _dataManager;
-
-
-
         public override string CaptionString
         {
             get { return string.Format("Scan({0})",SelectedScanId);}
@@ -21,6 +15,17 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public override void Initialize()
         {
             base.Initialize();
+
+            HasImage = false;
+            View = new ExperimentModule();
+            ModType = ModuleType.SmtSystemCategory;
+            OutputPort.DataType = PortDataType.MultiChannelImage;
+            OutputPort.ParentModule = this;
+
+            if (ScanIdList.Count > 0)
+            {
+                SelectedScanId = ScanIdList[0];
+            }
         }
 
         public ObservableCollection<int> ScanIdList { get; set; }
@@ -35,19 +40,15 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public ExperimentModVm()
         {
-            _dataManager = ServiceLocator.Current.GetInstance<IData>();
-            ScanIdList.Clear();
-            ScanIdList.Add(Macro.CurrentScanId);
+            ScanIdList = new ImpObservableCollection<int> {Macro.CurrentScanId};
         }
 
-
-        protected void AnalyzeImage()
+        public void AnalyzeImage(int regionId,int tileId)
         {
-            Macro.CurrentImage = img;
-            OutputPort.Image = img;
+            OutputPort.ScanId = SelectedScanId;
+            OutputPort.RegionId = regionId;
+            OutputPort.TileId = tileId; 
             base.Execute();
-
-            //OnImageAnalyzed(img);
         }
 
 

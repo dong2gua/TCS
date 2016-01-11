@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using Microsoft.Practices.ServiceLocation;
-using Prism.Events;
 using Prism.Mvvm;
-using ThorCyte.Infrastructure.Events;
-using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
-using ThorCyte.ProtocolModule.ViewModels.ModulesBase;
 using ThorCyte.ProtocolModule.Views;
 
 namespace ThorCyte.ProtocolModule.ViewModels
@@ -21,7 +15,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
     public sealed class PannelViewModel : BindableBase
     {
         #region Properties and Fields
-        private readonly Macro _thisMacro;
 
         private string _statusMessage;
         public string StatusMessage
@@ -33,7 +26,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private List<TreeViewItemModel> _listModuleInfos = new List<TreeViewItemModel>
         {
             new TreeViewItemModel { Name = GlobalConst.SingleNodeStr,Items = new List<TreeViewItemModel>()},
-            new TreeViewItemModel { Name = GlobalConst.MultiNodeStr,Items = new List<TreeViewItemModel>()}
         };
 
 
@@ -47,12 +39,11 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// The collection of _modules in the PannelVm.
         /// </summary>
         //private ImpObservableCollection<ModuleVmBase> _modules;
-
-        public ImpObservableCollection<ModuleVmBase> Modules
+        public ImpObservableCollection<ModuleBase> Modules
         {
             get
             {
-                return Macro.Modules ?? (Macro.Modules = new ImpObservableCollection<ModuleVmBase>());
+                return Macro.Modules ?? (Macro.Modules = new ImpObservableCollection<ModuleBase>());
             }
         }
 
@@ -60,7 +51,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// The collection of _connections in the PannelVm.
         /// </summary>
         //private ImpObservableCollection<ConnectorModel> _connections;
-
         public ImpObservableCollection<ConnectorModel> Connections
         {
             get
@@ -74,16 +64,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
         }
 
-        //private readonly List<CombinationModVm> CombinationModulesInWorkspace = new List<CombinationModVm>();
-
-        public List<CombinationModVm> CombinationModulesInWorkspace
-        {
-            get { return Macro.CombinationModulesInWorkspace; }
-        }
-
-        //private ModuleVmBase _selectedModuleViewModel;
-
-        public ModuleVmBase SelectedModuleViewModel
+        public ModuleBase SelectedModuleViewModel
         {
             get { return Macro.SelectedModuleViewModel; }
             set
@@ -109,39 +90,25 @@ namespace ThorCyte.ProtocolModule.ViewModels
             set { SetProperty(ref _selectedViewItem, value); }
         }
 
-        private IEventAggregator EventAggregator
-        {
-            get { return ServiceLocator.Current.GetInstance<IEventAggregator>(); }
-        }
-
         #endregion
 
         #region Constructor
 
         public PannelViewModel()
         {
-            EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
-            _thisMacro = Macro.Instance;
             MacroEditor.Instance.CreateModule += CreateModule;
-            Macro.CreateCombinationModuleFromWorkspace += CreateCombinationModuleFromWorkspace;
-            Macro.CreateModule += CreateModule;
-            Macro.CreateConnector += CreateConnector;
+            Macro.Clear += Clear;
             StatusMessage = "Ready.";
             Initialize();
         }
         #endregion
 
         #region Methods
-        private void ExpLoaded(int scanId)
-        {
-            Clear();
-        }
 
         private void Clear()
         {
             Modules.Clear();
             Connections.Clear();
-            CombinationModulesInWorkspace.Clear();
             SelectedViewItem = null;
         }
 
@@ -152,7 +119,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 minfo.Items.Clear();
             }
 
-            foreach (var name in Macro.Categories)
+            foreach (var name in ModuleInfoMgr.Categories)
             {
                 ListModuleInfos[0].Items.Add(new TreeViewItemModel
                 {
@@ -162,7 +129,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
 
             // add regular subModules
-            foreach (var info in Macro.ModuleInfos)
+            foreach (var info in ModuleInfoMgr.ModuleInfos)
             {
                 foreach (var item in ListModuleInfos[0].Items)
                 {
@@ -182,10 +149,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 }
             }
 
-            foreach (var cmod in Macro.CombinationModuleDefs)
-            {
-                AddCombinationModuleNode(cmod);
-            }
             StatusMessage = "Ready.";
         }
 
@@ -217,7 +180,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 minfo.Items.Clear();
             }
 
-            foreach (var name in Macro.Categories)
+            foreach (var name in ModuleInfoMgr.Categories)
             {
                 ListModuleInfos[0].Items.Add(new TreeViewItemModel
                 {
@@ -229,7 +192,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             var filtedModules = new List<ModuleInfo>();
             filtedModules.Clear();
             // filt my modules
-            filtedModules.AddRange(Macro.ModuleInfos.Where(info => !info.IsCombo && info.DisplayName.ToLower().Contains(mName.ToLower())));
+            filtedModules.AddRange(ModuleInfoMgr.ModuleInfos.Where(info => !info.IsCombo && info.DisplayName.ToLower().Contains(mName.ToLower())));
 
             // add regular subModules
             foreach (var info in filtedModules)
@@ -249,22 +212,13 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 }
             }
 
-            var cmbfiltedModules = new List<CombinationModVm>();
-            cmbfiltedModules.Clear();
-            cmbfiltedModules.AddRange(Macro.CombinationModuleDefs.Where(info => info.Name.ToLower().Contains(mName.ToLower())));
-            foreach (var cmod in cmbfiltedModules)
+            foreach (var lstModinfo in ListModuleInfos)
             {
-                AddCombinationModuleNode(cmod);
-            }
-
-
-            foreach (var _lstModinfo in ListModuleInfos)
-            {
-                var rLst = _lstModinfo.Items.Where(item => item.Items == null).ToList();
+                var rLst = lstModinfo.Items.Where(item => item.Items == null).ToList();
 
                 foreach (var item in rLst)
                 {
-                    _lstModinfo.Items.Remove(item);
+                    lstModinfo.Items.Remove(item);
                 }
             }
             StatusMessage = string.Format("Searching done for \"{0}\" ...", mName);
@@ -277,51 +231,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
             return DataDictionary.ModuleTypeDic.ContainsKey(key) ? DataDictionary.ModuleTypeDic[key] : ModuleType.None;
         }
 
-        // add combination module node to the tree
-        public void AddCombinationModuleNode(CombinationModVm mod)
-        {
-            // try existing categories
-            foreach (var item in ListModuleInfos[1].Items)
-            {
-                if (string.Equals(item.Name, mod.Category))
-                {
-                    var cmdItem = new TreeViewItemModel
-                    {
-                        Name = mod.Name,
-                        ItemType = GetModuleType(mod.Name)
-                    };
-
-                    foreach (var moduleVmBase in mod.SubModules)
-                    {
-                        var m = (CombinationModVm)moduleVmBase;
-                        if (cmdItem.Items == null)
-                        {
-                            cmdItem.Items = new List<TreeViewItemModel>();
-                        }
-                        cmdItem.Items.Add(new TreeViewItemModel
-                        {
-                            Name = m.Name,
-                            ItemType = GetModuleType(m.Name)
-                        });
-                    }
-                    if (item.Items == null)
-                    {
-                        item.Items = new List<TreeViewItemModel>();
-                    }
-                    item.Items.Add(cmdItem);
-                    return;
-                }
-            }
-
-            // no category found, create a new category node and add to it
-            ListModuleInfos[1].Items.Add(new TreeViewItemModel
-            {
-                Name = mod.Category,
-                ItemType = GetModuleType(mod.Category)
-            });
-            AddCombinationModuleNode(mod);
-        }
-
         public void UnSelectedAll()
         {
             foreach (var module in Modules)
@@ -330,110 +239,19 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
         }
 
-        private ModuleVmBase CreateCombinationModuleFromWorkspace(string name, int id) // jcl-6568
-        {
-            try
-            {
-                CombinationModVm module = null;
-                foreach (var cmd in CombinationModulesInWorkspace)
-                {
-                    if (cmd.Id == id)
-                    {
-                        module = new CombinationModVm(cmd)
-                        {
-                            ParentMacro = _thisMacro
-                        };
-
-                        module.SubModules.ForEach(m => m.ParentMacro = _thisMacro);
-                        Modules.Add(module);
-                    }
-                }
-
-                return module;
-            }
-            catch (Exception ex)
-            {
-                throw new CyteException("ProtocolModule.CreateModule", string.Format("Could not create module [{0}].", name) + ex.Message);
-            }
-        }
-
         private void CreateModule(Point location)
         {
-            var moduleInfo = Macro.GetModuleInfoByDisplayName(SelectedViewItem.Name);
+            var moduleInfo = ModuleInfoMgr.GetModuleInfoByDisplayName(SelectedViewItem.Name);
             if (moduleInfo == null)
             {
                 return;
             }
-            var module = CreateModule(moduleInfo);
+            var module = Macro.CreateModule(moduleInfo);
             module.X = (int)location.X;
             module.Y = (int)location.Y;
             module.Initialize();
         }
 
-        public CombinationModVm GetCombinationModuleTemplate(Guid guid, string name)
-        {
-            return CombinationModulesInWorkspace.FirstOrDefault(cmd => cmd.Guid == guid && cmd.DisplayName.ToLower() == name.ToLower());
-        }
-
-        public ModuleVmBase CreateModule(ModuleInfo modInfo)
-        {
-            try
-            {
-                ModuleVmBase module;
-                if (modInfo.IsCombo) // create combination module
-                {
-                    var template = GetCombinationModuleTemplate(modInfo.Guid, modInfo.DisplayName);
-                    module = new CombinationModVm(template);
-                    foreach (var m in ((CombinationModVm)module).SubModules)
-                    {
-                        m.ParentMacro = _thisMacro; // set the parent of each sub module to be script
-                    }
-                }
-                else
-                {
-                    module = (ModuleVmBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
-                    module.Name = modInfo.Name;
-                    module.DisplayName = modInfo.DisplayName;
-                }
-                module.ParentMacro = _thisMacro;
-                Modules.Add(module);
-                return module;
-            }
-            catch (Exception ex)
-            {
-                throw new CyteException("ProtocolModule.CreateModule", string.Format("Could not create module [{0}].", modInfo.Reference) + ex.Message);
-            }
-        }
-
-        private void CreateConnector(int inPortId, int outPortId, int inPortIndex, int outPortIndex)
-        {
-            ModuleVmBase inModule = null;
-            ModuleVmBase outModule = null;
-
-            foreach (var module in Modules)
-            {
-                if (module.Id == inPortId)
-                {
-                    inModule = module;
-                }
-                else if (module.Id == outPortId)
-                {
-                    outModule = module;
-                }
-
-                if (inModule != null && outModule != null)
-                {
-                    break;
-                }
-            }
-
-            if (inModule == null || outModule == null)
-            {
-                return;
-            }
-            var connector = new ConnectorModel(outModule.OutputPort, inModule.InputPorts[inPortIndex]);
-            Connections.Add(connector);
-        }
         #endregion
     }
 }
