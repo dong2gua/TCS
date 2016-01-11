@@ -309,6 +309,25 @@ namespace ThorCyte.ProtocolModule.Models
                 }
             }
         }
+
+
+        public void Run()
+        {
+            var experimentModule = Modules.FirstOrDefault(m => m is ExperimentModVm);
+            if (experimentModule == null) return;
+
+            //loop for each scan region/tile.
+
+            foreach (var sRegion in CurrentScanInfo.ScanRegionList)
+            {
+                foreach (var sTile in sRegion.ScanFieldList)
+                {
+                    sTile.ScanFieldId
+                    sRegion.RegionId
+                }
+            }
+        }
+
         #endregion
     }
 }

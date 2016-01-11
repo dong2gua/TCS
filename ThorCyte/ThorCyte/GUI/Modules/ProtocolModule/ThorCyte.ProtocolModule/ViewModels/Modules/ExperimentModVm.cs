@@ -21,7 +21,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public override void Initialize()
         {
             base.Initialize();
-
         }
 
         public ObservableCollection<int> ScanIdList { get; set; }
@@ -44,11 +43,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         protected void AnalyzeImage()
         {
-            var img = 
             Macro.CurrentImage = img;
             OutputPort.Image = img;
             base.Execute();
-
 
             //OnImageAnalyzed(img);
         }

@@ -303,8 +303,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.ModulesBase
         {
             OnDeserialize(reader);
         }
-
-
         #endregion
     }
 }
