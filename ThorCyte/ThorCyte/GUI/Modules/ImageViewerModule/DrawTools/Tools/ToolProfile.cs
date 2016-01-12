@@ -1,31 +1,31 @@
-﻿using System.Linq;
+﻿using Microsoft.Practices.ServiceLocation;
+using Prism.Events;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ImageViewerModule.DrawTools.Graphics;
-using System;
-using Microsoft.Practices.ServiceLocation;
 using ThorCyte.ImageViewerModule.Events;
-using Prism.Events;
+
 namespace ThorCyte.ImageViewerModule.DrawTools.Tools
 {
     class ToolProfile : Tool
     {
-      public  GraphicsProfile Profile { get; private set; }
+        public GraphicsProfile Profile { get; private set; }
         UpdateProfilePointsEvent _event;
         public ToolProfile()
         {
             Profile = new GraphicsProfile();
-            _event= ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<UpdateProfilePointsEvent>();
+            _event = ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<UpdateProfilePointsEvent>();
+            MemoryStream stream = new MemoryStream(Properties.Resources.CurProfile);
+            ToolCursor = new Cursor(stream);
         }
         public override void OnMouseDown(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             var point = position;
             Profile.UpdatePoint(point, drawingCanvas);
             AddNewObject(drawingCanvas, Profile);
-
         }
-
         public override void OnMouseMove(DrawingCanvas drawingCanvas, MouseEventArgs e, Point position)
         {
             var point = position;
@@ -36,10 +36,8 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                 {
                     Profile.MoveHandleTo(point, 2);
                 }
-
             }
         }
-
         public override void OnMouseUp(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             if (drawingCanvas.Count > 0)
@@ -47,11 +45,8 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                 var obj = drawingCanvas[drawingCanvas.Count - 1];
                 obj.Normalize();
             }
-
-            //drawingCanvas.Tool = ToolType.Pointer;
-            drawingCanvas.Cursor = Cursors.Arrow;
             drawingCanvas.ReleaseMouseCapture();
-            _event.Publish(new ProfilePoints() { StartPoint =new Point( Profile.Start.X* drawingCanvas.ActualScale.Item3, Profile.Start.Y * drawingCanvas.ActualScale.Item3), EndPoint = new Point(Profile.End.X * drawingCanvas.ActualScale.Item3, Profile.End.Y * drawingCanvas.ActualScale.Item3) });
+            _event.Publish(new ProfilePoints() { StartPoint = new Point(Profile.Start.X * drawingCanvas.ActualScale.Item3, Profile.Start.Y * drawingCanvas.ActualScale.Item3), EndPoint = new Point(Profile.End.X * drawingCanvas.ActualScale.Item3, Profile.End.Y * drawingCanvas.ActualScale.Item3) });
         }
         protected static void AddNewObject(DrawingCanvas drawingCanvas, GraphicsBase o)
         {
@@ -62,12 +57,9 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                 drawingCanvas.GraphicsList.Add(o);
             drawingCanvas.CaptureMouse();
         }
-
-
         public override void SetCursor(DrawingCanvas drawingCanvas)
         {
-            drawingCanvas.Cursor = Cursors.IBeam;
+            drawingCanvas.Cursor = ToolCursor;
         }
-
     }
 }

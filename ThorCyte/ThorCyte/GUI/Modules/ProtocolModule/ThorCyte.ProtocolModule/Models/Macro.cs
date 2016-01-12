@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Windows.Media;
 using System.Xml;
 using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
@@ -50,6 +51,10 @@ namespace ThorCyte.ProtocolModule.Models
 
         public static ScanInfo CurrentScanInfo { get; private set; }
         public static int CurrentScanId { get; private set; }
+        public static int CurrentRegionId { get; private set; }
+        public static int CurrentTileId { get; private set; }
+
+
         public static IData CurrentDataMgr { get; private set; }
 
         public static ImpObservableCollection<ConnectorModel> Connections;
@@ -201,14 +206,19 @@ namespace ThorCyte.ProtocolModule.Models
         public static void Run()
         {
             //Find the Experiment module.
-            var expMod = Modules.FirstOrDefault(m => m is ExperimentModVm);
+            var expMod = Modules.FirstOrDefault(m => m is ChannelModVm);
             if (expMod == null) return;
 
             foreach (var region in CurrentScanInfo.ScanRegionList)
             {
+                CurrentRegionId = region.RegionId;
+
                 foreach (var tile in region.ScanFieldList)
                 {
-                    ((ExperimentModVm)expMod).AnalyzeImage(region.RegionId, tile.ScanFieldId);
+                    CurrentTileId = tile.ScanFieldId; 
+                    
+                    expMod.Execute();
+                    //((ExperimentModVm)expMod).AnalyzeImage(region.RegionId, tile.ScanFieldId);
                 }
             }
         }

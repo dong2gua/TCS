@@ -11,7 +11,7 @@
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="Channel :" Margin="2"/>
-            <ComboBox Grid.Column="1" Margin="2" ItemsSource="{Binding ChaModel.Channels}" SelectedIndex="{Binding SelectedIndex}" SelectedItem="{Binding SelectedChannel}"/>
+            <ComboBox Grid.Column="1" Margin="2" ItemsSource="{Binding ChannelNames}" SelectedItem="{Binding SelectedChannel}"/>
         </Grid>
     </Expander>
 </UserControl>

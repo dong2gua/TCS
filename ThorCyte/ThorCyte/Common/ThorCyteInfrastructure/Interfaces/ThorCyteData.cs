@@ -2,7 +2,6 @@
 using ImageProcess;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -94,30 +93,27 @@ namespace ThorCyte.Infrastructure.Interfaces
         /// <param name="channelId"></param>
         /// <returns></returns>
         private ImageData GetImageData(int scanId, int scanRegionId, int channelId)
-        {
-            Stopwatch watch = Stopwatch.StartNew();
+        {          
             int key = GetKey(scanId, scanRegionId, channelId);
             if (_imageInfoDict.ContainsKey(key) == false)
             {
                 _imageInfoDict[key] = GetImageInfo(scanId, scanRegionId, channelId);
             }
             ThorCyteImageInfo imageInfo = _imageInfoDict[key];
-            ImageData data = ParallelMerge(imageInfo);
-            Stopwatch.StartNew();
-            Debug.WriteLine("times : {0} ms", watch.ElapsedMilliseconds);
+            ImageData data = ParallelMerge(imageInfo);          
             return data;
         }
 
         private ThorCyteImageInfo GetImageInfo(int scanId, int scanRegionId, int channelId)
         {
-            ScanInfo info = _experiment.GetScanInfo(scanId);
-            TryInitImageType();
+            ScanInfo info = _experiment.GetScanInfo(scanId);          
             ScanRegion scanRegion = info.ScanRegionList[scanRegionId];
             double xpixelSize = info.XPixcelSize;
             double ypixelSize = info.YPixcelSize;
             Rect bound = scanRegion.Bound;
             var totalWidth = (uint) Math.Round((decimal)bound.Width/(decimal)info.XPixcelSize);
             var totalHeight = (uint) Math.Round((decimal)bound.Height/(decimal)info.YPixcelSize);
+            TryInitImageType();
             return new ThorCyteImageInfo
             {
                 SRegion = scanRegion,
@@ -506,7 +502,6 @@ namespace ThorCyte.Infrastructure.Interfaces
             Clear();
             _experiment = (ThorCyteExperiment) experiment;
             SetExperimentPath(_experiment.BasePath);
-
         }
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId,
@@ -580,13 +575,13 @@ namespace ThorCyte.Infrastructure.Interfaces
             if (tileId > 0)
             {
                 ScanInfo info = _experiment.GetScanInfo(scanId);
+                TryInitImageType();
                 int width = info.TileWidth;
                 int height = info.TiledHeight;
                 string name = GetImageFileName(scanRegionId, channelId, tileId);
                 var data = new ImageData((uint) (width), (uint) (height));
                 FillBuffer(data.DataBuffer, 0, 0, width, height, width, height, name, _imageType);
                 return data;
-
             }
             else
             {

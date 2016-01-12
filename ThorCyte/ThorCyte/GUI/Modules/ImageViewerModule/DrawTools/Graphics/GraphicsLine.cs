@@ -1,9 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System;
-
 
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
@@ -40,12 +38,9 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         {
             switch (handleNumber)
             {
-                case 1:
-                    return Cursors.SizeAll;
-                case 2:
-                    return Cursors.SizeAll;
-                default:
-                    return Cursors.Arrow;
+                case 1: return Cursors.SizeAll;
+                case 2: return Cursors.SizeAll;
+                default: return Cursors.Arrow;
             }
         }
         public override void Move(double deltaX, double deltaY)
@@ -80,13 +75,11 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                         return i;
                 }
             }
-
             if (Contains(point))
                 return 0;
 
             return -1;
         }
-
         public override bool Contains(Point point)
         {
             var g = new LineGeometry(LineStart, LineEnd);
@@ -98,12 +91,8 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             var rg = new RectangleGeometry(rectangle);
             var lg = new LineGeometry(LineStart, LineEnd);
             var widen = lg.GetWidenedPathGeometry(new Pen(Brushes.Black, LineHitTestWidth));
-
             var p = Geometry.Combine(rg, widen, GeometryCombineMode.Intersect, null);
-
             return (!p.IsEmpty());
         }
-
-
     }
 }

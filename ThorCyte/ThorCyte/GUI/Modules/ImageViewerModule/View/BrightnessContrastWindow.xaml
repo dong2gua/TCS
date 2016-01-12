@@ -44,7 +44,7 @@
             <Slider Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Maximum="{Binding MaxBrightness}" Minimum="{Binding MinBrightness}" Value="{Binding Brightness}"/>
             <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding Brightness}" Height="20" Width="60" />
             <Label  Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Content="Contrast"/>
-            <Slider Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Maximum="3100" Minimum="-1000" Value="{Binding Contrast}"/>
+            <Slider Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Maximum="3100" Minimum="-1000" Value="{Binding SliderContrast}"/>
             <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Contrast}" Height="20" Width="60" />
             <Button Grid.Row="0" Grid.Column="3" Height="20" Width="60" Content="AutoGrey" Command="{Binding AutoGreyCommand}"/>
         </Grid>

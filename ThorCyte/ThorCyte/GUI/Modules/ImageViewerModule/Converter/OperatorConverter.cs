@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Windows.Data;
 using System.Windows;
+using System.Windows.Data;
 using ThorCyte.Infrastructure.Types;
+
 namespace ThorCyte.ImageViewerModule.Converter
 {
     public class OperatorConverter : IValueConverter

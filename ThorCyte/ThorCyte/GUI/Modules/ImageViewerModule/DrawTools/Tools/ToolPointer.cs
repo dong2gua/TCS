@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ImageViewerModule.DrawTools.Graphics;
-using System;
+
 namespace ThorCyte.ImageViewerModule.DrawTools.Tools
 {
     class ToolPointer : Tool
@@ -18,10 +18,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         private SelectionMode _selectMode = SelectionMode.None;
         private GraphicsBase _resizedObject;
         private int _resizedObjectHandle;
-
         private Point _lastPoint = new Point(0, 0);
-        
-
         public override void OnMouseDown(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             var point = position;
@@ -90,19 +87,14 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
             _lastPoint = point;
 
             drawingCanvas.CaptureMouse();
-
-
         }
 
         public override void OnMouseMove(DrawingCanvas drawingCanvas, MouseEventArgs e, Point position)
-        {
-            
+        {            
             var point = position;
-
             if (e.LeftButton == MouseButtonState.Released&&e.MiddleButton== MouseButtonState.Released&& e.RightButton == MouseButtonState.Released)
             {
                 Cursor cursor = null;
-
                 for (var i = 0; i < drawingCanvas.GraphicsList.Count; i++)
                 {
                     var n = drawingCanvas[i].MakeHitTest(point);
@@ -111,24 +103,15 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                     cursor = drawingCanvas[i].GetHandleCursor(n);
                     break;
                 }
-
                 if (cursor == null) cursor = Cursors.Arrow;
-
                 drawingCanvas.Cursor = cursor;
-
-                return;
-
-            }
-
-            if (!drawingCanvas.IsMouseCaptured)
-            {
                 return;
             }
 
+            if (!drawingCanvas.IsMouseCaptured) return;
 
             var dx = point.X - _lastPoint.X;
             var dy = point.Y - _lastPoint.Y;
-
             _lastPoint = point;
 
             if (_selectMode == SelectionMode.Size)
@@ -181,12 +164,8 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
             }
 
             drawingCanvas.ReleaseMouseCapture();
-
             drawingCanvas.Cursor = Cursors.Arrow;
-
             _selectMode = SelectionMode.None;
-
-
         }
 
         public override void SetCursor(DrawingCanvas drawingCanvas)
@@ -194,5 +173,4 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
             drawingCanvas.Cursor = Cursors.Arrow;
         }
     }
-
 }

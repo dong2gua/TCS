@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
     public abstract class GraphicsBase : DrawingVisual
@@ -14,7 +11,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         protected bool Selected;
         protected Color GraphicsObjectColor;
         protected Tuple<double, double, double> GraphicsActualScale=new Tuple<double, double, double>(1,1,1);
-
         private static readonly SolidColorBrush HandleBrush1 = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
         private static readonly SolidColorBrush HandleBrush2 = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
         private static readonly SolidColorBrush HandleBrush3 = new SolidColorBrush(Color.FromArgb(255, 0, 0, 255));
@@ -25,22 +21,19 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         protected DrawingCanvas Canvas;
         protected double HandleSize
         {
-            get { return 12.0 / Math.Min(ActualScale.Item1, ActualScale.Item2); }
+            get { return 12.0 / ActualScale.Item1; }
         }
         protected double GraphicsLineWidth
         {
-            get { return 2.0 / Math.Min(ActualScale.Item1, ActualScale.Item2); }
+            get { return 2.0 / ActualScale.Item1; }
         }
         protected double LineHitTestWidth
         {
-            get { return 6.0 / Math.Min(ActualScale.Item1, ActualScale.Item2); }
+            get { return 6.0 / ActualScale.Item1; }
         }
         public bool IsSelected
         {
-            get
-            {
-                return Selected;
-            }
+            get { return Selected; }
             set
             {
                 Selected = value;
@@ -49,24 +42,16 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         }
         public Color ObjectColor
         {
-            get
-            {
-                return GraphicsObjectColor;
-            }
-
+            get { return GraphicsObjectColor; }
             set
             {
                 GraphicsObjectColor = value;
                 RefreshDrawing();
             }
         }
-        public Tuple<double, double,double> ActualScale
+        public Tuple<double, double, double> ActualScale
         {
-            get
-            {
-                return GraphicsActualScale;
-            }
-
+            get { return GraphicsActualScale; }
             set
             {
                 GraphicsActualScale = value;
@@ -74,7 +59,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                 if (st == null) return;
                 st.ScaleX = GraphicsActualScale.Item1;
                 st.ScaleY = GraphicsActualScale.Item2;
-                //RefreshDrawing();
             }
         }
         public Rect Rectangle
@@ -82,7 +66,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             get
             {
                 double l, t, w, h;
-
                 if (RectangleLeft <= RectangleRight)
                 {
                     l = RectangleLeft;
@@ -104,7 +87,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                     t = RectangleBottom;
                     h = RectangleTop - RectangleBottom;
                 }
-
                 return new Rect(l, t, w, h);
             }
         }
@@ -129,7 +111,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             {
                 Draw(dc);
             }
-
         }
         public virtual void Draw(DrawingContext drawingContext)
         {
@@ -226,8 +207,5 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             var y = (actualPoint.Y - canvasRect.Y) * scale;
             return new Point(x, y);
         }
-
-
-
     }
 }

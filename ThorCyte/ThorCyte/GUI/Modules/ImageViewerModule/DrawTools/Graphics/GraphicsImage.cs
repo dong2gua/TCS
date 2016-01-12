@@ -1,17 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
     public class GraphicsImage : GraphicsBase
     {
-        //public GraphicsImage(ImageSource imageSource, Size size)
-        //{
-        //    _imageSource = imageSource;
-        //    _rect = new Rect(new Point(0, 0), size);
-        //}
         public GraphicsImage(DrawingCanvas canvas)
         {
             Canvas = canvas;
@@ -23,16 +17,12 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             RectangleTop = rect.Top;
             RectangleRight = rect.Right;
             RectangleBottom = rect.Bottom;
-
         }
         private ImageSource _imageSource;
-
         public ImageSource ImageSource
         {
             get { return _imageSource; }
         }
-
-
         public override void Draw(DrawingContext drawingContext)
         {
             drawingContext.DrawImage(ImageSource,ConvertToDisplayRect(Rectangle));
@@ -52,6 +42,5 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         public override int MakeHitTest(Point point) { return 0; }
         public override bool Contains(Point point) { return false; }
         public override bool IntersectsWith(Rect rectangle) { return false; }
-
     }
 }

@@ -1,26 +1,26 @@
-﻿using System.Linq;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ImageViewerModule.DrawTools.Graphics;
-using System;
+
 namespace ThorCyte.ImageViewerModule.DrawTools.Tools
 {
-    class ToolRuler:Tool
+    class ToolRuler : Tool
     {
         public GraphicsRuler Ruler { get; private set; }
         public ToolRuler()
         {
             Ruler = new GraphicsRuler();
+            MemoryStream stream = new MemoryStream(Properties.Resources.CurRuler);
+            ToolCursor = new Cursor(stream);
         }
         public override void OnMouseDown(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             var point = position;
             Ruler.UpdatePoint(point, drawingCanvas);
             AddNewObject(drawingCanvas, Ruler);
-
         }
-
         public override void OnMouseMove(DrawingCanvas drawingCanvas, MouseEventArgs e, Point position)
         {
             var point = position;
@@ -33,7 +33,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                 }
             }
         }
-
         public override void OnMouseUp(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             if (drawingCanvas.Count > 0)
@@ -41,9 +40,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                 var obj = drawingCanvas[drawingCanvas.Count - 1];
                 obj.Normalize();
             }
-
-            //drawingCanvas.Tool = ToolType.Pointer;
-            drawingCanvas.Cursor = Cursors.Arrow;
             drawingCanvas.ReleaseMouseCapture();
         }
         protected static void AddNewObject(DrawingCanvas drawingCanvas, GraphicsBase o)
@@ -55,11 +51,9 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                 drawingCanvas.GraphicsList.Add(o);
             drawingCanvas.CaptureMouse();
         }
-
         public override void SetCursor(DrawingCanvas drawingCanvas)
         {
-            drawingCanvas.Cursor = Cursors.IBeam;
+            drawingCanvas.Cursor = ToolCursor;
         }
-
     }
 }

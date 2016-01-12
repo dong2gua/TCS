@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="ThorCyte.ProtocolModule.Views.Modules.ContourModule"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converts="clr-namespace:ThorCyte.ProtocolModule.Converts"
+             xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <converts:AreaTypeConvert x:Key="AreaCvt"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibleCvt"/>
+    </UserControl.Resources>
+    <Expander Header="Contour" IsExpanded="True">
+        <StackPanel>
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Margin="2" Content="Component name :"/>
+                <TextBox Grid.Column="1" Margin="2" Text="{Binding ComponentName}"/>
+            </Grid>
+            <GroupBox Header="Min area">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <xctk:DoubleUpDown Grid.Column="0" Margin="2" Value="{Binding MinArea}" Minimum="0" Maximum="999999" />
+                    <Grid Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <RadioButton Content="um²" Grid.Column="0" Margin="2"
+                             IsChecked="{Binding MinAreaUnit,Converter={StaticResource AreaCvt},ConverterParameter=um}"/>
+                        <RadioButton Content="mm²" Grid.Column="1" Margin="2"
+                             IsChecked="{Binding MinAreaUnit,Converter={StaticResource AreaCvt},ConverterParameter=mm}"/>
+                    </Grid>
+                </Grid>
+            </GroupBox>
+
+            <Expander Header="Check max area" Margin="5" IsExpanded="{Binding IsMaxAreaChecked}">
+                <GroupBox Header="Max area" Margin="0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <xctk:DoubleUpDown Value="{Binding MaxArea}" Minimum="0" Maximum="999999"/>
+
+                        <Grid Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Content="um²" Grid.Column="0" Margin="2"
+                             IsChecked="{Binding MaxAreaUnit,Converter={StaticResource AreaCvt},ConverterParameter=um}"/>
+                            <RadioButton Content="mm²" Grid.Column="1" Margin="2"
+                             IsChecked="{Binding MaxAreaUnit,Converter={StaticResource AreaCvt},ConverterParameter=mm}"/>
+                        </Grid>
+                    </Grid>
+                </GroupBox>
+
+            </Expander>
+            
+            <CheckBox Content="Follow concave contour" Margin="2" IsChecked="{Binding IsConcaveChecked}"/>
+            <CheckBox Content="Contour across boundary" Margin="2" IsChecked="{Binding IsBoundaryChecked}"/>
+
+            <GroupBox Header="Drawing">
+
+            </GroupBox>
+        </StackPanel>
+    </Expander>
+</UserControl>

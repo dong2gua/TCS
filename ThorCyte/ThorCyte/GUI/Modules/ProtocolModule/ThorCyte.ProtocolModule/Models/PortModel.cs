@@ -130,28 +130,6 @@ namespace ThorCyte.ProtocolModule.Models
             set { _image = value; }
         }
 
-        private int _scanId;
-        public int ScanId
-        {
-            get { return _scanId; }
-            set { SetProperty(ref _scanId, value); }
-        }
-
-
-        private int _regionId;
-        public int RegionId
-        {
-            get { return _regionId; }
-            set { SetProperty(ref _regionId, value); }
-        }
-
-        private int _tileId;
-        public int TileId
-        {
-            get { return _tileId; }
-            set { SetProperty(ref _tileId, value); }
-        }
-
         private Brush _portBrush = Brushes.LightGray;
 
         public Brush PortBrush

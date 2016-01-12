@@ -46,8 +46,10 @@
         SmtContourCategory,
         SmtChannelModule,
         SmtThresholdModule,
+        SmtContourModule,
 
         SmtEventCategory,
+        SmtEventModule,
 
         SmtExperimentalCategory,
         SmtAdvancedImageAnalysisCategory,

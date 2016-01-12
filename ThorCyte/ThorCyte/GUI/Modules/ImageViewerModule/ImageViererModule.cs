@@ -8,7 +8,6 @@ namespace ThorCyte.ImageViewerModule
     public class ImageViererModule : IModule
     {
         private readonly IRegionViewRegistry _regionViewRegistry;
-
         public ImageViererModule(IRegionViewRegistry regionViewRegistry)
         {
             _regionViewRegistry = regionViewRegistry;

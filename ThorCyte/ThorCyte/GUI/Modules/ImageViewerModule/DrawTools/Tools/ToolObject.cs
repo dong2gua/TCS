@@ -8,9 +8,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
 {
     abstract class ToolObject : Tool
     {
-        protected Cursor ToolCursor { get; set; }
-
-
         public override void OnMouseUp(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             if (drawingCanvas.Count > 0)
@@ -22,9 +19,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
             drawingCanvas.Tool = ToolType.Pointer;
             drawingCanvas.Cursor = Cursors.Arrow;
             drawingCanvas.ReleaseMouseCapture();
-
         }
-
         protected static void AddNewObject(DrawingCanvas drawingCanvas, GraphicsBase o)
         {
             drawingCanvas.UnselectAll();
@@ -34,7 +29,5 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
             drawingCanvas.GraphicsList.Add(o);
             drawingCanvas.CaptureMouse();
         }
-
-
     }
 }

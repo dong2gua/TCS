@@ -29,10 +29,10 @@
 	<category name="Contour">
 		<module name="Channel" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ChannelModVm" />
 		<module name="Threshold" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ThresholdModVm" />
-		<module name="Contour"/>
+		<module name="Contour" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ContourModVm" />
 	</category>
 	<category name="Event">
-		<module name="Event"/>
+		<module name="Event" reference="ThorCyte.ProtocolModule.ViewModels.Modules.EventModVm" />
 		<module name="Phantom"/>
 		<module name="ScanAreaEvent" disp-name="Scan Area Event" />
 		<module name="OverlapParentChild" disp-name="Association"  />

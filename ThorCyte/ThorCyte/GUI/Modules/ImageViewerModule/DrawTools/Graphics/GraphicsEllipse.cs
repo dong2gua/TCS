@@ -6,7 +6,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
     public class GraphicsEllipse : GraphicsRectangleBase
     {
-
         public GraphicsEllipse(Point point, DrawingCanvas canvas)
         {
             Canvas = canvas;
@@ -16,6 +15,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             RectangleTop = point.Y;
             RectangleRight = point.X;
             RectangleBottom = point.Y;
+            GraphicsObjectColor = Colors.Aqua;
         }
 
         public override void Draw(DrawingContext drawingContext)
@@ -43,13 +43,9 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         public override bool IntersectsWith(Rect rectangle)
         {
             var rg = new RectangleGeometry(rectangle);   
-            var eg = new EllipseGeometry(Rectangle);        
-
+            var eg = new EllipseGeometry(Rectangle); 
             var p = Geometry.Combine(rg, eg, GeometryCombineMode.Intersect, null);
-
             return (!p.IsEmpty());
         }
-        
-
     }
 }

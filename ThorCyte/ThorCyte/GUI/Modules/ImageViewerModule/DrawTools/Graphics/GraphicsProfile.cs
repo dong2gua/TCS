@@ -1,9 +1,5 @@
 ﻿using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System;
-
 
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
@@ -23,6 +19,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             RectangleTop = point.Y;
             RectangleRight = point.X;
             RectangleBottom = point.Y;
+            GraphicsObjectColor = Colors.DeepPink;
         }
     }
 }
