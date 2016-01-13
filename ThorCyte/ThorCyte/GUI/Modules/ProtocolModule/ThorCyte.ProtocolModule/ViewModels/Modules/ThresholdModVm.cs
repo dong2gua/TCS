@@ -59,9 +59,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
         }
 
-        private int _threshold;
+        private ushort _threshold;
 
-        public int Threshold
+        public ushort Threshold
         {
             get { return _threshold; }
             set
@@ -189,7 +189,17 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         {
             _img = InputImage;
 
-            var processedImg = _img.Threshold(1000, ThresholdType.Manual);
+            var thType = ThresholdType.Auto;
+            switch (Method)
+            {
+                case ThresholdMethod.Manual:
+                    thType = ThresholdType.Manual;
+                    break;
+            }
+
+            var processedImg = _img.Threshold(Threshold, thType);
+
+            _img.Dispose();
 
             if (processedImg == null)
             {
@@ -211,7 +221,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
             if (reader["threshold"] != null)
             {
-                Threshold = XmlConvert.ToInt32(reader["threshold"]);
+                Threshold = XmlConvert.ToUInt16(reader["threshold"]);
             }
 
             if (reader["recalculate"] != null)

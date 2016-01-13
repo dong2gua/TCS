@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Xml;
+using ImageProcess;
 using Prism.Mvvm;
 
 namespace ThorCyte.ProtocolModule.Models
@@ -175,7 +176,14 @@ namespace ThorCyte.ProtocolModule.Models
 
         public void TransferExecute()
         {
+            //pass the ref to dest port.
             _destPort.Image = _sourcePort.Image;
+            _destPort.ParentModule.Execute();
+        }
+
+        public void TransferExecute(ImageData img)
+        {
+            _destPort.Image = img.Clone();
             _destPort.ParentModule.Execute();
         }
 

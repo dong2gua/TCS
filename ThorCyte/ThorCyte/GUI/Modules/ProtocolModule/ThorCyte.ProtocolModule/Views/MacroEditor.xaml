@@ -18,7 +18,6 @@
             </DataTemplate>
 
             <BitmapImage x:Key="collapseImg" UriSource="../Resource/Images/collapse.png"/>
-            <BitmapImage x:Key="expandImg" UriSource="../Resource/Images/expand.png"/>
 
             <Style TargetType="{x:Type control:Module}">
                 <Setter Property="X" Value="{Binding X}"/>

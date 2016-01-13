@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Xml;
 using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
@@ -215,11 +217,18 @@ namespace ThorCyte.ProtocolModule.Models
                     //enable images Dic
                     GetImagesDic();
                     expMod.Execute();
-                    //((ExperimentModVm)expMod).AnalyzeImage(region.RegionId, tile.ScanFieldId);
                     ClearImagesDic();
+
+                    Debug.WriteLine("Region ID " + CurrentRegionId);
+                    Debug.WriteLine("Field ID " + CurrentTileId);
+
                 }
             }
         }
+
+
+
+
 
         private static void ClearImagesDic()
         {

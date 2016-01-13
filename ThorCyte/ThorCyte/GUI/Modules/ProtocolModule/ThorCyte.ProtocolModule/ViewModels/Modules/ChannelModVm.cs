@@ -38,13 +38,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
         }
 
-        private int _selectedIndex;
-        public int SelectedIndex
-        {
-            get { return _selectedIndex; }
-            set { SetProperty(ref _selectedIndex, value); }
-        }
-
         #endregion
 
         #region Methods
@@ -62,15 +55,11 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
-            //_img = GetData(SelectedChannel);
-            //_dataMgr.GetTileData() 
-            //
-
+            _img = Macro.CurrentImages[SelectedChannel].Clone();     
             if (_img == null)
             {
                 throw new CyteException("ChannelModVm", "Invaild execution image is null");
             }
-
             SetOutputImage(_img);
         }
 
