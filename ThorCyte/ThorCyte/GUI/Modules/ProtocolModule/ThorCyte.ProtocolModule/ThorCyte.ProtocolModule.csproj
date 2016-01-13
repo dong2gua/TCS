@@ -182,9 +182,6 @@
     <Resource Include="Resource\Images\time.png" />
     <Resource Include="Resource\Images\toolbox.png" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y $(TargetPath) $(SolutionDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>

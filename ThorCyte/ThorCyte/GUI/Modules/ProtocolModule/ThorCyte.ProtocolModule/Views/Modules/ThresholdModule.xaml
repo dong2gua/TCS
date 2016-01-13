@@ -24,6 +24,7 @@
                                 <RowDefinition/>
                                 <RowDefinition/>
                                 <RowDefinition/>
+                                <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -32,16 +33,16 @@
                             <RadioButton Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Content="Statistical" IsChecked="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Statistical}" 
                                      Visibility="{Binding IsStatisticalVisible,Converter={StaticResource BoolToVisibleCvt}}"/>
                             <RadioButton Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Content="Otsu" IsChecked="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Otsu}"/>
-                            <Button Grid.Row="1" Grid.Column="0" Margin="2" Content="Calculate"/>
-                            <Label Grid.Row="1" Grid.Column="1" Margin="2"  Content="Needs Image!" Foreground="Red" Visibility="{Binding IsWarningVisible,Converter={StaticResource BoolToVisibleCvt}}"/>
+                            <Button Grid.Row="2" Grid.Column="0" Margin="2" Content="Calculate"/>
+                            <Label Grid.Row="2" Grid.Column="1" Margin="2"  Content="Needs Image!" Foreground="Red" Visibility="{Binding IsWarningVisible,Converter={StaticResource BoolToVisibleCvt}}"/>
 
-                            <CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Content="Recalculate on each scan field" IsChecked="{Binding IsRecalculateEnabled}"/>
+                            <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Content="Recalculate on each scan field" IsChecked="{Binding IsRecalculateEnabled}"/>
                         </Grid>
                     </GroupBox>
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="Threshold">
+            <GroupBox Header="Threshold" IsEnabled="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Manual}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="4*"/>

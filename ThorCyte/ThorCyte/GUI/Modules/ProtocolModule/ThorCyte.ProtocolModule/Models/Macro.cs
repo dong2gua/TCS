@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using System.Xml;
 using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
@@ -8,6 +8,7 @@ using Prism.Events;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.Infrastructure.Interfaces;
+using ThorCyte.Infrastructure.Types;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
 
@@ -20,25 +21,11 @@ namespace ThorCyte.ProtocolModule.Models
         private Macro()
         {
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
+
         }
         #endregion
 
         #region Fields and Properties
-
-        private static ImageData _currentImage;
-        public static ImageData CurrentImage {
-            get { return _currentImage; }
-            set
-            {
-                if(_currentImage.Equals(value)) return;
-                
-                if (_currentImage != null)
-                {
-                    _currentImage.Dispose();
-                }
-                _currentImage = value;
-            }
-        }
 
         public delegate void ClearHandler();
         public static ClearHandler Clear;
@@ -53,6 +40,8 @@ namespace ThorCyte.ProtocolModule.Models
         public static int CurrentScanId { get; private set; }
         public static int CurrentRegionId { get; private set; }
         public static int CurrentTileId { get; private set; }
+        public static int ImageMaxBits { get; private set; }
+        public static Dictionary<string, ImageData> CurrentImages { get; private set; }
 
 
         public static IData CurrentDataMgr { get; private set; }
@@ -75,10 +64,18 @@ namespace ThorCyte.ProtocolModule.Models
         #region Methods
         private void ExpLoaded(int scanId)
         {
+            var exp = ServiceLocator.Current.GetInstance<IExperiment>();
+            if (exp == null) return;
+
             Clear(); 
             CurrentScanId = scanId;
-            CurrentScanInfo = ServiceLocator.Current.GetInstance<IExperiment>().GetScanInfo(scanId);
+            CurrentScanInfo = exp.GetScanInfo(scanId);
+            ImageMaxBits = exp.GetExperimentInfo().IntensityBits;
             CurrentDataMgr = ServiceLocator.Current.GetInstance<IData>();
+
+            ClearImagesDic();
+            CurrentImages = new Dictionary<string, ImageData>();
+
         }
 
         /// <summary>
@@ -202,7 +199,6 @@ namespace ThorCyte.ProtocolModule.Models
             Connections.Add(connector);
         }
 
-
         public static void Run()
         {
             //Find the Experiment module.
@@ -215,13 +211,118 @@ namespace ThorCyte.ProtocolModule.Models
 
                 foreach (var tile in region.ScanFieldList)
                 {
-                    CurrentTileId = tile.ScanFieldId; 
-                    
+                    CurrentTileId = tile.ScanFieldId;
+                    //enable images Dic
+                    GetImagesDic();
                     expMod.Execute();
                     //((ExperimentModVm)expMod).AnalyzeImage(region.RegionId, tile.ScanFieldId);
+                    ClearImagesDic();
                 }
             }
         }
+
+        private static void ClearImagesDic()
+        {
+            if (CurrentImages == null) return;
+
+            foreach (var img in CurrentImages.Values)
+            {
+                img.Dispose();
+            }
+
+            CurrentImages.Clear();
+        }
+
+        private static void GetImagesDic()
+        {
+            ClearImagesDic();
+            foreach (var channel in CurrentScanInfo.ChannelList)
+            {
+                CurrentImages.Add(channel.ChannelName, GetData(channel));
+            }
+        }
+
+        public static ImageData GetData(Channel channel)
+        {
+            ImageData data;
+
+            if (channel.IsvirtualChannel)
+            {
+                var dic = new Dictionary<Channel, ImageData>();
+                TraverseVirtualChannel(dic, channel as VirtualChannel);
+                data = GetVirtualChData(channel as VirtualChannel, dic);
+            }
+            else
+            {
+                data = getRealChData(channel);
+            }
+            return data;
+        }
+
+        private static void TraverseVirtualChannel(Dictionary<Channel, ImageData> dic, VirtualChannel channel)
+        {
+            if (channel.FirstChannel.IsvirtualChannel)
+                TraverseVirtualChannel(dic, channel.FirstChannel as VirtualChannel);
+            else
+            {
+                if (!dic.ContainsKey(channel.FirstChannel))
+                    dic.Add(channel.FirstChannel, getRealChData(channel.FirstChannel));
+            }
+            if (channel.SecondChannel != null)
+            {
+                if (channel.SecondChannel.IsvirtualChannel)
+                    TraverseVirtualChannel(dic, channel.SecondChannel as VirtualChannel);
+                else
+                {
+                    if (!dic.ContainsKey(channel.SecondChannel))
+                        dic.Add(channel.SecondChannel, getRealChData(channel.SecondChannel));
+                }
+            }
+        }
+
+        private static ImageData getRealChData(Channel channelInfo)
+        {
+            return CurrentDataMgr.GetTileData(CurrentScanId, CurrentRegionId, channelInfo.ChannelId, 0, 0,
+                            CurrentTileId, 0);
+        }
+
+        private static ImageData GetVirtualChData(VirtualChannel channel, Dictionary<Channel, ImageData> dic)
+        {
+
+            ImageData data2 = null;
+            var data1 = !channel.FirstChannel.IsvirtualChannel ? dic[channel.FirstChannel] : GetVirtualChData(channel.FirstChannel as VirtualChannel, dic);
+
+            if (channel.Operator != ImageOperator.Multiply && channel.Operator != ImageOperator.Invert)
+            {
+                data2 = !channel.SecondChannel.IsvirtualChannel ? dic[channel.SecondChannel] : GetVirtualChData(channel.SecondChannel as VirtualChannel, dic);
+            }
+            if (data1 == null || (data2 == null && (channel.Operator != ImageOperator.Multiply && channel.Operator != ImageOperator.Invert))) return null;
+            var result = new ImageData(data1.XSize, data1.YSize);
+            switch (channel.Operator)
+            {
+                case ImageOperator.Add:
+                    result = data1.Add(data2, ImageMaxBits);
+                    break;
+                case ImageOperator.Subtract:
+                    result = data1.Sub(data2);
+                    break;
+                case ImageOperator.Invert:
+                    result = data1.Invert(ImageMaxBits);
+                    break;
+                case ImageOperator.Max:
+                    result = data1.Max(data2);
+                    break;
+                case ImageOperator.Min:
+                    result = data1.Min(data2);
+                    break;
+                case ImageOperator.Multiply:
+                    result = data1.MulConstant(channel.Operand, ImageMaxBits);
+                    break;
+            }
+            return result;
+        }
+
+
 
 
         #endregion

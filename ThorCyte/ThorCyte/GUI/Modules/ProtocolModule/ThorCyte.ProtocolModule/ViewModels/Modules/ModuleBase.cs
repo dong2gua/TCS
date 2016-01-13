@@ -274,6 +274,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 _outputPort.Image = img;
             }
+
         }
 
         #endregion

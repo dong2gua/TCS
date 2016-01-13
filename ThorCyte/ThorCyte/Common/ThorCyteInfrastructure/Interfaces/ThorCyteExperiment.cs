@@ -41,6 +41,8 @@ namespace ThorCyte.Infrastructure.Interfaces
         private CarrierType _carrierType = CarrierType.None;
         private double _fieldWidth;
         private double _fieldHeight;
+        private int _rows;
+        private int _cols;
         #endregion
 
         #region Properties
@@ -112,7 +114,10 @@ namespace ThorCyte.Infrastructure.Interfaces
         private XmlElement GetActiveRunElement(XmlDocument doc)
         {
             var query = string.Format("descendant::Run");
-            var runNodes = doc.DocumentElement.SelectNodes(query);
+            XmlElement root = doc.DocumentElement;
+            if (root == null) return null;
+            XmlNodeList runNodes = root.SelectNodes(query);
+            if (runNodes == null) return null;
             foreach (XmlElement runNode in runNodes)
             {
                 var activeRun = runNode.SelectSingleNode(string.Format("descendant::ActiveRun")) as XmlElement;
@@ -120,7 +125,6 @@ namespace ThorCyte.Infrastructure.Interfaces
                 {
                     if (activeRun.InnerText.Equals("true", StringComparison.OrdinalIgnoreCase))
                         return runNode;
-
                 }
             }
             return null;
@@ -175,7 +179,9 @@ namespace ThorCyte.Infrastructure.Interfaces
         private XmlElement GetActiveInstrumentStateElement(XmlDocument doc)
         {
             var query = string.Format("descendant::InstrumentState");
-            var nodes = doc.DocumentElement.SelectNodes(query);
+            XmlElement root = doc.DocumentElement;
+            if (root == null) return null;
+            var nodes = root.SelectNodes(query);
             foreach (XmlElement node in nodes)
             {
                 var e = node.SelectSingleNode(string.Format("descendant::RunNum")) as XmlElement;
@@ -282,6 +288,8 @@ namespace ThorCyte.Infrastructure.Interfaces
             {
                 _fieldHeight = element.ParseAttributeToDouble("field-height");
                 _fieldWidth = element.ParseAttributeToDouble("field-width");
+                _rows = element.ParseAttributeToInt32("rows");
+                _cols = element.ParseAttributeToInt32("cols");
                 IEnumerable<ScanRegion> regions = GetScanRegions(element);
                 foreach (var region in regions)
                 {
@@ -386,8 +394,16 @@ namespace ThorCyte.Infrastructure.Interfaces
                     }
                     else if (_carrierType == CarrierType.Well)
                     {
-                        w = ParseAttributeTextToDouble(element, "width");
-                        h = ParseAttributeTextToDouble(element, "height");
+                        if (_rows == 0 || _cols == 0)
+                        {
+                            w = ParseAttributeTextToDouble(element, "width");
+                            h = ParseAttributeTextToDouble(element, "height");
+                        }
+                        else
+                        {
+                            w = _fieldWidth*_cols;
+                            h = _fieldHeight*_rows;
+                        }
                     }
                  
                     var points = new List<Point>(4)
@@ -440,7 +456,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             if (!Enum.TryParse(text, true, out shape))
                 shape = RegionShape.None;
                      
-            var mosFile = GetFile(FileType.Mosaic);
+            string mosFile = GetFile(FileType.Mosaic);
             if (string.IsNullOrEmpty(mosFile)) return new ScanRegion[0];
             else
             {
@@ -450,13 +466,15 @@ namespace ThorCyte.Infrastructure.Interfaces
                 doc.Load(file);
                 var query = string.Format("descendant::well");
                 var nodes = doc.DocumentElement.SelectNodes(query);
-                foreach(XmlElement node in nodes)
+                foreach (XmlElement node in nodes)
                 {
                     ScanRegion scanRegion = GetScanRegionInWell(node, shape);
                     if (scanRegion != null)
                         regions.Add(scanRegion);
                 }
                 return regions;
+
+
             }
         }
 

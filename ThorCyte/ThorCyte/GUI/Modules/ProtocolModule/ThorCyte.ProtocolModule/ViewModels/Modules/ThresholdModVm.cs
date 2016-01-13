@@ -176,6 +176,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void Initialize()
         {
+            HasImage = true;
             View = new ThresholdModule();
             ModType = ModuleType.SmtContourCategory;
             InputPorts[0].DataType = PortDataType.GrayImage;
@@ -186,16 +187,15 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
-            
-            
-            
-            if (_img == null)
+            _img = InputImage;
+
+            var processedImg = _img.Threshold(1000, ThresholdType.Manual);
+
+            if (processedImg == null)
             {
                 throw new CyteException("ChannelModVm", "Invaild execution image is null");
             }
-
-            SetOutputImage(_img);
-            _img = null;
+            SetOutputImage(processedImg);
         }
 
         public override void OnDeserialize(XmlReader reader)

@@ -63,7 +63,7 @@ namespace ThorCyte.ProtocolModule.Controls
         /// <summary>
         /// The threshold distance the mouse-cursor must move before dragging begins.
         /// </summary>
-        private const double DragThreshold = 2;
+        private const double DragThreshold = -1;
 
         /// <summary>
         /// Automatically updated dependency property that specifies the hotspot (or center point) of the connector.
@@ -143,6 +143,7 @@ namespace ThorCyte.ProtocolModule.Controls
 
             if (e.ChangedButton == MouseButton.Left)
             {
+                CaptureMouse();
                 //Drawing line only PortType is OutPort 
                 if (PortType != PortType.OutPort)
                 {
@@ -245,6 +246,10 @@ namespace ThorCyte.ProtocolModule.Controls
                     e.Handled = true;
                 }
             }
+            ReleaseMouseCapture();
+            _isDragging = false;
+            _isLeftMouseDown = false;
+            e.Handled = true;
         }
 
         /// <summary>

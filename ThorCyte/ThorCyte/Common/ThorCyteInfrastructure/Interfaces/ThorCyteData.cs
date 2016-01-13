@@ -365,7 +365,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             Int32Rect rect = Int32Rect.Empty;
             Int32Rect left = rect1.X <= rect2.X ? rect1 : rect2;
             Int32Rect right = rect1.X > rect2.X ? rect1 : rect2;
-            if ((right.X > left.X + left.Width) || (right.Y + right.Height < left.Y) || (right.Y > left.X + left.Height))
+            if ((right.X > left.X + left.Width) || (right.Y + right.Height < left.Y) || (right.Y > left.Y + left.Height))
             {
                 return rect;
             }
