@@ -6,7 +6,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
     class GraphicsSelectionRectangle : GraphicsRectangleBase
     {
-
         public GraphicsSelectionRectangle(Point point, DrawingCanvas canvas)
         {
             Canvas = canvas;
@@ -17,7 +16,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             RectangleRight = point.X;
             RectangleBottom = point.Y;
         }
-
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
@@ -28,7 +26,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 
             drawingContext.DrawRectangle(null, dashedPen, ConvertToDisplayRect(Rectangle));
         }
-
         public override bool Contains(Point point)
         {
             return Rectangle.Contains(point);
@@ -37,6 +34,5 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         {
             return Rectangle.IntersectsWith(rectangle);
         }
-
     }
 }

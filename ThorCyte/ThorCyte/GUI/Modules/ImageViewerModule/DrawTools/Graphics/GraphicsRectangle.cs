@@ -1,15 +1,11 @@
-﻿using System.Windows;
-using System.Windows.Input;
+﻿using System;
+using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System;
-
 
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
     public class GraphicsRectangle : GraphicsRectangleBase
     {
-
         public GraphicsRectangle(Point point, DrawingCanvas canvas)
         {
             Canvas = canvas;
@@ -19,6 +15,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             RectangleTop = point.Y;
             RectangleRight = point.X;
             RectangleBottom = point.Y;
+            GraphicsObjectColor = Colors.Aqua;
         }
         public override void Draw(DrawingContext drawingContext)
         {
@@ -36,9 +33,5 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         {
             return Rectangle.IntersectsWith(rectangle);
         }
-
-
-
     }
-
 }

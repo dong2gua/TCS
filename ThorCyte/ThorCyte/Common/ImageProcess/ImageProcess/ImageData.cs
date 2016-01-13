@@ -5,11 +5,14 @@ using System.Runtime.InteropServices;
 namespace ImageProcess
 {
 
-    public class ImageData : IDisposable
+    public class ImageData : IDisposable, ICloneable
     {
 
         [DllImport("kernel32.dll")]
         private static extern void RtlZeroMemory(IntPtr dst, int length);
+        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+        private static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
+
 
         #region Fields
 
@@ -76,6 +79,8 @@ namespace ImageProcess
             RtlZeroMemory(DataBuffer, totalBytes);
         }
 
+
+      
         #endregion
 
 
@@ -109,6 +114,18 @@ namespace ImageProcess
         ~ImageData()
         {
             Dispose(false);
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+
+        public ImageData Clone()
+        {
+            var data = new ImageData(XSize, YSize, IsGray);
+            CopyMemory(data.DataBuffer, DataBuffer, (uint) (XSize*YSize*Channels*sizeof (ushort)));
+            return data;
         }
     }
 }

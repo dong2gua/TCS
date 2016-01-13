@@ -1,11 +1,11 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
-using System;
-using System.Collections.Generic;
 using ThorCyte.ImageViewerModule.View;
+
 namespace ThorCyte.ImageViewerModule.Selector
 {
-  public  class ViewportSelector:DataTemplateSelector
+    public  class ViewportSelector:DataTemplateSelector
     {
         public DataTemplate OneViewportDataTemplate { get; set; }
         public DataTemplate HorizontalViewportDataTemplate { get; set; }
@@ -26,7 +26,6 @@ namespace ThorCyte.ImageViewerModule.Selector
                 default: return OneViewportDataTemplate;
             }
         }
-
     }
     public class ViewportDisplayType
     {

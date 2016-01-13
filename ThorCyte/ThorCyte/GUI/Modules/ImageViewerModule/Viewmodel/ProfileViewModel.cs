@@ -1,30 +1,35 @@
 ﻿using Abt.Controls.SciChart;
 using Abt.Controls.SciChart.Model.DataSeries;
 using Abt.Controls.SciChart.Visuals.RenderableSeries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ThorCyte.ImageViewerModule.Model;
-using Prism.Mvvm;
-using System.Windows.Media.Imaging;
-using System.IO;
-using System.Windows.Media;
-using System.Collections.ObjectModel;
-//using System.Drawing;
 using ImageProcess;
-using Xceed.Wpf.Toolkit;
-using ThorCyte.ImageViewerModule.View;
-using System.Windows;
-using Prism.Unity;
 using Microsoft.Practices.ServiceLocation;
-using Prism.Events;
+using Prism.Mvvm;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Media;
 using ThorCyte.ImageViewerModule.Events;
+using ThorCyte.ImageViewerModule.Model;
+
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ProfileViewModel : BindableBase
     {
+        private double _profileCf;
+        public double ProfileCf
+        {
+            get { return _profileCf * 100; }
+            set { SetProperty<double>(ref _profileCf, value, "ProfileCf"); }
+        }
+
+        private DoubleRange _axisYRange = new DoubleRange(0, 0x01 << 14);
+        public DoubleRange AxisYRange
+        {
+            get { return _axisYRange; }
+            set { SetProperty<DoubleRange>(ref _axisYRange, value, "AxisYRange"); }
+        }
+        public ObservableCollection<IChartSeriesViewModel> SeriesSource { get; private set; }
         private ChannelImage _channel; 
         private Point? _start;
         private Point? _end;
@@ -103,9 +108,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 SeriesSource.Add(new ChartSeriesViewModel(dataSeries, renderSeries));
                 ProfileCf = ComputeContrastFactor(buffer.ToArray());
             }
-
         }
-        public double ComputeContrastFactor(ushort[] sorted)
+        private double ComputeContrastFactor(ushort[] sorted)
         {
             const double tolerance = 1e-6;
             Array.Sort(sorted);
@@ -129,30 +133,5 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             var factor = (max - min) / count;
             return factor * sorted.Length / total;
         }
-
-
-        private double _profileCf;
-        public double ProfileCf
-        {
-            get { return _profileCf * 100; }
-            set
-            {
-                SetProperty<double>(ref _profileCf, value, "ProfileCf");
-            }
-        }
-
-        private DoubleRange _axisYRange = new DoubleRange(0, 0x01 << 14);
-        public DoubleRange AxisYRange
-        {
-            get { return _axisYRange; }
-            set
-            {
-                SetProperty<DoubleRange>(ref _axisYRange, value, "AxisYRange");
-            }
-        }
-
-        public ObservableCollection<IChartSeriesViewModel> SeriesSource { get; private set; }
-
-
     }
 }

@@ -1,30 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ThorCyte.Infrastructure.Commom;
-using ThorCyte.Infrastructure.Types;
+﻿using Prism.Commands;
 using Prism.Mvvm;
-using ThorCyte.ImageViewerModule.Model;
+using System.Collections.Generic;
 using System.Windows.Input;
 using ThorCyte.ImageViewerModule.View;
-using Prism.Commands;
+using ThorCyte.Infrastructure.Types;
+
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
-    public class SetVirtualChannelViewModel:BindableBase
+    public class SetVirtualChannelViewModel : BindableBase
     {
-        public SetVirtualChannelViewModel(IList<Channel> channels,IList<ComputeColor> computeColors)
-        {
-            ClickOKCommand = new DelegateCommand<SetVirtualChannelWindow>(OnClickOK);
-            ClickCancelCommand = new DelegateCommand<SetVirtualChannelWindow>(OnClickCancel);
-            ChannelList = channels;
-            ChannelName = "newvirtualchannel";
-            _computeColors = computeColors;
-        }
-        private IList<ComputeColor> _computeColors;
         public ICommand ClickOKCommand { get; private set; }
         public ICommand ClickCancelCommand { get; private set; }
+        private IList<ComputeColor> _computeColors;
         private bool _isNew;
         public bool IsNew
         {
@@ -34,7 +21,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 SetProperty<bool>(ref _isNew, value, "IsNew");
             }
         }
-
         private string _channelName;
         public string ChannelName
         {
@@ -78,16 +64,29 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 SetProperty<ImageOperator>(ref _operator, value, "Operator");
             }
         }
+        public SetVirtualChannelViewModel(IList<Channel> channels, IList<VirtualChannel> virtualChannels, IList<ComputeColor> computeColors)
+        {
+            ClickOKCommand = new DelegateCommand<SetVirtualChannelWindow>(OnClickOK);
+            ClickCancelCommand = new DelegateCommand<SetVirtualChannelWindow>(OnClickCancel);
+            if (channels == null || virtualChannels == null ) return;
+            ChannelList = new List<Channel>();
+            foreach(var o in channels)
+                ChannelList.Add(o);
+            foreach (var o in virtualChannels)
+                ChannelList.Add(o);
+            ChannelName = "newvirtualchannel";
+            _computeColors = computeColors;
+        }
         private void OnClickOK(SetVirtualChannelWindow window)
         {
             if (IsNew)
-            { 
+            {
                 foreach (var o in _channelList)
                 {
                     if (o.ChannelName == _channelName)
                         return;
                 }
-                foreach(var o in _computeColors)
+                foreach (var o in _computeColors)
                 {
                     if (o.Name == _channelName)
                         return;
@@ -101,6 +100,5 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             window.DialogResult = false;
             window.Close();
         }
-
     }
 }

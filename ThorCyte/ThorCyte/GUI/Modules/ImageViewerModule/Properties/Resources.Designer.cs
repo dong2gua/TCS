@@ -59,5 +59,45 @@ namespace ThorCyte.ImageViewerModule.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] CurEllipse {
+            get {
+                object obj = ResourceManager.GetObject("CurEllipse", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] CurProfile {
+            get {
+                object obj = ResourceManager.GetObject("CurProfile", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] CurRectangle {
+            get {
+                object obj = ResourceManager.GetObject("CurRectangle", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] CurRuler {
+            get {
+                object obj = ResourceManager.GetObject("CurRuler", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

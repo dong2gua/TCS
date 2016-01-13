@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+﻿using ImageProcess;
 using Prism.Mvvm;
-using Prism.Commands;
-using System.Windows.Input;
-using System.Windows.Media;
-using ThorCyte.Infrastructure.Types;
-using ImageProcess;
+using System;
+using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using ThorCyte.Infrastructure.Types;
+
 namespace ThorCyte.ImageViewerModule.Model
 {
     public class ChannelImage : BindableBase
@@ -23,7 +19,6 @@ namespace ThorCyte.ImageViewerModule.Model
         }
         public Channel ChannelInfo { get; set; }
         public string ChannelName { get; set; }
-        //public int ChannelId { get; set; }
         private Tuple<ImageSource, Int32Rect> _image;
         public Tuple< ImageSource,Int32Rect> Image
         {
@@ -43,6 +38,5 @@ namespace ThorCyte.ImageViewerModule.Model
         public bool IsComputeColor { get; set; }
         public Dictionary<Channel,Color> ComputeColorDic { get; set; }
         public Dictionary<Channel, Tuple<ImageData, Color>> ComputeColorDicWithData { get; set; }
-
     }
 }

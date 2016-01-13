@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using ThorCyte.ImageViewerModule.Viewmodel;
+
 namespace ThorCyte.ImageViewerModule.View
 {
     /// <summary>
@@ -7,6 +8,7 @@ namespace ThorCyte.ImageViewerModule.View
     /// </summary>
     public partial class ImageViewerView : UserControl
     {
+        private ImageViewerViewModel vm;
         public ImageViewerView()
         {
             InitializeComponent();
@@ -14,12 +16,10 @@ namespace ThorCyte.ImageViewerModule.View
             this.DataContext = vm;
             selectViewportCanvas.OnClick += SelectViewportCanvas_OnClick;
         }
-        ImageViewerViewModel vm;
         private void SelectViewportCanvas_OnClick(int select)
         {
             dropDownButton.IsOpen = false;
             vm.OnViewportTypeChange(select);
         }
-
     }
 }

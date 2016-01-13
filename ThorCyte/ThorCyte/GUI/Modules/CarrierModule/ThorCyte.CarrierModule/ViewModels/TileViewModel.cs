@@ -148,8 +148,6 @@ namespace ThorCyte.CarrierModule.ViewModels
 
             //Define button infomations to show on UI
             _tilesShowInCanvas = new ObservableCollection<TileItem>();
-
-            //SetEmptyContent();
         }
 
         public void SetEmptyContent()
@@ -193,6 +191,9 @@ namespace ThorCyte.CarrierModule.ViewModels
                 _viewSizeMax = InitialViewSize;
 
             CalcPxFactor(sr.Bound);
+            //every tile rect size is same.
+
+
             //ResetViewSize
             ViewHeight = GetLengthAsPixel(sr.Bound.Height);
             ViewWidth = GetLengthAsPixel(sr.Bound.Width);
@@ -200,11 +201,6 @@ namespace ThorCyte.CarrierModule.ViewModels
             TilesShowInCanvas.Clear();
             foreach (var scanfield in sr.ScanFieldList)
             {
-                //if (!IsRectInside(sr.Bound, scanfield.SFRect))
-                //{
-                //    continue;
-                //}
-
                 TilesShowInCanvas.Add(Convert(scanfield));
             }
         }
@@ -220,11 +216,6 @@ namespace ThorCyte.CarrierModule.ViewModels
             var p = GetPositionAsPixel(sf.SFRect.Left, sf.SFRect.Top);
 
             var rT = new Rect((int)p.X, (int)p.Y, GetLengthAsPixel(sf.SFRect.Width), GetLengthAsPixel(sf.SFRect.Height));
-
-            //ti.Left = (int)p.X;
-            //ti.Top = (int) p.Y;
-            //ti.Width = GetLengthAsPixel(sf.SFRect.Width);
-            //ti.Height = GetLengthAsPixel(sf.SFRect.Height);
 
             //Trasform to Right/Top coordinate.
             ti.TileRect = CoordinateTransform(rT);

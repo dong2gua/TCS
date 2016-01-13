@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ImageProcess;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
-using ThorCyte.ImageViewerModule.DrawTools.Graphics;
-using ThorCyte.ImageViewerModule.DrawTools.Tools;
-using System.Diagnostics;
-using System.Windows.Shapes;
-using ImageProcess;
+
 namespace ThorCyte.ImageViewerModule.Control
 {
     public class HistogramPanel:Panel
@@ -59,12 +54,10 @@ namespace ThorCyte.ImageViewerModule.Control
         }
         public void SetData(ImageData imageData)
         {
-
             _data = imageData;
             RefreshChangedData();
             RefreshRawData();
         }
-
         protected override Visual GetVisualChild(int index)
         {
             if (index == 0) return _visualRaw;
@@ -90,7 +83,6 @@ namespace ThorCyte.ImageViewerModule.Control
 
             return hist;
         }
-
         private void RefreshRawData()
         {
             var hist = GetHistogram();
@@ -111,15 +103,13 @@ namespace ThorCyte.ImageViewerModule.Control
         }
         private void RefreshChangedData()
         {
-            double c = Contrast / 100d; // jcl-6471
-
-            if (c >= 0)     // (0 : 30) to (1 : 31)
-                c = (c + 1d);
-            else    // (-1 : -10) to (0.9 to 0.0) decrementing 0.1
+            if (Contrast == 1 && Brightness == 0)
             {
-                c = Math.Abs(c);
-                c = (10d - c) / 10d;
+                var dc = _visualChanged.RenderOpen();
+                dc.Close();
+                return;
             }
+            double c = Contrast;
             double b = Brightness/64;
             var hist = GetHistogram();
             if (hist == null) return;

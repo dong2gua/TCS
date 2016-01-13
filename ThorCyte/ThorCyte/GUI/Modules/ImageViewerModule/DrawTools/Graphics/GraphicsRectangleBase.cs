@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
@@ -12,10 +7,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
     {
         public override int HandleCount
         {
-            get
-            {
-                return 8;
-            }
+            get { return 8; }
         }
         public override Point GetHandle(int handleNumber)
         {

@@ -1,8 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System;
 
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
@@ -10,12 +9,11 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
     {
         public GraphicsScaler()
         {
+            GraphicsObjectColor = Colors.Red;
         }
         public Point Point;
         public double XPixelSize { get; set; }
         public double YPixelSize { get; set; }
-
-
         public override void Draw(DrawingContext drawingContext)
         {
             if (XPixelSize == 0) return;
@@ -60,17 +58,13 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         }
         FormattedText GetFormattedText(string text)
         {
-
-
             var typeface = new Typeface(new FontFamily(), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
 
             return new FormattedText(text, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                 typeface,
-                16 / Math.Min(ActualScale.Item1, ActualScale.Item2),
+                16 / ActualScale.Item1,
                 new SolidColorBrush(GraphicsObjectColor));
-
         }
-
         public override int HandleCount { get { return 0; } }
         public override Point GetHandle(int handleNumber) { return new Point(0, 0); }
         public override Cursor GetHandleCursor(int handleNumber) { return Cursors.Arrow; }
@@ -79,6 +73,5 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         public override int MakeHitTest(Point point) { return 0; }
         public override bool Contains(Point point) { return false; }
         public override bool IntersectsWith(Rect rectangle) { return false; }
-
     }
 }

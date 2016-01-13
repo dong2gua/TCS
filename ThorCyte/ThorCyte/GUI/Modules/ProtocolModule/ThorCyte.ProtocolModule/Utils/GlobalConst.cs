@@ -17,9 +17,10 @@
         public const string ContourCateName = "Contour";
         public const string ChannelModuleName = "Channel";
         public const string ThresholdModuleName = "Threshold";
-
+        public const string ContourModuleName = "Contour";
 
         public const string EventCateName = "Event";
+        public const string EventModuleName = "Event";
 
         public const string ExperimentalCateName = "Experimental";
 

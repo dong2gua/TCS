@@ -44,4 +44,9 @@ IPP_LIB_API int fnipp_lib_minEvery_16u(unsigned short* firstBuffer, unsigned sho
 IPP_LIB_API int fnipp_lib_invert_16u(unsigned short* srcBuffer, int width, int height, 
 									 int channels, unsigned short maxValue, unsigned short* dstBuffer);
 
+IPP_LIB_API int fnipp_lib_threshold_16uC1(unsigned short* srcBuffer, int width, int height, 
+									unsigned short threshold, unsigned short* dstBuffer);
+
+IPP_LIB_API int fnipp_lib_otsuThreshold_16uC1(unsigned short* srcBuffer, int width, int height, unsigned short* dstBuffer);
+
 IppStatus saturate(unsigned short* buffer, int width, int height, int channels, unsigned short maxValue);

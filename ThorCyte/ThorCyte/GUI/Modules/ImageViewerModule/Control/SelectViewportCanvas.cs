@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using ThorCyte.ImageViewerModule.DrawTools.Graphics;
-using ThorCyte.ImageViewerModule.DrawTools.Tools;
-using System.Diagnostics;
-using System.Windows.Shapes;
+
 namespace ThorCyte.ImageViewerModule.Control
 {
     public  class SelectViewportCanvas:Canvas
     {
-        DrawingVisual _visual;
         public delegate void ClickHandler(int select);
         public event ClickHandler OnClick;
+        private DrawingVisual _visual;
         private int _select=0;
         public SelectViewportCanvas()
         {
@@ -27,13 +21,10 @@ namespace ThorCyte.ImageViewerModule.Control
             this.AddVisualChild(_visual);
             Refresh();
         }
-
-
         protected override Visual GetVisualChild(int index)
         {
             return _visual;
         }
-
         protected override int VisualChildrenCount
         {
             get
@@ -51,14 +42,11 @@ namespace ThorCyte.ImageViewerModule.Control
             drawingContext.DrawRectangle(null, _select == 3|| _select == 4 ? selectPen : pen, new Rect(2, 27, 20, 20));
             drawingContext.DrawRectangle(null, _select == 4 ? selectPen : pen, new Rect(27, 27, 20, 20));
             drawingContext.Close();
-
-
         }
         private void SelectViewportCanvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
             OnClick(_select);
         }
-
         private void SelectViewportCanvas_MouseMove(object sender, MouseEventArgs e)
         {
             var point = e.GetPosition(this);

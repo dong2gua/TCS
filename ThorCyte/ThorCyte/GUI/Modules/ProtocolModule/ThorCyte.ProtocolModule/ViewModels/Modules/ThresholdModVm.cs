@@ -59,9 +59,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
         }
 
-        private int _threshold;
+        private ushort _threshold;
 
-        public int Threshold
+        public ushort Threshold
         {
             get { return _threshold; }
             set
@@ -176,6 +176,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void Initialize()
         {
+            HasImage = true;
             View = new ThresholdModule();
             ModType = ModuleType.SmtContourCategory;
             InputPorts[0].DataType = PortDataType.GrayImage;
@@ -186,16 +187,25 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
-            
-            
-            
-            if (_img == null)
+            _img = InputImage;
+
+            var thType = ThresholdType.Auto;
+            switch (Method)
+            {
+                case ThresholdMethod.Manual:
+                    thType = ThresholdType.Manual;
+                    break;
+            }
+
+            var processedImg = _img.Threshold(Threshold, thType);
+
+            _img.Dispose();
+
+            if (processedImg == null)
             {
                 throw new CyteException("ChannelModVm", "Invaild execution image is null");
             }
-
-            SetOutputImage(_img);
-            _img = null;
+            SetOutputImage(processedImg);
         }
 
         public override void OnDeserialize(XmlReader reader)
@@ -211,7 +221,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
             if (reader["threshold"] != null)
             {
-                Threshold = XmlConvert.ToInt32(reader["threshold"]);
+                Threshold = XmlConvert.ToUInt16(reader["threshold"]);
             }
 
             if (reader["recalculate"] != null)

@@ -237,12 +237,30 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
             if (OutPortExists)
             {
-                foreach (var connector in _outputPort.AttachedConnections)
-                {
-                    connector.TransferExecute();
-                }
+                //determine how many connections attached on the out port.
+                ConnectionsTransfer();
             }
         }
+
+        private void ConnectionsTransfer()
+        {
+            switch (_outputPort.AttachedConnections.Count)
+            {
+                case 0:
+                    _outputPort.Image.Dispose();
+                    break;
+                case 1:
+                    _outputPort.AttachedConnections[0].TransferExecute();
+                    break;
+                default:
+                    foreach (var connection in _outputPort.AttachedConnections)
+                    {
+                        connection.TransferExecute(_outputPort.Image);
+                    }
+                    break;
+            }
+        }
+
 
         public PortModel GetInPort(int index)
         {
@@ -274,6 +292,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 _outputPort.Image = img;
             }
+
         }
 
         #endregion

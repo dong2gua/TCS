@@ -365,12 +365,53 @@ IPP_LIB_API int fnipp_lib_invert_16u(unsigned short* srcBuffer, int width, int h
 	
 }
 
+
+
+IPP_LIB_API int fnipp_lib_threshold_16uC1(unsigned short* srcBuffer, int width, int height, 
+									unsigned short threshold, unsigned short* dstBuffer)
+{
+	const IppiSize roi = {width, height};
+	const int step = width * sizeof(unsigned short);
+	IppStatus status = ippiThreshold_LTVal_16u_C1R(srcBuffer, step, dstBuffer, step, roi, threshold, 0);
+	return status;
+}
+
+IPP_LIB_API int fnipp_lib_otsuThreshold_16uC1(unsigned short* srcBuffer, int width, int height, unsigned short* dstBuffer)
+{
+	Ipp8u* srcBuffer8u = ippsMalloc_8u(width * height);
+	const int srcStep = width * height * sizeof(unsigned short);
+	const int src8uStep = width * height;
+	const IppiSize roi = {width, height};
+	IppStatus status = ippiConvert_16u8u_C1R(srcBuffer, srcStep, srcBuffer8u, src8uStep, roi);
+	Ipp8u threshold = 0;
+	if(status != ippStsNoErr) 
+	{
+		ippFree(srcBuffer8u);
+		return status;
+	}
+	else
+	{
+		status = ippiComputeThreshold_Otsu_8u_C1R(srcBuffer8u, src8uStep, roi, &threshold);
+		if(status != ippStsNoErr)
+		{
+			ippFree(srcBuffer8u);
+			return status;
+		}
+		else
+		{
+			status = (IppStatus)fnipp_lib_threshold_16uC1(srcBuffer, width, height, unsigned short(threshold<<8), dstBuffer);
+			ippFree(srcBuffer8u);
+			return status;
+		}
+	}
+}
+
 IppStatus saturate(unsigned short* buffer, int width, int height, int channels, unsigned short maxValue)
 {
 	const IppiSize roi = {width, height};
 	const int step = width * channels * sizeof(unsigned short);
-	const int maskStep = width * channels;
-	Ipp8u* mask = ippsMalloc_8u(width * height * channels);
+	const int maskStep  = width;
+	Ipp8u* mask = ippsMalloc_8u(width * height);
 	IppStatus status = ippStsNoErr;
 	switch (channels)
 	{
@@ -379,20 +420,35 @@ IppStatus saturate(unsigned short* buffer, int width, int height, int channels, 
 			status = ippiCompareC_16u_C1R(buffer, step, maxValue, mask, maskStep,roi, ippCmpGreater);
 			if(status == ippStsNoErr)
 			 	status = ippiSet_16u_C1MR(maxValue, buffer, step, roi, mask, maskStep);
-			else
-				return status;
-			
 			break;
 		}
 		case 3:
 		{
-			Ipp16u maxValueArray[3] = {maxValue, maxValue, maxValue};
+			/*Ipp16u maxValueArray[3] = {maxValue, maxValue, maxValue};
 			status = ippiCompareC_16u_C3R(buffer, step, maxValueArray, mask, maskStep,roi, ippCmpGreater);
 			if(status == ippStsNoErr)
 				status = ippiSet_16u_C3MR(maxValueArray, buffer, step, roi, mask, maskStep);
 			else
 				return status;
-			break;
+			break;*/
+			Ipp16u* pDst[3];
+			const int dstStep = width * sizeof(unsigned short);
+			pDst[0] = ippsMalloc_16u(width * height);
+			pDst[1] = ippsMalloc_16u(width * height);
+			pDst[2] = ippsMalloc_16u(width * height);
+			status = ippiCopy_16u_C3P3R(buffer, step, pDst, dstStep, roi);
+			if(status==ippStsNoErr)
+			{
+
+				for(int i=0; i<channels; i++)
+				{
+					status = ippiCompareC_16u_C1R(pDst[i], dstStep, maxValue, mask, maskStep,roi, ippCmpGreater);
+					status = ippiSet_16u_C1MR(maxValue, pDst[i], dstStep, roi, mask, maskStep);
+				}
+				status = ippiCopy_16u_P3C3R(pDst, dstStep, buffer, step, roi);
+				for(int i = 0; i < 3; i++)
+					ippiFree(pDst[i]);
+			}
 		}
 		default:
 		{
@@ -402,5 +458,6 @@ IppStatus saturate(unsigned short* buffer, int width, int height, int channels, 
 			
 	}
 	ippFree(mask);
+	
 	return status;
 }

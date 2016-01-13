@@ -56,6 +56,14 @@ namespace ImageProcess
         [DllImport(DllName, EntryPoint = "fnipp_lib_invert_16u", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int Invert16U(IntPtr srcBuffer, int width, int height, int channels, ushort maxValue,
             IntPtr dstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_threshold_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Threshold16UC1(IntPtr srcBuffer, int width, int height, ushort threshold,
+            IntPtr dstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_otsuThreshold_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int OtsuThreshold16UC1(IntPtr srcBuffer, int width, int height, IntPtr dstBuffer);
+
         #endregion
 
         static ImageProcessLib()

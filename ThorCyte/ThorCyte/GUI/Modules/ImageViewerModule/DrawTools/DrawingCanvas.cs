@@ -7,12 +7,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ImageViewerModule.DrawTools.Graphics;
 using ThorCyte.ImageViewerModule.DrawTools.Tools;
-using System.Diagnostics;
+
 namespace ThorCyte.ImageViewerModule.DrawTools
 {
     public class DrawingCanvas:Canvas
     {
-
         public static readonly DependencyProperty ImageSizeProperty = DependencyProperty.Register("ImageSize", typeof(Size), typeof(DrawingCanvas), new PropertyMetadata(new Size(0, 0)));
         public static readonly DependencyProperty ActualScaleProperty = DependencyProperty.Register("ActualScale", typeof(Tuple<double, double, double>), typeof(DrawingCanvas), new PropertyMetadata(new Tuple<double, double, double>(1, 1, 1), OnActualScaleChanged));
         public static readonly DependencyProperty DisplayImageProperty = DependencyProperty.Register("DisplayImage", typeof(Tuple<ImageSource, Int32Rect>), typeof(DrawingCanvas), new PropertyMetadata(new PropertyChangedCallback(OnDisplayImagePropertyChanged)));
@@ -67,7 +66,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         private GraphicsScaler graphicsScaler;
         private GraphicsRuler graphicsRuler;
         private GraphicsProfile graphicsProfile;
-        public Point ZoomMiddlePoint;
         private Rect _tmpCanvasRect;
         private Rect _canvasDisplyRect;
         public Rect CanvasDisplyRect
@@ -116,8 +114,12 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             var canvas = property as DrawingCanvas;
             if (canvas == null) return;
             var value = e.NewValue as Tuple<ImageSource, Int32Rect>;
-            if (value == null) return;
-
+            if (value == null)
+            {
+                canvas._graphicsImage.SetImage(null, new Rect(0, 0, 0, 0));
+                canvas._graphicsImage.RefreshDrawing();
+                return;
+            }
             canvas._graphicsImage.SetImage(value.Item1, new Rect(value.Item2.X, value.Item2.Y, value.Item2.Width, value.Item2.Height));
             canvas._graphicsImage.RefreshDrawing();
         }
@@ -129,13 +131,14 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             var scale = canvas.ActualScale;
             var oldScale = args.OldValue as Tuple<double, double, double>;
             var newScale = args.NewValue as Tuple<double, double, double>;
-
+            var ZoomMiddlePoint = new Point(canvas._canvasDisplyRect.X + canvas._canvasDisplyRect.Width / 2, canvas._canvasDisplyRect.Y + canvas._canvasDisplyRect.Height / 2);
             double width = canvas.ActualWidth / newScale.Item3/ newScale.Item1;
             double height = canvas.ActualHeight / newScale.Item3 / newScale.Item2;
-            double x = (canvas._canvasDisplyRect.X - canvas.ZoomMiddlePoint.X) / oldScale.Item3 * newScale.Item3 + canvas.ZoomMiddlePoint.X;
-            double y = (canvas._canvasDisplyRect.Y - canvas.ZoomMiddlePoint.Y) / oldScale.Item3 * newScale.Item3 + canvas.ZoomMiddlePoint.Y;
+            double x = ZoomMiddlePoint.X - (ZoomMiddlePoint.X - canvas._canvasDisplyRect.X) * oldScale.Item3 * oldScale.Item1 / newScale.Item3 / newScale.Item1;
+            double y = ZoomMiddlePoint.Y - (ZoomMiddlePoint.Y - canvas._canvasDisplyRect.Y) * oldScale.Item3 * oldScale.Item2 / newScale.Item3 / newScale.Item2;
             canvas._canvasDisplyRect = new Rect(x, y, width, height);
-            canvas.TestVirtualBound();
+            canvas.TestVisualBound();
+
             foreach (var b in canvas.GraphicsList.Cast<GraphicsBase>())
             {
                 b.ActualScale = scale;
@@ -155,7 +158,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             _canvasDisplyRect.Height = ActualHeight / ActualScale.Item3 / ActualScale.Item2;
             graphicsScaler.Point = new Point(20, ActualHeight - 20);
             graphicsScaler.RefreshDrawing();
-            RefreshVirtualBound();
+            RefreshVisualBound();
         }
         private void DrawingCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -217,9 +220,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             {
                 SelectAll();
             }
-
         }
-
         public DrawingCanvas()
         {
             _graphicsImage = new GraphicsImage(this);
@@ -300,7 +301,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         {
             _canvasDisplyRect.X -= deltaX;
             _canvasDisplyRect.Y -= deltaY;
-            RefreshVirtualBound();
+            RefreshVisualBound();
         }
         public void SelectAll()
         {
@@ -363,27 +364,9 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             ReleaseMouseCapture();
             Cursor = Cursors.Arrow;
         }
-        private void TestGraphicsBound(GraphicsBase obj)
+        private void RefreshVisualBound()
         {
-            if (_canvasDisplyRect.Width > ImageSize.Width)
-                _canvasDisplyRect.X = ImageSize.Width / 2 - _canvasDisplyRect.Width / 2;
-            else
-            {
-                if (_canvasDisplyRect.Left < 0) _canvasDisplyRect.X = 0;
-                else if (_canvasDisplyRect.Right > ImageSize.Width) _canvasDisplyRect.X = ImageSize.Width - _canvasDisplyRect.Width;
-            }
-            if (_canvasDisplyRect.Height > ImageSize.Height)
-                _canvasDisplyRect.Y = ImageSize.Height / 2 - _canvasDisplyRect.Height / 2;
-            else
-            {
-                if (_canvasDisplyRect.Top < 0) _canvasDisplyRect.Y = 0;
-                else if (_canvasDisplyRect.Bottom > ImageSize.Height) _canvasDisplyRect.Y = ImageSize.Height - _canvasDisplyRect.Height;
-            }
-
-        }
-        private void RefreshVirtualBound()
-        {
-            TestVirtualBound();
+            TestVisualBound();
             foreach (var b in GraphicsList.Cast<GraphicsBase>())
             {
                 b.RefreshDrawing();
@@ -401,7 +384,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
                 _graphicsImage.RefreshDrawing();
 
         }
-        private void TestVirtualBound()
+        private void TestVisualBound()
         {
             if (_canvasDisplyRect.Width > ImageSize.Width)
                 _canvasDisplyRect.X = ImageSize.Width / 2 - _canvasDisplyRect.Width / 2;
@@ -440,6 +423,4 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         Custom,
         Max
     };
-
-
 }

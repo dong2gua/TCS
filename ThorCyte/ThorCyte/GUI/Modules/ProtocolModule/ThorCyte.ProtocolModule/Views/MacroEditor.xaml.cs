@@ -66,6 +66,7 @@ namespace ThorCyte.ProtocolModule.Views
         private void ExpLoaded(int scanId)
         {
             ClearSearch();
+            SerTb.Focus();
         }
 
         private void OnCreateModule(Point location)

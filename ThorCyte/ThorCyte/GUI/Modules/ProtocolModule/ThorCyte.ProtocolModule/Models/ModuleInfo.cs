@@ -11,7 +11,6 @@ namespace ThorCyte.ProtocolModule.Models
     public class ModuleInfo
     {
         #region Properties and Fields
-
         static readonly string[] SmBasicModules =  
         {
 			"Detectors",
