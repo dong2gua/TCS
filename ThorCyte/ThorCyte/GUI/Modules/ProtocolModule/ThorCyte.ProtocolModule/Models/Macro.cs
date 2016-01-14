@@ -207,6 +207,10 @@ namespace ThorCyte.ProtocolModule.Models
             var expMod = Modules.FirstOrDefault(m => m is ChannelModVm);
             if (expMod == null) return;
 
+
+            var t2 = new Thread(new ParameterizedThreadStart(TestMethod));
+
+
             foreach (var region in CurrentScanInfo.ScanRegionList)
             {
                 CurrentRegionId = region.RegionId;
@@ -226,8 +230,11 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
-
-
+        public static void TestMethod(object data)
+        {
+            string datastr = data as string;
+            Console.WriteLine("带参数的线程函数，参数为：{0}", datastr);
+        }
 
 
         private static void ClearImagesDic()
