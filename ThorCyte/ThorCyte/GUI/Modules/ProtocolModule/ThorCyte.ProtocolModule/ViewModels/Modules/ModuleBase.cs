@@ -16,6 +16,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public int ScanNo { get; set; }
         public string DisplayName { get; set; }
         public ModuleType ModType { get; set; }
+        public bool Executable { get; set; }
 
         private ContentControl _view;
         public ContentControl View
@@ -171,6 +172,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             _outputPort = new PortModel(PortType.OutPort);
             _enabled = true;
             _hasImage = false;
+            Executable = true;
         }
 
         #endregion
@@ -247,6 +249,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             switch (_outputPort.AttachedConnections.Count)
             {
                 case 0:
+                    if (_outputPort.Image == null) return; 
                     _outputPort.Image.Dispose();
                     break;
                 case 1:
@@ -257,6 +260,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     {
                         connection.TransferExecute(_outputPort.Image);
                     }
+                    _outputPort.Image.Dispose();
                     break;
             }
         }

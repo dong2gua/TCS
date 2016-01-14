@@ -203,7 +203,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
             if (processedImg == null)
             {
-                throw new CyteException("ChannelModVm", "Invaild execution image is null");
+                throw new CyteException("ThresholdModVm", "Invaild execution image is null");
             }
             SetOutputImage(processedImg);
         }

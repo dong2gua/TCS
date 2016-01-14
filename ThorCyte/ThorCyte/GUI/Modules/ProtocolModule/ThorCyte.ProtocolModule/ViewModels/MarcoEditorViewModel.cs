@@ -17,6 +17,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
     {
         #region Properties
         public ICommand StartMacroCommand { get; private set; }
+        public ICommand StopMacroCommand { get; private set; }
 
         readonly List<ChannelModVm> _channelModuleList = new List<ChannelModVm>();
 
@@ -39,6 +40,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             set { SetProperty(ref _pannelVm, value); }
         }
 
+
         #endregion
 
         #region Contructors
@@ -47,6 +49,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             _pannelVm = new PannelViewModel();
             StartMacroCommand = new DelegateCommand(Macro.Run);
+            StopMacroCommand = new DelegateCommand(Macro.Stop);
         }
 
         #endregion

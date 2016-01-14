@@ -74,6 +74,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="ThorComponentDataService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\TestProtocol\temp\ThorComponentDataService.dll</HintPath>
+    </Reference>
     <Reference Include="ThorCyte.Infrastructure">
       <HintPath>..\..\..\..\Bin\ThorCyte.Infrastructure.dll</HintPath>
     </Reference>
@@ -181,6 +185,12 @@
     <Resource Include="Resource\Images\repetitive_bak.png" />
     <Resource Include="Resource\Images\time.png" />
     <Resource Include="Resource\Images\toolbox.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\stop.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
