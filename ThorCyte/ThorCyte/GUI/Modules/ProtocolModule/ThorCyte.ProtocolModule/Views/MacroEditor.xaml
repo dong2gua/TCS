@@ -176,6 +176,9 @@
             <Button Margin="5,2,0,2" Padding="-1" Command="{Binding StartMacroCommand}">
                 <Image Source="../Resource/Images/play.png"/>
             </Button>
+            <Button Margin="5,2,0,2" Padding="-1" Command="{Binding StopMacroCommand}">
+                <Image Source="../Resource/Images/stop.png"/>
+            </Button>
         </StackPanel>
 
         <Border x:Name="contentGrid" Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="CadetBlue">
@@ -188,7 +191,16 @@
         </Border>
         
         <StatusBar x:Name="statBar" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5" BorderBrush="CadetBlue" BorderThickness="1" Margin="0,2,0,0">
-            <TextBlock Text="{Binding PannelVm.StatusMessage}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="{Binding PannelVm.StatusMessage}"/>
+                <!--<TextBlock Grid.Column="1" Text="{Binding PannelVm.StatusMessage}"/>-->
+
+            </Grid>
         </StatusBar>
     </Grid>
 </UserControl>

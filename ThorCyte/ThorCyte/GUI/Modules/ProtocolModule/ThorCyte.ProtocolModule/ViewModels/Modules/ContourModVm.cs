@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml;
+using ImageProcess;
+using ThorComponentDataService.Types;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.Views.Modules;
@@ -9,6 +12,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
     public class ContourModVm : ModuleBase
     {
         #region Properties and Fields
+        private ImageData _img;
 
         public override string CaptionString { get { return ComponentName; } }
 
@@ -23,8 +27,15 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 {
                     return;
                 }
+
+                if (value.Trim() == string.Empty)
+                {
+                    Executable = false;
+                    return;
+                }
                 SetProperty(ref _componentName, value);
                 OnPropertyChanged("CaptionString");
+
             }
         }
 
@@ -137,14 +148,53 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public ContourModVm()
         {
             IsMaxAreaChecked = true;
+            MinArea = 10;
+            MaxArea = 50;
         }
 
         #endregion
 
         #region Methods
 
+        private void SetComponentFeatures()
+        {
+            Macro.CurrentConponentService.SetComponent(_componentName, new List<Feature>
+            {
+                new Feature(FeatureType.Area),
+                new Feature(FeatureType.Background),
+                new Feature(FeatureType.Circularity),
+                new Feature(FeatureType.Cycle),
+                new Feature(FeatureType.Diameter),
+                new Feature(FeatureType.Eccentricity),
+                new Feature(FeatureType.Elongation),
+                new Feature(FeatureType.HalfRadius),
+                new Feature(FeatureType.Id),
+                new Feature(FeatureType.Integral),
+                new Feature(FeatureType.Intensity),
+                new Feature(FeatureType.MajorAxis),
+                new Feature(FeatureType.MaxPixel),
+                new Feature(FeatureType.Merged),
+                new Feature(FeatureType.MinorAxis),
+                new Feature(FeatureType.Perimeter),
+                new Feature(FeatureType.PeripheralIntegral),
+                new Feature(FeatureType.PeripheralIntensity),
+                new Feature(FeatureType.PeripheralMax),
+                new Feature(FeatureType.RegionNo),
+                new Feature(FeatureType.Scan),
+                new Feature(FeatureType.Stdv),
+                new Feature(FeatureType.Time),
+                new Feature(FeatureType.WellNo),
+                new Feature(FeatureType.XPos),
+                new Feature(FeatureType.YPos),
+                new Feature(FeatureType.ZPos)
+            });
+
+        }
+
+
         public override void Initialize()
         {
+            HasImage = true;
             View = new ContourModule();
             ModType = ModuleType.SmtContourCategory;
             Name = GlobalConst.ContourModuleName;
@@ -156,7 +206,12 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
-            base.OnExecute();
+            _img = InputImage;
+            SetComponentFeatures();
+            Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId, Macro.CurrentScanId,
+                Macro.CurrentTileId, _img, MinArea, MaxArea);
+
+            _img.Dispose();
         }
 
         public override void OnSerialize(XmlWriter writer)

@@ -3,4 +3,5 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="E:\TCS\ThorCyte\ThorCyte\Tools\Xceed.Wpf.Toolkit.dll" /&gt;&#xD;
   &lt;Assembly Path="E:\TCS\ThorCyte\ThorCyte\Bin\ThorCyte.Infrastructure.dll" /&gt;&#xD;
+  &lt;Assembly Path="E:\TCS\ThorCyte\ThorCyte\GUI\Modules\ProtocolModule\TestProtocol\temp\ThorComponentDataService.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>

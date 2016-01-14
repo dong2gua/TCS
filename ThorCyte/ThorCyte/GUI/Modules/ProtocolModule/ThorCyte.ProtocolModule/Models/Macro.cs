@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Windows;
 using System.Xml;
 using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Events;
+using ThorComponentDataService;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.Infrastructure.Interfaces;
@@ -23,12 +25,18 @@ namespace ThorCyte.ProtocolModule.Models
         private Macro()
         {
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
-
+            _imageanalyzed += ImageAnalyzed;
+            _isAborting = false;
         }
         #endregion
 
         #region Fields and Properties
 
+        private static Thread _tAnalyzeImg;
+        private static bool _isAborting;
+        private static readonly object Syncobj = new object();
+        private delegate void ImageAnalyzedCallBackDelegate();
+        private static ImageAnalyzedCallBackDelegate _imageanalyzed;
         public delegate void ClearHandler();
         public static ClearHandler Clear;
 
@@ -47,6 +55,7 @@ namespace ThorCyte.ProtocolModule.Models
 
 
         public static IData CurrentDataMgr { get; private set; }
+        public static IComponentDataService CurrentConponentService { get; private set; }
 
         public static ImpObservableCollection<ConnectorModel> Connections;
         public static ImpObservableCollection<ModuleBase> Modules;
@@ -69,11 +78,12 @@ namespace ThorCyte.ProtocolModule.Models
             var exp = ServiceLocator.Current.GetInstance<IExperiment>();
             if (exp == null) return;
 
-            Clear(); 
+            Clear();
             CurrentScanId = scanId;
             CurrentScanInfo = exp.GetScanInfo(scanId);
             ImageMaxBits = exp.GetExperimentInfo().IntensityBits;
             CurrentDataMgr = ServiceLocator.Current.GetInstance<IData>();
+            CurrentConponentService = ServiceLocator.Current.GetInstance<IComponentDataService>();
 
             ClearImagesDic();
             CurrentImages = new Dictionary<string, ImageData>();
@@ -97,7 +107,7 @@ namespace ThorCyte.ProtocolModule.Models
                             ModuleBase module;
                             if (reader.Name == "combination-module")
                             {
-                                throw new CyteException("Macro.Load","Combination module does not support yet.");
+                                throw new CyteException("Macro.Load", "Combination module does not support yet.");
                             }
                             var info = ModuleInfoMgr.GetModuleInfo(reader["name"]);
                             if (info == null)
@@ -203,32 +213,89 @@ namespace ThorCyte.ProtocolModule.Models
 
         public static void Run()
         {
-            //Find the Experiment module.
-            var expMod = Modules.FirstOrDefault(m => m is ChannelModVm);
-            if (expMod == null) return;
+            if (!CheckExecutable()) return;
 
-            foreach (var region in CurrentScanInfo.ScanRegionList)
+
+            _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
+            _tAnalyzeImg.Start();
+        }
+
+        private static bool CheckExecutable()
+        {
+            var ret = !(_tAnalyzeImg != null && _tAnalyzeImg.IsAlive);
+            if (!Modules.Any(m => m is ChannelModVm))
             {
-                CurrentRegionId = region.RegionId;
+                ret = false;
+            }
 
-                foreach (var tile in region.ScanFieldList)
+            if (Modules.Any(m => !m.Executable))
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
+
+        public static void Stop()
+        {
+            if (_tAnalyzeImg == null) return;
+            if (_tAnalyzeImg.IsAlive)
+            {
+                lock (Syncobj)
                 {
-                    CurrentTileId = tile.ScanFieldId;
-                    //enable images Dic
-                    GetImagesDic();
-                    expMod.Execute();
-                    ClearImagesDic();
-
-                    Debug.WriteLine("Region ID " + CurrentRegionId);
-                    Debug.WriteLine("Field ID " + CurrentTileId);
-
+                    _isAborting = true;
                 }
             }
         }
 
+        public static void AnalyzeImage()
+        {
+            try
+            {
+                foreach (var region in CurrentScanInfo.ScanRegionList)
+                {
+                    CurrentRegionId = region.RegionId;
+
+                    foreach (var tile in region.ScanFieldList)
+                    {
+                        CurrentTileId = tile.ScanFieldId;
+
+                        GetImagesDic();
+                        //find all channel module 
+                        foreach (var mod in Modules.Where(m => m is ChannelModVm))
+                        {
+                            mod.Execute();
+                            Debug.WriteLine("-------------------------------------------");
+                            Debug.WriteLine("Region: {0}", CurrentRegionId);
+                            Debug.WriteLine("Tile: {0}", CurrentTileId);
+                            Debug.WriteLine(string.Format("Channel: {0}", ((ChannelModVm)mod).SelectedChannel));
+                        }
+                        //wait all channel executed here
+                        ClearImagesDic();
+                        if (_isAborting)
+                            break;
+                    }
+                    if (_isAborting)
+                        break;
+                }
+
+                if (_imageanalyzed != null) _imageanalyzed();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Errorr occourred in Analyze Image: " + ex.Message);
+            }
+            
+        }
+
+        public static void ImageAnalyzed()
+        {
+            if (_isAborting) _isAborting = false;
 
 
-
+            Debug.WriteLine("All images analyzed!");
+        }
 
         private static void ClearImagesDic()
         {
@@ -330,10 +397,6 @@ namespace ThorCyte.ProtocolModule.Models
             }
             return result;
         }
-
-
-
-
         #endregion
     }
 }
