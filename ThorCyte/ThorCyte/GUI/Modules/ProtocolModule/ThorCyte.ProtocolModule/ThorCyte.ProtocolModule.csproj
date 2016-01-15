@@ -118,6 +118,7 @@
     <Compile Include="Utils\CollectionItemsChangedEventArgs.cs" />
     <Compile Include="Utils\GlobalConst.cs" />
     <Compile Include="Utils\ImpObservableCollection.cs" />
+    <Compile Include="Utils\RequiredValidationRule.cs" />
     <Compile Include="Utils\VisualUtils.cs" />
     <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />

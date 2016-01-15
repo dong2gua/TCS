@@ -120,6 +120,9 @@
                 <Button Margin="5,2,0,2"  Padding="-1" >
                     <Image Source="../Resource/Images/initialize.png"/>
                 </Button>
+
+                <Button Margin="5,2,0,2"  Padding="-1" Content="Save" Command="{Binding SaveMacroCommand}"/>
+
             </StackPanel>
         </Border>
 
@@ -148,10 +151,14 @@
 
         <!--Canvas: Create Module-->
         <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="CadetBlue" >
-            <control:PannelView x:Name="pannel" Background="LightCyan" PreviewKeyDown="PannelKeyDown" Width="{Binding ElementName=PannelBorder, Path=ActualWidth}" Height="{Binding ElementName=PannelBorder,Path=ActualHeight}"
+            <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="{Binding ElementName=PannelBorder,Path=ActualHeight}" Width="{Binding ElementName=PannelBorder,Path=ActualWidth}">
+                <control:PannelView x:Name="pannel" Background="LightCyan" PreviewKeyDown="PannelKeyDown" 
+                                    Width="{Binding ElementName=Scroll, Path=ActualWidth}" 
+                                    Height="{Binding ElementName=Scroll,Path=ActualHeight}"
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
                             ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown" PreviewMouseLeftButtonUp="OnMouseLeftUp"/>
+            </ScrollViewer>
         </Border>
 
         <GridSplitter x:Name="splitter2" Grid.Column="3" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
@@ -189,14 +196,14 @@
                 </StackPanel>
             </ScrollViewer>
         </Border>
-        
+
         <StatusBar x:Name="statBar" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5" BorderBrush="CadetBlue" BorderThickness="1" Margin="0,2,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <TextBlock Grid.Column="0" Text="{Binding PannelVm.StatusMessage}"/>
                 <!--<TextBlock Grid.Column="1" Text="{Binding PannelVm.StatusMessage}"/>-->
 

@@ -175,10 +175,12 @@ namespace ThorCyte.ProtocolModule.Views
         private void OnMouseLeftUp(object sender, MouseButtonEventArgs e)
         {
             var isModule = IsChildInTree((DependencyObject)e.OriginalSource, typeof(Module));
+
             if (isModule)
             {
                 var vm = ViewModel.GetSelectedModule();
                 ViewModel.PannelVm.SelectedModuleViewModel = vm;
+
             }
             else
             {

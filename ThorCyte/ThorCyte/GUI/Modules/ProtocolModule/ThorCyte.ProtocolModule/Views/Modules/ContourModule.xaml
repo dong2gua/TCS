@@ -5,11 +5,29 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converts="clr-namespace:ThorCyte.ProtocolModule.Converts"
              xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+             xmlns:utils="clr-namespace:ThorCyte.ProtocolModule.Utils"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <converts:AreaTypeConvert x:Key="AreaCvt"/>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibleCvt"/>
+
+        <ControlTemplate x:Key="CtTextBoxRequired">
+            <DockPanel>
+                <AdornedElementPlaceholder/>
+            </DockPanel>
+        </ControlTemplate>
+
+        <Style x:Key="StyleTextBoxError" TargetType="{x:Type TextBox}">
+            <Setter Property="Margin" Value="10,5,20,5" />
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+					Value="{Binding RelativeSource={x:Static RelativeSource.Self},Path=(Validation.Errors)[0].ErrorContent}" />
+                    <Setter Property="Background"  Value="Orange" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
     </UserControl.Resources>
     <Expander Header="Contour" IsExpanded="True">
         <StackPanel>
@@ -19,7 +37,15 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Margin="2" Content="Component name :"/>
-                <TextBox Grid.Column="1" Margin="2" Text="{Binding ComponentName}"/>
+                <TextBox x:Name="TxtConponent"  Grid.Column="1" Margin="2" Validation.ErrorTemplate="{StaticResource CtTextBoxRequired}" Style="{StaticResource StyleTextBoxError}" PreviewGotKeyboardFocus="txt_ConponentFocus">
+                    <TextBox.Text>
+                        <Binding Path="ComponentName" UpdateSourceTrigger="PropertyChanged" >
+                            <Binding.ValidationRules>
+                                <utils:RequiredValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
             </Grid>
             <GroupBox Header="Min area">
                 <Grid>
@@ -27,7 +53,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <xctk:DoubleUpDown Grid.Column="0" Margin="2" Value="{Binding MinArea}" Minimum="0" Maximum="999999" />
+                    <xctk:DoubleUpDown Grid.Column="0" Margin="2" AllowTextInput="True" Value="{Binding MinArea}" Minimum="0" Maximum="999999" />
                     <Grid Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
@@ -49,7 +75,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <xctk:DoubleUpDown Value="{Binding MaxArea}" Minimum="0" Maximum="999999"/>
+                        <xctk:DoubleUpDown Value="{Binding MaxArea}"  AllowTextInput="True" Minimum="0" Maximum="999999"/>
 
                         <Grid Grid.Column="1">
                             <Grid.ColumnDefinitions>
@@ -63,15 +89,9 @@
                         </Grid>
                     </Grid>
                 </GroupBox>
-
             </Expander>
-            
             <CheckBox Content="Follow concave contour" Margin="2" IsChecked="{Binding IsConcaveChecked}"/>
             <CheckBox Content="Contour across boundary" Margin="2" IsChecked="{Binding IsBoundaryChecked}"/>
-
-            <GroupBox Header="Drawing">
-
-            </GroupBox>
         </StackPanel>
     </Expander>
 </UserControl>

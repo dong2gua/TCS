@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -9,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ProtocolModule.Events;
 using ThorCyte.ProtocolModule.Utils;
+using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.Controls
 {
@@ -558,6 +560,8 @@ namespace ThorCyte.ProtocolModule.Controls
                 {
                     rect.Intersect(modulerect);
                 }
+                
+
             }
 
             BringIntoView(rect);
@@ -686,6 +690,7 @@ namespace ThorCyte.ProtocolModule.Controls
                     // Populate 'Modules' from 'ModuleSource'.
                     foreach (object obj in enumerable)
                     {
+
                         c.Modules.Add(obj);
                     }
                 }
@@ -697,6 +702,8 @@ namespace ThorCyte.ProtocolModule.Controls
                     notifyCollectionChanged.CollectionChanged += c.NodesSource_CollectionChanged;
                 }
             }
+
+
         }
 
         /// <summary>
@@ -730,6 +737,7 @@ namespace ThorCyte.ProtocolModule.Controls
                 }
             }
         }
+
 
         /// <summary>
         /// Event raised when a new collection has been assigned to the 'ConnectionsSource' property.
@@ -847,6 +855,7 @@ namespace ThorCyte.ProtocolModule.Controls
             {
                 throw new ApplicationException("Failed to find 'PART_dragSelectionBorder' in the visual tree for 'NetworkView'.");
             }
+
         }
 
         /// <summary>
@@ -896,7 +905,7 @@ namespace ThorCyte.ProtocolModule.Controls
         /// Otherwise '_module' can actually be a 'ModuleVmBase' in which case it is 
         /// simply returned.
         /// </summary>
-        internal Module FindAssociatedNodeItem(object node)
+        public Module FindAssociatedNodeItem(object node)
         {
             var module = node as Module ?? _moduleItemsControl.FindAssociatedModule(node);
             return module;

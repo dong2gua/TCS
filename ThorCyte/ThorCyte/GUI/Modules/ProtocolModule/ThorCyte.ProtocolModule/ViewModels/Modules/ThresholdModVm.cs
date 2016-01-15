@@ -183,6 +183,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             InputPorts[0].ParentModule = this;
             OutputPort.DataType = PortDataType.BinaryImage;
             OutputPort.ParentModule = this;
+            Method = ThresholdMethod.Otsu;
         }
 
         public override void OnExecute()

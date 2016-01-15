@@ -28,11 +28,11 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     return;
                 }
 
-                if (value.Trim() == string.Empty)
+                if (value.Trim() != string.Empty)
                 {
-                    Executable = false;
-                    return;
+                    Executable = true;
                 }
+
                 SetProperty(ref _componentName, value);
                 OnPropertyChanged("CaptionString");
 
@@ -150,6 +150,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             IsMaxAreaChecked = true;
             MinArea = 10;
             MaxArea = 50;
+            MinAreaUnit = UnitType.Micron;
+            MaxAreaUnit = UnitType.Micron;
+            Executable = false;
         }
 
         #endregion
@@ -157,7 +160,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         #region Methods
 
         private void SetComponentFeatures()
-        {
+        {                
             Macro.CurrentConponentService.SetComponent(_componentName, new List<Feature>
             {
                 new Feature(FeatureType.Area),
@@ -208,10 +211,45 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         {
             _img = InputImage;
             SetComponentFeatures();
+
+            var min = UnitConversion(MinArea, MinAreaUnit, UnitType.Micron);
+            var max = UnitConversion(MaxArea, MaxAreaUnit, UnitType.Micron);
+
             Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId, Macro.CurrentScanId,
-                Macro.CurrentTileId, _img, MinArea, MaxArea);
+                Macro.CurrentTileId, _img, min, max);
 
             _img.Dispose();
+        }
+
+        private double UnitConversion(double sourceValue, UnitType sourceUnit, UnitType destUnit)
+        {
+            var res = -1.0;
+            switch (destUnit)
+            {
+                 case UnitType.Mm:
+                    switch (sourceUnit)
+                    {
+                        case UnitType.Mm:
+                            res = sourceValue;
+                            break;
+                        case UnitType.Micron:
+                            res = sourceValue/1000;
+                            break;
+                    }
+                    break;
+                 case UnitType.Micron:
+                    switch (sourceUnit)
+                    {
+                        case UnitType.Mm:
+                            res = sourceValue*1000;
+                            break;
+                        case UnitType.Micron:
+                            res = sourceValue;
+                            break;
+                    }
+                    break;
+            }
+            return res;
         }
 
         public override void OnSerialize(XmlWriter writer)

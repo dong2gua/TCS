@@ -53,15 +53,26 @@ namespace ThorCyte.ProtocolModule.Controls
             // Update the position of the _module within the Canvas.
             foreach (var nodeItem in _cachedSelectedNodeItems)
             {
-                double temp = nodeItem.X + e.HorizontalChange;
+                var temp = nodeItem.X + e.HorizontalChange;
+
                 if (temp >= 0 && (temp + nodeItem.ActualWidth) <= ActualWidth)
                 {
+                    nodeItem.X = temp;
+                }
+                else if (temp >= 0)
+                {
+                    Width = (temp + nodeItem.ActualWidth);
                     nodeItem.X = temp;
                 }
                 temp = nodeItem.Y + e.VerticalChange;
 
                 if (temp >= 0 && (temp + nodeItem.ActualHeight) <= ActualHeight)
                 {
+                    nodeItem.Y = temp;
+                }
+                else if (temp >= 0)
+                {
+                    Height = (temp + nodeItem.ActualHeight);
                     nodeItem.Y = temp;
                 }
             }
