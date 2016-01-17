@@ -178,9 +178,9 @@ namespace ThorCyte.ProtocolModule.Controls
             if (_isDragging)
             {
                 // Raise the event to notify that dragging is in progress.
-                Point curMousePoint = e.GetPosition(ParentPannelView);
-                Vector offset = curMousePoint - _lastMousePoint;
-                if (offset.X != 0.0 && offset.Y != 0.0)
+                var curMousePoint = e.GetPosition(ParentPannelView);
+                var offset = curMousePoint - _lastMousePoint;
+                if (offset.X != 0.0 || offset.Y != 0.0)
                 {
                     _lastMousePoint = curMousePoint;
                     RaiseEvent(new ConnectorItemDraggingEventArgs(ConnectorDraggingEvent, this, offset.X, offset.Y));

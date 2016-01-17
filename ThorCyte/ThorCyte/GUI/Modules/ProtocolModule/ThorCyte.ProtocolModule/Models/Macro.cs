@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Xml;
@@ -163,6 +165,50 @@ namespace ThorCyte.ProtocolModule.Models
                 }
             }
         }
+
+
+        /// <summary>
+        /// Save Protocol data.
+        /// </summary>
+        public static void Save()
+        {
+            //Find file directory
+            if (!Directory.Exists(CurrentScanInfo.DataPath)) 
+                throw new CyteException("Macro.Save", string.Format("Destination directory ({0}) not found!", CurrentScanInfo.DataPath));
+
+            var dir = CurrentScanInfo.DataPath + @"\Analysis";
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            var sr = new StreamWriter(dir + @"\Protocol.xml");
+            var settings = new XmlWriterSettings
+            {
+                //Indent = true,
+                //IndentChars = "  ",
+                NewLineOnAttributes = true
+            };
+            var writer = XmlWriter.Create(sr,settings);
+            writer.WriteStartDocument(false);
+            writer.WriteStartElement("Macro");
+            writer.WriteStartElement("modules");
+            foreach (var m in Modules)
+            {
+                m.Serialize(writer);
+            }
+            writer.WriteEndElement();
+
+            writer.WriteStartElement("connectors");
+            foreach (var c in Connections)
+            {
+                c.Serialize(writer);
+            }
+            writer.WriteEndElement();
+            writer.WriteEndElement();
+            writer.WriteEndDocument();
+            writer.Close();
+            sr.Close();
+        }
+
 
         public static ModuleBase CreateModule(ModuleInfo modInfo)
         {

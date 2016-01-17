@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -53,6 +54,7 @@ namespace ThorCyte.ProtocolModule.Controls
         static Module()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(Module), new FrameworkPropertyMetadata(typeof(Module)));
+
         }
 
         #endregion
@@ -349,6 +351,8 @@ namespace ThorCyte.ProtocolModule.Controls
             var nodeItem = (Module)o;
             nodeItem.BringToFront();
         }
+
+
 
         #endregion
     }
