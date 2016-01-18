@@ -14,8 +14,8 @@
         <Expander Header="Experiment Information" Margin="0,2,0,2" IsExpanded="{Binding IsInitialized, Mode=OneWay}">
                 <Grid Margin="6,0,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.3*"/>
-                        <ColumnDefinition Width="0.7*"/>
+                        <ColumnDefinition Width="0.32*"/>
+                        <ColumnDefinition Width="0.68*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"></RowDefinition>
@@ -36,7 +36,7 @@
                     <Label Grid.Row="4" Grid.Column="0" Content="Version:"></Label>
                     <Label Grid.Row="4" Grid.Column="1" Content="{Binding CurrentExperiment.SoftwareVersion}"></Label>
                     <Label Grid.Row="5" Grid.Column="0" Content="Notes:"></Label>
-                    <Label Grid.Row="5" Grid.Column="1" Content="{Binding CurrentExperiment.Notes}"></Label>
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CurrentExperiment.Notes}" TextWrapping="Wrap"></TextBlock>
             </Grid> 
             </Expander>
         <Expander Header="ScanInfo" IsExpanded="{Binding IsInitialized, Mode=OneWay}">
@@ -56,7 +56,7 @@
                         </Grid.ColumnDefinitions>
                     <Label  Grid.Column="0" Content="Channels:"></Label>
                     <StackPanel  Grid.Column="1">
-                        <ListBox ItemsSource="{Binding CurrentScanInfo.ChannelList}">
+                        <ListBox ItemsSource="{Binding CurrentScanInfo.ChannelList}" Width="200" HorizontalAlignment="Left">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -69,7 +69,7 @@
                         </ListBox>
                     </StackPanel>
                 </Grid>
-                <Grid Margin="0,0,0,2" Visibility="{Binding CurrentScanInfo.StreamFrameCount, Converter={StaticResource intToVisibility}}">
+                    <Grid Margin="0,0,0,2" Visibility="{Binding StreamCount, Converter={StaticResource intToVisibility}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.32*"/>
                         <ColumnDefinition Width="0.68*"/>
@@ -80,11 +80,11 @@
                     </Grid.RowDefinitions>
                     <Label Grid.Column="0" Content="Stream Frames:"></Label>
                     <Label Grid.Column="1" Content="{Binding CurrentScanInfo.StreamFrameCount}"></Label>
-                    <Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>
+                    <!--<Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>-->
                     <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding StreamIndex, Mode=TwoWay}"
-                                      Minimum="1" Maximum="{Binding CurrentScanInfo.StreamFrameCount}"/>
+                                      Minimum="1" Maximum="{Binding CurrentScanInfo.StreamFrameCount}" Width="200" HorizontalAlignment="Left"/>
                 </Grid>
-                <Grid Margin="0,0,0,2" Visibility="{Binding CurrentScanInfo.TimingFrameCount, Converter={StaticResource intToVisibility} }">
+                    <Grid Margin="0,0,0,2" Visibility="{Binding TimeFrameCount, Converter={StaticResource intToVisibility} }">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.32*"/>
                         <ColumnDefinition Width="0.68*"/>
@@ -95,11 +95,11 @@
                     </Grid.RowDefinitions>
                     <Label Grid.Column="0" Content="Time Frames:"></Label>
                     <Label Grid.Column="1" Content="{Binding CurrentScanInfo.TimingFrameCount}"></Label>
-                    <Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>
+                    <!--<Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>-->
                     <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding TimeIndex, Mode=TwoWay}"
-                                      Minimum="1" Maximum="{Binding CurrentScanInfo.TimingFrameCount}"/>
+                                      Minimum="1" Maximum="{Binding CurrentScanInfo.TimingFrameCount}" Width="200" HorizontalAlignment="Left"/>
                 </Grid>
-                <Grid Margin="0,0,0,2" Visibility="{Binding CurrentScanInfo.ThirdDimensionSteps, Converter={StaticResource intToVisibility} }">
+                    <Grid Margin="0,0,0,2" Visibility="{Binding ThirdFrameCount, Converter={StaticResource intToVisibility} }">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.32*"/>
                         <ColumnDefinition Width="0.68*"/>
@@ -110,9 +110,9 @@
                     </Grid.RowDefinitions>
                     <Label Grid.Column="0" Content="Z Steps:"></Label>
                     <Label Grid.Column="1" Content="{Binding CurrentScanInfo.ThirdDimensionSteps}"></Label>
-                    <Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>
+                    <!--<Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>-->
                     <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding ThirdIndex, Mode=TwoWay}"
-                                      Minimum="1" Maximum="{Binding CurrentScanInfo.ThirdDimensionSteps}"/>
+                                      Minimum="1" Maximum="{Binding CurrentScanInfo.ThirdDimensionSteps}" Width="200" HorizontalAlignment="Left"/>
                 </Grid>
             </StackPanel>
             </Expander>

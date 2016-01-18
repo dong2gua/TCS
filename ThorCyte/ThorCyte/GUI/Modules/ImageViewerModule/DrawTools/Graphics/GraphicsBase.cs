@@ -21,15 +21,15 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         protected DrawingCanvas Canvas;
         protected double HandleSize
         {
-            get { return 12.0 / ActualScale.Item1; }
+            get { return 12.0 ; }
         }
         protected double GraphicsLineWidth
         {
-            get { return 2.0 / ActualScale.Item1; }
+            get { return 2.0 ; }
         }
         protected double LineHitTestWidth
         {
-            get { return 6.0 / ActualScale.Item1; }
+            get { return 6.0; }
         }
         public bool IsSelected
         {
@@ -49,16 +49,12 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                 RefreshDrawing();
             }
         }
-        public Tuple<double, double, double> ActualScale
+        public virtual Tuple<double, double, double> ActualScale
         {
             get { return GraphicsActualScale; }
             set
             {
                 GraphicsActualScale = value;
-                var st = this.Transform as ScaleTransform;
-                if (st == null) return;
-                st.ScaleX = GraphicsActualScale.Item1;
-                st.ScaleY = GraphicsActualScale.Item2;
             }
         }
         public Rect Rectangle
@@ -192,19 +188,29 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         protected Rect ConvertToDisplayRect(Rect actualRect)
         {
             var canvasRect = Canvas.CanvasDisplyRect;
-            var scale = Canvas.ActualScale.Item3;
-            var x = (actualRect.X - canvasRect.X) * scale;
-            var y = (actualRect.Y - canvasRect.Y) * scale;
-            var width = actualRect.Width * scale;
-            var height = actualRect.Height * scale;
+            var scale = Canvas.ActualScale;
+            var x = (actualRect.X - canvasRect.X) * scale.Item3* scale.Item1;
+            var y = (actualRect.Y - canvasRect.Y) * scale.Item3 * scale.Item2;
+            var width = actualRect.Width * scale.Item3 * scale.Item1;
+            var height = actualRect.Height * scale.Item3 * scale.Item2;
+            return new Rect(x, y, width, height);
+        }
+        protected Rect ConvertToDisplayRectWithVisualScale(Rect actualRect)
+        {
+            var canvasRect = Canvas.CanvasDisplyRect;
+            var scale = Canvas.ActualScale;
+            var x = (actualRect.X - canvasRect.X) * scale.Item3;
+            var y = (actualRect.Y - canvasRect.Y) * scale.Item3;
+            var width = actualRect.Width * scale.Item3;
+            var height = actualRect.Height * scale.Item3;
             return new Rect(x, y, width, height);
         }
         protected Point ConvertToDisplayPoint(Point actualPoint)
         {
             var canvasRect = Canvas.CanvasDisplyRect;
-            var scale = Canvas.ActualScale.Item3;
-            var x = (actualPoint.X - canvasRect.X) * scale;
-            var y = (actualPoint.Y - canvasRect.Y) * scale;
+            var scale = Canvas.ActualScale;
+            var x = (actualPoint.X - canvasRect.X) * scale.Item3 * scale.Item1;
+            var y = (actualPoint.Y - canvasRect.Y) * scale.Item3 * scale.Item2;
             return new Point(x, y);
         }
     }

@@ -46,13 +46,13 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             }
             displayLength = textLength * unitC * ActualScale.Item3/ XPixelSize;
 
-            var start = new Point(Point.X / ActualScale.Item1 , Point.Y / ActualScale.Item2);
-            var end = new Point(Point.X / ActualScale.Item1 + displayLength, Point.Y / ActualScale.Item2);
+            var start = new Point(Point.X , Point.Y);
+            var end = new Point(Point.X  + displayLength, Point.Y );
             drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), start, end);
-            drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth),new Point( start.X,start.Y-5/ActualScale.Item2), start);
-            drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), new Point(end.X, end.Y - 5 / ActualScale.Item2), end);
+            drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth),new Point( start.X,start.Y-5), start);
+            drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), new Point(end.X, end.Y - 5 ), end);
             var format = GetFormattedText(textLength.ToString()+" "+unit);
-            var textPoint = new Point(Point.X / ActualScale.Item1 + displayLength/2 - format.Width/2 , (Point.Y - 20) / ActualScale.Item2);
+            var textPoint = new Point(Point.X  + displayLength/2 - format.Width/2 , (Point.Y - 20));
             drawingContext.DrawText(format, textPoint);
 
         }
@@ -62,7 +62,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 
             return new FormattedText(text, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                 typeface,
-                16 / ActualScale.Item1,
+                16 ,
                 new SolidColorBrush(GraphicsObjectColor));
         }
         public override int HandleCount { get { return 0; } }

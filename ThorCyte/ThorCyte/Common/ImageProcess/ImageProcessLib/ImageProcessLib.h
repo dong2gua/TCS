@@ -49,4 +49,8 @@ IPP_LIB_API int fnipp_lib_threshold_16uC1(unsigned short* srcBuffer, int width, 
 
 IPP_LIB_API int fnipp_lib_otsuThreshold_16uC1(unsigned short* srcBuffer, int width, int height, unsigned short* dstBuffer);
 
+IPP_LIB_API int fnipp_lib_dilate_16uC1(unsigned short* srcBuffer, int width, int height, int maskSize, unsigned short* dstBuffer);
+
+IPP_LIB_API int fnipp_lib_sum_16uC1M(unsigned short* buffer, int width, int height, unsigned char* mask, int maskStep,  double* sum);
+
 IppStatus saturate(unsigned short* buffer, int width, int height, int channels, unsigned short maxValue);

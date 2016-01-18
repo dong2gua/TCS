@@ -30,7 +30,7 @@ namespace ThorCyte.AnalysisModule
 
         private void EventHandler(string moduleName)
         {
-            if (moduleName == "AnalysisMoudel")
+            if (moduleName == "AnalysisModule")
             {
                 IRegion mainRegion = _regionManager.Regions[RegionNames.MainRegion];
                 foreach (object view in new List<object>(mainRegion.Views))

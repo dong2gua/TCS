@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -10,7 +9,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ProtocolModule.Events;
 using ThorCyte.ProtocolModule.Utils;
-using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.Controls
 {
@@ -478,6 +476,8 @@ namespace ThorCyte.ProtocolModule.Controls
             AddHandler(Port.ConnectorDragStartedEvent, new ConnectorItemDragStartedEventHandler(ConnectorItem_DragStarted));
             AddHandler(Port.ConnectorDraggingEvent, new ConnectorItemDraggingEventHandler(ConnectorItem_Dragging));
             AddHandler(Port.ConnectorDragCompletedEvent, new ConnectorItemDragCompletedEventHandler(ConnectorItem_DragCompleted));
+
+            Module.Resize += Resize;
         }
 
 
@@ -909,6 +909,37 @@ namespace ThorCyte.ProtocolModule.Controls
         {
             var module = node as Module ?? _moduleItemsControl.FindAssociatedModule(node);
             return module;
+        }
+
+
+        /// <summary>
+        /// Resize pannel min width/height
+        /// </summary>
+        /// <param name="w">width</param>
+        /// <param name="h">height</param>
+        private void Resize(double w, double h)
+        {
+            if (double.IsNaN(MinWidth))
+            {
+                MinWidth = ActualWidth;
+            }
+
+            if (double.IsNaN(MinHeight))
+            {
+                MinHeight = ActualHeight;
+            }
+
+            
+            if (w > MinWidth)
+            {
+                MinWidth = w;
+            }
+
+            if (h > MinHeight)
+            {
+                MinHeight = h;
+            }
+
         }
 
         #endregion

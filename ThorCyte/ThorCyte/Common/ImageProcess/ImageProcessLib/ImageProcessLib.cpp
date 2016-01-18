@@ -378,15 +378,16 @@ IPP_LIB_API int fnipp_lib_threshold_16uC1(unsigned short* srcBuffer, int width, 
 
 IPP_LIB_API int fnipp_lib_otsuThreshold_16uC1(unsigned short* srcBuffer, int width, int height, unsigned short* dstBuffer)
 {
-	Ipp8u* srcBuffer8u = ippsMalloc_8u(width * height);
-	const int srcStep = width * height * sizeof(unsigned short);
-	const int src8uStep = width * height;
+	int src8uStep = 0;
+	Ipp8u* srcBuffer8u = ippiMalloc_8u_C1(width , height, & src8uStep);
+	const int srcStep = width * sizeof(unsigned short);
+
 	const IppiSize roi = {width, height};
 	IppStatus status = ippiConvert_16u8u_C1R(srcBuffer, srcStep, srcBuffer8u, src8uStep, roi);
 	Ipp8u threshold = 0;
 	if(status != ippStsNoErr) 
 	{
-		ippFree(srcBuffer8u);
+		ippiFree(srcBuffer8u);
 		return status;
 	}
 	else
@@ -394,24 +395,68 @@ IPP_LIB_API int fnipp_lib_otsuThreshold_16uC1(unsigned short* srcBuffer, int wid
 		status = ippiComputeThreshold_Otsu_8u_C1R(srcBuffer8u, src8uStep, roi, &threshold);
 		if(status != ippStsNoErr)
 		{
-			ippFree(srcBuffer8u);
+			ippiFree(srcBuffer8u);
 			return status;
 		}
 		else
 		{
-			status = (IppStatus)fnipp_lib_threshold_16uC1(srcBuffer, width, height, unsigned short(threshold<<8), dstBuffer);
-			ippFree(srcBuffer8u);
+			status = (IppStatus)fnipp_lib_threshold_16uC1(srcBuffer, width, height, 
+														unsigned short(threshold<<8), dstBuffer);
+			ippiFree(srcBuffer8u);
 			return status;
 		}
 	}
 }
 
+IPP_LIB_API int fnipp_lib_dilate_16uC1(unsigned short* srcBuffer, int width,
+									   int height, int maskSize, unsigned short* dstBuffer)
+{
+	const int anchorX = maskSize/2;
+	const int anchorY = anchorX;
+	const int offsetTop = anchorY;
+	const int offsetLeft = anchorX;
+	const int offsetRight = maskSize - anchorX - 1;
+	const int offsetBottom = maskSize - anchorY - 1;
+	const int elementSize = sizeof(unsigned short);
+	const IppiPoint anchor = {anchorX, anchorY};
+	const IppiSize ippMaskSize = {maskSize, maskSize};
+	const IppiSize innerRoi = {width + offsetLeft + offsetRight, height + offsetTop + offsetBottom};
+	const IppiSize roi = {width, height};	
+	const int step = width * elementSize;
+	int srcStep = 0;
+	int maskStep = 0;
+	Ipp16u* innerSrcBuffer = ippiMalloc_16u_C1(innerRoi.width , innerRoi.height, &srcStep);	
+	Ipp8u* mask = ippiMalloc_8u_C1(maskSize,  maskSize, &maskStep);
+	memset(mask,1, maskStep * maskSize);
+	const int srcElementPerLine = srcStep / elementSize;
+	IppStatus status = ippiCopyConstBorder_16u_C1R(srcBuffer, step, roi, innerSrcBuffer, 
+												srcStep,innerRoi, offsetTop, offsetLeft, 0); 
+	status = ippiDilate_16u_C1R(&innerSrcBuffer[srcElementPerLine*offsetTop+offsetLeft], srcStep, 
+		dstBuffer, step, roi, mask, ippMaskSize, anchor);
+	ippiFree(innerSrcBuffer);
+	return status;
+}
+
+
+IPP_LIB_API int fnipp_lib_sum_16uC1M(unsigned short* buffer, int width, int height, unsigned char* mask, int maskStep, double* sum)
+{
+	int maskedBufferStep = 0;
+	Ipp16u* maskedBuffer = ippiMalloc_16u_C1(width, height, &maskedBufferStep);
+	const int srcStep = width * sizeof(unsigned short);
+	memset(maskedBuffer, 0, maskedBufferStep * height);
+	const IppiSize roi = {width, height};
+	IppStatus status = ippiCopy_16u_C1MR(buffer,srcStep, maskedBuffer, maskedBufferStep, roi, mask, maskStep);
+	status = ippiSum_16u_C1R(maskedBuffer, maskedBufferStep, roi, sum);
+	return status;
+}
+
+
 IppStatus saturate(unsigned short* buffer, int width, int height, int channels, unsigned short maxValue)
 {
 	const IppiSize roi = {width, height};
 	const int step = width * channels * sizeof(unsigned short);
-	const int maskStep  = width;
-	Ipp8u* mask = ippsMalloc_8u(width * height);
+	int maskStep  = 0;
+	Ipp8u* mask = ippiMalloc_8u_C1(width , height, &maskStep);
 	IppStatus status = ippStsNoErr;
 	switch (channels)
 	{
@@ -424,18 +469,12 @@ IppStatus saturate(unsigned short* buffer, int width, int height, int channels, 
 		}
 		case 3:
 		{
-			/*Ipp16u maxValueArray[3] = {maxValue, maxValue, maxValue};
-			status = ippiCompareC_16u_C3R(buffer, step, maxValueArray, mask, maskStep,roi, ippCmpGreater);
-			if(status == ippStsNoErr)
-				status = ippiSet_16u_C3MR(maxValueArray, buffer, step, roi, mask, maskStep);
-			else
-				return status;
-			break;*/
+		
 			Ipp16u* pDst[3];
-			const int dstStep = width * sizeof(unsigned short);
-			pDst[0] = ippsMalloc_16u(width * height);
-			pDst[1] = ippsMalloc_16u(width * height);
-			pDst[2] = ippsMalloc_16u(width * height);
+			int dstStep = 0;
+			pDst[0] = ippiMalloc_16u_C1(width , height, &dstStep);
+			pDst[1] = ippiMalloc_16u_C1(width , height, &dstStep);
+			pDst[2] = ippiMalloc_16u_C1(width , height, &dstStep);
 			status = ippiCopy_16u_C3P3R(buffer, step, pDst, dstStep, roi);
 			if(status==ippStsNoErr)
 			{
@@ -457,7 +496,6 @@ IppStatus saturate(unsigned short* buffer, int width, int height, int channels, 
 		}
 			
 	}
-	ippFree(mask);
-	
+	ippiFree(mask);	
 	return status;
 }

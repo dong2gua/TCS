@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ComponentDataService">
+      <HintPath>..\..\..\..\Bin\ComponentDataService.dll</HintPath>
+    </Reference>
     <Reference Include="ImageProcess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Bin\ImageProcess.dll</HintPath>
@@ -74,10 +77,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="ThorComponentDataService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\TestProtocol\temp\ThorComponentDataService.dll</HintPath>
-    </Reference>
     <Reference Include="ThorCyte.Infrastructure">
       <HintPath>..\..\..\..\Bin\ThorCyte.Infrastructure.dll</HintPath>
     </Reference>
@@ -118,6 +117,7 @@
     <Compile Include="Utils\CollectionItemsChangedEventArgs.cs" />
     <Compile Include="Utils\GlobalConst.cs" />
     <Compile Include="Utils\ImpObservableCollection.cs" />
+    <Compile Include="Utils\MessageHelper.cs" />
     <Compile Include="Utils\RequiredValidationRule.cs" />
     <Compile Include="Utils\VisualUtils.cs" />
     <Compile Include="ViewModels\MarcoEditorViewModel.cs" />

@@ -5,8 +5,16 @@ namespace ImageProcess.DataType
     public struct VLine
     {
         public static VLine Empty = new VLine(0, 0, 0);
-        public VLine(ushort x, ushort y1, ushort y2) { this.X = x; this.Y1 = y1; this.Y2 = y2; }
-        public VLine(int x, int y1, int y2) { this.X = x; this.Y1 = y1; this.Y2 = y2; }
+        public VLine(ushort x, ushort y1, ushort y2) { X = x; Y1 = y1; Y2 = y2; }
+        public VLine(int x, int y1, int y2) { X = x; Y1 = y1; Y2 = y2; }
+
+        public VLine(double x, double y1, double y2)
+        {
+            X = (int) x;
+            Y1 = (int) y1;
+            Y2 = (int) y2;
+        }
+
         public int X;
         public int Y1;
         public int Y2;

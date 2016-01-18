@@ -118,7 +118,6 @@
     <Compile Include="DrawTools\Graphics\GraphicsEllipse.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsScaler.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsImage.cs" />
-    <Compile Include="DrawTools\Graphics\GraphicsProfile.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsRuler.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsRectangle.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsLine.cs" />
@@ -128,7 +127,6 @@
     <Compile Include="DrawTools\Tools\ToolDragger.cs" />
     <Compile Include="DrawTools\Tools\ToolEllipse.cs" />
     <Compile Include="DrawTools\Tools\ToolRectangle.cs" />
-    <Compile Include="DrawTools\Tools\ToolLine.cs" />
     <Compile Include="DrawTools\Tools\ToolObject.cs" />
     <Compile Include="DrawTools\Tools\ToolPointer.cs" />
     <Compile Include="DrawTools\Tools\ToolProfile.cs" />
@@ -246,6 +244,9 @@
     <Resource Include="Resources\CurProfile.cur" />
     <Resource Include="Resources\CurRectangle.cur" />
     <Resource Include="Resources\CurRuler.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\collapse.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

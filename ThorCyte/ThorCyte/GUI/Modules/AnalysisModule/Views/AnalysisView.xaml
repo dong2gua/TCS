@@ -6,16 +6,134 @@
              xmlns:regions="http://prismlibrary.com/"
              xmlns:inf="clr-namespace:ThorCyte.Infrastructure.Commom;assembly=ThorCyte.Infrastructure"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
+             d:DesignHeight="800" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="RightArrowStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Background" Value="#595959"/>
+            <Setter Property="Foreground" Value="#EFEFEF"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Grid>
+                            <Path x:Name="geo" Data="F1 M 0.499996,0.500015L 133.156,0.500015L 147.157,16.4427L 133.156,31.8239L 0.499996,31.8239L 15.1567,16.4427L 0.499996,0.500015 Z" Fill="DodgerBlue">
+                                <Path.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Path.RenderTransform>
+                                <Path.Effect>
+                                    <DropShadowEffect ShadowDepth="0" BlurRadius="22" Color="#FF646464"/>
+                                </Path.Effect>
+
+                            </Path>
+                            <ContentPresenter Margin="0,0,0,6" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True"  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter Property="Effect" TargetName="geo">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" Color="White" ShadowDepth="2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Effect" TargetName="geo">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" Color="White" ShadowDepth="2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Effect" TargetName="geo">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" Color="White" ShadowDepth="0"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"/>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HomeArrowStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Background" Value="#595959"/>
+            <Setter Property="Foreground" Value="#EFEFEF"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Grid>
+                            <Path x:Name="geo" Data="F1 M 0.562485,0.513382L 32.5915,0.499985L 46.529,16.25L 32.529,31.75L 0.5,31.7634L 0.562485,0.513382 Z" Fill="DodgerBlue">
+                                <Path.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Path.RenderTransform>
+                                <Path.Effect>
+                                    <DropShadowEffect ShadowDepth="0" BlurRadius="22" Color="#FF646464"/>
+                                </Path.Effect>
+
+                            </Path>
+                            <ContentPresenter Margin="0,0,0,4" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True"  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter Property="Effect" TargetName="geo">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" Color="White" ShadowDepth="2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Effect" TargetName="geo">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" Color="White" ShadowDepth="2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Effect" TargetName="geo">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" Color="White" ShadowDepth="0"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"/>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Border BorderThickness="1" BorderBrush="CadetBlue" CornerRadius="5" >
+    <Grid Margin="5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <!--<ContentControl regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}"/>-->
+        
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <RadioButton GroupName="groupFoo"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="0,0,-6,0" Style="{StaticResource HomeArrowStyle}" IsEnabled="False"></RadioButton>
+            <RadioButton GroupName="groupFoo" Content="Edit Protocol" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="-6,0" FontSize="16" Style="{StaticResource RightArrowStyle}" TabIndex="0" Checked="TabOnChecked"></RadioButton>
+            <RadioButton GroupName="groupFoo" Margin="-6,0" Content="Veiw Result" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="16" Style="{StaticResource RightArrowStyle}" TabIndex="1" Checked="TabOnChecked"></RadioButton>
+            <RadioButton GroupName="groupFoo" Margin="-6,0" Content="Report" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="16" Style="{StaticResource RightArrowStyle}" TabIndex="2" Checked="TabOnChecked"></RadioButton>
+        </StackPanel>
+        
+        <TabControl x:Name="TabControl" Grid.Row="1">
+            <TabItem >
+               <ContentControl DockPanel.Dock="Right" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ProtocolRegion}"/>
+            </TabItem>
+            <TabItem >
+                    <ContentControl DockPanel.Dock="Right" regions:RegionManager.RegionName="{x:Static inf:RegionNames.GraphicRegion}"/>
+                </TabItem>
+            <TabItem ></TabItem>
+        </TabControl>
     </Grid>
+        </Border>
 </UserControl>

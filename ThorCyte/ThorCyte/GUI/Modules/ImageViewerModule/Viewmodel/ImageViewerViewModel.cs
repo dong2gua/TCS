@@ -17,7 +17,10 @@ using ThorCyte.ImageViewerModule.View;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
-
+using System.Xml.Serialization;
+using System.Xml;
+using System.Xml.Linq;
+using System.IO;
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ImageViewerViewModel : BindableBase
@@ -71,17 +74,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             set
             {
                 SetProperty<bool>(ref _isProfile, value, "IsProfile");
-                if (_isProfile)
-                {
-                    if (!_viewportDic[CurrentViewport].IsActive||!_viewportDic[CurrentViewport].IsShown) return;
-                    profileWindow = new ProfileWindow();
-                    profileWindow.DataContext = profileViewModel;
-                    profileWindow.Topmost = true;
-                    profileViewModel.Initialization(_viewportDic[CurrentViewport].CurrentChannelImage);
-                    profileWindow.Show();
-                    profileWindow.Closed += ProfileWindow_Closed;
-                }
-                else
+                if(!_isProfile)
                 {
                     if (profileWindow != null)
                         profileWindow.Close();
@@ -89,11 +82,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             }
         }
 
-        private void ProfileWindow_Closed(object sender, EventArgs e)
-        {
-            IsProfile = false;
-            _currentViewport.drawCanvas.Tool = ToolType.Pointer;
-        }
 
         private List<ViewportView> _viewports;
         public List<ViewportView> Viewports
@@ -173,7 +161,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         private int _scanId;
         private int _regionId;
         private int _tileId;
-        private double _aspectRatio;
         public ICommand DraggerCommand { get; private set; }
         public ICommand DrawRegionCommand { get; private set; }
         public ICommand ZoomCommand { get; private set; }
@@ -208,6 +195,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             eventAggregator.GetEvent<SelectRegionTileEvent>().Subscribe(OnSelectRegionTile);
             eventAggregator.GetEvent<FrameChangedEvent>().Subscribe(OnFrameChanged);
             eventAggregator.GetEvent<UpdateCurrentChannelEvent>().Subscribe(OnUpdateChannel);
+            eventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(SaveChannels);
 
             _viewports = new List<ViewportView>();
             AddVP();
@@ -276,16 +264,15 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _scanId = scanId;
             _scanInfo = _experiment.GetScanInfo(scanId);
             _experimentInfo = _experiment.GetExperimentInfo();
-            _aspectRatio =  _scanInfo.YPixcelSize/ _scanInfo.XPixcelSize;
             _channels = _scanInfo.ChannelList;
             _virtualChannels = _scanInfo.VirtualChannelList;
             _computeColors = _scanInfo.ComputeColorList;
-            MaxBrightness = (int)Math.Pow(2, _experimentInfo.IntensityBits);
+            MaxBrightness = (0x01 << _experimentInfo.IntensityBits) - 1;
             MinBrightness = -1*MaxBrightness;
             IsDragger = false;
             IsRuler = false;
             IsProfile = false;
-            IsAspectRatio = false;
+            IsAspectRatio = true;
             ImageViewEnable = false;
             foreach (var o in _viewports)
             {
@@ -293,15 +280,16 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 o.drawCanvas.Tool = ToolType.Pointer;
                 _viewportDic[o].Clear();
             }
+            LoadChannels();
         }
         private void OnDisplay()
         {
             CurrentViewport.listView.Visibility = Visibility.Visible;
             _viewportDic[CurrentViewport].Initialization(_data, _scanInfo,_experimentInfo, _scanId, _regionId, _tileId);
-            IsDragger = false;
+            IsDragger = true;
             IsProfile = false;
             IsRuler = false;
-            CurrentViewport.drawCanvas.Tool = ToolType.Pointer;
+            CurrentViewport.drawCanvas.Tool = ToolType.Dragger;
             CurrentViewport.drawCanvas.SetPixelSize(_scanInfo.XPixcelSize, _scanInfo.YPixcelSize);
             ImageViewEnable = true;
         }
@@ -311,30 +299,13 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             if (!Enum.TryParse<ToolType>(arg, out type)) return;
             foreach (var o in Viewports)
             {
-                o.drawCanvas.Tool = ToolType.Pointer;
+                o.drawCanvas.Tool =IsDragger?ToolType.Dragger: ToolType.Pointer;
             }
             IsDragger = false;
             IsProfile = false;
             IsRuler = false;
             if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown) return;
             CurrentViewport.drawCanvas.Tool = type;
-        }
-        private void OnDraggerChanged()
-        {
-            if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown)
-            {
-                IsDragger = false;
-                return;
-            }
-            if (IsDragger)
-            {
-                _currentViewport.drawCanvas.Tool = ToolType.Dragger;
-                IsRuler = false;
-                IsProfile = false;
-            }
-            else
-                _currentViewport.drawCanvas.Tool = ToolType.Pointer;
-
         }
         private void OnZoom(string arg)
         {
@@ -353,6 +324,23 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         {
             AddVirtualChannel();
         }
+        private void OnDraggerChanged()
+        {
+            if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown)
+            {
+                IsDragger = false;
+                return;
+            }
+            IsRuler = false;
+            IsProfile = false;
+            if (IsDragger)
+            {
+                _currentViewport.drawCanvas.Tool = ToolType.Dragger;
+            }
+            else
+                _currentViewport.drawCanvas.Tool = ToolType.Pointer;
+
+        }
         private void OnProfile()
         {
             if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown)
@@ -360,19 +348,28 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 IsProfile = false;
                 return;
             }
-
+            IsRuler = false;
             if (IsProfile)
             {
+                if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown) return;
+                profileWindow = new ProfileWindow();
+                profileWindow.DataContext = profileViewModel;
+                profileWindow.Topmost = true;
+                profileViewModel.Initialization(_viewportDic[CurrentViewport].CurrentChannelImage);
+                profileWindow.Show();
+                profileWindow.Closed += ProfileWindow_Closed;
                 _currentViewport.drawCanvas.Tool = ToolType.Profile;
-                IsDragger = false;
-                IsRuler = false;
             }
-            else
-            {
-                _currentViewport.drawCanvas.Tool = ToolType.Pointer;
-            }
-
         }
+        private void ProfileWindow_Closed(object sender, EventArgs e)
+        {
+            IsProfile = false;
+            profileViewModel.OnCloseWindow();
+            if (IsDragger) _currentViewport.drawCanvas.Tool = ToolType.Dragger;
+            else if (IsRuler) _currentViewport.drawCanvas.Tool = ToolType.Ruler;
+            else _currentViewport.drawCanvas.Tool = ToolType.Pointer;
+        }
+
         private void OnRuler()
         {
             if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown)
@@ -381,14 +378,13 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 return;
             }
 
+            IsProfile = false;
             if (IsRuler)
             {
                 _currentViewport.drawCanvas.Tool = ToolType.Ruler;
-                IsDragger = false;
-                IsProfile = false;
             }
             else
-                _currentViewport.drawCanvas.Tool = ToolType.Pointer;
+                _currentViewport.drawCanvas.Tool = IsDragger ? ToolType.Dragger : ToolType.Pointer;
 
         }
         private void OnBrightnessContrast()
@@ -419,17 +415,10 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         {
             if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown)
             {
-                IsAspectRatio = false;
+                IsAspectRatio = true;
                 return;
             }
-            if (IsAspectRatio)
-            {
-                _viewportDic[CurrentViewport].AspectRatio = _aspectRatio;
-            }
-            else
-            {
-                _viewportDic[CurrentViewport].AspectRatio = 1;
-            }
+            _viewportDic[CurrentViewport].SetAspectRatio(IsAspectRatio);
         }
         private void OnAutoGrey()
         {
@@ -439,7 +428,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             if (channel.IsComputeColor) return;
             var max = channel.ThumbnailImageData.Max();
             var min = channel.ThumbnailImageData.Min();
-            _contrast = Math.Pow(2,_experimentInfo.IntensityBits) / (max - min);
+            _contrast = (0x01 << _experimentInfo.IntensityBits) / (max - min);
             _brightness = 0 - (int)(min * _contrast);
             OnPropertyChanged("Brightness");
             OnPropertyChanged("Contrast");
@@ -496,6 +485,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 IsProfile = false;
                 IsDragger = false;
                 IsRuler = false;
+                CurrentViewport.drawCanvas.Tool = ToolType.Pointer;
                 return;
             }
             if (IsProfile)
@@ -503,10 +493,10 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 CurrentViewport.drawCanvas.Tool = ToolType.Profile;
                 profileViewModel.Initialization(_viewportDic[CurrentViewport].CurrentChannelImage);
             }
-            else if (IsDragger)
-                CurrentViewport.drawCanvas.Tool = ToolType.Dragger;
             else if (IsRuler)
                 CurrentViewport.drawCanvas.Tool = ToolType.Ruler;
+            else if (IsDragger)
+                CurrentViewport.drawCanvas.Tool = ToolType.Dragger;
             else
                 CurrentViewport.drawCanvas.Tool = ToolType.Pointer;
             if (brightnessContrastWindow != null)
@@ -597,7 +587,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                         _viewportDic[o].EditVirtualChannel(virtualChannel);
                 }
             }
-
         }
         private void DeleteVirtualChannel(VirtualChannel virtualChannel)
         {
@@ -661,6 +650,109 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                     _viewportDic[o].DeleteComputeColor(computeColor);
             }
 
+        }
+        private void SaveChannels(int i)
+        {
+            XElement xe = new XElement("ImageViewerModule");
+            IEnumerable<XElement> elements = from ele in xe.Elements("Scan")
+                                             where(string)ele.Attribute("ScanId") == _scanId.ToString()
+                                             select ele;
+            if (elements.Count() > 0)
+                elements.First().Remove();
+            var scanxe = new XElement("Scan", new XAttribute("ScanId", _scanId.ToString()));
+            var vxe = new XElement("VirtualChannels");
+            foreach(var o in _virtualChannels)
+            {
+                var vsxe = new XElement("VirtualChannel",
+                    new XAttribute("ChannelName",o.ChannelName)                    
+                    );
+                vsxe.Add(new XElement("ChannelId", o.ChannelId));
+                vsxe.Add(new XElement("FirstChannel", o.FirstChannel.ChannelName));
+                if (o.SecondChannel != null)
+                    vsxe.Add(new XElement("SecondChannel", o.SecondChannel.ChannelName));
+                vsxe.Add(new XElement("Operator", o.Operator));
+                vsxe.Add(new XElement("Operand", o.Operand));
+                vxe.Add(vsxe);
+            }
+            scanxe.Add(vxe);
+            var cxe = new XElement("ComputeColors");
+            foreach (var o in _computeColors)
+            {
+                var ccxe = new XElement("ComputeColor",
+                    new XAttribute("Name", o.Name)
+                    );
+                foreach (var d in o.ComputeColorDictionary)
+                {
+                    var dxe = new XElement("Item",new XAttribute("Channel",d.Key.ChannelName),new XAttribute("Color",d.Value.ToString()));
+                    ccxe.Add(dxe);
+                }
+                cxe.Add(ccxe);
+            }
+            scanxe.Add(cxe);
+            xe.Add(scanxe);
+            xe.Save(_experiment.GetExperimentInfo().AnalysisPath+ "\\ImageViewerModule\\channels.xml");
+        }
+        private void LoadChannels()
+        {
+            if (!Directory.Exists(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule"))
+                Directory.CreateDirectory(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule");
+            if (!File.Exists(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule\\channels.xml"))
+                return;
+            XElement xe = XElement.Load(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule\\channels.xml");
+            IEnumerable<XElement> elements = from ele in xe.Elements("Scan")
+                                             where (string)ele.Attribute("ScanId") == _scanId.ToString()
+                                             select ele;
+            if (elements.Count() > 0)
+            {
+                var scanxe = elements.First();
+                foreach(var ele in scanxe.Element("VirtualChannels").Elements())
+                {
+                    var virtualChannel = new VirtualChannel() ;
+                    virtualChannel.ChannelName = ele.Attribute("ChannelName").Value;
+                    int id;
+                    if (int.TryParse(ele.Element("ChannelId").Value, out id))
+                        virtualChannel.ChannelId = id;
+                    ImageOperator op;
+                    if(Enum.TryParse(ele.Element("Operator").Value, out op))
+                        virtualChannel.Operator = op;
+                    double operand;
+                    if (double.TryParse(ele.Element("Operand").Value, out operand))
+                        virtualChannel.Operand = operand;
+                    _virtualChannels.Add(virtualChannel);
+                }
+                foreach (var ele in scanxe.Element("VirtualChannels").Elements())
+                {
+                    var virtualChannel = _virtualChannels.Where(x => x.ChannelName == ele.Attribute("ChannelName").Value).FirstOrDefault();
+                    virtualChannel.FirstChannel = gothroughChannels(ele.Element("FirstChannel").Value);
+                    if(ele.Element("SecondChannel")!=null)
+                    virtualChannel.SecondChannel = gothroughChannels(ele.Element("SecondChannel").Value);
+                }
+                foreach (var ele in scanxe.Element("ComputeColors").Elements())
+                {
+                    var computeColor = new ComputeColor();
+                    computeColor.Name= ele.Attribute("Name").Value;
+                    computeColor.ComputeColorDictionary = new Dictionary<Channel, Color>();
+                    foreach(var e in ele.Elements())
+                    {
+                        computeColor.ComputeColorDictionary.Add(gothroughChannels(e.Attribute("Channel").Value),(Color)ColorConverter.ConvertFromString( e.Attribute("Color").Value));
+                    }
+                    _computeColors.Add(computeColor);
+                }
+            }
+        }
+        private Channel gothroughChannels(string name)
+        {
+            var sicf = _channels.Where(x => x.ChannelName == name);
+            if (sicf.Count() > 0)
+                return sicf.FirstOrDefault();
+            else
+            {
+                var sivcf = _virtualChannels.Where(x => x.ChannelName == name);
+                if (sivcf.Count() > 0)
+                    return sivcf.FirstOrDefault();
+                else
+                    return null;
+            }
         }
         private Dictionary<Channel, Color> computeColorList2Dic(IList<ComputeColorItem> list)
         {

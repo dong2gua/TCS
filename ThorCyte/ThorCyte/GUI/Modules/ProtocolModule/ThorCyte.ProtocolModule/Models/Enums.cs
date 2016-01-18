@@ -12,7 +12,7 @@
     /// <summary>
     /// Summary description for ThresholdMod.
     /// </summary>
-    public enum ThresholdMethod { Manual, Statistical, Otsu }
+    public enum ThresholdMethod { Manual, Otsu }
 
     /// <summary>
     /// Helper class to setup a static variable for MainForm

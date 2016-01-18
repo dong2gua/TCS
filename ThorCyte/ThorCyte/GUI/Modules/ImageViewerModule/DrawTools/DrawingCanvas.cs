@@ -65,7 +65,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         private GraphicsImage _graphicsImage;
         private GraphicsScaler graphicsScaler;
         private GraphicsRuler graphicsRuler;
-        private GraphicsProfile graphicsProfile;
+        private GraphicsLine graphicsProfile;
         private Rect _tmpCanvasRect;
         private Rect _canvasDisplyRect;
         public Rect CanvasDisplyRect
@@ -143,7 +143,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             {
                 b.ActualScale = scale;
                 b.RefreshDrawing();
-                b.Clip = new RectangleGeometry(new Rect(0, 0, canvas.ActualWidth / canvas.ActualScale.Item1, canvas.ActualHeight / canvas.ActualScale.Item2));
+                b.Clip = new RectangleGeometry(new Rect(0, 0, canvas.ActualWidth , canvas.ActualHeight ));
             }
             canvas._graphicsImage.ActualScale = scale;
             canvas._graphicsImage.RefreshDrawing();
@@ -176,8 +176,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         private void DrawingCanvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (_tools[(int)Tool] == null) return;
-            if (e.LeftButton == MouseButtonState.Pressed)
-            { }
             var point = e.GetPosition(this);
             point.X /= ActualScale.Item1;
             point.Y /= ActualScale.Item2;
@@ -194,8 +192,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             var point = e.GetPosition(this);
             point.X /= ActualScale.Item1;
             point.Y /= ActualScale.Item2;
-            _tmpCanvasRect = new Rect(CanvasDisplyRect.Location, CanvasDisplyRect.Size);
-            var actualPoint = ConvertToActualPoint(point, _tmpCanvasRect, ActualScale.Item3);
+            var actualPoint = ConvertToActualPoint(point, CanvasDisplyRect, ActualScale.Item3);
 
             _tools[(int)Tool].OnMouseUp(this, e, actualPoint);
             e.Handled = true;
@@ -370,7 +367,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             foreach (var b in GraphicsList.Cast<GraphicsBase>())
             {
                 b.RefreshDrawing();
-                b.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth / ActualScale.Item1, ActualHeight / ActualScale.Item2));
+                b.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth , ActualHeight ));
             }
 
             _graphicsImage.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth / ActualScale.Item1, ActualHeight / ActualScale.Item2));

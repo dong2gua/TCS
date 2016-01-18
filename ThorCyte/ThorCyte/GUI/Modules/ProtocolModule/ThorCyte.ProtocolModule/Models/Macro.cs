@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Xml;
+using ComponentDataService;
 using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Events;
-using ThorComponentDataService;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.Infrastructure.Interfaces;
@@ -48,20 +46,18 @@ namespace ThorCyte.ProtocolModule.Models
             get { return _uniqueInstance ?? (_uniqueInstance = new Macro()); }
         }
 
-        public static ScanInfo CurrentScanInfo { get; private set; }
         public static int CurrentScanId { get; private set; }
         public static int CurrentRegionId { get; private set; }
         public static int CurrentTileId { get; private set; }
         public static int ImageMaxBits { get; private set; }
+        public static string AnalysisPath { get; private set; }
+        public static ScanInfo CurrentScanInfo { get; private set; }
         public static Dictionary<string, ImageData> CurrentImages { get; private set; }
-
-
-        public static IData CurrentDataMgr { get; private set; }
-        public static IComponentDataService CurrentConponentService { get; private set; }
-
         public static ImpObservableCollection<ConnectorModel> Connections;
         public static ImpObservableCollection<ModuleBase> Modules;
         public static ModuleBase SelectedModuleViewModel;
+        public static IData CurrentDataMgr { get; private set; }
+        public static IComponentDataService CurrentConponentService { get; private set; }
 
         private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
@@ -69,6 +65,14 @@ namespace ThorCyte.ProtocolModule.Models
             get
             {
                 return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
+        }
+
+        private static string ProtocolFileName
+        {
+            get
+            {
+                return AnalysisPath + @"\Protocol.xml";
             }
         }
 
@@ -80,24 +84,36 @@ namespace ThorCyte.ProtocolModule.Models
             var exp = ServiceLocator.Current.GetInstance<IExperiment>();
             if (exp == null) return;
 
-            Clear();
+            if (Clear != null) Clear();
             CurrentScanId = scanId;
             CurrentScanInfo = exp.GetScanInfo(scanId);
-            ImageMaxBits = exp.GetExperimentInfo().IntensityBits;
+            var expinfo = exp.GetExperimentInfo();
+            ImageMaxBits = expinfo.IntensityBits;
+            AnalysisPath = expinfo.AnalysisPath;
             CurrentDataMgr = ServiceLocator.Current.GetInstance<IData>();
-            CurrentConponentService = ServiceLocator.Current.GetInstance<IComponentDataService>();
-
+            CurrentConponentService = ComponentDataManager.Instance;
+            CurrentConponentService.Load(exp);
             ClearImagesDic();
             CurrentImages = new Dictionary<string, ImageData>();
 
+            Load();
         }
 
         /// <summary>
         /// Load Marco data from xml file.
         /// </summary>
-        /// <param name="reader"></param>
-        public void Load(XmlReader reader)
+        public void Load()
         {
+            if (!File.Exists(ProtocolFileName))
+            {
+                MessageHelper.PostMessage("New protocol edit!");
+                return;
+            }
+
+            var streamReader = new StreamReader(ProtocolFileName);
+            var settings = new XmlReaderSettings();
+            var reader = XmlReader.Create(streamReader, settings); 
+            
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -106,7 +122,6 @@ namespace ThorCyte.ProtocolModule.Models
                     {
                         case "module":
                             var id = XmlConvert.ToInt32(reader["id"]);
-                            ModuleBase module;
                             if (reader.Name == "combination-module")
                             {
                                 throw new CyteException("Macro.Load", "Combination module does not support yet.");
@@ -118,7 +133,7 @@ namespace ThorCyte.ProtocolModule.Models
                             {
                                 continue;
                             }
-                            module = CreateModule(info);
+                            var module = CreateModule(info);
 
                             module.Id = id;
                             module.Enabled = Convert.ToBoolean(reader["enabled"]);
@@ -126,12 +141,12 @@ namespace ThorCyte.ProtocolModule.Models
 
                             if (reader["x"] != null)
                             {
-                                module.X = (int)(XmlConvert.ToInt32(reader["x"]) * 1.5);
+                                module.X = XmlConvert.ToInt32(reader["x"]);
                             }
 
                             if (reader["y"] != null)
                             {
-                                module.Y = (int)(XmlConvert.ToInt32(reader["y"]) * 1.5);
+                                module.Y = XmlConvert.ToInt32(reader["y"]);
                             }
                             module.Initialize();
                             module.Deserialize(reader);
@@ -164,8 +179,9 @@ namespace ThorCyte.ProtocolModule.Models
                     }
                 }
             }
+            reader.Close();
+            streamReader.Close();
         }
-
 
         /// <summary>
         /// Save Protocol data.
@@ -176,16 +192,15 @@ namespace ThorCyte.ProtocolModule.Models
             if (!Directory.Exists(CurrentScanInfo.DataPath)) 
                 throw new CyteException("Macro.Save", string.Format("Destination directory ({0}) not found!", CurrentScanInfo.DataPath));
 
-            var dir = CurrentScanInfo.DataPath + @"\Analysis";
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
 
-            var sr = new StreamWriter(dir + @"\Protocol.xml");
+            if (!Directory.Exists(AnalysisPath))
+                Directory.CreateDirectory(AnalysisPath);
+
+            var sr = new StreamWriter(AnalysisPath + @"\Protocol.xml");
             var settings = new XmlWriterSettings
             {
-                //Indent = true,
-                //IndentChars = "  ",
-                NewLineOnAttributes = true
+                Indent = true,
+                IndentChars = "  "
             };
             var writer = XmlWriter.Create(sr,settings);
             writer.WriteStartDocument(false);
@@ -207,6 +222,8 @@ namespace ThorCyte.ProtocolModule.Models
             writer.WriteEndDocument();
             writer.Close();
             sr.Close();
+
+            MessageHelper.PostMessage("Save Completed!");
         }
 
 
@@ -219,6 +236,8 @@ namespace ThorCyte.ProtocolModule.Models
                 module.Name = modInfo.Name;
                 module.DisplayName = modInfo.DisplayName;
                 Modules.Add(module);
+                module.Id = Modules.Count - 1;
+                module.ScanNo = CurrentScanId;
                 return module;
             }
             catch (Exception ex)
@@ -259,8 +278,11 @@ namespace ThorCyte.ProtocolModule.Models
 
         public static void Run()
         {
-            if (!CheckExecutable()) return;
-
+            if (!CheckExecutable())
+            {
+                MessageHelper.PostMessage("Rules Violated! Macro can not execute.");
+                return;
+            }
 
             _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
             _tAnalyzeImg.Start();
@@ -312,10 +334,10 @@ namespace ThorCyte.ProtocolModule.Models
                         foreach (var mod in Modules.Where(m => m is ChannelModVm))
                         {
                             mod.Execute();
-                            Debug.WriteLine("-------------------------------------------");
-                            Debug.WriteLine("Region: {0}", CurrentRegionId);
-                            Debug.WriteLine("Tile: {0}", CurrentTileId);
-                            Debug.WriteLine(string.Format("Channel: {0}", ((ChannelModVm)mod).SelectedChannel));
+
+                            MessageHelper.PostMessage(
+                                string.Format("Current Processing - Region: {0}; Tile: {1}; Channel: {2};",
+                                    CurrentRegionId, CurrentTileId, ((ChannelModVm) mod).SelectedChannel));
                         }
                         //wait all channel executed here
                         ClearImagesDic();
@@ -338,9 +360,7 @@ namespace ThorCyte.ProtocolModule.Models
         public static void ImageAnalyzed()
         {
             if (_isAborting) _isAborting = false;
-
-
-            Debug.WriteLine("All images analyzed!");
+            MessageHelper.PostMessage("All images analyzed!");
         }
 
         private static void ClearImagesDic()

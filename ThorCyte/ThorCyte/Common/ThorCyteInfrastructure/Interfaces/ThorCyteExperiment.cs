@@ -293,6 +293,8 @@ namespace ThorCyte.Infrastructure.Interfaces
                 IEnumerable<ScanRegion> regions = GetScanRegions(element);
                 foreach (var region in regions)
                 {
+                    Well well = new Well(region.WellId, region.Bound);
+                    scanInfo.ScanWellList.Add(well);
                     scanInfo.ScanRegionList.Add(region);
                 }
             }
@@ -793,6 +795,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             Clear();
             BasePath = Path.GetDirectoryName(experimentPath);
             _firstScanInfo.DataPath = BasePath;
+            _experimentInfo.AnalysisPath = BasePath + "\\Analysis";
             if (!Directory.Exists(BasePath))
                 throw new DirectoryNotFoundException(string.Format("{0} not found!", BasePath));
         }

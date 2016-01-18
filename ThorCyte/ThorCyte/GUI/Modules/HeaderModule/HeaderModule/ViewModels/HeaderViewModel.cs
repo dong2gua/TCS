@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.IO;
+using System.Windows.Input;
+using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
 using Microsoft.Win32;
 using Prism.Commands;
@@ -15,12 +17,10 @@ namespace ThorCyte.HeaderModule.ViewModels
         private IEventAggregator _eventAggregator;
         private IExperiment _experiment;
         private IData _data;
-        private string _currentTab;
 
         public ICommand OpenCommand { get; set; }
         public ICommand CloseCommand { get; set; }
-        public ICommand TabCommand { get; set; }
-        
+        public ICommand SaveCommand { get; set; }
 
         public HeaderViewModel(IUnityContainer container, IEventAggregator eventAggregator)
         {
@@ -28,8 +28,7 @@ namespace ThorCyte.HeaderModule.ViewModels
             _eventAggregator = eventAggregator;
             OpenCommand = new DelegateCommand(OpenExperiment);
             CloseCommand = new DelegateCommand(CloseExperiment);
-            TabCommand = new DelegateCommand<object>(SelectTab);
-            SelectTab("ReviewModule");
+            SaveCommand = new DelegateCommand(SaveAnalysisResult);
         }
 
         private void OpenExperiment()
@@ -65,14 +64,27 @@ namespace ThorCyte.HeaderModule.ViewModels
         {
         }
 
-        private void SelectTab(object obj)
+        private void SaveAnalysisResult()
         {
-            var str = obj as string;
-            if (_currentTab != str)
+            if(_experiment == null)
+                return;
+            var di = new DirectoryInfo(_experiment.GetExperimentInfo().AnalysisPath);
+            if (!di.Exists)
             {
-                _currentTab = str;
-                _eventAggregator.GetEvent<ShowRegionEvent>().Publish(str); 
-            }         
-        }
+                di.Create();
+            }
+            else
+            {
+                foreach (FileInfo file in di.GetFiles())
+                {
+                    file.Delete();
+                }
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
+            }
+            _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0);
+        }  
     }
 }

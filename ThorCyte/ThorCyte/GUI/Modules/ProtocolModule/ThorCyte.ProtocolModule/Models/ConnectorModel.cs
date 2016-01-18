@@ -178,12 +178,14 @@ namespace ThorCyte.ProtocolModule.Models
         {
             //pass the ref to dest port.
             _destPort.Image = _sourcePort.Image;
+            _destPort.ComponentName = _sourcePort.ComponentName;
             _destPort.ParentModule.Execute();
         }
 
         public void TransferExecute(ImageData img)
         {
             _destPort.Image = img.Clone();
+            _destPort.ComponentName = _sourcePort.ComponentName;
             _destPort.ParentModule.Execute();
         }
 

@@ -14,19 +14,20 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         }
         public override void OnMouseDown(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
-            var point = position;
-            var rectangle = new GraphicsRectangle(point, drawingCanvas);
-            AddNewObject(drawingCanvas, rectangle);
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                var rectangle = new GraphicsRectangle(position, drawingCanvas);
+                AddNewObject(drawingCanvas, rectangle);
+            }
         }
         public override void OnMouseMove(DrawingCanvas drawingCanvas, MouseEventArgs e, Point position)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 if (!drawingCanvas.IsMouseCaptured) return;
-                if (drawingCanvas.Count > 0)
-                {
-                    drawingCanvas[drawingCanvas.Count - 1].MoveHandleTo(position, 5);
-                }
+                if (drawingCanvas.Count == 0) return;
+                if (drawingCanvas[drawingCanvas.Count - 1].GetType() != typeof(GraphicsRectangle)) return;
+                drawingCanvas[drawingCanvas.Count - 1].MoveHandleTo(position, 5);
             }
         }
         public override void OnMouseUp(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)

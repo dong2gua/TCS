@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -23,9 +24,22 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         {
             get { return _imageSource; }
         }
+        public override Tuple<double, double, double> ActualScale
+        {
+            get { return GraphicsActualScale; }
+            set
+            {
+                GraphicsActualScale = value;
+                var st = this.Transform as ScaleTransform;
+                if (st == null) return;
+                st.ScaleX = GraphicsActualScale.Item1;
+                st.ScaleY = GraphicsActualScale.Item2;
+            }
+        }
+
         public override void Draw(DrawingContext drawingContext)
         {
-            drawingContext.DrawImage(ImageSource,ConvertToDisplayRect(Rectangle));
+            drawingContext.DrawImage(ImageSource,ConvertToDisplayRectWithVisualScale(Rectangle));
         }
         public override int HandleCount { get { return 0; } }
         public override Point GetHandle(int handleNumber) { return new Point(0, 0); }

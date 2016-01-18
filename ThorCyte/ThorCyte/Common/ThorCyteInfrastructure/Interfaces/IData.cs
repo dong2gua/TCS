@@ -8,7 +8,10 @@ namespace ThorCyte.Infrastructure.Interfaces
         void SetExperimentInfo(IExperiment experiment);
 
         //For Mode3D, Mode3DTiming model
-        ImageData GetData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId, int timingFrameId);
+        ImageData GetData(int scanId, int scanRegionId, int channelId, int planeId, int timingFrameId);
+
+        ImageData GetData(int scanId, int scanRegionId, int channelId, int planeId, int timingFrameId,
+            double scale, Int32Rect regionRect);
 
         //For all types 3D stream scan and other type 3D scan to get tile detail
         ImageData GetTileData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId, int tileId, int timingFrameId);

@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
+using ComponentDataService.Types;
+using Prism.Mvvm;
+using ThorCyte.Infrastructure.Commom;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.Views.Modules;
@@ -181,33 +186,108 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
         }
 
+        public ImpObservableCollection<ChannelsCorrection> ChannelCollection { get; set; }
 
+
+        public bool[] BkCorrectionTable
+        {
+            get { return GetChCorr(); }
+        }
         #endregion
 
         #region Methods
 
+        public EventModVm()
+        {
+            ChannelCollection = new ImpObservableCollection<ChannelsCorrection>();
+        }
+
         public override void OnExecute()
         {
-            base.OnExecute();
+            var componentName = InputPorts[0].ComponentName;
+            var define = new BlobDefine
+            {
+                DataExpand = ExpandBy, 
+                BackgroundDistance = BkDistance, 
+                BackgroundHighBoundPercent = BkHighPct,
+                BackgroundLowBoundPercent = BkLowPct,
+                BackgroundWidth = BkWidth,
+                DynamicBkCorrections = GetChCorr(),
+                IsDynamicBackground = IsDynamicBackground,
+                IsPeripheral = IsPeripheral,
+                PeripheralDistance = PeriDistance,
+                PeripheralWidth = PeriWidth
+            };
+
+            Macro.CurrentConponentService.CreateEvents(componentName, Macro.CurrentScanId, Macro.CurrentRegionId +1 ,
+                Macro.CurrentTileId, Macro.CurrentImages, define);
 
         }
 
+        private bool[] GetChCorr()
+        {
+            return ChannelCollection.Select(chc => chc.IsChecked).ToArray();
+        }
 
         public override void Initialize()
         {
             View = new EventModule();
+            HasImage = false;
             ModType = ModuleType.SmtEventCategory;
             Name = GlobalConst.EventModuleName;
             InputPorts[0].DataType = PortDataType.Event;
             InputPorts[0].ParentModule = this;
             OutputPort.DataType = PortDataType.Event;
             OutputPort.ParentModule = this;
+
+
+            ChannelCollection.Clear();
+            foreach (var channel in Macro.CurrentScanInfo.ChannelList)
+            {
+                ChannelCollection.Add(new ChannelsCorrection(false, channel.ChannelName));
+            }
+
+            foreach (var channel in Macro.CurrentScanInfo.VirtualChannelList)
+            {
+                ChannelCollection.Add(new ChannelsCorrection(false, channel.ChannelName));
+            }
+
         }
 
         public override void OnSerialize(XmlWriter writer)
         {
-            base.OnSerialize(writer);
+            writer.WriteAttributeString("expand-by", ExpandBy.ToString());
+            writer.WriteAttributeString("keep-boundary-events", IsKeepsEventsOnBoundary.ToString().ToLower());
 
+            writer.WriteAttributeString("peripheral", IsPeripheral.ToString().ToLower());
+            writer.WriteAttributeString("peri-distance", PeriDistance.ToString());
+            writer.WriteAttributeString("peri-width", PeriWidth.ToString());
+
+            writer.WriteAttributeString("dynamic-background", IsDynamicBackground.ToString().ToLower());
+            writer.WriteAttributeString("distance", BkDistance.ToString());
+            writer.WriteAttributeString("width", BkWidth.ToString());
+            writer.WriteAttributeString("low", BkLowPct.ToString());
+            writer.WriteAttributeString("high", BkHighPct.ToString());
+
+            if (BkCorrectionTable != null)
+            {
+                writer.WriteStartElement("bk-correction");
+                writer.WriteAttributeString("count", BkCorrectionTable.Length.ToString());
+                var i = 0;
+                foreach (var corrCh in ChannelCollection)
+                {
+                    if (corrCh.ChannelName != null)
+                    {
+                        writer.WriteStartElement("channel");
+                        writer.WriteAttributeString("index", i.ToString());
+                        writer.WriteAttributeString("label", corrCh.ChannelName);
+                        writer.WriteAttributeString("correct", corrCh.IsChecked.ToString().ToLower());
+                        writer.WriteEndElement();
+                    }
+                    i++;
+                }
+                writer.WriteEndElement();
+            }
         }
 
         public override void OnDeserialize(XmlReader reader)
@@ -260,8 +340,59 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 PeriWidth = Convert.ToInt32(reader["peri-width"]);
             }
+
+            if (reader.IsEmptyElement) return;
+            ChannelCollection.Clear();
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    switch (reader.Name)
+                    {
+                        case "channel":
+                            var index = Convert.ToInt32(reader["index"]);
+                            ChannelCollection.Add(new ChannelsCorrection(Convert.ToBoolean(reader["correct"]),reader["label"]));
+                            break;
+                    }
+                }
+                else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "module")
+                    return;
+            }
+
         }
 
         #endregion
+    }
+
+    public class ChannelsCorrection : BindableBase
+    {
+        private bool _ischecked;
+        public bool IsChecked
+        {
+            get
+            {
+                return _ischecked;
+            }
+            set { SetProperty(ref _ischecked, value); }
+        }
+
+        private string _channelname;
+        public string ChannelName
+        {
+            get { return _channelname; }
+            set { SetProperty(ref _channelname, value); }
+        }
+
+        public ChannelsCorrection()
+        {
+            IsChecked = false;
+            ChannelName = string.Empty;
+        }
+
+        public ChannelsCorrection(bool isChecked, string channelname)
+        {
+            IsChecked = isChecked;
+            ChannelName = channelname;
+        }
     }
 }

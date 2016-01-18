@@ -4,6 +4,7 @@
     {
         public const string MainRegion = "MainRegion";
         public const string TabRegion = "TabRegion";
+        public const string HeadRegion = "HeadRegion";
 
         //Review Section
         public const string ReviewCarrierRegion = "ReviewCarrierRegion";
@@ -13,5 +14,6 @@
         //Analysis Section
         public const string AnalysisCarrierRegion = "AnalysisCarrierRegion";
         public const string ProtocolRegion = "ProtocolRegion";
+        public const string GraphicRegion = "GraphicRegion";
     }
 }

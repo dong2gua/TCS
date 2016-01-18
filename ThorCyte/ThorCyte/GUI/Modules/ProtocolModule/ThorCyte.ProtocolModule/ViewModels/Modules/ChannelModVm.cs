@@ -94,9 +94,10 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
         }
 
-        public override void Deserialize(XmlReader reader)
+        public override void OnSerialize(XmlWriter writer)
         {
-            base.Deserialize(reader);
+            writer.WriteAttributeString("channel", SelectedChannel);
+
         }
 
         #endregion

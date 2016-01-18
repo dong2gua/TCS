@@ -1,11 +1,11 @@
 ﻿using System.Windows.Forms;
 using System.Windows.Input;
+using ComponentDataService;
 using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
-using ThorComponentDataService;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 
@@ -31,7 +31,7 @@ namespace TestProtocol.ViewModels
 
         private IExperiment _experiment;
         private IData _dataMgr;
-        private IComponentDataService _componentDataService;
+        //private IComponentDataService _componentDataService;
 
         private static IEventAggregator _eventAggregator;
         public static IEventAggregator EventAggregator
@@ -65,13 +65,13 @@ namespace TestProtocol.ViewModels
                 _dataMgr = new ThorImageData();
                 _experiment.Load(openFileDialog1.FileName);
             }
-            _componentDataService = new ThorCyteComponentDataService();
-            _componentDataService.Load(_experiment);
+            //_componentDataService = ComponentDataManager.Instance;
+            //_componentDataService.Load(_experiment);
             _dataMgr.SetExperimentInfo(_experiment);
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             container.RegisterInstance(_experiment);
             container.RegisterInstance(_dataMgr);
-            container.RegisterInstance(_componentDataService);
+            //container.RegisterInstance(_componentDataService);
 
             const int scanid = 1;
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(scanid);

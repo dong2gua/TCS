@@ -59,7 +59,7 @@ namespace ThorCyte.ExperimentDetailModule.Converter
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (System.Convert.ToInt32(value) < VisibleValue)
-                return Visibility.Hidden;
+                return Visibility.Collapsed;
             return Visibility.Visible;
         }
 

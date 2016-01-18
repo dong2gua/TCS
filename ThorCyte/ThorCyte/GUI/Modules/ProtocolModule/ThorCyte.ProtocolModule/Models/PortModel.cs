@@ -122,13 +122,9 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
-        private ImageData _image;
+        public ImageData Image { get; set; }
+        public string ComponentName { get; set; }
 
-        public ImageData Image
-        {
-            get { return _image; }
-            set { _image = value; }
-        }
 
         private Brush _portBrush = Brushes.LightGray;
 
@@ -265,7 +261,7 @@ namespace ThorCyte.ProtocolModule.Models
 
         public void Clear()
         {
-            _image = null;
+            Image = null;
         }
 
         #endregion
