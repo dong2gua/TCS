@@ -50,6 +50,41 @@ namespace ThorCyte.ProtocolModule.ViewModels
             set { SetProperty(ref _statusMessage, value); }
         }
 
+        private int _totalProgress;
+        public int TotalProgress
+        {
+            get { return _totalProgress; }
+            set { SetProperty(ref _totalProgress, value); }
+        }
+
+        private int _regionProgress;
+        public int RegionProgress
+        {
+            get { return _regionProgress; }
+            set { SetProperty(ref _regionProgress, value); }
+        }
+
+        private int _regionCount;
+        public int RegionCount
+        {
+            get { return _regionCount; }
+            set { SetProperty(ref _regionCount, value); }
+        }
+
+        private int _tileCount;
+        public int TileCount
+        {
+            get { return _tileCount; }
+            set { SetProperty(ref _tileCount, value); }
+        }
+
+        private bool _isRuning;
+        public bool IsRuning
+        {
+            get { return _isRuning; }
+            set { SetProperty(ref _isRuning, value); }
+        }
+
 
         #endregion
 
@@ -58,10 +93,14 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private MarcoEditorViewModel()
         {
             MessageHelper.SetMessage += SetMessage;
-            _pannelVm = new PannelViewModel();
+            MessageHelper.SetProgress += SetProgress;
             StartMacroCommand = new DelegateCommand(Macro.Run);
             SaveMacroCommand = new DelegateCommand(Macro.Save);
             StopMacroCommand = new DelegateCommand(Macro.Stop);
+            _pannelVm = new PannelViewModel();
+
+            RegionCount = 10;
+            TileCount = 10;
         }
 
 
@@ -262,6 +301,26 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private void SetMessage(string msg)
         {
             StatusMessage = msg;
+        }
+
+        private void SetProgress(string type, int max, int value)
+        {
+            switch (type)
+            {
+                case "Region":
+                    if (max > 0)
+                        RegionCount = max;
+                    TotalProgress = value;
+
+                    break;
+                case "Tile":
+                    if (max > 0)
+                        TileCount = max;
+                    RegionProgress = value;
+
+                    break;
+            }
+
         }
 
 

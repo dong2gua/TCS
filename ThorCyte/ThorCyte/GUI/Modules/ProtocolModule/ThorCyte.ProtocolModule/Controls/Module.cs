@@ -54,7 +54,7 @@ namespace ThorCyte.ProtocolModule.Controls
 
         private void Module_Loaded(object sender, RoutedEventArgs e)
         {
-            Resize(X + ActualWidth, Y + ActualHeight);
+            if(Resize != null) Resize(X + ActualWidth, Y + ActualHeight);
         }
 
         public delegate void ResizeHandler(double width, double height);

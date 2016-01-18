@@ -27,6 +27,7 @@ namespace ThorCyte.ProtocolModule.Models
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             _imageanalyzed += ImageAnalyzed;
             _isAborting = false;
+            IsRuning = false;
         }
         #endregion
 
@@ -76,6 +77,8 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
+        public static bool IsRuning { get; private set; }
+
         #endregion
 
         #region Methods
@@ -109,6 +112,8 @@ namespace ThorCyte.ProtocolModule.Models
                 MessageHelper.PostMessage("New protocol edit!");
                 return;
             }
+
+            MessageHelper.PostMessage("Loading...");
 
             var streamReader = new StreamReader(ProtocolFileName);
             var settings = new XmlReaderSettings();
@@ -181,6 +186,7 @@ namespace ThorCyte.ProtocolModule.Models
             }
             reader.Close();
             streamReader.Close();
+            MessageHelper.PostMessage("All Component Loaded!");
         }
 
         /// <summary>
@@ -293,15 +299,26 @@ namespace ThorCyte.ProtocolModule.Models
             var ret = !(_tAnalyzeImg != null && _tAnalyzeImg.IsAlive);
             if (!Modules.Any(m => m is ChannelModVm))
             {
-                ret = false;
+                return false;
             }
 
             if (Modules.Any(m => !m.Executable))
             {
-                ret = false;
+                return false;
             }
 
-            return ret;
+            var vail = false;
+            foreach (var m in Modules)
+            {
+                if (m.InputPorts.Any(p => p.AttachedConnections.Count != 0))
+                {
+                    vail = true;
+                }
+
+                if (vail) break;
+            }
+
+            return ret && vail;
         }
 
 
@@ -321,10 +338,12 @@ namespace ThorCyte.ProtocolModule.Models
         {
             try
             {
+                IsRuning = true;
+                MessageHelper.PostProgress("Region", CurrentScanInfo.ScanRegionList.Count, 0);
                 foreach (var region in CurrentScanInfo.ScanRegionList)
                 {
                     CurrentRegionId = region.RegionId;
-
+                    MessageHelper.PostProgress("Tile", region.ScanFieldList.Count, 0);
                     foreach (var tile in region.ScanFieldList)
                     {
                         CurrentTileId = tile.ScanFieldId;
@@ -343,9 +362,13 @@ namespace ThorCyte.ProtocolModule.Models
                         ClearImagesDic();
                         if (_isAborting)
                             break;
+
+                        MessageHelper.PostProgress("Tile", -1, CurrentTileId);
                     }
                     if (_isAborting)
                         break;
+
+                    MessageHelper.PostProgress("Region", -1, CurrentRegionId + 1);
                 }
 
                 if (_imageanalyzed != null) _imageanalyzed();
@@ -361,6 +384,7 @@ namespace ThorCyte.ProtocolModule.Models
         {
             if (_isAborting) _isAborting = false;
             MessageHelper.PostMessage("All images analyzed!");
+            IsRuning = false;
         }
 
         private static void ClearImagesDic()
@@ -463,6 +487,12 @@ namespace ThorCyte.ProtocolModule.Models
             }
             return result;
         }
+
+        ~Macro()
+        {
+            Stop();
+        }
+
         #endregion
     }
 }

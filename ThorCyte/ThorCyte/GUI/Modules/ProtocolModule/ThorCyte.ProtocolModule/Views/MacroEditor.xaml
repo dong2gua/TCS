@@ -7,7 +7,7 @@
              xmlns:control="clr-namespace:ThorCyte.ProtocolModule.Controls"
              xmlns:modulesBase="clr-namespace:ThorCyte.ProtocolModule.ViewModels.Modules"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" MinWidth="880" MinHeight="600">
+             d:DesignHeight="300" d:DesignWidth="300" MinWidth="880" MinHeight="600" >
     <UserControl.Resources>
         <ResourceDictionary>
             <RoutedUICommand x:Key="Commands.DeleteSelectedNodes"/>
@@ -196,14 +196,26 @@
         </Border>
 
         <StatusBar x:Name="statBar" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5" BorderBrush="CadetBlue" BorderThickness="1" Margin="0,2,0,0">
-            <Grid>
+            <Grid Width="{Binding ElementName=statBar, Path=ActualWidth}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="{Binding StatusMessage}"/>
-                <!--<TextBlock Grid.Column="1" Text="{Binding PannelVm.StatusMessage}"/>-->
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding StatusMessage}"/>
+                <Grid Grid.Column="4" Margin="10,0,10,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <ProgressBar Grid.Row="0" Minimum="0" Maximum="{Binding TileCount}" Value="{Binding RegionProgress}" BorderBrush="CadetBlue" BorderThickness="1"/>
+                    <ProgressBar Grid.Row="1" Minimum="0" Maximum="{Binding RegionCount}" Value="{Binding TotalProgress}" BorderBrush="CadetBlue" BorderThickness="1"/>
+                </Grid>
+                
+
             </Grid>
         </StatusBar>
     </Grid>
