@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ThorCyte.ProtocolModule.Events;
 
 namespace ThorCyte.ProtocolModule.Controls
@@ -39,9 +40,8 @@ namespace ThorCyte.ProtocolModule.Controls
             {
                 _cachedSelectedNodeItems = new List<Module>();
 
-                foreach (var selectedNode in SelectedModules)
+                foreach (var module in from object selectedNode in SelectedModules select FindAssociatedNodeItem(selectedNode))
                 {
-                    Module module = FindAssociatedNodeItem(selectedNode);
                     if (module == null)
                     {
                         throw new ApplicationException("Unexpected code path!");
@@ -59,21 +59,23 @@ namespace ThorCyte.ProtocolModule.Controls
                 {
                     nodeItem.X = temp;
                 }
-                else if (temp >= 0)
+
+                if (temp >= 0 && (temp + nodeItem.ActualWidth) > ActualWidth)
                 {
-                    Width = (temp + nodeItem.ActualWidth);
-                    nodeItem.X = temp;
+                    Resize(temp + nodeItem.ActualWidth, 0);
                 }
+
+
                 temp = nodeItem.Y + e.VerticalChange;
 
                 if (temp >= 0 && (temp + nodeItem.ActualHeight) <= ActualHeight)
                 {
                     nodeItem.Y = temp;
                 }
-                else if (temp >= 0)
+
+                if (temp >= 0 && (temp + nodeItem.ActualHeight) > ActualHeight)
                 {
-                    Height = (temp + nodeItem.ActualHeight);
-                    nodeItem.Y = temp;
+                    Resize(0, temp + nodeItem.ActualHeight);
                 }
             }
 

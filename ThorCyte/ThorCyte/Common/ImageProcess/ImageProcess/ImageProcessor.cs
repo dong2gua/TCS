@@ -1,4 +1,5 @@
 ﻿
+using System.Runtime.InteropServices;
 using ImageProcess.DataType;
 using System;
 using System.Collections.Generic;
@@ -59,8 +60,6 @@ namespace ImageProcess
                 maxValue);
             return dstData;
         }
-
-
 
         public static ImageData SubConstant(this ImageData srcData, ushort value)
         {
@@ -226,14 +225,25 @@ namespace ImageProcess
         }
 
 
-        public static Blob Dilate(Blob source, int expand, int imgWidth, int imgHeight)
+      
+
+        public static ImageData Dilate(this ImageData data, int expand)
         {
-            if (expand < 0) throw new ArgumentOutOfRangeException("expand", "must be larger than 0");
-            else if (expand == 0) return source.Clone();
-            else
-            {
-                return CreateExpanded(source, expand, imgWidth, imgHeight);
-            }
+            if (expand <= 0) throw new ArgumentOutOfRangeException("expand", "must be larger than 0");
+            var dstData = new ImageData(data.XSize, data.YSize, data.IsGray);
+            ImageProcessLib.Dilate16UC1(data.DataBuffer, (int) data.XSize, (int) data.YSize, 2*expand + 1,
+                dstData.DataBuffer);
+            return dstData;
+
+        }
+
+        public static double Sum(this ImageData data, byte[] mask, int maskStep)
+        {
+            IntPtr pMask = Marshal.AllocHGlobal(mask.Length);
+            Marshal.Copy(mask, 0, pMask, mask.Length);
+            double sum = 0;
+            ImageProcessLib.Sum16UC1M(data.DataBuffer, (int) data.XSize, (int) data.YSize, pMask, maskStep, out sum);
+            return sum;
         }
         #endregion
 
@@ -343,7 +353,8 @@ namespace ImageProcess
                             if (points.Count > 5)
                             {
                                 var blob = new Blob(points);
-                                if (blob.Area() > 0 && blob.Area() >= minArea && blob.Area() <= maxArea)
+                                if (blob.Area > 0 && blob.Area >= minArea &&
+                                    blob.Area <= maxArea)
                                     blobs.Add(blob);
                             }
 
@@ -386,145 +397,7 @@ namespace ImageProcess
             return (next);
         }
 
-        // create a blob expanded by the specified pixels, but clipped by the specified image size
-        // if image size is 0, do not clip
-        private static Blob CreateExpanded(Blob source, int addedPixels, int imgWidth, int imgHeight)
-        {
-            if (addedPixels < 0) throw new ArgumentOutOfRangeException("addedPixels", "Must be larger than 0");
-            else if (addedPixels == 0)
-            {
-                return source.Clone();
-            }
-            Int32Rect bound = source.Bound;
-            int xStart = bound.X - addedPixels;
-            int width = bound.Width + 2 * addedPixels;
-            var yMin = new ushort[width];
-            var yMax = new ushort[width];
-           
-            for (int i = 0; i < width; i++)
-                yMin[i] = ushort.MaxValue;
-
-            
-            foreach (VLine line in source.Lines)
-            {
-                int index = line.X - xStart;
-                var yStart = (ushort)(line.Y1 - addedPixels);
-                var yEnd = (ushort)(line.Y2 + addedPixels);
-
-                // We enlarge by Y +/- nPixelsAdded at the index.	
-                if (yMin[index] > yStart)
-                    yMin[index] = yStart;
-
-                if (yMax[index] < yEnd)
-                    yMax[index] = yEnd;
-
-                int low = index - 1;
-                int high = index + 1;
-                for (int i = 1; i <= addedPixels; i++, low--, high++)
-                {
-                    yStart++;
-                    yEnd--;
-
-                    if (yMin[low] > yStart)
-                        yMin[low] = yStart;
-
-                    if (yMax[low] < yEnd)
-                        yMax[low] = yEnd;
-
-                    if (yMin[high] > yStart)
-                        yMin[high] = yStart;
-
-                    if (yMax[high] < yEnd)
-                        yMax[high] = yEnd;
-                }
-            }
-
-            // Now, small blobs with big slops can have gaps (think of a blob with one pixel and a slop > 2).
-            // We work outward to find the missing spots.
-            int half = width / 2;
-            ushort nYMinLow = yMin[half];
-            ushort nYMaxLow = yMax[half];
-            ushort nYMinHigh = yMin[half];
-            ushort nYMaxHigh = yMax[half];
-
-            for (int i = 1; i < half; i++)
-            {	// Note that the first and last indexes are always done.
-                int high = half + i;
-                if (yMax[high] == ushort.MaxValue)
-                {
-                    yMin[high] = nYMinHigh;
-                    yMax[high] = nYMaxHigh;
-                }
-                else
-                {
-                    nYMinHigh = yMin[high];
-                    nYMaxHigh = yMax[high];
-                }
-
-                int low = half - i;
-                if (yMax[low] == ushort.MaxValue)
-                {
-                    yMin[low] = nYMinLow;
-                    yMax[low] = nYMaxLow;
-                }
-                else
-                {
-                    nYMinLow = yMin[low];
-                    nYMaxLow = yMax[low];
-                }
-            }
-
-            // Now turn these into lines of new blob.
-
-            var lines = new List<VLine>(width);
-            int sx = bound.X - addedPixels;
-
-            for (int i = 0; i < width; i++)
-            {
-                int nX = sx + i;
-                if (imgWidth > 0 && imgHeight > 0)
-                {
-                    if (nX < 0)
-                    {
-                        continue;
-                    }
-
-                    if (nX >= imgWidth)
-                    {
-                        continue;
-                    }
-
-                    if (yMax[i] >= imgHeight)
-                    {
-                        yMax[i] = (ushort)(imgHeight - 1);
-                    }
-                }
-
-                var line = new VLine(nX, yMin[i], yMax[i]);
-                lines.Add(line);
-            }
-
-            // create array of points describing blob as polygon
-            int count = lines.Count * 2 + 1;
-            int up = 0;
-            int down = count - 2;
-            var points = new Point[count];
-
-            foreach (VLine line in lines)
-            {
-                points[up++] = new Point(line.X, line.Y1);
-                points[down--] = new Point(line.X, line.Y2);
-            }
-
-            // repeat the first point
-            VLine ln = lines[0];
-            points[count - 1] = new Point(ln.X, ln.Y1);
-
-            return new Blob(points);
-        }
-       
-
-
+      
         #endregion
     }
 }

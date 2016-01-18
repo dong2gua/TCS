@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
-    public abstract class GraphicsLine : GraphicsBase
+    public class GraphicsLine : GraphicsBase
     {
         protected Point LineStart;
         protected Point LineEnd;
@@ -18,6 +18,19 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         {
             get { return LineEnd; }
             set { LineEnd = value; }
+        }
+        public void UpdatePoint(Point point, DrawingCanvas canvas)
+        {
+            Canvas = canvas;
+            ActualScale = Canvas.ActualScale;
+            point = VerifyPoint(point);
+            LineStart = point;
+            LineEnd = point;
+            RectangleLeft = point.X;
+            RectangleTop = point.Y;
+            RectangleRight = point.X;
+            RectangleBottom = point.Y;
+            GraphicsObjectColor = Colors.DeepPink;
         }
 
         public override void Draw(DrawingContext drawingContext)

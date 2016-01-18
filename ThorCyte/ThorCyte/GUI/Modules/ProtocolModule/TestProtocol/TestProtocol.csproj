@@ -43,6 +43,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ComponentDataService">
+      <HintPath>..\..\..\..\Bin\ComponentDataService.dll</HintPath>
+    </Reference>
     <Reference Include="FreeImageNET">
       <HintPath>..\..\..\..\Tools\FreeImageNET.dll</HintPath>
     </Reference>
@@ -81,10 +84,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="ThorComponentDataService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>temp\ThorComponentDataService.dll</HintPath>
     </Reference>
     <Reference Include="ThorCyte.Infrastructure">
       <HintPath>..\..\..\..\Bin\ThorCyte.Infrastructure.dll</HintPath>

@@ -15,7 +15,8 @@ namespace ThorCyte.HeaderModule
         }
         public void Initialize()
         {
-            _regionViewRegistry.RegisterViewWithRegion(RegionNames.TabRegion, typeof(HeaderView));
+            _regionViewRegistry.RegisterViewWithRegion(RegionNames.HeadRegion, typeof(HeaderView));
+            _regionViewRegistry.RegisterViewWithRegion(RegionNames.TabRegion, typeof(TabView));
         }
     }
 }

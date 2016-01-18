@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -6,6 +7,7 @@ using System.Windows.Input;
 using Prism.Commands;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
+using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.ViewModels
@@ -41,6 +43,13 @@ namespace ThorCyte.ProtocolModule.ViewModels
             set { SetProperty(ref _pannelVm, value); }
         }
 
+        private string _statusMessage;
+        public string StatusMessage
+        {
+            get { return _statusMessage; }
+            set { SetProperty(ref _statusMessage, value); }
+        }
+
 
         #endregion
 
@@ -48,11 +57,13 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         private MarcoEditorViewModel()
         {
+            MessageHelper.SetMessage += SetMessage;
             _pannelVm = new PannelViewModel();
             StartMacroCommand = new DelegateCommand(Macro.Run);
             SaveMacroCommand = new DelegateCommand(Macro.Save);
             StopMacroCommand = new DelegateCommand(Macro.Stop);
         }
+
 
         #endregion
 
@@ -248,6 +259,10 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
         }
 
+        private void SetMessage(string msg)
+        {
+            StatusMessage = msg;
+        }
 
 
         #endregion

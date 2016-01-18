@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml;
+using ComponentDataService.Types;
 using ImageProcess;
-using ThorComponentDataService.Types;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.Views.Modules;
@@ -215,10 +215,12 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             var min = UnitConversion(MinArea, MinAreaUnit, UnitType.Micron);
             var max = UnitConversion(MaxArea, MaxAreaUnit, UnitType.Micron);
 
-            Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId, Macro.CurrentScanId,
+            Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId, Macro.CurrentRegionId+1,
                 Macro.CurrentTileId, _img, min, max);
 
             _img.Dispose();
+
+            SetOutputComponent(ComponentName);
         }
 
         private double UnitConversion(double sourceValue, UnitType sourceUnit, UnitType destUnit)
@@ -254,13 +256,19 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnSerialize(XmlWriter writer)
         {
-            base.OnSerialize(writer);
+            writer.WriteAttributeString("component", ComponentName);
+            writer.WriteAttributeString("min-area", MinArea.ToString("F"));
+            writer.WriteAttributeString("max-area", MaxArea.ToString("F"));
+            writer.WriteAttributeString("check-max-area", IsMaxAreaChecked.ToString().ToLower());
+            writer.WriteAttributeString("unit", MinAreaUnit.ToString());
+            writer.WriteAttributeString("max-unit", MaxAreaUnit.ToString());
+            writer.WriteAttributeString("concave", IsConcaveChecked.ToString().ToLower());
+            writer.WriteAttributeString("cross-boundary", IsBoundaryChecked.ToString().ToLower());
         }
 
         public override void OnDeserialize(XmlReader reader)
         {
             ComponentName = reader["component"];
-            //ContourColor = Global.ReadColor(reader);
             if (reader["min-area"] != null)
             {
                 MinArea = XmlConvert.ToDouble(reader["min-area"]);

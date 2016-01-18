@@ -455,8 +455,6 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         #region Methods in IData interface
 
-
-
         /// <summary>
         /// Get image data by scanId, scanRegionId and channelId.All ids are 1-based exposed to outside.
         /// It would be better to keep all id in same rule.althorgh in inside the implement code
@@ -502,6 +500,17 @@ namespace ThorCyte.Infrastructure.Interfaces
             Clear();
             _experiment = (ThorCyteExperiment) experiment;
             SetExperimentPath(_experiment.BasePath);
+        }
+
+        public ImageData GetData(int scanId, int scanRegionId, int channelId, int planeId, int timingFrameId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ImageData GetData(int scanId, int scanRegionId, int channelId, int planeId, int timingFrameId, double scale,
+            Int32Rect regionRect)
+        {
+            throw new NotImplementedException();
         }
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId,
@@ -559,9 +568,6 @@ namespace ThorCyte.Infrastructure.Interfaces
             original.Dispose();
             return image;
         }
-
-        
-
 
         public ImageData GetTileData(int scanId, int scanRegionId, int channelId, int streamFrameId, int tileId,
             int timingFrameId)

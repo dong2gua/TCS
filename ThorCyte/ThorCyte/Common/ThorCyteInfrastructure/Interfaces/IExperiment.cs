@@ -14,6 +14,7 @@ namespace ThorCyte.Infrastructure.Interfaces
         public string SoftwareVersion { set; get; }
         public string Notes { set; get; }
         public int IntensityBits { set; get; }
+        public string AnalysisPath { set; get; }
     }
 
     public class ScanInfo
@@ -39,13 +40,14 @@ namespace ThorCyte.Infrastructure.Interfaces
         public int TiledHeight { set; get; }
 
         public int StreamFrameCount { set; get; }    // For ThorImage: stream scan; For OCT time sequence or Doppler scan
-
+        public int FlybackFrameCount { set; get; }       // For ThorImage: stram fast Z scan;
         public int ThirdDimensionSteps { set; get; }   // For ThorImage: Z Steps; For ThorOCT Y Steps;
 
         public int TimingFrameCount { set; get; }
         public double TimeInterval { set; get; }
 
         public IList<ScanRegion> ScanRegionList {private set; get; }
+        public IList<Well> ScanWellList { private set; get; } 
 
         public IList<int> TimePointList { private set; get;}
 
@@ -56,6 +58,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             ScanRegionList = new List<ScanRegion>();
             TimePointList = new List<int>();
             ComputeColorList = new List<ComputeColor>();
+            ScanWellList = new List<Well>();
         }
     }
 

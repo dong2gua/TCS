@@ -15,6 +15,8 @@ namespace ThorCyte.Infrastructure.Interfaces
         private ExperimentInfo _experimentInfo;
         private ScanInfo _currentScanInfo;
         private string _carrierType;
+        private int _captureMode;
+        private bool _zTStream;
 
         private readonly List<string> _carrierList = new List<string> { 
             "00000000-0000-0000-0001-000000000008",  //WELL6
@@ -35,6 +37,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             _experimentInfo.InstrumentType = "ThorImage";
             _experimentInfo.IntensityBits = 14;
             _currentScanInfo.DataPath = Path.GetDirectoryName(experimentPath);
+            _experimentInfo.AnalysisPath = _currentScanInfo.DataPath + "\\Analysis";
             _currentScanInfo.ScanId = 1;
             _currentScanInfo.ResolutionUnit = ResUnit.Micron;
             _currentScanInfo.ScanPathMode = ScanPathType.Serpentine;
@@ -108,12 +111,17 @@ namespace ThorCyte.Infrastructure.Interfaces
                     LoadChannels(reader);
                     break;
                 case "ZStage":
-                    if (XmlConvert.ToBoolean(reader["zStreamMode"]))
+                    _zTStream = XmlConvert.ToBoolean(reader["zStreamMode"]);
+                    if (_zTStream)
                     {
                         _currentScanInfo.StreamFrameCount = XmlConvert.ToInt32(reader["zStreamFrames"]);
-                        _currentScanInfo.ThirdDimensionSteps = XmlConvert.ToInt32(reader["steps"]);
-                        _currentScanInfo.ZPixcelSize = XmlConvert.ToDouble(reader["stepSizeUM"]);
                     }
+                    else
+                    {
+                        _currentScanInfo.StreamFrameCount = 0;
+                    }
+                    _currentScanInfo.ThirdDimensionSteps = XmlConvert.ToInt32(reader["steps"]);
+                    _currentScanInfo.ZPixcelSize = XmlConvert.ToDouble(reader["stepSizeUM"]);
                     break;
                 case "Timelapse":
                     _currentScanInfo.TimingFrameCount = XmlConvert.ToInt32(reader["timepoints"]);
@@ -137,15 +145,28 @@ namespace ThorCyte.Infrastructure.Interfaces
                     if (enable == 1)
                     {
                         _currentScanInfo.StreamFrameCount = XmlConvert.ToInt32(reader["frames"]);
+                        
+                        int fastZEnable = XmlConvert.ToInt32(reader["zFastEnable"]);
+                        if (fastZEnable == 1)
+                        {
+                            _currentScanInfo.FlybackFrameCount = XmlConvert.ToInt32(reader["flybackFrames"]);
+                            _currentScanInfo.StreamFrameCount /= (_currentScanInfo.FlybackFrameCount + _currentScanInfo.ThirdDimensionSteps);
+                        }
+                        else
+                        {
+                            _currentScanInfo.FlybackFrameCount = 0;
+                        }
                     }
                     else
                     {
-                        _currentScanInfo.ThirdDimensionSteps = 0;
+                        if (!_zTStream)
+                            _currentScanInfo.StreamFrameCount = 0;
                     }
+
                     break;
                 case "CaptureMode":
-                    int mode = XmlConvert.ToInt32(reader["mode"]);
-                    if (mode == 1)
+                    _captureMode = XmlConvert.ToInt32(reader["mode"]);
+                    if (_captureMode == 1)
                     {
                         _currentScanInfo.TimingFrameCount = 0;
                     }
@@ -175,8 +196,6 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         private void LoadScanRegion(XmlReader reader)
         {
-            IList<ScanRegion> scanRegions = _currentScanInfo.ScanRegionList;
-
             int carrierId = XmlConvert.ToInt16(reader["type"]);
             _carrierType = _carrierList[carrierId];
 
@@ -232,6 +251,8 @@ namespace ThorCyte.Infrastructure.Interfaces
 
                             ScanRegion sr = new ScanRegion(regionId + 1, regionId++, RegionShape.Rectangle, ptList);
                             _currentScanInfo.ScanRegionList.Add(sr);
+                            Well well = new Well(sr.WellId, sr.Bound);
+                            _currentScanInfo.ScanWellList.Add(well);
                             break;
                     }
                 }
@@ -319,6 +340,11 @@ namespace ThorCyte.Infrastructure.Interfaces
                 else
                 {
                     captureMode = CaptureMode.Mode3D;
+                }
+
+                if (_captureMode == 1)
+                {
+                    captureMode = CaptureMode.Mode3DFastZStream;
                 }
             }
             else

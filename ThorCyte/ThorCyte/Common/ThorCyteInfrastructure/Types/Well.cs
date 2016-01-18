@@ -13,13 +13,14 @@ namespace ThorCyte.Infrastructure.Types
         #region Properties
 
         public int WellId { get; set; } 
-
+        public Rect Bound { get; set; }
         #endregion
 
         #region Constructors
-        public Well(int wellId, RegionShape shape, Rect bound)
+        public Well(int wellId, Rect bound)
         {
             WellId = wellId;
+            Bound = bound;
         }
         #endregion
     }

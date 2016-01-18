@@ -16,12 +16,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
     {
         #region Properties and Fields
 
-        private string _statusMessage;
-        public string StatusMessage
-        {
-            get { return _statusMessage; }
-            set { SetProperty(ref _statusMessage, value); }
-        }
 
         private List<TreeViewItemModel> _listModuleInfos = new List<TreeViewItemModel>
         {
@@ -98,7 +92,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             MacroEditor.Instance.CreateModule += CreateModule;
             Macro.Clear += Clear;
-            StatusMessage = "Ready.";
+            MessageHelper.PostMessage("Ready.");
             Initialize();
         }
         #endregion
@@ -149,8 +143,12 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 }
             }
 
-            StatusMessage = "Ready.";
+            MessageHelper.PostMessage("Ready.");
+
         }
+
+        
+
 
 
         /// <summary>
@@ -173,7 +171,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 return;
             }
 
-            StatusMessage = string.Format("Searching for \"{0}\" ...", mName);
+            MessageHelper.PostMessage(string.Format("Searching for \"{0}\" ...", mName));
 
             foreach (var minfo in ListModuleInfos.Where(info => !Equals(info, null)))
             {
@@ -221,7 +219,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     lstModinfo.Items.Remove(item);
                 }
             }
-            StatusMessage = string.Format("Searching done for \"{0}\" ...", mName);
+            MessageHelper.PostMessage(string.Format("Searching done for \"{0}\" ...", mName));
         }
 
 

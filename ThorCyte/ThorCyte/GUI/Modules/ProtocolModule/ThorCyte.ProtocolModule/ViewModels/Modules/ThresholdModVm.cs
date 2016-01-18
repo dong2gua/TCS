@@ -215,8 +215,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
             if (method != null)
             {
-                if (method == "Auto")
-                    method = "Statistical";
                 Method = (ThresholdMethod)Enum.Parse(typeof(ThresholdMethod), method);
             }
 
@@ -229,6 +227,12 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 IsRecalculateEnabled = XmlConvert.ToBoolean(reader["recalculate"]);
             }
+        }
+
+        public override void OnSerialize(XmlWriter writer)
+        {
+            writer.WriteAttributeString("method", Method.ToString());
+            writer.WriteAttributeString("threshold", Threshold.ToString());
         }
 
         #endregion

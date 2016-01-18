@@ -23,7 +23,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         protected static void AddNewObject(DrawingCanvas drawingCanvas, GraphicsBase o)
         {
             drawingCanvas.UnselectAll();
-            o.Clip = new RectangleGeometry(new Rect(0, 0, drawingCanvas.ActualWidth / drawingCanvas.ActualScale.Item1, drawingCanvas.ActualHeight / drawingCanvas.ActualScale.Item2));
+            o.Clip = new RectangleGeometry(new Rect(0, 0, drawingCanvas.ActualWidth, drawingCanvas.ActualHeight));
 
             o.IsSelected = true;
             drawingCanvas.GraphicsList.Add(o);

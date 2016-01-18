@@ -279,7 +279,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             writer.WriteAttributeString("enabled", _enabled.ToString().ToLower());
             writer.WriteAttributeString("x", _x.ToString());
             writer.WriteAttributeString("y", _y.ToString());
-            writer.WriteAttributeString("scale", ScanNo.ToString());
+            writer.WriteAttributeString("scanId", ScanNo.ToString());
 
             OnSerialize(writer);
             writer.WriteEndElement();
@@ -299,6 +299,14 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         }
 
+        protected void SetOutputComponent(string componetName)
+        {
+            if (componetName != string.Empty)
+            {
+                _outputPort.ComponentName = componetName;
+            }
+
+        }
         #endregion
     }
 }

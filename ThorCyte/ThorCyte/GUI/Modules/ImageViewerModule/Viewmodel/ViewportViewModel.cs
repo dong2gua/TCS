@@ -20,13 +20,25 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ViewportViewModel : BindableBase
     {
-        private double _aspectRatio = 1;
+        private bool _isListViewCollapsed=true;
+        public bool IsListViewCollapsed
+        {
+            get { return _isListViewCollapsed; }
+            set
+            {
+                SetProperty<bool>(ref _isListViewCollapsed, value, "IsListViewCollapsed");
+            }
+        }
+        private bool _isAspectRatio;
+        private double _aspectRatio;
         public double AspectRatio
         {
-            get { return _aspectRatio; }
-            set {
-                SetProperty<double>(ref _aspectRatio, value, "AspectRatio");
-                Scale = new Tuple<double, double, double>(VisualScale, VisualScale * _aspectRatio, DataScale);
+            get
+            {
+                if (_isAspectRatio)
+                    return _aspectRatio;
+                else
+                    return 1;
             }
         }
         private ObservableCollection<ChannelImage> _channelImages;
@@ -86,6 +98,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         OperateChannelEvent _operateChannelEvent;
         public ICommand ListViewDeleteCommand { get; private set; }
         public ICommand ListViewEditCommand { get; private set; }
+        public ICommand ExpandListCommand { get; private set; }
         private Int32Rect VisualRect;
         private double VisualScale;
         private double DataScale;
@@ -109,9 +122,14 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             ActualScale /= 1.5;
             CalcZoom();
         }
+        public void SetAspectRatio(bool isAspectRatio)
+        {
+            _isAspectRatio = isAspectRatio;
+            CalcZoom();
+        }
         private void CalcZoom()
         {
-            var s = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height / _aspectRatio));
+            var s = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height / AspectRatio));
             if (ActualScale > 4) ActualScale = 4;
             else if (ActualScale < s) ActualScale = s;
             if (_isTile)
@@ -132,7 +150,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                     VisualScale = 1;
                 }
             }
-            Scale = new Tuple<double, double, double>(VisualScale, VisualScale * _aspectRatio, DataScale);
+            Scale = new Tuple<double, double, double>(VisualScale, VisualScale * AspectRatio, DataScale);
             var status = new MousePointStatus() { Scale = ActualScale};
             _updateMousePointEvent.Publish(status);
         }
@@ -158,6 +176,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _operateChannelEvent = eventAggregator.GetEvent<OperateChannelEvent>();
             ListViewDeleteCommand = new DelegateCommand<object>(OnListViewDelete);
             ListViewEditCommand = new DelegateCommand<object>(OnListViewEdit);
+            ExpandListCommand = new DelegateCommand(OnExpandList);
             _channelImages = new ObservableCollection<ChannelImage>();
         }
         public void OnMousePoint(Point point)
@@ -167,15 +186,15 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             if (x >= ImageSize.Width || x < 0 || y >= ImageSize.Height || y < 0) return;
             var index = (int)(x * DataScale) - (int)(VisualRect.X * DataScale) + ((int)(y * DataScale) - (int)(VisualRect.Y * DataScale)) * (int)(VisualRect.Width * DataScale);
             if (index >= CurrentChannelImage.ImageData.Length||index<0) return;
-            var gv = CurrentChannelImage.ImageData[index];
+            var gv = CurrentChannelImage.IsComputeColor ? 0: CurrentChannelImage.ImageData[index];
             var status = new MousePointStatus() {Scale=ActualScale, Point = new Point(x*_scanInfo.XPixcelSize, y * _scanInfo.YPixcelSize), GrayValue = gv, IsComputeColor = CurrentChannelImage.IsComputeColor };
             _updateMousePointEvent.Publish(status);
 
         }
         public void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            CanvasActualWidth = (int)e.NewSize.Width;
-            CanvasActualHeight = (int)e.NewSize.Height;
+            CanvasActualWidth = e.NewSize.Width;
+            CanvasActualHeight = e.NewSize.Height;
         }
         private ImageData getData(ChannelImage channel, Int32Rect rect, double scale)
         {
@@ -356,24 +375,26 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _tileId = tileId;
             _maxBits = experimentInfo.IntensityBits;
             _scanInfo = scanInfo;
+            _aspectRatio = _scanInfo.YPixcelSize / _scanInfo.XPixcelSize;
+            _isAspectRatio = true;
             if (_isTile)
             {
-                var width = (int)(_scanInfo.TileWidth);
-                var height = (int)(_scanInfo.TileWidth);
+                var width =_scanInfo.TileWidth;
+                var height = _scanInfo.TiledHeight;
                 ImageSize = new Size(width, height);
                 DataScale = 1; 
-                VisualScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height));
-                Scale = new Tuple<double, double, double>(VisualScale, VisualScale * _aspectRatio, DataScale);
+                VisualScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height / AspectRatio));
+                Scale = new Tuple<double, double, double>(VisualScale, VisualScale * AspectRatio, DataScale);
                 ActualScale = DataScale* VisualScale;
             }
             else
             {
-                var width = (int)(_scanInfo.ScanRegionList[regionId].Bound.Width / _scanInfo.XPixcelSize);
-                var height = (int)(_scanInfo.ScanRegionList[regionId].Bound.Height / _scanInfo.YPixcelSize);
+                var width = (int)Math.Round(_scanInfo.ScanRegionList[regionId].Bound.Width / _scanInfo.XPixcelSize);
+                var height = (int)Math.Round(_scanInfo.ScanRegionList[regionId].Bound.Height / _scanInfo.YPixcelSize);
                 ImageSize = new Size(width, height);
-                DataScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height));
+                DataScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height / AspectRatio));
                 VisualScale = 1;
-                Scale = new Tuple<double, double, double>(VisualScale, VisualScale * _aspectRatio, DataScale);
+                Scale = new Tuple<double, double, double>(VisualScale, VisualScale * AspectRatio, DataScale);
                 ActualScale = DataScale * VisualScale;
             }
             RefreshChannel();
@@ -545,5 +566,10 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             var args = new OperateChannelArgs() { ChannelName = channelImage.ChannelName, IsComputeColor = channelImage.IsComputeColor, Operator = 1 };
             _operateChannelEvent.Publish(args);
         }
+        private void OnExpandList()
+        {
+            IsListViewCollapsed = !_isListViewCollapsed;
+        }
+        
     }
 }

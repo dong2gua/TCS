@@ -7,6 +7,8 @@ using ThorCyte.ProtocolModule.Events;
 
 namespace ThorCyte.ProtocolModule.Controls
 {
+
+    
     /// <summary>
     /// This is a UI element that represents a PannelVm/flow-chart _module.
     /// </summary>
@@ -42,11 +44,22 @@ namespace ThorCyte.ProtocolModule.Controls
 
         #region Constructors
 
+
         public Module()
         {
             // By default, we don't want this UI element to be focusable.
             Focusable = false;
+            Loaded += Module_Loaded;
         }
+
+        private void Module_Loaded(object sender, RoutedEventArgs e)
+        {
+            Resize(X + ActualWidth, Y + ActualHeight);
+        }
+
+        public delegate void ResizeHandler(double width, double height);
+        public static ResizeHandler Resize;
+
 
         /// <summary>
         /// Static constructor.

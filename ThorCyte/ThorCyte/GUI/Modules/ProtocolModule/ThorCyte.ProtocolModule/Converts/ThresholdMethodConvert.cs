@@ -8,7 +8,6 @@ namespace ThorCyte.ProtocolModule.Converts
     class ThresholdMethodConvert : IValueConverter
     {
         private const string ManualMethod = "Manual";
-        private const string StatisticalMethod = "Statistical";
         private const string OtsuMethod = "Otsu";
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -19,8 +18,6 @@ namespace ThorCyte.ProtocolModule.Converts
             {
                 case ThresholdMethod.Manual:
                     return param == ManualMethod;
-                case ThresholdMethod.Statistical:
-                    return param == StatisticalMethod;
                 case ThresholdMethod.Otsu:
                     return param == OtsuMethod;
                 default:
@@ -35,8 +32,6 @@ namespace ThorCyte.ProtocolModule.Converts
             {
                 case ManualMethod:
                     return ThresholdMethod.Manual;
-                case StatisticalMethod:
-                    return ThresholdMethod.Statistical;
                 case OtsuMethod:
                     return ThresholdMethod.Otsu;
                 default:

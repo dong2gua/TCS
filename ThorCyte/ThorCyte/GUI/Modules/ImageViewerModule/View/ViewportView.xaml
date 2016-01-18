@@ -8,24 +8,106 @@
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <DataTemplate x:Key="ExpandedListViewItemTemplate" DataType="{x:Type ListViewItem}">
+            <Grid  Width="80">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="80"/>
+                </Grid.RowDefinitions>
+                <Image Grid.Row="1" Source="{Binding Thumbnail}"/>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ChannelName}"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="CollapsedListViewItemTemplate" DataType="{x:Type ListViewItem}">
+            <Grid  Width="80" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="16"/>
+                </Grid.RowDefinitions>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ChannelName}"/>
+            </Grid>
+        </DataTemplate>
+        <Style x:Key="ChannelListStyle" TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource {x:Type ListViewItem}}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}" 
+								Background="{TemplateBinding Background}" 
+								Padding="{TemplateBinding Padding}" 
+								SnapsToDevicePixels="true">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+												SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+												VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsListViewCollapsed,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" Value="True">
+                                <Setter Property="ContentTemplate" Value="{StaticResource CollapsedListViewItemTemplate}" />
+                            </DataTrigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource SelectedListItem}"/>
+                                <Setter Property="Foreground" Value="{StaticResource SelectedListItemForeground}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{StaticResource DisabledMenuForeground}"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="{StaticResource MouseOverListItem}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ContentTemplate" Value="{StaticResource ExpandedListViewItemTemplate}"></Setter>
+        </Style>
+        <Style TargetType="Button" x:Key="ExpandButtonStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+							Margin="{TemplateBinding Padding}" 
+							RecognizesAccessKey="True" 
+							SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+							VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Content">
+                            <Setter.Value>
+                                <Image Source="..\resources\collapse.png"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsListViewCollapsed}" Value="True">
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <Image Source="..\resources\expand.png"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+
+        </Style>
+    </UserControl.Resources>
     <Border x:Name="viewportBorder" BorderThickness="1" CornerRadius="5" BorderBrush="CadetBlue">
-        <Grid Background="#444444">
+        <Grid Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
 
             </Grid.ColumnDefinitions>
-            <drawtools:DrawingCanvas x:Name="drawCanvas"  DisplayImage="{Binding CurrentChannelImage.Image}" ActualScale="{Binding Scale}" ImageSize="{Binding ImageSize}">
-            </drawtools:DrawingCanvas>
-            <!--<Label Content="Please load image" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30" x:Name="loadImageLabel"/>-->
-            <Button Grid.Row="1" Height="5" Click="ExpandList_Click">
-                <Image Source="..\resources\expand.png"/>
-            </Button>
-            <ListView Grid.Row="2" x:Name="listView" ItemsSource="{Binding ChannelImages}" SelectedItem="{Binding CurrentChannelImage}"  Height="100">
+            <drawtools:DrawingCanvas x:Name="drawCanvas"  DisplayImage="{Binding CurrentChannelImage.Image}" ActualScale="{Binding Scale}" ImageSize="{Binding ImageSize}"/>
+
+            <Button Grid.Row="1" Height="20" Width="20" VerticalAlignment="Top" HorizontalAlignment="Right" Command="{Binding ExpandListCommand}" Panel.ZIndex="1" Style="{StaticResource ExpandButtonStyle}"/>
+            
+            <ListView Grid.Row="1" x:Name="listView" ItemsSource="{Binding ChannelImages}" SelectedItem="{Binding CurrentChannelImage}"  ItemContainerStyle="{StaticResource ChannelListStyle}">
                 <ListView.ContextMenu>
                     <ContextMenu  >
                         <MenuItem Header="Edit"  Command="{Binding  ListViewEditCommand}"
@@ -41,18 +123,6 @@
                         <WrapPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid  Width="80">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="15"/>
-                                <RowDefinition Height="80"/>
-                            </Grid.RowDefinitions>
-                            <Image Grid.Row="1" Source="{Binding Thumbnail}"/>
-                            <TextBlock  Text="{Binding ChannelName}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
             </ListView>
         </Grid>
     </Border>

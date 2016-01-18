@@ -47,6 +47,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _start = null;
             _end = null;
         }
+        public void OnCloseWindow()
+        {
+            _channel = null;
+            _start = null;
+            _end = null;
+        }
         private void OnUpdateProfilePoints(ProfilePoints e)
         {
             _start = e.StartPoint;

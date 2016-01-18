@@ -64,6 +64,13 @@ namespace ImageProcess
         [DllImport(DllName, EntryPoint = "fnipp_lib_otsuThreshold_16uC1", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int OtsuThreshold16UC1(IntPtr srcBuffer, int width, int height, IntPtr dstBuffer);
 
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_dilate_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Dilate16UC1(IntPtr srcBuffer, int width, int height, int maskSize, IntPtr dstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_sum_16uC1M", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Sum16UC1M(IntPtr srcBuffer, int width, int height, IntPtr mask, int maskStep,
+            out double sum);
         #endregion
 
         static ImageProcessLib()

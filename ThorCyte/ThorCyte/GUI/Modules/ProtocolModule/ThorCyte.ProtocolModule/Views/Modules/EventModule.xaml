@@ -91,7 +91,23 @@
                                 <xctk:IntegerUpDown Grid.Column="0" Margin="2" Height="20" Minimum="0" Value="{Binding BkHighPct}"/>
                                 <Label Grid.Column="1" Margin="2" Content="%"/>
                             </Grid>
-
+                        </Grid>
+                        <Label Content="Corrected Channels:"/>
+                        <Grid>
+                            <ListBox ItemsSource="{Binding ChannelCollection}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="5*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked, Mode=TwoWay}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding ChannelName, Mode=TwoWay}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </Grid>
                     </StackPanel>
                 </GroupBox>

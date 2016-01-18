@@ -8,19 +8,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
     {
         public double XPixelSize { get; set; }
         public double YPixelSize { get; set; }
-        public void UpdatePoint(Point point, DrawingCanvas canvas)
-        {
-            Canvas = canvas;
-            ActualScale = Canvas.ActualScale;
-            point = VerifyPoint(point);
-            LineStart = point;
-            LineEnd = point;
-            RectangleLeft = point.X;
-            RectangleTop = point.Y;
-            RectangleRight = point.X;
-            RectangleBottom = point.Y;
-            GraphicsObjectColor = Colors.DeepPink;
-        }
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
@@ -36,7 +23,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 
             return new FormattedText(text, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                 typeface,
-                24 / ActualScale.Item1,
+                24 ,
                 new SolidColorBrush(GraphicsObjectColor));
            
         }

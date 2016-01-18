@@ -5,27 +5,29 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
 {
     class ToolDragger : Tool
     {
-        private Point _lastPoint = new Point(0, 0);
+        private Point? _lastPoint = null;
         public override void OnMouseDown(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
-            _lastPoint = position;
-            drawingCanvas.CaptureMouse();
+            if (e.LeftButton == MouseButtonState.Pressed )
+            {
+                _lastPoint = position;
+                drawingCanvas.CaptureMouse();
+            }
         }
         public override void OnMouseMove(DrawingCanvas drawingCanvas, MouseEventArgs e, Point position)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (e.LeftButton == MouseButtonState.Pressed&&_lastPoint.HasValue)
             {
-                var point = position;
-                var dx = point.X - _lastPoint.X;
-                var dy = point.Y - _lastPoint.Y;
-
-                _lastPoint = point;
+                var dx = position.X - _lastPoint.Value.X;
+                var dy = position.Y - _lastPoint.Value.Y;
+                _lastPoint = position;
                 drawingCanvas.Drag(dx, dy);
             }
         }
         public override void OnMouseUp(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             drawingCanvas.ReleaseMouseCapture();
+            _lastPoint = null;
         }
         public override void SetCursor(DrawingCanvas drawingCanvas)
         {

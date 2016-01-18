@@ -11,6 +11,9 @@ msbuild %~dp0\ThorCyte\GUI\Application\ThorCyte\ThorCyte.sln  >  %~dp0\BulidLog.
 @ echo -- Start to Build ImageProcess.sln ... 
 msbuild %~dp0\ThorCyte\Common\ImageProcess\ImageProcess.sln >> %~dp0\BulidLog.txt || echo !!! Build ImageProcess.sln FAILED! Please check the BuildLog.txt! 
 
+@ echo -- Start to Build ComponentDataService.sln ... 
+msbuild %~dp0\ThorCyte\Common\ComponentDataService\ComponentDataService.sln >> %~dp0\BulidLog.txt || echo !!! Build ComponentDataService.sln FAILED! Please check the BuildLog.txt! 
+
 @ echo -- Start to Build ProtocolModule.sln ... 
 msbuild %~dp0\ThorCyte\GUI\Modules\ProtocolModule\ProtocolModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ProtocolModule.sln FAILED! Please check the BuildLog.txt! 
 
