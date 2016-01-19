@@ -8,16 +8,4 @@ namespace ThorCyte.Infrastructure.Events
     public class MacroStart : PubSubEvent<MacroStartEventArgs>
     {
     }
-
-    public class MacroStartEventArgs
-    {
-        public int RegionId;
-        public int TileId;
-
-        public MacroStartEventArgs()
-        {
-            RegionId = 0;
-            TileId = 0;
-        }
-    }
 }

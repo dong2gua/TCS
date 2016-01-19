@@ -93,8 +93,10 @@
     <Compile Include="Carrier\Slide.cs" />
     <Compile Include="Carrier\SliderDef.cs" />
     <Compile Include="Common\Converter.cs" />
+    <Compile Include="Common\DisplayMode.cs" />
     <Compile Include="Common\DrawFunction.cs" />
     <Compile Include="Common\WaitCursor.cs" />
+    <Compile Include="Events\RegionsSelected.cs" />
     <Compile Include="Graphics\GraphicsBase.cs" />
     <Compile Include="Graphics\GraphicsCross.cs" />
     <Compile Include="Graphics\GraphicsEllipse.cs" />

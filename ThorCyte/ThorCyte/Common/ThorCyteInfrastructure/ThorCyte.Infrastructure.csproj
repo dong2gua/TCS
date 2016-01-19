@@ -76,6 +76,7 @@
     <Compile Include="Events\SaveAnalysisResultEvent.cs" />
     <Compile Include="Events\SelectRegions.cs" />
     <Compile Include="Events\SelectRegionTileEvent.cs" />
+    <Compile Include="Events\SelectWells.cs" />
     <Compile Include="Events\ShowRegionEvent.cs" />
     <Compile Include="Exceptions\CyteException.cs" />
     <Compile Include="Interfaces\IData.cs" />

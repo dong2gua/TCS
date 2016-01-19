@@ -27,9 +27,13 @@ namespace ThorCyte.CarrierModule.ViewModels
         #endregion
 
         #region Properties
+        private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
         {
-            get { return ServiceLocator.Current.GetInstance<IEventAggregator>(); }
+            get
+            {
+                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
         }
 
         public ScanInfo CurrentScanInfo
@@ -126,7 +130,8 @@ namespace ThorCyte.CarrierModule.ViewModels
                 _currentCarrierType = exp.GetCarrierType();
                 _currentScanInfo = exp.GetScanInfo(_currentScanId);
                 _tileview.vm.CurrentScanInfo = _currentScanInfo;
-
+                _slideView.slideCanvas.CurrentScanInfo = _currentScanInfo;
+                _plateView.plateCanvas.CurrentScanInfo = _currentScanInfo;
 
                 CreateCarrier(_currentCarrierType);
                 LoadScanArea(_currentScanInfo);

@@ -3,7 +3,7 @@ using Prism.Events;
 
 namespace ThorCyte.Infrastructure.Events
 {
-    public class SelectRegions : PubSubEvent<List<int>>
+    public class SelectWells : PubSubEvent<List<int>>
     {
     }
 }

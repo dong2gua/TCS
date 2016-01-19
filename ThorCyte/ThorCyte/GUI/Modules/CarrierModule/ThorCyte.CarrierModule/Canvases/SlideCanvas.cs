@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -11,14 +10,18 @@ using Microsoft.Practices.ServiceLocation;
 using Prism.Events;
 using ThorCyte.CarrierModule.Carrier;
 using ThorCyte.CarrierModule.Common;
+using ThorCyte.CarrierModule.Events;
 using ThorCyte.CarrierModule.Graphics;
 using ThorCyte.CarrierModule.Tools;
 using ThorCyte.Infrastructure.Events;
+using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
 using Pen = System.Windows.Media.Pen;
 using Point = System.Windows.Point;
+using CaptureMode = ThorCyte.Infrastructure.Types.CaptureMode;
+
 
 namespace ThorCyte.CarrierModule.Canvases
 {
@@ -101,10 +104,16 @@ namespace ThorCyte.CarrierModule.Canvases
 
         #region Properties
 
-        private static IEventAggregator EventAggregator
+        private IEventAggregator _eventAggregator;
+        private IEventAggregator EventAggregator
         {
-            get { return ServiceLocator.Current.GetInstance<IEventAggregator>(); }
+            get
+            {
+                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
         }
+
+        public ScanInfo CurrentScanInfo { get; set; }
 
         public new object Parent
         {
@@ -646,6 +655,21 @@ namespace ThorCyte.CarrierModule.Canvases
             }
         }
 
+        private List<CaptureMode> GetBypassMode()
+        {
+            var ret = new List<CaptureMode> 
+            {
+                CaptureMode.Mode2DStream,
+                CaptureMode.Mode2DTimingStream,
+                CaptureMode.Mode3DFastZStream,
+                CaptureMode.Mode3DStream,
+                CaptureMode.Mode3DTimingStream
+            };
+
+            return ret;
+        }
+
+
         public void SetActiveRegions()
         {
             var prevCount = _slideMod.ActiveRegions.Count;
@@ -661,12 +685,31 @@ namespace ThorCyte.CarrierModule.Canvases
 
             using (new WaitCursor())
             {
+                //No region event publish to outside.
+                //just internal use
                 var eventArgs = new List<int>();
                 eventArgs.Clear();
                 eventArgs.AddRange(_slideMod.ActiveRegions.Select(region => region.RegionId));
-                EventAggregator.GetEvent<SelectRegions>().Publish(eventArgs);
+                EventAggregator.GetEvent<RegionsSelected>().Publish(eventArgs);
 
-                Debug.WriteLine("ActiveRegionChanged Published!");
+                if (GetBypassMode().Contains(CurrentScanInfo.Mode)) return;
+
+                switch (CarrierModule.Mode)
+                {
+                    case DisplayMode.Review:
+                        eventArgs = new List<int>();
+                        eventArgs.Clear();
+                        eventArgs.AddRange(_slideMod.ActiveRegions.Select(region => region.RegionId));
+                        EventAggregator.GetEvent<SelectRegions>().Publish(eventArgs);
+                        break;
+
+                    case DisplayMode.Analysis:
+                        eventArgs = new List<int>();
+                        eventArgs.Clear();
+                        eventArgs.AddRange(_slideMod.ActiveRegions.Select(region => region.WellId));
+                        EventAggregator.GetEvent<SelectWells>().Publish(eventArgs);
+                        break;
+                }
             }
         }
 

@@ -8,6 +8,7 @@ using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using ThorCyte.CarrierModule.Events;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
@@ -66,9 +67,13 @@ namespace ThorCyte.CarrierModule.ViewModels
         private ScanRegion _inRegion = null;
 
 
-        private static IEventAggregator EventAggregator
+        private IEventAggregator _eventAggregator;
+        private IEventAggregator EventAggregator
         {
-            get { return ServiceLocator.Current.GetInstance<IEventAggregator>(); }
+            get
+            {
+                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
         }
 
         public ObservableCollection<TileItem> TilesShowInCanvas
@@ -139,7 +144,7 @@ namespace ThorCyte.CarrierModule.ViewModels
         public TileViewModel()
         {
             //subscribe select region event.
-            var selectRegionEvt = EventAggregator.GetEvent<SelectRegions>();
+            var selectRegionEvt = EventAggregator.GetEvent<RegionsSelected>();
             selectRegionEvt.Subscribe(OnSelectRegionChanged);
 
             //delegate button click command
