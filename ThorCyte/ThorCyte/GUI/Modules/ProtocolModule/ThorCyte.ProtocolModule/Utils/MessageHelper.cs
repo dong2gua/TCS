@@ -10,6 +10,9 @@ namespace ThorCyte.ProtocolModule.Utils
         public delegate void ProgressMessageHandler(string type, int max, int value);
         public static ProgressMessageHandler SetProgress;
 
+        public delegate void MacroRunningHandler(bool isRuning);
+        public static MacroRunningHandler SetRuning;
+
 
         public static void PostMessage(string msg)
         {
@@ -23,5 +26,12 @@ namespace ThorCyte.ProtocolModule.Utils
             if (SetProgress == null) return;
             SetProgress.BeginInvoke(type, max, value, null, null);
         }
+
+        public static void SendMacroRuning(bool isRunding)
+        {
+            if(SetRuning == null) return;
+            SetRuning.Invoke(isRunding);
+        }
+
     }
 }

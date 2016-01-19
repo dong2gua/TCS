@@ -96,6 +96,8 @@
     <Compile Include="Controls\PannelView_NodeDragging.cs" />
     <Compile Include="Controls\Port.cs" />
     <Compile Include="Converts\AreaTypeConvert.cs" />
+    <Compile Include="Converts\BoolReverseConverter.cs" />
+    <Compile Include="Converts\BoolToVisibilityConverter .cs" />
     <Compile Include="Converts\ChannelNameConvert.cs" />
     <Compile Include="Converts\ThresholdMethodConvert.cs" />
     <Compile Include="Events\ConnectionDragEvents.cs" />

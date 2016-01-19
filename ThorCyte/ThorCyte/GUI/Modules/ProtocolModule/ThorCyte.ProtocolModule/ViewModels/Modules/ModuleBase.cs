@@ -260,7 +260,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     {
                         connection.TransferExecute(_outputPort.Image);
                     }
-                    _outputPort.Image.Dispose();
+                    if (_outputPort.Image != null)
+                        _outputPort.Image.Dispose();
+                    
                     break;
             }
         }

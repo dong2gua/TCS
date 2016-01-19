@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 
 namespace ImageProcess.DataType
 {
@@ -54,7 +53,7 @@ namespace ImageProcess.DataType
 
         #region Constructors
 
-        public Blob(IList<Point> points)
+        public Blob(IEnumerable<Point> points)
         {          
             AddContours(points);
         }
@@ -373,7 +372,6 @@ namespace ImageProcess.DataType
 
             // collect all of the pixels in the blob into the array.
             var pixels = new List<ushort>(Area);
-            int index = 0;
 
             foreach (VLine line in _lines)
             {
@@ -386,7 +384,7 @@ namespace ImageProcess.DataType
                    
                     
             }
-            index = pixels.Count;
+            int index;
             pixels.Sort();
             //Array.Sort(pixels);
             int lowIndex = (Area * lowPct + 50) / 100;
@@ -511,14 +509,9 @@ namespace ImageProcess.DataType
             if (Bound.Contains(pt) == false) return false;
             if (_lines != null)
             {
-                foreach (VLine line in _lines)
-                {
-                    if (Math.Abs(pt.X - line.X) < Tolerance)
-                    {
-                        if (pt.Y >= line.Y1 && pt.Y <= line.Y2)
-                            return true;
-                    }
-                }
+                return
+                    _lines.Where(line => Math.Abs(pt.X - line.X) < Tolerance)
+                        .Any(line => pt.Y >= line.Y1 && pt.Y <= line.Y2);
             }
             return false;
         }

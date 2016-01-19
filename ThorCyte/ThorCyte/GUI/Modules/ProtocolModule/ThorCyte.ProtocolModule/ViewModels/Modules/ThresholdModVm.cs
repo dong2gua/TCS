@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
@@ -188,25 +189,35 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
-            _img = InputImage;
-
-            var thType = ThresholdType.Auto;
-            switch (Method)
+            try
             {
-                case ThresholdMethod.Manual:
-                    thType = ThresholdType.Manual;
-                    break;
+                _img = InputImage;
+
+                var thType = ThresholdType.Auto;
+                switch (Method)
+                {
+                    case ThresholdMethod.Manual:
+                        thType = ThresholdType.Manual;
+                        break;
+                }
+
+                var processedImg = _img.Threshold(Threshold, thType);
+
+                _img.Dispose();
+
+                if (processedImg == null)
+                {
+                    throw new CyteException("ThresholdModVm", "Invaild execution image is null");
+                }
+                SetOutputImage(processedImg);
             }
-
-            var processedImg = _img.Threshold(Threshold, thType);
-
-            _img.Dispose();
-
-            if (processedImg == null)
+            catch (Exception ex)
             {
-                throw new CyteException("ThresholdModVm", "Invaild execution image is null");
+                Debug.WriteLine("Threshold Module error: " + ex.Message);
+                throw;
+
             }
-            SetOutputImage(processedImg);
+           
         }
 
         public override void OnDeserialize(XmlReader reader)

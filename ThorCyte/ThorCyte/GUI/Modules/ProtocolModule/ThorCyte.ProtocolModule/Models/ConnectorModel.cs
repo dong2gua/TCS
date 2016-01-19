@@ -184,7 +184,7 @@ namespace ThorCyte.ProtocolModule.Models
 
         public void TransferExecute(ImageData img)
         {
-            _destPort.Image = img.Clone();
+            if(img != null) _destPort.Image = img.Clone();
             _destPort.ComponentName = _sourcePort.ComponentName;
             _destPort.ParentModule.Execute();
         }

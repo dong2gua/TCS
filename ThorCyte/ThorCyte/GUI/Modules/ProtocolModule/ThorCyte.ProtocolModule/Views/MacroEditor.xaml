@@ -6,10 +6,15 @@
              xmlns:models="clr-namespace:ThorCyte.ProtocolModule.Models"
              xmlns:control="clr-namespace:ThorCyte.ProtocolModule.Controls"
              xmlns:modulesBase="clr-namespace:ThorCyte.ProtocolModule.ViewModels.Modules"
+             xmlns:converts="clr-namespace:ThorCyte.ProtocolModule.Converts"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" MinWidth="880" MinHeight="600" >
     <UserControl.Resources>
         <ResourceDictionary>
+            <converts:BoolReverseConverter x:Key="BoolReverseCvt"/>
+            <converts:BoolToVisibilityConverter x:Key="BoolVisibleCvt"/>
+
+
             <RoutedUICommand x:Key="Commands.DeleteSelectedNodes"/>
             <DataTemplate DataType="{x:Type models:ConnectorModel}">
                 <control:Arrow Stroke="{Binding ConnectionBrush}"  StrokeThickness="2"
@@ -105,21 +110,6 @@
                 <ToggleButton Click="ToolboxClick" Padding="-1" Margin="5,2,0,2">
                     <Image Source="../Resource/Images/toolbox.png" />
                 </ToggleButton>
-                <Button Margin="5,2,0,2"  Padding="-1">
-                    <Image Source="../Resource/Images/batch.png" />
-                </Button>
-
-                <Button Margin="5,2,0,2"  Padding="-1">
-                    <Image Source="../Resource/Images/repetitive.png"/>
-                </Button>
-
-                <Button Margin="5,2,0,2"  Padding="-1">
-                    <Image Source="../Resource/Images/label.png"/>
-                </Button>
-
-                <Button Margin="5,2,0,2"  Padding="-1" >
-                    <Image Source="../Resource/Images/initialize.png"/>
-                </Button>
 
                 <Button Margin="5,2,0,2"  Padding="-1" Content="Save" Command="{Binding SaveMacroCommand}"/>
 
@@ -150,9 +140,9 @@
         <GridSplitter x:Name="splitter1" Grid.Column="1" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
 
         <!--Canvas: Create Module-->
-        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="CadetBlue" >
+        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="CadetBlue" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
             <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="{Binding ElementName=PannelBorder,Path=ActualHeight}" Width="{Binding ElementName=PannelBorder,Path=ActualWidth}">
-                <control:PannelView x:Name="pannel" Background="LightCyan" PreviewKeyDown="PannelKeyDown"
+                <control:PannelView x:Name="pannel" Background="LightCyan" PreviewKeyDown="PannelKeyDown" 
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
                             ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown" PreviewMouseLeftButtonUp="OnMouseLeftUp"/>
@@ -166,24 +156,8 @@
                 <Image x:Name="expandcollapse"  Source="{StaticResource collapseImg}"/>
             </ToggleButton>
 
-            <Button Click="Refresh_Click" Margin="5,2,0,2" Padding="-1" >
-                <Image Source="../Resource/Images/refresh.png"/>
-            </Button>
-
-            <Button Margin="5,2,0,2" Padding="-1" >
-                <Image Source="../Resource/Images/time.png"/>
-            </Button>
-
-            <Button Margin="5,2,0,2" Padding="-1" >
-                <Image Source="../Resource/Images/output.png"/>
-            </Button>
-
-            <Button Margin="5,2,0,2" Padding="-1" Command="{Binding StartMacroCommand}">
-                <Image Source="../Resource/Images/play.png"/>
-            </Button>
-            <Button Margin="5,2,0,2" Padding="-1" Command="{Binding StopMacroCommand}">
-                <Image Source="../Resource/Images/stop.png"/>
-            </Button>
+            <Button Margin="5,2,0,2" Content="Start" Padding="-1" Command="{Binding StartMacroCommand}"/>
+            <Button Margin="5,2,0,2" Content="Stop" Padding="-1" Command="{Binding StopMacroCommand}"/>
         </StackPanel>
 
         <Border x:Name="contentGrid" Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="CadetBlue">
@@ -206,7 +180,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding StatusMessage}"/>
-                <Grid Grid.Column="4" Margin="10,0,10,0">
+                <Grid Grid.Column="4" Margin="10,0,10,0" Visibility="{Binding IsRuning, Converter={StaticResource BoolVisibleCvt}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>

@@ -48,7 +48,6 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         public IList<ScanRegion> ScanRegionList {private set; get; }
         public IList<Well> ScanWellList { private set; get; } 
-
         public IList<int> TimePointList { private set; get;}
 
         public ScanInfo()
@@ -80,6 +79,6 @@ namespace ThorCyte.Infrastructure.Interfaces
         // only for OCT
         BitmapSource GetCameraView();
 
-        
+        int GetCurrentScanId();
     }
 }

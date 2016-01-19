@@ -85,6 +85,11 @@ namespace ThorCyte.Infrastructure.Interfaces
             return null;
         }
 
+        public int GetCurrentScanId()
+        {
+            return 1;
+        }
+
         private void ProcessElement(XmlReader reader)
         {
             switch (reader.Name)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Xml;
 using ComponentDataService.Types;
@@ -204,23 +205,34 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
-            var componentName = InputPorts[0].ComponentName;
-            var define = new BlobDefine
+            try
             {
-                DataExpand = ExpandBy, 
-                BackgroundDistance = BkDistance, 
-                BackgroundHighBoundPercent = BkHighPct,
-                BackgroundLowBoundPercent = BkLowPct,
-                BackgroundWidth = BkWidth,
-                DynamicBkCorrections = GetChCorr(),
-                IsDynamicBackground = IsDynamicBackground,
-                IsPeripheral = IsPeripheral,
-                PeripheralDistance = PeriDistance,
-                PeripheralWidth = PeriWidth
-            };
 
-            Macro.CurrentConponentService.CreateEvents(componentName, Macro.CurrentScanId, Macro.CurrentRegionId +1 ,
-                Macro.CurrentTileId, Macro.CurrentImages, define);
+                var componentName = InputPorts[0].ComponentName;
+                var define = new BlobDefine
+                {
+                    DataExpand = ExpandBy,
+                    BackgroundDistance = BkDistance,
+                    BackgroundHighBoundPercent = BkHighPct,
+                    BackgroundLowBoundPercent = BkLowPct,
+                    BackgroundWidth = BkWidth,
+                    DynamicBkCorrections = GetChCorr(),
+                    IsDynamicBackground = IsDynamicBackground,
+                    IsPeripheral = IsPeripheral,
+                    PeripheralDistance = PeriDistance,
+                    PeripheralWidth = PeriWidth
+                };
+
+                Macro.CurrentConponentService.CreateEvents(componentName, Macro.CurrentScanId, Macro.CurrentRegionId + 1,
+                    Macro.CurrentTileId, Macro.CurrentImages, define);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Event Module error: " + ex.Message);
+                throw;
+            }
+            
+
 
         }
 

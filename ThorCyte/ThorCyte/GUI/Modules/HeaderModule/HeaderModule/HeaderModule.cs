@@ -1,5 +1,6 @@
 ﻿using Prism.Modularity;
 using Prism.Regions;
+using ThorCyte.HeaderModule.ViewModels;
 using ThorCyte.HeaderModule.Views;
 using ThorCyte.Infrastructure.Commom;
 

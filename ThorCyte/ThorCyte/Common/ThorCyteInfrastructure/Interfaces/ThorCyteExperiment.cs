@@ -708,6 +708,11 @@ namespace ThorCyte.Infrastructure.Interfaces
             return null;
         }
 
+        public int GetCurrentScanId()
+        {
+            return 1;
+        }
+
         public ScanInfo GetScanInfo(int scanId)
         {
             switch (scanId)

@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Prism.Events;
+using ThorCyte.Infrastructure.Events;
 
 namespace ThorCyte
 {
@@ -20,9 +10,17 @@ namespace ThorCyte
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
-        {
+        private IEventAggregator _eventAggregator;
+        public MainWindow(IEventAggregator eventAggregator)
+        {   
             InitializeComponent();
+            _eventAggregator = eventAggregator;
+            _eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExperimentLoaded);
+        }
+
+        private void ExperimentLoaded(int obj)
+        {
+            RightCol.SetValue(ColumnDefinition.WidthProperty, new GridLength(325));
         }
     }
 }

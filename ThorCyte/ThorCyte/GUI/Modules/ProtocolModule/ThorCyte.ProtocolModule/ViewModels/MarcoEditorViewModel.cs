@@ -94,6 +94,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             MessageHelper.SetMessage += SetMessage;
             MessageHelper.SetProgress += SetProgress;
+            MessageHelper.SetRuning += SetRuning;
             StartMacroCommand = new DelegateCommand(Macro.Run);
             SaveMacroCommand = new DelegateCommand(Macro.Save);
             StopMacroCommand = new DelegateCommand(Macro.Stop);
@@ -321,6 +322,11 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     break;
             }
 
+        }
+
+        private void SetRuning(bool isRuning)
+        {
+            IsRuning = isRuning;
         }
 
 

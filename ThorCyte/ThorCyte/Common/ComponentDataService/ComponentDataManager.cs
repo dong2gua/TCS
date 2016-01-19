@@ -1,13 +1,12 @@
-﻿using System;
+﻿using ComponentDataService.Types;
+using ImageProcess;
+using ImageProcess.DataType;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security;
 using System.Xml;
-using ComponentDataService.Types;
-using ImageProcess;
-using ImageProcess.DataType;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 
@@ -73,21 +72,15 @@ namespace ComponentDataService
 
         private void SaveEvtXml(string fileFolder)
         {
-            ExperimentInfo expInfo = _experiment.GetExperimentInfo();
-            string version = expInfo.SoftwareVersion;
-            string filename = string.Format("{0}-Cr1.evt.xml", expInfo.Name);
-            var xmlpath = Path.Combine(fileFolder, filename);
-            var doc = new XmlDocument();
-            if (File.Exists(xmlpath) == false)
+            string[] files = Directory.GetFiles(_basePath, "*.evt.xml");
+            string file = files.FirstOrDefault();
+            if (string.IsNullOrEmpty(file))
+                throw new FileNotFoundException(string.Format("no evt xml found at {0}", _basePath));
+            else
             {
-                File.Create(xmlpath);
-                doc.Load(xmlpath);
-                XmlElement rootNode = doc.CreateElement("data-list");
-                rootNode.SetAttribute("version", version.ToString(CultureInfo.InvariantCulture));
-                doc.CreateElement("components");
-                doc.Save(xmlpath);
+                string destFileName = Path.Combine(fileFolder, Path.GetFileName(file));
+                File.Copy(file, destFileName);
             }
-
             foreach (BioComponent bioComponent in _bioComponentDict.Values)
             {
                 bioComponent.SaveToEvtXml(fileFolder);
@@ -184,7 +177,7 @@ namespace ComponentDataService
         {
             if (_bioComponentDict.ContainsKey(componentName) == false)
                 throw new ArgumentException("invaild componenet name", "componentName");
-            if (type == FeatureType.None) throw new ArgumentException("invaild feature type", "type");
+            if (type == FeatureType.None) return -1;
             BioComponent component = _bioComponentDict[componentName];
             IList<Feature> features = component.Features;
             IList<Channel> channels = component.Channels;

@@ -24,6 +24,7 @@ namespace ComponentDataService.Types
         private const int DefaultBlobsCount = 25;
         private const int DefaultEventsCount = 25;
         private const int DefaultFeatureCount = 25;
+        private const int DefaultChannelCount = 5;
         private const double Tolerance = 1e-6;
         private readonly Dictionary<int, List<Blob>> _contourBlobs = new Dictionary<int, List<Blob>>(DefaultBlobsCount);
         private readonly Dictionary<int, List<Blob>> _dataBlobs = new Dictionary<int, List<Blob>>(DefaultBlobsCount);
@@ -41,11 +42,10 @@ namespace ComponentDataService.Types
         private readonly string _componentName = string.Empty;
         private readonly Dictionary<int, int> _eventsCountDict = new Dictionary<int, int>(DefaultEventsCount);
         private int _featureCount;
-        private readonly List<Channel> _channels = new List<Channel>();
+        private readonly List<Channel> _channels = new List<Channel>(DefaultChannelCount);
         private readonly IExperiment _experiment;
-        private ImageData _contourImageData;
-        private int _dataBlobCount;
-
+        private int _imageWidth;
+        private int _imageHeight;
         #endregion
 
         #region Delegate
@@ -97,8 +97,8 @@ namespace ComponentDataService.Types
             IList<Channel> physicalChannels = info.ChannelList;
             IList<VirtualChannel> virtualChannels = info.VirtualChannelList;
             _channels.Clear();
-            _channels.AddRange(physicalChannels);
-            _channels.AddRange(virtualChannels);
+            _channels.AddRange(physicalChannels.OrderBy(chn => chn.ChannelId));
+            _channels.AddRange(virtualChannels.OrderBy(chn => chn.ChannelId));
             int n = _features.Count;
             for (int i = 1; i < n; i++)
             {
@@ -109,7 +109,6 @@ namespace ComponentDataService.Types
             Feature last = _features.LastOrDefault();
             FeatureCount = last != null ? (last.IsPerChannel ? last.Index + ChannelCount : last.Index + 1) : 0;
 
-            SaveToEvtXml(_basePath);
         }
 
         internal List<Blob> GetTileBlobs(int scanId, int wellId, int tileId, BlobType type)
@@ -211,7 +210,8 @@ namespace ComponentDataService.Types
             IList<Blob> contours = data.FindContour(minArea, maxArea);
             int key = GetBlobKey(scanId, wellId, tileId);
             _contourBlobs[key] = contours.ToList();
-            _contourImageData = data.Clone();
+            _imageWidth = (int)data.XSize;
+            _imageHeight = (int) data.YSize;
             return contours;
         }
 
@@ -226,17 +226,17 @@ namespace ComponentDataService.Types
                 _eventsDict[wellId] = new List<BioEvent>();
             }
             List<BioEvent> stored = _eventsDict[wellId];
-            int id = stored.Count;
+            int id = stored.Count + 1;//1 base
             foreach (Blob contour in contours)
             {
-                Blob dataBlob = contour.CreateExpanded(define.DataExpand, (int) _contourImageData.XSize,
-                    (int) _contourImageData.YSize);
+                Blob dataBlob = contour.CreateExpanded(define.DataExpand, _imageWidth, _imageHeight);
                 if (dataBlob != null)
                 {
                     dataBlob.Id = id;
                     id++;
                     BioEvent ev = CreateEvent(contour, dataBlob, define, imageDict, scanId, wellId, tileId);
-                    evs.Add(ev);
+                    if (ev != null)
+                        evs.Add(ev);
                 }
 
             }
@@ -765,7 +765,7 @@ namespace ComponentDataService.Types
         }
 
 /*
-        private List<Blob> GetDataBlobs(ImageData data, int expand, double minArea, double maxArea)
+        private List<Blob> GetDataBlobs(ImageData data, int expand, double minArea, double maxArea)// Using Ipp
         {
             var dst = data.Dilate(expand);
             return dst.FindContour(minArea, maxArea).ToList();
@@ -779,7 +779,6 @@ namespace ComponentDataService.Types
 
         public BioEvent CreateEvent(Blob blobOrg, Blob blobData,
             BlobDefine define, IDictionary<string, ImageData> imageDict, int scanId, int wellId, int tileId)
-            // jcl-cycCleanup , bool changedCycle) // jcl-cycles
         {
             ScanInfo info = _experiment.GetScanInfo(ComponentDataManager.ScanId);
             ScanRegion regions = info.ScanRegionList[wellId - 1];
@@ -806,6 +805,9 @@ namespace ComponentDataService.Types
             for (int i = 0; i < ChannelCount; i++)
             {
                 Channel channel = Channels[i];
+                string channelName = channel.ChannelName;
+                ImageData image = imageDict[channelName];
+                const int rejectPercent = 200;
                 // dynamic background
                 int bkgnd = 0;
                 if (bkBlob != null)
@@ -813,8 +815,8 @@ namespace ComponentDataService.Types
                     bool correctBk = define.DynamicBkCorrections[i];
                     if (correctBk)
                     {
-                        bkgnd = bkBlob.ComputeDynamicBackground(imageDict[channel.ChannelName],
-                            define.BackgroundLowBoundPercent, define.BackgroundLowBoundPercent, 200);
+                        bkgnd = bkBlob.ComputeDynamicBackground(image, define.BackgroundLowBoundPercent,
+                            define.BackgroundLowBoundPercent, rejectPercent);
 
 
                         Feature fb = GetFeature(FeatureType.Background);
@@ -826,7 +828,7 @@ namespace ComponentDataService.Types
                 // integral, max-pixel
                 int maxPixel;
 
-                float integral = ComputeIntegral(imageDict[channel.ChannelName], blobData, bkgnd, out maxPixel);
+                float integral = ComputeIntegral(image, blobData, bkgnd, out maxPixel);
 
 
                 Feature fi = GetFeature(FeatureType.Integral);
@@ -838,7 +840,7 @@ namespace ComponentDataService.Types
 
                 //YAK 4-8-2011: stdv of the intensities
 
-                float stdv = ComputeStdv(imageDict[channel.ChannelName], blobData, bkgnd, integral/blobData.Area);
+                float stdv = ComputeStdv(image, blobData, bkgnd, integral / blobData.Area);
 
                 Feature fstdv = GetFeature(FeatureType.Stdv);
                 if (fstdv != null)
@@ -852,10 +854,8 @@ namespace ComponentDataService.Types
                 // peripheral
                 if (periBlob != null)
                 {
-
-
                     var periIntegral =
-                        (int) ComputeIntegral(imageDict[channel.ChannelName], periBlob, bkgnd, out maxPixel);
+                        (int)ComputeIntegral(image, periBlob, bkgnd, out maxPixel);
 
                     Feature fp = GetFeature(FeatureType.PeripheralIntegral);
                     if (fp != null)
@@ -875,7 +875,7 @@ namespace ComponentDataService.Types
             // common features
 
             Point center = blobData.Centroid();
-            double px = field.SFRect.X + (_contourImageData.XSize - center.X)*pixelWidth;
+            double px = field.SFRect.X + (_imageWidth - center.X)*pixelWidth;
             double py = field.SFRect.Y + center.Y*pixelHeight;
             ev[GetFeature(FeatureType.XPos).Index] = (int) px;
             ev[GetFeature(FeatureType.YPos).Index] = (int) py;
@@ -995,17 +995,13 @@ namespace ComponentDataService.Types
                 _peripheralBlobs[key].Add(periBlob);
 
             }
-
-
             return ev;
-
-
         }
 
         private Blob CreateBackgroundBlob(Blob blobData, BlobDefine define)
         {
             Blob bkBlob = blobData.CreateRing(define.BackgroundDistance, define.BackgroundWidth, false,
-                (int) _contourImageData.XSize, (int) _contourImageData.YSize);
+                _imageWidth, _imageHeight);
 
             return bkBlob;
         }
@@ -1013,7 +1009,7 @@ namespace ComponentDataService.Types
         private Blob CreatePeripheralBlob(Blob blobOrg, BlobDefine define)
         {
             Blob periBlob = blobOrg.CreateRing(define.PeripheralDistance, define.PeripheralDistance, false,
-                (int) _contourImageData.XSize, (int) _contourImageData.YSize);
+                _imageWidth, _imageHeight);
             return periBlob;
         }
 

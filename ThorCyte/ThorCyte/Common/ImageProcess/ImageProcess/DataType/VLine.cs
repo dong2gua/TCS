@@ -4,7 +4,7 @@ namespace ImageProcess.DataType
 {
     public struct VLine
     {
-        public static VLine Empty = new VLine(0, 0, 0);
+        public static readonly VLine Empty = new VLine(0, 0, 0);
         public VLine(ushort x, ushort y1, ushort y2) { X = x; Y1 = y1; Y2 = y2; }
         public VLine(int x, int y1, int y2) { X = x; Y1 = y1; Y2 = y2; }
 

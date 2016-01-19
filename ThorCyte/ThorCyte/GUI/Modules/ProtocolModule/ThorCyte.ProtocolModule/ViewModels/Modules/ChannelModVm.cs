@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
@@ -55,12 +57,22 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
-            _img = Macro.CurrentImages[SelectedChannel].Clone();     
-            if (_img == null)
+            try
             {
-                throw new CyteException("ChannelModVm", "Invaild execution image is null");
+                _img = Macro.CurrentImages[SelectedChannel].Clone();
+                if (_img == null)
+                {
+                    throw new CyteException("ChannelModVm", "Invaild execution image is null");
+                }
+                SetOutputImage(_img);
+
             }
-            SetOutputImage(_img);
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Channel Module error: " + ex.Message);
+                throw;
+            }
+            
         }
 
         public override void Initialize()

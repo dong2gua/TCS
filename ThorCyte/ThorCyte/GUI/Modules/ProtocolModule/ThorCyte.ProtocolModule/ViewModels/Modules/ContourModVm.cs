@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Xml;
 using ComponentDataService.Types;
 using ImageProcess;
@@ -209,18 +210,26 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void OnExecute()
         {
-            _img = InputImage;
-            SetComponentFeatures();
+            try
+            {
+                _img = InputImage;
+                SetComponentFeatures();
 
-            var min = UnitConversion(MinArea, MinAreaUnit, UnitType.Micron);
-            var max = UnitConversion(MaxArea, MaxAreaUnit, UnitType.Micron);
+                var min = UnitConversion(MinArea, MinAreaUnit, UnitType.Micron);
+                var max = UnitConversion(MaxArea, MaxAreaUnit, UnitType.Micron);
 
-            Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId, Macro.CurrentRegionId+1,
-                Macro.CurrentTileId, _img, min, max);
+                Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId, Macro.CurrentRegionId + 1,
+                    Macro.CurrentTileId, _img, min, max);
 
-            _img.Dispose();
+                _img.Dispose();
 
-            SetOutputComponent(ComponentName);
+                SetOutputComponent(ComponentName);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Contour Module error: " + ex.Message);
+                throw;
+            }
         }
 
         private double UnitConversion(double sourceValue, UnitType sourceUnit, UnitType destUnit)

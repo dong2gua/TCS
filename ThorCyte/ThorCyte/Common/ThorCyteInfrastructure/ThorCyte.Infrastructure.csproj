@@ -69,6 +69,10 @@
     <Compile Include="Events\ExperimentLoadedEvent.cs" />
     <Compile Include="Events\EventType.cs" />
     <Compile Include="Events\FrameChangedEvent.cs" />
+    <Compile Include="Events\InitRegionEvent.cs" />
+    <Compile Include="Events\MacroFinished.cs" />
+    <Compile Include="Events\MacroStart.cs" />
+    <Compile Include="Events\RemoveRegionsEvent.cs" />
     <Compile Include="Events\SaveAnalysisResultEvent.cs" />
     <Compile Include="Events\SelectRegions.cs" />
     <Compile Include="Events\SelectRegionTileEvent.cs" />

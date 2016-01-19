@@ -58,6 +58,8 @@ namespace ThorCyte.ProtocolModule.Views
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             SerTb.Text = DefaultKeyword;
             DataContext = MarcoEditorViewModel.Instance;
+
+            ExpLoaded(0);
         }
         #endregion
 
@@ -66,8 +68,6 @@ namespace ThorCyte.ProtocolModule.Views
         private void ExpLoaded(int scanId)
         {
             ClearSearch();
-            gridMain.Focus();
-            SerTb.Focus();
         }
 
         private void OnCreateModule(Point location)
@@ -270,7 +270,7 @@ namespace ThorCyte.ProtocolModule.Views
             if (searchBox.Text == DefaultKeyword && Equals(searchBox.Foreground, Brushes.LightGray))
             {
                 searchBox.Text = string.Empty;
-                searchBox.Foreground = (Brush)ForegroundProperty.DefaultMetadata.DefaultValue;
+                searchBox.Foreground = Brushes.LightYellow;
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,15 +21,17 @@ namespace ThorCyte.ProtocolModule.Models
 {
     public class Macro
     {
-
-        #region Constants
+        #region Constructor
         private Macro()
         {
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             _imageanalyzed += ImageAnalyzed;
             _isAborting = false;
-            IsRuning = false;
+            Connections = new ImpObservableCollection<ConnectorModel>();
+            Modules = new ImpObservableCollection<ModuleBase>();
+            CurrentImages = new Dictionary<string, ImageData>();
         }
+
         #endregion
 
         #region Fields and Properties
@@ -40,6 +43,7 @@ namespace ThorCyte.ProtocolModule.Models
         private static ImageAnalyzedCallBackDelegate _imageanalyzed;
         public delegate void ClearHandler();
         public static ClearHandler Clear;
+        private static IExperiment _exp;
 
         private static Macro _uniqueInstance;
         public static Macro Instance
@@ -60,8 +64,8 @@ namespace ThorCyte.ProtocolModule.Models
         public static IData CurrentDataMgr { get; private set; }
         public static IComponentDataService CurrentConponentService { get; private set; }
 
-        private IEventAggregator _eventAggregator;
-        private IEventAggregator EventAggregator
+        private static IEventAggregator _eventAggregator;
+        private static IEventAggregator EventAggregator
         {
             get
             {
@@ -77,28 +81,24 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
-        public static bool IsRuning { get; private set; }
-
         #endregion
 
         #region Methods
         private void ExpLoaded(int scanId)
         {
-            var exp = ServiceLocator.Current.GetInstance<IExperiment>();
-            if (exp == null) return;
-
+            if (scanId < 1) return;
+            _exp = ServiceLocator.Current.GetInstance<IExperiment>();
             if (Clear != null) Clear();
             CurrentScanId = scanId;
-            CurrentScanInfo = exp.GetScanInfo(scanId);
-            var expinfo = exp.GetExperimentInfo();
+            CurrentScanInfo = _exp.GetScanInfo(scanId);
+            var expinfo = _exp.GetExperimentInfo();
             ImageMaxBits = expinfo.IntensityBits;
             AnalysisPath = expinfo.AnalysisPath;
             CurrentDataMgr = ServiceLocator.Current.GetInstance<IData>();
             CurrentConponentService = ComponentDataManager.Instance;
-            CurrentConponentService.Load(exp);
+            CurrentConponentService.Load(_exp);
             ClearImagesDic();
             CurrentImages = new Dictionary<string, ImageData>();
-
             Load();
         }
 
@@ -107,6 +107,7 @@ namespace ThorCyte.ProtocolModule.Models
         /// </summary>
         public void Load()
         {
+
             if (!File.Exists(ProtocolFileName))
             {
                 MessageHelper.PostMessage("New protocol edit!");
@@ -117,8 +118,8 @@ namespace ThorCyte.ProtocolModule.Models
 
             var streamReader = new StreamReader(ProtocolFileName);
             var settings = new XmlReaderSettings();
-            var reader = XmlReader.Create(streamReader, settings); 
-            
+            var reader = XmlReader.Create(streamReader, settings);
+
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -195,7 +196,7 @@ namespace ThorCyte.ProtocolModule.Models
         public static void Save()
         {
             //Find file directory
-            if (!Directory.Exists(CurrentScanInfo.DataPath)) 
+            if (!Directory.Exists(CurrentScanInfo.DataPath))
                 throw new CyteException("Macro.Save", string.Format("Destination directory ({0}) not found!", CurrentScanInfo.DataPath));
 
 
@@ -208,7 +209,7 @@ namespace ThorCyte.ProtocolModule.Models
                 Indent = true,
                 IndentChars = "  "
             };
-            var writer = XmlWriter.Create(sr,settings);
+            var writer = XmlWriter.Create(sr, settings);
             writer.WriteStartDocument(false);
             writer.WriteStartElement("Macro");
             writer.WriteStartElement("modules");
@@ -307,15 +308,15 @@ namespace ThorCyte.ProtocolModule.Models
                 return false;
             }
 
-            var vail = false;
+            var vail = true;
             foreach (var m in Modules)
             {
-                if (m.InputPorts.Any(p => p.AttachedConnections.Count != 0))
+                if (m.InputPorts.Any(p => p.AttachedConnections.Count == 0 && p.DataType != PortDataType.None))
                 {
-                    vail = true;
+                    vail = false;
                 }
 
-                if (vail) break;
+                if (!vail) break;
             }
 
             return ret && vail;
@@ -338,7 +339,7 @@ namespace ThorCyte.ProtocolModule.Models
         {
             try
             {
-                IsRuning = true;
+                MessageHelper.SendMacroRuning(true);
                 MessageHelper.PostProgress("Region", CurrentScanInfo.ScanRegionList.Count, 0);
                 foreach (var region in CurrentScanInfo.ScanRegionList)
                 {
@@ -347,6 +348,8 @@ namespace ThorCyte.ProtocolModule.Models
                     foreach (var tile in region.ScanFieldList)
                     {
                         CurrentTileId = tile.ScanFieldId;
+                        EventAggregator.GetEvent<MacroStart>()
+                            .Publish(new MacroStartEventArgs() {RegionId = CurrentRegionId, TileId = CurrentTileId});
 
                         GetImagesDic();
                         //find all channel module 
@@ -371,20 +374,24 @@ namespace ThorCyte.ProtocolModule.Models
                     MessageHelper.PostProgress("Region", -1, CurrentRegionId + 1);
                 }
 
-                if (_imageanalyzed != null) _imageanalyzed();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Errorr occourred in Analyze Image: " + ex.Message);
+                MessageHelper.PostMessage("Errorr occourred in Analyze Image: " + ex.Message);
             }
-            
+            finally
+            {
+                if (_imageanalyzed != null) _imageanalyzed();
+            }
+
         }
 
         public static void ImageAnalyzed()
         {
             if (_isAborting) _isAborting = false;
             MessageHelper.PostMessage("All images analyzed!");
-            IsRuning = false;
+            MessageHelper.SendMacroRuning(false);
+            EventAggregator.GetEvent<MacroFinished>().Publish(CurrentScanId);
         }
 
         private static void ClearImagesDic()
