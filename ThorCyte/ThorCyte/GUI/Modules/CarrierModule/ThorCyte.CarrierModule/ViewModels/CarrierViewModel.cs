@@ -57,8 +57,6 @@ namespace ThorCyte.CarrierModule.ViewModels
             set { SetProperty(ref _tileview, value); }
         }
 
-
-
         #endregion
 
         public CarrierViewModel()

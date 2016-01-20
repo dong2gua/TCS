@@ -196,6 +196,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
             {
                 // The connection was unsuccessful. Maybe the user dragged it out and dropped it in empty space.
                 PannelVm.Connections.Remove(newConnection);
+                if (portDraggedOut != null) portDraggedOut.AttachedConnections.Remove(newConnection);
+                if (portDraggedOver != null) portDraggedOver.AttachedConnections.Remove(newConnection);
                 return;
             }
 
@@ -257,6 +259,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
             // Remove the moduleVm from the PannelVm.
             PannelVm.Modules.Remove(moduleVm);
+
         }
 
 

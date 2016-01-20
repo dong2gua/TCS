@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows.Controls;
 using System.Xml;
 using ImageProcess;
@@ -29,6 +31,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     return;
                 }
                 SetProperty(ref _view, value);
+                _view.DataContext = this;
             }
         }
 
@@ -185,6 +188,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public virtual void Initialize() { }
         public virtual void Refresh() { }
         public virtual void OnSetScanNo() { }
+        public virtual void InitialRun(){ }
 
         #endregion
 

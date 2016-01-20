@@ -16,7 +16,7 @@ namespace ComponentDataService
     {
         #region Fields
 
-        public const int ScanId = 1;
+        internal const int ScanId = 1;
         private const int DefaultSize = 5;
         private string _basePath;
         private readonly List<string> _componentNames = new List<string>(DefaultSize);
@@ -194,7 +194,7 @@ namespace ComponentDataService
             }
             Feature feature = features.FirstOrDefault(f => f.FeatureType == type);
             if (feature == null) throw new ArgumentException("invaild feature type", "type");
-            return feature.Index + channelId;
+            return feature.IsPerChannel ? feature.Index + channelId : feature.Index;
         }
 
         public void SaveBlobs(string fileFolder)
@@ -214,13 +214,16 @@ namespace ComponentDataService
             SaveEvtXml(fileFolder);
         }
 
-        public void SetComponent(string componentName, IList<Feature> features)
+        public void AddComponent(string componentName, IList<Feature> features)
         {
-            if (_bioComponentDict.ContainsKey(componentName) == false)
-            {
-                _bioComponentDict[componentName] = new BioComponent(_experiment, componentName);
-            }
-            _bioComponentDict[componentName].Update(features);
+            var component = new BioComponent(_experiment, componentName);
+            component.Update(features);
+            _bioComponentDict[componentName] = component;
+        }
+
+        public void ClearComponents()
+        {
+            Clear();
         }
 
         public IList<Blob> CreateContourBlobs(string componentName, int scanId, int wellId, int tileId,

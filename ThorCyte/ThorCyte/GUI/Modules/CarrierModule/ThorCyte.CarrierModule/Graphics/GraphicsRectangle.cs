@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using ThorCyte.CarrierModule.Common;
@@ -40,7 +41,6 @@ namespace ThorCyte.CarrierModule.Graphics
                 FillObjectBrush,
                 new Pen(new SolidColorBrush(ObjectColor), ActualLineWidth),
                 Rectangle);
-
             base.Draw(drawingContext);
         }
 

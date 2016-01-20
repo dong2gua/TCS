@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using System.Xml;
 using ComponentDataService;
+using ComponentDataService.Types;
 using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Events;
@@ -25,12 +26,15 @@ namespace ThorCyte.ProtocolModule.Models
         private Macro()
         {
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
+            EventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(Save);
+
             _imageanalyzed += ImageAnalyzed;
             _isAborting = false;
             Connections = new ImpObservableCollection<ConnectorModel>();
             Modules = new ImpObservableCollection<ModuleBase>();
             CurrentImages = new Dictionary<string, ImageData>();
         }
+
 
         #endregion
 
@@ -96,7 +100,6 @@ namespace ThorCyte.ProtocolModule.Models
             AnalysisPath = expinfo.AnalysisPath;
             CurrentDataMgr = ServiceLocator.Current.GetInstance<IData>();
             CurrentConponentService = ComponentDataManager.Instance;
-            CurrentConponentService.Load(_exp);
             ClearImagesDic();
             CurrentImages = new Dictionary<string, ImageData>();
             Load();
@@ -188,6 +191,11 @@ namespace ThorCyte.ProtocolModule.Models
             reader.Close();
             streamReader.Close();
             MessageHelper.PostMessage("All Component Loaded!");
+        }
+
+        private static void Save(int i)
+        {
+            Save();
         }
 
         /// <summary>
@@ -290,10 +298,19 @@ namespace ThorCyte.ProtocolModule.Models
                 MessageHelper.PostMessage("Rules Violated! Macro can not execute.");
                 return;
             }
+            //SetConponent post event
+
+            CurrentConponentService.ClearComponents();
+            foreach (var m in Modules)
+            {
+                m.InitialRun();
+            }
+            EventAggregator.GetEvent<MacroRunEvent>().Publish(CurrentScanId);
 
             _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
             _tAnalyzeImg.Start();
         }
+
 
         private static bool CheckExecutable()
         {
@@ -348,7 +365,7 @@ namespace ThorCyte.ProtocolModule.Models
                     foreach (var tile in region.ScanFieldList)
                     {
                         CurrentTileId = tile.ScanFieldId;
-                        EventAggregator.GetEvent<MacroStart>()
+                        EventAggregator.GetEvent<MacroStartEvnet>()
                             .Publish(new MacroStartEventArgs() {RegionId = CurrentRegionId, TileId = CurrentTileId});
 
                         GetImagesDic();
@@ -377,7 +394,8 @@ namespace ThorCyte.ProtocolModule.Models
             }
             catch (Exception ex)
             {
-                MessageHelper.PostMessage("Errorr occourred in Analyze Image: " + ex.Message);
+                //MessageHelper.PostMessage("Errorr occourred in Analyze Image: " + ex.Message);
+                MessageBox.Show("Errorr occourred in Analyze Image: " + ex.Message);
             }
             finally
             {
@@ -391,7 +409,7 @@ namespace ThorCyte.ProtocolModule.Models
             if (_isAborting) _isAborting = false;
             MessageHelper.PostMessage("All images analyzed!");
             MessageHelper.SendMacroRuning(false);
-            EventAggregator.GetEvent<MacroFinished>().Publish(CurrentScanId);
+            EventAggregator.GetEvent<MacroFinishEvent>().Publish(CurrentScanId);
         }
 
         private static void ClearImagesDic()

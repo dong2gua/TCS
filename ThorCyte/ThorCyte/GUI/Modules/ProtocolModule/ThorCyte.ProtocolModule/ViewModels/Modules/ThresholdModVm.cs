@@ -170,7 +170,11 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         #endregion
 
         #region Constructors
-
+        public ThresholdModVm()
+        {
+            Method=ThresholdMethod.Manual;
+            Threshold = Convert.ToUInt16(2000);
+        }
         #endregion
 
         #region Methods

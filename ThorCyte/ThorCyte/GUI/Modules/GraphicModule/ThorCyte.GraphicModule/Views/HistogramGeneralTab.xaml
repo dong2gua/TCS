@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="ThorCyte.GraphicModule.Views.HistogramGeneralTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:converts="clr-namespace:ThorCyte.GraphicModule.Converts"
+             mc:Ignorable="d" >
+    <UserControl.Resources>
+        <converts:InverseBooleanConverter x:Key="InverseBooleanCvt"/>
+        <converts:GraphTypeConvert x:Key="GraphTypeCvt"/>
+    </UserControl.Resources>
+    <StackPanel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Margin="2" Content="Title"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="2" Text="{Binding Title}"/>
+
+            <!--<Label Grid.Row="1" Grid.Column="0" Margin="2" Content="#of channels displayed"/>
+            <ComboBox Grid.Row="1" Grid.Column="1" Margin="2" ItemsSource="{Binding ChannelCountList}" SelectedItem="{Binding SelectedChannelCount}"/>
+
+            <Label Grid.Row="2" Grid.Column="0" Margin="2" Content="Bin count"/>
+            <ComboBox Grid.Row="2" Grid.Column="1" Margin="2" ItemsSource="{Binding BinCountList}" SelectedItem="{Binding SelectedBinCount}"/>-->
+
+            <CheckBox Grid.Row="3" Grid.Column="0" Margin="2" Content="Auto Y scale" IsChecked="{Binding IsAutoYScale}"/>
+            <xctk:IntegerUpDown Grid.Row="3" Grid.Column="1" Margin="2" Height="20" Value="{Binding YScaleValue}" IsEnabled="{Binding IsAutoYScale, Converter={StaticResource InverseBooleanCvt}}"/>
+
+            <!--<Label Grid.Row="4" Grid.Column="0" Margin="2" Content="Smooth:"/>
+            <xctk:IntegerUpDown Grid.Row="4" Grid.Column="1" Margin="2" Height="20" Value="{Binding Smooth}"/>-->
+
+        </Grid>
+        <GroupBox Header="Plot Style" IsEnabled="{Binding IsSwitchStyleEnabled}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+
+                <RadioButton Grid.Column="0" Margin="2" Content="Bar charts" IsChecked="{Binding GraphType,Converter={StaticResource GraphTypeCvt},ConverterParameter=barchart}"/>
+                <RadioButton Grid.Column="1" Margin="2" Content="OutLine" IsChecked="{Binding GraphType,Converter={StaticResource GraphTypeCvt},ConverterParameter=outline}"/>
+            </Grid>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

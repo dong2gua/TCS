@@ -7,16 +7,17 @@
              d:DesignHeight="300" d:DesignWidth="300" x:Name="Uct">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="4*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Width="{Binding ElementName=Uct,Path=ActualWidth}">
             <ContentControl Content="{Binding ShowingView}"/>
         </Grid>
-        <ScrollViewer Grid.Row="1" Width="{Binding ElementName=Uct,Path=ActualWidth}" 
+        <Expander Grid.Row="1" IsExpanded="False" Header="Tile View">
+            <ScrollViewer  Width="{Binding ElementName=Uct,Path=ActualWidth}" 
                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <ContentControl Content="{Binding ShowingTile}" BorderThickness="3" BorderBrush="Aqua" />
-        </ScrollViewer>
-
+                <ContentControl Content="{Binding ShowingTile}" BorderThickness="3"/>
+            </ScrollViewer>
+        </Expander>
     </Grid>
 </UserControl>

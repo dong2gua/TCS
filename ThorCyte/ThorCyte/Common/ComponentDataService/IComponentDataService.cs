@@ -15,7 +15,8 @@ namespace ComponentDataService
         IList<Blob> GetBlobs(string componentName, int wellId, int tileId, BlobType type);
         IList<BioEvent> GetEvents(string componentName, int wellId);
         IList<Feature> GetFeatures(string componentName);
-        void SetComponent(string componentName, IList<Feature> features);
+        void AddComponent(string componentName, IList<Feature> features);
+        void ClearComponents();
         int GetFeatureIndex(string componentName, FeatureType type, string channelName = null);
         void SaveBlobs(string fileFolder);
         void SaveEvents(string fileFolder);

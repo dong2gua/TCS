@@ -205,6 +205,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             profileViewModel = new ProfileViewModel();
             ViewportType = new ViewportDisplayType { Type = 1, Viewports = _viewports };
             _viewportDic[CurrentViewport].IsShown = true;
+            InitializeExperiment();
         }
         public void OnViewportTypeChange(int type)
         {            
@@ -259,16 +260,21 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         private void OnLoadExperiment(int scanId)
         {
+            InitializeExperiment();
+        }
+        private void InitializeExperiment()
+        {
             _experiment = ServiceLocator.Current.GetInstance<IExperiment>();
             _data = ServiceLocator.Current.GetInstance<IData>();
-            _scanId = scanId;
-            _scanInfo = _experiment.GetScanInfo(scanId);
+            _scanId= _experiment.GetCurrentScanId();
+            if (_scanId < 0) return;
+            _scanInfo = _experiment.GetScanInfo(_scanId);
             _experimentInfo = _experiment.GetExperimentInfo();
             _channels = _scanInfo.ChannelList;
             _virtualChannels = _scanInfo.VirtualChannelList;
             _computeColors = _scanInfo.ComputeColorList;
             MaxBrightness = (0x01 << _experimentInfo.IntensityBits) - 1;
-            MinBrightness = -1*MaxBrightness;
+            MinBrightness = -1 * MaxBrightness;
             IsDragger = false;
             IsRuler = false;
             IsProfile = false;
@@ -690,6 +696,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             }
             scanxe.Add(cxe);
             xe.Add(scanxe);
+            if (!Directory.Exists(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule"))
+                Directory.CreateDirectory(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule");
             xe.Save(_experiment.GetExperimentInfo().AnalysisPath+ "\\ImageViewerModule\\channels.xml");
         }
         private void LoadChannels()

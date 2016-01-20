@@ -58,6 +58,8 @@ namespace ComponentDataService.Types
 
         #region Properties
 
+        public bool HasRuned { get; private set; }
+
         public int ChannelCount
         {
             get { return Channels.Count; }
@@ -241,6 +243,7 @@ namespace ComponentDataService.Types
 
             }
             stored.AddRange(evs);
+            HasRuned = true;
             return evs;
         }
 

@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -23,6 +25,7 @@ namespace ThorCyte.CarrierModule.Canvases
     public class PlateCanvas : Canvas
     {
         #region Fileds
+        private const double Tolerance = 0.000001;
         private static readonly double[] ScaleTable = { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0, 10.0, 12.0 };
         private Microplate _plate;
         private readonly VisualCollection _graphicsList;
@@ -43,9 +46,9 @@ namespace ThorCyte.CarrierModule.Canvases
         private Tool[] _tools;
 
         public static readonly DependencyProperty ToolProperty;
-        public static readonly DependencyProperty ActualScaleProperty;
+        public static readonly DependencyProperty OuterWidthProperty;
+        public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
-
 
         #endregion
 
@@ -92,6 +95,27 @@ namespace ThorCyte.CarrierModule.Canvases
             }
         }
 
+
+        public double OuterWidth
+        {
+            get { return (double) GetValue(OuterWidthProperty); }
+            set
+            {
+                if (value > 0)
+                    SetValue(OuterWidthProperty,value);
+            }
+        }
+
+        public double OuterHeight
+        {
+            get { return (double)GetValue(OuterHeightProperty); }
+            set
+            {
+                if (value > 0)
+                    SetValue(OuterHeightProperty, value);
+            }
+        }
+
         public Microplate Plate
         {
             get { return _plate; }
@@ -118,10 +142,15 @@ namespace ThorCyte.CarrierModule.Canvases
             get { return PlateMargin; }
         }
 
+        private double _actualScale;
         public double ActualScale
         {
-            get { return (double)GetValue(ActualScaleProperty); }
-            set { SetValue(ActualScaleProperty, value); }
+            get { return _actualScale; }
+            set
+            {
+                _actualScale = value;
+                ActualScaleChanged(this);
+            }
         }
 
         public VisualCollection GraphicsList
@@ -177,20 +206,18 @@ namespace ThorCyte.CarrierModule.Canvases
                 "Tool", typeof(ToolType), typeof(PlateCanvas),
                 metaData);
 
-            // ActualScale
-            metaData = new PropertyMetadata(
-                0.25,
-                ActualScaleChanged);
+            metaData = new PropertyMetadata(200.0D,OuterSizeChanged);
+            OuterWidthProperty = DependencyProperty.Register("OuterWidth",typeof(double),typeof(PlateCanvas),metaData);
 
-            ActualScaleProperty = DependencyProperty.Register(
-                "ActualScale", typeof(double), typeof(PlateCanvas),
-                metaData);
+            metaData = new PropertyMetadata(100.0D, OuterSizeChanged);
+            OuterHeightProperty = DependencyProperty.Register("OuterHeight", typeof(double), typeof(PlateCanvas), metaData);
 
             metaData = new PropertyMetadata("");
             MousePositionProperty = DependencyProperty.Register(
                  "MousePosition", typeof(string), typeof(PlateCanvas),
                  metaData);
         }
+
 
         public PlateCanvas()
         {
@@ -215,18 +242,47 @@ namespace ThorCyte.CarrierModule.Canvases
             var drHeight = (int)(_plateHeight * 0.25 * 0.01f);
             _rx = (float)(_plateWidth / drwidth);
             _ry = (float)(_plateHeight / drHeight);
+
         }
 
         #endregion Constructors
 
         #region Methods
+
         public void SelectAllGraphics()
         {
             PlateHelperFunctions.SelectAll(this);
             SetActiveRegions();
         }
 
-        static void ActualScaleChanged(DependencyObject property, DependencyPropertyChangedEventArgs args)
+        private static void OuterSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var cnvs = d as PlateCanvas;
+
+            if (cnvs == null) return;
+
+            //Debug.WriteLine("Cnvs PlateHeight = {0}", cnvs.PlateHeight);
+            //Debug.WriteLine("Cnvs PlateWidth = {0}", cnvs.PlateWidth);
+            //Debug.WriteLine("Cnvs Height = {0}", cnvs.Height);
+            //Debug.WriteLine("Cnvs Width = {0}", cnvs.Width);
+            //Debug.WriteLine("Cnvs OuterHeight = {0}", cnvs.OuterHeight);
+            //Debug.WriteLine("Cnvs OuterWidth = {0}", cnvs.OuterWidth);
+
+            cnvs.ActualScale = 0.25;
+
+            if (Math.Abs(cnvs.OuterWidth) < Tolerance || Math.Abs(cnvs.OuterHeight) < Tolerance) return;
+
+            var factorW = cnvs.PlateWidth/cnvs.OuterWidth;
+            var factorH = cnvs.PlateHeight/cnvs.OuterHeight;
+
+            //choose the small one
+            var factor = factorW > factorH ? factorH : factorW;
+            Debug.WriteLine(factor);
+
+        }
+
+
+        static void ActualScaleChanged(object property)
         {
             var d = property as PlateCanvas;
 
@@ -332,8 +388,6 @@ namespace ThorCyte.CarrierModule.Canvases
 
         public void SetActiveRegions()
         {
-
-
             var prevCount = _plate.ActiveRegions.Count;
             _plate.ClearActiveRegions();
             foreach (var rgn in from GraphicsBase o in _graphicsList where o.IsSelected select _regionGraphicHashtable.Keys.OfType<ScanRegion>().FirstOrDefault(s => Equals(_regionGraphicHashtable[s], o)))
@@ -385,7 +439,7 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             _graphicsList.Clear();
             _regionGraphicHashtable.Clear();
-            var scale = ActualScale / 100;
+            var scale = ActualScale / 100.0;
             foreach (var rgn in _plate.TotalRegions)
             {
                 var rc = rgn.Bound;
@@ -428,11 +482,13 @@ namespace ThorCyte.CarrierModule.Canvases
                         break;
                 }
             }
+
         }
 
         #endregion Methods
 
         #region Override Functions
+
         protected override void OnRender(DrawingContext dc)
         {
             base.OnRender(dc);

@@ -54,19 +54,18 @@ namespace TestProtocol.ViewModels
             };
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             CaptionString = openFileDialog1.FileName;
+            _experiment = new ThorCyteExperiment();
             if (openFileDialog1.FileName.ToUpper().EndsWith("RUN.XML"))
             {
-                _experiment = new ThorCyteExperiment();
                 _dataMgr = new ThorCyteData();
-                _experiment.Load(openFileDialog1.FileName);
             }
             else
             {
-                _experiment = new ThorImageExperiment();
                 _dataMgr = new ThorImageData();
-                _experiment.Load(openFileDialog1.FileName);
             }
+            _experiment.Load(openFileDialog1.FileName);
             _dataMgr.SetExperimentInfo(_experiment);
+            ComponentDataManager.Instance.Load(_experiment);
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             container.RegisterInstance(_experiment);
             container.RegisterInstance(_dataMgr);

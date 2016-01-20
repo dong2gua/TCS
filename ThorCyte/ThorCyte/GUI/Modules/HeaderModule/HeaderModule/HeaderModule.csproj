@@ -96,6 +96,13 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Thorlabs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Analytics.png" />
+    <Resource Include="Icons\Review.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y $(TargetPath) $(SolutionDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>

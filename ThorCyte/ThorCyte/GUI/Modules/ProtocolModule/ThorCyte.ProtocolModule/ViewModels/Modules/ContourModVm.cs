@@ -148,9 +148,10 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public ContourModVm()
         {
-            IsMaxAreaChecked = true;
-            MinArea = 10;
-            MaxArea = 50;
+            ComponentName = "Primary";
+            IsMaxAreaChecked = false;
+            MinArea = 20;
+            MaxArea = 1000;
             MinAreaUnit = UnitType.Micron;
             MaxAreaUnit = UnitType.Micron;
             Executable = false;
@@ -160,9 +161,14 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         #region Methods
 
+        public override void InitialRun()
+        {
+            SetComponentFeatures();
+        }
+
         private void SetComponentFeatures()
-        {                
-            Macro.CurrentConponentService.SetComponent(_componentName, new List<Feature>
+        {
+            Macro.CurrentConponentService.AddComponent(_componentName, new List<Feature>
             {
                 new Feature(FeatureType.Area),
                 new Feature(FeatureType.Background),
@@ -213,13 +219,13 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             try
             {
                 _img = InputImage;
-                SetComponentFeatures();
 
                 var min = UnitConversion(MinArea, MinAreaUnit, UnitType.Micron);
                 var max = UnitConversion(MaxArea, MaxAreaUnit, UnitType.Micron);
 
-                Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId, Macro.CurrentRegionId + 1,
-                    Macro.CurrentTileId, _img, min, max);
+                Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId,
+                    Macro.CurrentRegionId + 1,
+                    Macro.CurrentTileId, _img, min, IsMaxAreaChecked ? max : int.MaxValue);
 
                 _img.Dispose();
 
@@ -237,22 +243,22 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             var res = -1.0;
             switch (destUnit)
             {
-                 case UnitType.Mm:
+                case UnitType.Mm:
                     switch (sourceUnit)
                     {
                         case UnitType.Mm:
                             res = sourceValue;
                             break;
                         case UnitType.Micron:
-                            res = sourceValue/1000;
+                            res = sourceValue / 1000;
                             break;
                     }
                     break;
-                 case UnitType.Micron:
+                case UnitType.Micron:
                     switch (sourceUnit)
                     {
                         case UnitType.Mm:
-                            res = sourceValue*1000;
+                            res = sourceValue * 1000;
                             break;
                         case UnitType.Micron:
                             res = sourceValue;

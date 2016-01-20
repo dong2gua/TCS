@@ -1,0 +1,100 @@
+﻿<UserControl x:Class="ThorCyte.GraphicModule.Views.GeneralTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:converts="clr-namespace:ThorCyte.GraphicModule.Converts"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <!--<converts:ResolutionConvert x:Key="ResolutionCvt"/>-->
+        <converts:BkgConvert x:Key="BkgCvt"/>
+    </UserControl.Resources>
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Title :" Grid.Column="0" Margin="2"/>
+            <TextBox x:Name="TitleTb" Grid.Column="1" Margin="2" VerticalAlignment="Center" Text="{Binding Title}"/>
+        </Grid>
+
+        <StackPanel>
+            <GroupBox Header="Display(Global)">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+                    <RadioButton x:Name="BlackRb" Grid.Column="0" Margin="2" Content="Black" IsChecked="{Binding IsWhiteBackground,Converter={StaticResource BkgCvt},ConverterParameter=black}"/>
+                    <RadioButton x:Name="WhiteRb" Grid.Column="1" Margin="2" Content="White" IsChecked="{Binding IsWhiteBackground,Converter={StaticResource BkgCvt}}"/>
+                </Grid>
+            </GroupBox>
+
+            <!--<GroupBox Header="Resolution" >
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+                    <RadioButton x:Name="HighRb" Grid.Column="0" Margin="2" Content="High" IsChecked="{Binding IsHighResolution,Converter={StaticResource ResolutionCvt},ConverterParameter=high}"/>
+                    <RadioButton x:Name="LowRb" Grid.Column="1" Margin="2" Content="Low" IsChecked="{Binding IsLowResolution,Converter={StaticResource ResolutionCvt},ConverterParameter=low}"/>
+                </Grid>
+            </GroupBox>-->
+        </StackPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <CheckBox x:Name="QuadrantChk" Grid.Row="0" Grid.Column="0" Margin="2" Content="Quadrant statistics" IsChecked="{Binding IsShowQuadrant}"/>
+            <CheckBox Grid.Row="0" Grid.Column="1" Margin="2" Content="NormalizeXY" IsChecked="{Binding IsNormalizexy}"/>
+            <CheckBox x:Name="MapChk" Grid.Row="1" Grid.Column="0" Margin="2" Content="2-Parameter Histogram" IsChecked="{Binding IsMapChecked}"/>
+        </Grid>
+
+        <Grid IsEnabled="{Binding ElementName=MapChk,Path=IsChecked}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <RadioButton x:Name="DensityRd" Grid.Row="0" Margin="2" Content="Density" IsThreeState="False" IsChecked="{Binding IsDensity}"/>
+                <ComboBox x:Name="ZFeatureCmb" Grid.Row="1" Margin="2" IsEnabled="{Binding ElementName=ExpRd,Path=IsChecked}"
+                      ItemsSource="{Binding ZScaleFeatureList}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedZScaleFeature}"/>
+                <Label Grid.Row="2" Content="XScale :"/>
+            </Grid>
+            
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <RadioButton x:Name="ExpRd" Grid.Row="0" Grid.Column="0" Margin="2" Content="Expression" IsChecked="{Binding IsExpression}"/>
+                <ComboBox x:Name="ZChannelCmb" Grid.Row="1" Grid.Column="0" Margin="2" IsEnabled="{Binding IsZScaleChannelEnabled}"
+                      ItemsSource="{Binding ZScaleChannelList}" DisplayMemberPath="Label" SelectedItem="{Binding SelecedZScaleChannel}"/>
+                <xctk:DoubleUpDown x:Name="MinScaleUpDown" Grid.Row="2" Grid.Column="0" Margin="2" Value="{Binding ZScaleMin,UpdateSourceTrigger=LostFocus}" VerticalAlignment="Bottom"/>
+                <xctk:DoubleUpDown x:Name="MaxScaleUpDown" Grid.Row="2" Grid.Column="1" Margin="2" Value="{Binding ZScaleMax,UpdateSourceTrigger=LostFocus}"/>
+            </Grid>
+        </Grid>
+    </StackPanel>
+</UserControl>

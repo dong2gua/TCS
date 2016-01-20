@@ -201,6 +201,15 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public EventModVm()
         {
             ChannelCollection = new ImpObservableCollection<ChannelsCorrection>();
+            ExpandBy = 4;
+            IsDynamicBackground = true;
+            IsPeripheral = false;
+            BkDistance = 8;
+            BkWidth = 2;
+            BkHighPct = 70;
+            BkLowPct = 30;
+            PeriDistance = 6;
+            PeriWidth = 18;
         }
 
         public override void OnExecute()
@@ -256,12 +265,12 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             ChannelCollection.Clear();
             foreach (var channel in Macro.CurrentScanInfo.ChannelList)
             {
-                ChannelCollection.Add(new ChannelsCorrection(false, channel.ChannelName));
+                ChannelCollection.Add(new ChannelsCorrection(true, channel.ChannelName));
             }
 
             foreach (var channel in Macro.CurrentScanInfo.VirtualChannelList)
             {
-                ChannelCollection.Add(new ChannelsCorrection(false, channel.ChannelName));
+                ChannelCollection.Add(new ChannelsCorrection(true, channel.ChannelName));
             }
 
         }

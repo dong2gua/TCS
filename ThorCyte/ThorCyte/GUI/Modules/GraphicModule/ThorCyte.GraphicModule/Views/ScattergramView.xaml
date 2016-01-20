@@ -1,0 +1,11 @@
+﻿<controls:GraphicUcBase x:Class="ThorCyte.GraphicModule.Views.ScattergramView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:s="http://schemas.abtsoftware.co.uk/scichart"
+        xmlns:controls="clr-namespace:ThorCyte.GraphicModule.Controls"
+        MinHeight="260" MaxHeight="350" SnapsToDevicePixels="True">
+
+        <!--  Create the chart surface  -->
+    <s:SciChartSurface Name="SciChart" ChartTitle="{Binding Title}"/>
+</controls:GraphicUcBase>
+   

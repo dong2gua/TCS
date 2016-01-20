@@ -10,22 +10,6 @@
         <tools:BoolToOppositeBoolConverter x:Key="oppositeConverter"/>
         <tools:ToolTypeConverter x:Key="convToolType"/>
         <tools:DoubletoStringConverter x:Key="doubleToStringConverter"/>
-        <ControlTemplate x:Key="ScrollViewerControlTemplate1" TargetType="{x:Type ScrollViewer}">
-            <Grid x:Name="Grid" Background="{TemplateBinding Background}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
-                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" CanHorizontallyScroll="False" CanVerticallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Grid.Column="0" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
-                <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Visibility="Collapsed"  Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}"/>
-                <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="Collapsed" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"/>
-            </Grid>
-        </ControlTemplate>
         <LinearGradientBrush x:Key="ToolBarHorizontalBackground" EndPoint="0,1" StartPoint="0,0">
             <GradientStop Color="#FFFFFF" Offset="0"/>
             <GradientStop Color="#FFFBFF" Offset="0.5"/>
@@ -232,53 +216,55 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="24"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
 
-        <ToolBar Grid.Row="0" Grid.Column="0" ToolBarTray.IsLocked="True"  Height="30" Margin="0,0,0,0" Style="{DynamicResource ToolBarStyle1}" >
-            <ToggleButton x:Name="buttonToolPointer" ToolTip="Select Area" Tag="Pointer"
+        <Grid Grid.Row="0">
+            <ToolBar ToolBarTray.IsLocked="True" Margin="0,0,0,0" Style="{DynamicResource ToolBarStyle1}" >
+                <ToggleButton x:Name="buttonToolPointer" ToolTip="Select Area" Tag="Pointer"
 				IsChecked="{Binding Tool, ConverterParameter=Pointer, Converter={StaticResource convToolType}, ElementName=plateCanvas, Mode=OneWay}">
-                <Image Source="../Images/PointerHS.png"/>
-            </ToggleButton>
+                    <Image Source="../Images/PointerHS.png"/>
+                </ToggleButton>
 
-            <Button x:Name="buttonSelectAll" ToolTip="Select All" Click="ButtonSelectAll_OnClick" >
-                <Image Source="../Images/select_all.png"/>
-            </Button>
+                <Button x:Name="buttonSelectAll" ToolTip="Select All" Click="ButtonSelectAll_OnClick" >
+                    <Image Source="../Images/select_all.png"/>
+                </Button>
 
-            <ToggleButton x:Name="buttonToolSelect" ToolTip="Select Scan Area" Tag="Select"
+                <ToggleButton x:Name="buttonToolSelect" ToolTip="Select Scan Area" Tag="Select"
 				IsChecked="{Binding Tool, ConverterParameter=Select, Converter={StaticResource convToolType}, ElementName=plateCanvas, Mode=OneWay}">
-                <Image Source="../Images/select_rect.png"/>
-            </ToggleButton>
+                    <Image Source="../Images/select_rect.png"/>
+                </ToggleButton>
 
-            <ToggleButton x:Name="buttonToolDrag" ToolTip="Drag the Scan Area" Tag="Drag"
+                <ToggleButton x:Name="buttonToolDrag" ToolTip="Drag the Scan Area" Tag="Drag"
 				IsChecked="{Binding Tool, ConverterParameter=Drag, Converter={StaticResource convToolType}, ElementName=slideCanvas, Mode=OneWay}">
-                <Image Source="../Images/Drag.png"/>
-            </ToggleButton>
-            <Button x:Name="buttonZoomIn" ToolTip="Delete Scan Area" Click="buttonZoomIn_Click" >
-                <Image Source="../Images/zoom_up.png"/>
-            </Button>
+                    <Image Source="../Images/Drag.png"/>
+                </ToggleButton>
+                <Button x:Name="buttonZoomIn" ToolTip="Delete Scan Area" Click="buttonZoomIn_Click" >
+                    <Image Source="../Images/zoom_up.png"/>
+                </Button>
 
-            <Button x:Name="buttonZoomOut" ToolTip="Delete Scan Area" Click="buttonZoomOut_Click" >
-                <Image Source="../Images/zoom_down.png"/>
-            </Button>
-        </ToolBar>
-
-        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto"  PanningMode="Both" VerticalScrollBarVisibility="Auto" >
-                      <!--Template="{DynamicResource ScrollViewerControlTemplate1}">-->
+                <Button x:Name="buttonZoomOut" ToolTip="Delete Scan Area" Click="buttonZoomOut_Click" >
+                    <Image Source="../Images/zoom_down.png"/>
+                </Button>
+            </ToolBar>
+        </Grid>
+        <!--<ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto"  PanningMode="Both" VerticalScrollBarVisibility="Auto" >
             <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" ToolTip="Left CTRL + Mouse Wheel to Zoom"/>
-        </ScrollViewer>
+        </ScrollViewer>-->
+        <Grid x:Name="CanvGrid" Grid.Row="1">
+            <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" 
+                                  OuterHeight="{Binding ElementName=CanvGrid,Path=ActualHeight}"
+                                  OuterWidth="{Binding ElementName=CanvGrid,Path=ActualWidth}"/>
+        </Grid>
 
-        <StatusBar Grid.Row="2" Grid.Column="0" Height="24">
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Position:  "/>
-                    <TextBlock Width="89" Text="{Binding MousePosition, ElementName=plateCanvas, Mode=TwoWay}"/>
-                    <TextBlock Text="Zoom: "/>
-                    <TextBlock Width="40" Text="{Binding ActualScale, Converter={StaticResource doubleToStringConverter}, ElementName=plateCanvas, Mode=OneWay}"/>
-                </StackPanel>
-            </StatusBarItem>
-        </StatusBar>
+        <Grid Grid.Row="2">
+            <StatusBar>
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Position:  "/>
+                        <TextBlock Width="89" Text="{Binding MousePosition, ElementName=plateCanvas, Mode=TwoWay}"/>
+                    </StackPanel>
+                </StatusBarItem>
+            </StatusBar>
+        </Grid>
     </Grid>
 
 
