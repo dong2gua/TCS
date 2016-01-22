@@ -348,8 +348,6 @@ namespace ThorCyte.GraphicModule.ViewModels
         public override void InitGraphParams(string id)
         {
             Id = id;
-            var componentList = ComponentDataManager.Instance.GetComponentNames();
-            ComponentName = componentList[componentList.Count-1];
             IsNormalizexy = true;
             IsInitialized = true;
             Init();
@@ -371,11 +369,11 @@ namespace ThorCyte.GraphicModule.ViewModels
         public void CreateOverlay(string name, ColorInfo colorInfo)
         {
             var wellNos = new List<int>();
-            if (GraphicModule.GraphicManagerVmInstance.ActiveWells != null)
+            if (GraphicModule.GraphicManagerVmInstance.ActiveWellNos != null)
             {
-                foreach (var well in GraphicModule.GraphicManagerVmInstance.ActiveWells)
+                foreach (var no in GraphicModule.GraphicManagerVmInstance.ActiveWellNos)
                 {
-                    wellNos.Add(well.WellId);
+                    wellNos.Add(no);
                 }
                 wellNos = wellNos.OrderBy(well=>well).ToList();
             }
@@ -426,8 +424,8 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         public void SetIsNewEnabld()
         {
-            IsNewOverlayEnabled = GraphicModule.GraphicManagerVmInstance.ActiveWells != null &&
-                                  GraphicModule.GraphicManagerVmInstance.ActiveWells.Count > 0;
+            IsNewOverlayEnabled = GraphicModule.GraphicManagerVmInstance.ActiveWellNos != null &&
+                                  GraphicModule.GraphicManagerVmInstance.ActiveWellNos.Count > 0;
         }
         #endregion
     }

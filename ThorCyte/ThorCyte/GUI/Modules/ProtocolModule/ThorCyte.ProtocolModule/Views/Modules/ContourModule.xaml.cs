@@ -14,13 +14,13 @@ namespace ThorCyte.ProtocolModule.Views.Modules
             InitializeComponent();
         }
 
-        private void txt_ConponentFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
-            var tb = sender as TextBox;
-            if (tb == null) return;
-            var bindingExpression = tb.GetBindingExpression(TextBox.TextProperty);
-            if (bindingExpression != null)
-                bindingExpression.UpdateSource();
-        }
+        //private void txt_ConponentFocus(object sender, KeyboardFocusChangedEventArgs e)
+        //{
+        //    var tb = sender as TextBox;
+        //    if (tb == null) return;
+        //    var bindingExpression = tb.GetBindingExpression(TextBox.TextProperty);
+        //    if (bindingExpression != null)
+        //        bindingExpression.UpdateSource();
+        //}
     }
 }

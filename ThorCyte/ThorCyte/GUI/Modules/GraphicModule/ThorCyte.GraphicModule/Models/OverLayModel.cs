@@ -129,7 +129,7 @@ namespace ThorCyte.GraphicModule.Models
             _xscale = (ParentGraph.XAxis.MaxValue - ParentGraph.XAxis.MinValue) / ((int)ParentGraph.Width - 1);
             foreach (var wellId in _wellNoList)
             {
-                var events = ComponentDataManager.Instance.GetEvents(ParentGraph.ComponentName, wellId);
+                var events = ComponentDataManager.Instance.GetEvents(ParentGraph.SelectedComponent, wellId);
                 if (events == null || events.Count == 0)
                 {
                     continue;

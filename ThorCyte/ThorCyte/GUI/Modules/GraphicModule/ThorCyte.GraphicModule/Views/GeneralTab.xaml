@@ -21,7 +21,7 @@
         </Grid>
 
         <StackPanel>
-            <GroupBox Header="Display(Global)">
+            <!--<GroupBox Header="Display(Global)">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -30,7 +30,7 @@
                     <RadioButton x:Name="BlackRb" Grid.Column="0" Margin="2" Content="Black" IsChecked="{Binding IsWhiteBackground,Converter={StaticResource BkgCvt},ConverterParameter=black}"/>
                     <RadioButton x:Name="WhiteRb" Grid.Column="1" Margin="2" Content="White" IsChecked="{Binding IsWhiteBackground,Converter={StaticResource BkgCvt}}"/>
                 </Grid>
-            </GroupBox>
+            </GroupBox>-->
 
             <!--<GroupBox Header="Resolution" >
                 <Grid>
@@ -91,7 +91,7 @@
 
                 <RadioButton x:Name="ExpRd" Grid.Row="0" Grid.Column="0" Margin="2" Content="Expression" IsChecked="{Binding IsExpression}"/>
                 <ComboBox x:Name="ZChannelCmb" Grid.Row="1" Grid.Column="0" Margin="2" IsEnabled="{Binding IsZScaleChannelEnabled}"
-                      ItemsSource="{Binding ZScaleChannelList}" DisplayMemberPath="Label" SelectedItem="{Binding SelecedZScaleChannel}"/>
+                      ItemsSource="{Binding ZScaleChannelList}" DisplayMemberPath="ChannelName" SelectedItem="{Binding SelecedZScaleChannel}"/>
                 <xctk:DoubleUpDown x:Name="MinScaleUpDown" Grid.Row="2" Grid.Column="0" Margin="2" Value="{Binding ZScaleMin,UpdateSourceTrigger=LostFocus}" VerticalAlignment="Bottom"/>
                 <xctk:DoubleUpDown x:Name="MaxScaleUpDown" Grid.Row="2" Grid.Column="1" Margin="2" Value="{Binding ZScaleMax,UpdateSourceTrigger=LostFocus}"/>
             </Grid>

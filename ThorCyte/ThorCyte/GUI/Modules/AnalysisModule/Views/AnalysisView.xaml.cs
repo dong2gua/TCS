@@ -13,9 +13,9 @@ namespace ThorCyte.AnalysisModule.Views
         {
             InitializeComponent();
             DataContext = analysisViewModel;
-            var s = new Style();
-            s.Setters.Add(new Setter(UIElement.VisibilityProperty, Visibility.Collapsed));
-            TabControl.ItemContainerStyle = s;
+            //var s = new Style();
+            //s.Setters.Add(new Setter(UIElement.VisibilityProperty, Visibility.Collapsed));
+            //TabControl.ItemContainerStyle = s;
         }
 
         private void TabOnChecked(object sender, RoutedEventArgs e)

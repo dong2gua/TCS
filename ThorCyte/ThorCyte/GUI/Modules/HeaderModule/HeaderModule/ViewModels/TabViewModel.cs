@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Windows.Input;
+using ComponentDataService;
 using Microsoft.Practices.Unity;
 using Microsoft.Win32;
 using Prism.Commands;
@@ -82,6 +83,7 @@ namespace ThorCyte.HeaderModule.ViewModels
                     _data.SetExperimentInfo(_experiment);
                     _unityContainer.RegisterInstance<IExperiment>(_experiment);
                     _unityContainer.RegisterInstance<IData>(_data);
+                    ComponentDataManager.Instance.Load(_experiment);
                     IsLoaded = true;
                     SelectTab("ReviewModule");
                     if (_experiment.GetScanCount() > 0)

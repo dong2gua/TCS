@@ -50,6 +50,7 @@ namespace ThorCyte.Infrastructure.Interfaces
         private readonly Dictionary<int, ThorCyteImageInfo> _imageInfoDict =
             new Dictionary<int, ThorCyteImageInfo>(DefaultSize);
 
+        private int _maxIntensity;
         internal enum ImageType
         {
             None = 0,
@@ -198,13 +199,13 @@ namespace ThorCyte.Infrastructure.Interfaces
                 0, filename, _imageType);
         }
 
-        private static void FillBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
+        private void FillBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
             int copiedX, int copiedY, string filename, ImageType type)
         {
             FillBuffer(total, startX, startY, totalWidth, totalHeight, copiedX, copiedY, 0, 0, filename, type);
         }
 
-        private static void FillBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
+        private void FillBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
             int copiedX, int copiedY, int tilePosX, int tilePosY, string filename, ImageType type)
         {
             switch (type)
@@ -223,30 +224,28 @@ namespace ThorCyte.Infrastructure.Interfaces
             }
         }
 
-        private static void FillJpegBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
+        private void FillJpegBuffer(IntPtr total, int startX, int startY, int totalWidth, int totalHeight,
             int copiedX, int copiedY, int tilePosX, int tilePosY, string filename)
         {
-            FIBITMAP dib = FIBITMAP.Zero;
-            FIBITMAP gray = FIBITMAP.Zero;
+            FIBITMAP dib = FIBITMAP.Zero;         
             try
             {
-                dib = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_JPEG, filename, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
-                gray = FreeImage.ConvertToGreyscale(dib);
-                FillJpegBuffer(gray, total, startX, startY, totalWidth,totalHeight, copiedX, copiedY, tilePosX, tilePosY);
-
+                dib = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_JPEG, filename, FREE_IMAGE_LOAD_FLAGS.DEFAULT);                
+                FillJpegBuffer(dib, total, startX, startY, totalWidth,totalHeight, copiedX, copiedY, tilePosX, tilePosY);
             }
             finally
             {
-                FreeImage.Unload(dib);
-                FreeImage.Unload(gray);
+                FreeImage.Unload(dib);               
             }
         }
 
-        private static void FillJpegBuffer(FIBITMAP source, IntPtr dest, int startX, int startY, int totalWidth,
+        private  void FillJpegBuffer(FIBITMAP source, IntPtr dest, int startX, int startY, int totalWidth,
             int totalHeight, int copiedX, int copiedY, int tilePosX, int tilePosY)
         {
             var width = (int) FreeImage.GetWidth(source);
             var height = (int) FreeImage.GetHeight(source);
+            var bitsPerPixel = (int) FreeImage.GetBPP(source);
+            int channels = bitsPerPixel/8;
             // avoid out of range exception during the copy
             // check and change the copy length
             copiedX = CalcPixelsToBeCopied(tilePosX, copiedX, width);
@@ -256,7 +255,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             int offset = startY*totalWidth + startX;
             int y = startY;
             bool isLittleEndian = FreeImage.IsLittleEndian();
-            const int leftShift = 6;
+          
             unsafe
             {
                 var pDest = (byte*) dest.ToPointer();
@@ -268,7 +267,7 @@ namespace ThorCyte.Infrastructure.Interfaces
                         var pLine = (byte*) line.ToPointer();
                         for (int j = 0; j < copiedX; j++)
                         {
-                            var value = (ushort) ((pLine[tilePosX + j] << leftShift) & 0xFFFF);
+                            var value = (ushort) (pLine[(tilePosX + j)*channels]*_maxIntensity/byte.MaxValue);
                             var hi = (byte)((value >> 8) & (0xFF));
                             var low = (byte) (value & 0xFF);
                             pDest[2*(offset + j)] = low;
@@ -286,7 +285,7 @@ namespace ThorCyte.Infrastructure.Interfaces
                         var pLine = (byte*) line.ToPointer();
                         for (int j = 0; j < copiedX; j++)
                         {
-                            var value = (ushort)((pLine[tilePosX + j] << leftShift) & 0xFFFF);
+                            var value = (ushort) (pLine[(tilePosX + j)*channels]*_maxIntensity/byte.MaxValue);
                             var hi = (byte)((value >> 8) & (0xFF));
                             var low = (byte)(value & 0xFF);
                             pDest[2*(offset + j)] = hi;
@@ -500,17 +499,19 @@ namespace ThorCyte.Infrastructure.Interfaces
             Clear();
             _experiment = (ThorCyteExperiment) experiment;
             SetExperimentPath(_experiment.BasePath);
+            int intensityBits = experiment.GetExperimentInfo().IntensityBits;
+            _maxIntensity = (0x01 << intensityBits) - 1;
         }
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int planeId, int timingFrameId)
         {
-            throw new NotImplementedException();
+            return GetData(scanId, scanRegionId, channelId);
         }
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int planeId, int timingFrameId, double scale,
             Int32Rect regionRect)
         {
-            throw new NotImplementedException();
+            return GetData(scanId, scanRegionId, channelId, timingFrameId, scale, regionRect);
         }
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId,

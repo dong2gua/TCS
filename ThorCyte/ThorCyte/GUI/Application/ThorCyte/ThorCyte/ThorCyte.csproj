@@ -39,6 +39,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Abt.Controls.SciChart.Wpf">
+      <HintPath>..\..\..\..\Tools\Abt.Controls.SciChart.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="CustomChromeLibrary">
       <HintPath>..\..\..\..\Tools\CustomChromeLibrary\CustomChromeLibrary.dll</HintPath>
     </Reference>

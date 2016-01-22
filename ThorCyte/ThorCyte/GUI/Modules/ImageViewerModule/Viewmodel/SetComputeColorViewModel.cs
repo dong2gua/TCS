@@ -6,6 +6,7 @@ using System.Windows.Media;
 using ThorCyte.ImageViewerModule.Model;
 using ThorCyte.ImageViewerModule.View;
 using ThorCyte.Infrastructure.Types;
+using System.Linq;
 
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
@@ -57,7 +58,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             SelectionChangedCommand = new DelegateCommand<ComputeColorItem>(OnSelectionChanged);
             ClickOKCommand = new DelegateCommand<SetComputeColorWindow>(OnClickOK);
             ClickCancelCommand = new DelegateCommand<SetComputeColorWindow>(OnClickCancel);
-            ChannelName = "newcomputecolor";
+            ChannelName = "color "+(computeColors.Count+1).ToString();
             if (channels == null || virtualChannels==null|| computeColors == null) return;
             _channels = channels;
             _virtualChannels = virtualChannels;
@@ -87,6 +88,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         private void OnClickOK(SetComputeColorWindow window)
         {
+            if (ChannelList.Where(x => x.IsSelected).Count() == 0) return;
             if (IsNew)
             {
                 foreach (var o in _channels)

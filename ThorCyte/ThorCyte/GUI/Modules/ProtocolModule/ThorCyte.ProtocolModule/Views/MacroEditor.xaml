@@ -110,7 +110,6 @@
                 <ToggleButton Click="ToolboxClick" Padding="-1" Margin="5,2,0,2">
                     <Image Source="../Resource/Images/toolbox.png" />
                 </ToggleButton>
-                <!--<Button Margin="5,2,0,2"  Padding="-1" Content="Save" Command="{Binding SaveMacroCommand}"/>-->
             </StackPanel>
         </Border>
 
@@ -150,10 +149,6 @@
         <GridSplitter x:Name="splitter2" Grid.Column="3" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
 
         <StackPanel x:Name="collapseToolPanel" Grid.Column="4" Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Left" Height="30">
-            <ToggleButton Margin="5,2,0,2" Click="CollapseClick">
-                <Image x:Name="expandcollapse"  Source="{StaticResource collapseImg}"/>
-            </ToggleButton>
-
             <Button Margin="5,2,0,2" Content="Start" Padding="-1" Command="{Binding StartMacroCommand}"/>
             <Button Margin="5,2,0,2" Content="Stop" Padding="-1" Command="{Binding StopMacroCommand}"/>
         </StackPanel>

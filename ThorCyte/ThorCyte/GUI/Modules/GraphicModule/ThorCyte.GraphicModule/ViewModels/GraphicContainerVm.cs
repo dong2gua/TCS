@@ -33,6 +33,8 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         private bool _isDeleteEnabled;
 
+        private bool _isPropertyEnabled;
+
         private readonly Dictionary<string, Tuple<GraphicUcBase, GraphicVmBase>> _graphicDictionary;
 
         private GraphicVmBase _selectedGraphic;
@@ -101,6 +103,19 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
+        public bool IsPropertyEnabled
+        {
+            get { return _isPropertyEnabled; }
+            set
+            {
+                if (_isPropertyEnabled == value)
+                {
+                    return;
+                }
+                SetProperty(ref _isPropertyEnabled, value);
+            }
+        }
+
         public GraphicVmBase SelectedGraphic
         {
             get { return _selectedGraphic; }
@@ -112,6 +127,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 }
                 SetProperty(ref _selectedGraphic, value);
                 IsDeleteEnabled = value != null;
+                IsPropertyEnabled = value != null;
                 SetPropertyVisible();
             }
         }
@@ -140,7 +156,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _isScatterProperVisible, value);
-            } 
+            }
         }
 
         public bool IsHistogramProperVisible
@@ -153,7 +169,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _isHistogramProperVisible, value);
-            } 
+            }
         }
 
         public DelegateCommand DeleteGraphicCmd
@@ -191,7 +207,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             _graphicVmList = new ImpObservableCollection<GraphicVmBase>();
             _name = name;
             _deleteGraphicCmd = new DelegateCommand(OnDeleteGraphic);
-            _cancelEditCommand = new DelegateCommand(()=>IsEdit = false);
+            _cancelEditCommand = new DelegateCommand(() => IsEdit = false);
         }
 
         #endregion
@@ -272,6 +288,13 @@ namespace ThorCyte.GraphicModule.ViewModels
             var vm = new HistogramVm();
             vm.InitGraphParams(id);
             _graphicVmList.Add(vm);
+        }
+
+        public void Clear()
+        {
+            _graphicDictionary.Clear();
+            _graphicVmList.Clear();
+            _idManager.Clear();
         }
 
         #endregion

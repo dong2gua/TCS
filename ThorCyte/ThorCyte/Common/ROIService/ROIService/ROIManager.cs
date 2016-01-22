@@ -30,6 +30,7 @@ namespace ROIService
 
         #region Field
 
+        private static readonly BioEvent[] EmptyBioEvents = new BioEvent[0];
         private const int DefaultRegionCount = 5;
         private readonly List<int> _bitmap = new List<int>();
 
@@ -100,7 +101,7 @@ namespace ROIService
             if (_roiDictionary.ContainsKey(id))
                 return false;
             _roiDictionary[id] = region;
-            _regionEventsDictionary[id] = new BioEvent[0];
+            _regionEventsDictionary[id] = EmptyBioEvents;
             region.Calculate();
             AddRelationShip(id);
             UpdateEventsDictionary(id);
@@ -136,7 +137,7 @@ namespace ROIService
             string id = string.Format("R{0}", region.Id);
             _roiDictionary[id] = region;
             //region.Calculate();
-            _regionEventsDictionary[id] = new BioEvent[0];
+            _regionEventsDictionary[id] = EmptyBioEvents;
             var no = int.Parse(id.TrimStart('R')) - 1;
             if (no < _bitmap.Count)
                 _bitmap[no] = 1;
@@ -201,27 +202,6 @@ namespace ROIService
             InitRegionEvents(wellNo, regionNo, _roiDictionary, _regionEventsDictionary);
         }
 
-      
-        
-        internal double[] GetEventsBuffer(string id, int wellNo, int regionNo, FeatureType type, string channel)
-        {
-           
-            if (!_roiDictionary.ContainsKey(id)) return new double[0];
-            var region = _roiDictionary[id];
-            var name = region.ComponentName;
-
-            var index = string.IsNullOrEmpty(channel)
-                ? ComponentDataManager.Instance.GetFeatureIndex(name, type)
-                : ComponentDataManager.Instance.GetFeatureIndex(name, type, channel);
-            var result = GetEvents(id);
-            var n = result.Count;
-            var buffer = new double[n];
-            for (var i = 0; i < n; i++)
-            {
-                buffer[i] = result[i][index];
-            }
-            return buffer;
-        }
 
         internal void Clear()
         {
@@ -247,7 +227,7 @@ namespace ROIService
             {
                 foreach (var key in roiDictionary.Keys.ToList())
                 {
-                    regionEventsDictionary[key] = new BioEvent[0];
+                    regionEventsDictionary[key] = EmptyBioEvents;
                 }
                 return regionEventsDictionary;
             }
@@ -266,7 +246,7 @@ namespace ROIService
             IDictionary<string, IList<BioEvent>> regionEventsDictionary)
         {
             if (!(roiDictionary.ContainsKey(id) && regionEventsDictionary.ContainsKey(id)))
-                return new BioEvent[0];
+                return EmptyBioEvents;
             return regionEventsDictionary[id];
         }
 
@@ -345,7 +325,7 @@ namespace ROIService
            IDictionary<string, MaskRegion> roiDictionary, IDictionary<string, IList<BioEvent>> regionEventsDictionary)
         {
             if (!roiDictionary.ContainsKey(lhsId) && !roiDictionary.ContainsKey(rhsId))
-                return new List<BioEvent>(0);
+                return EmptyBioEvents;
             switch (type)
             {
                 case OperationType.None:
@@ -357,7 +337,7 @@ namespace ROIService
                 case OperationType.Or:
                     return GetEventsByOr(lhsId, rhsId, roiDictionary, regionEventsDictionary);
                 default:
-                    return new List<BioEvent>(0);
+                    return EmptyBioEvents;
             }
         }
       
@@ -368,7 +348,7 @@ namespace ROIService
             var tasks = new Task<IDictionary<string, IList<BioEvent>>>[n];
             for (var i = 0; i < n; i++)
             {
-                int wellNo = activeWells[i] + 1;
+                int wellNo = activeWells[i];
                 tasks[i] = new Task<IDictionary<string, IList<BioEvent>>>(InitRegionEvents, wellNo);
                 tasks[i].Start();
             }
@@ -486,7 +466,7 @@ namespace ROIService
             var name = mask.ComponentName;
             var data = ComponentDataManager.Instance.GetEvents(name, wellNo);
             if(data==null)
-                return new BioEvent[0];
+                return EmptyBioEvents;
             var n = data.Count;
             var rst = new List<BioEvent>(n);
             for (var i = 0; i < n; i++)
@@ -633,10 +613,10 @@ namespace ROIService
         private IList<BioEvent> GetEventsSource(string childId, string leftParentId, string rightParentId, int wellNo, IDictionary<string, MaskRegion> roiDictionary,
             IDictionary<string, IList<BioEvent>> regionEventsDictionary)
         {
-            if (!roiDictionary.ContainsKey(childId)) return new BioEvent[0];
+            if (!roiDictionary.ContainsKey(childId)) return EmptyBioEvents;
             var child = roiDictionary[childId];
             return !roiDictionary.ContainsKey(leftParentId)
-                ? ComponentDataManager.Instance.GetEvents(child.ComponentName, wellNo-1)
+                ? ComponentDataManager.Instance.GetEvents(child.ComponentName, wellNo)
                 : GetEvents(leftParentId, rightParentId, roiDictionary[childId].Operation, roiDictionary,
                     regionEventsDictionary);
         }

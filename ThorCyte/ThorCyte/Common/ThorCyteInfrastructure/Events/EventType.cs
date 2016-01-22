@@ -16,11 +16,13 @@ namespace ThorCyte.Infrastructure.Events
 
     public class MacroStartEventArgs
     {
+        public int WellId;
         public int RegionId;
         public int TileId;
-
+        
         public MacroStartEventArgs()
         {
+            WellId = 0;
             RegionId = 0;
             TileId = 0;
         }

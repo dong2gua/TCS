@@ -104,7 +104,11 @@ namespace ImageProcess.DataType
             return _centroid;
         }
 
-        
+        public bool TouchesEdge(int extent, int width, int height)
+        {
+            return (Bound.X < extent || Bound.X + Bound.Width + extent - 1 >= width ||
+                    Bound.Y < extent || Bound.Y + Bound.Height + extent - 1 >= height);
+        }	
         // create a blob expanded by the specified pixels, but clipped by the specified image size
         // if image size is 0, do not clip
         public Blob CreateExpanded(int addedPixels, int imgWidth, int imgHeight)
@@ -117,14 +121,7 @@ namespace ImageProcess.DataType
             {
                 int xStart = Bound.X - addedPixels;
                 int width = Bound.Width + 2 * addedPixels;
-                int xEnd = xStart + width - 1;
-                int yStartInt32 = Bound.Y - addedPixels;
-                int height = Bound.Height + 2*addedPixels;
-                int yEndInt32 = yStartInt32 + height - 1;
-                if (xStart < 0 || xEnd >= imgWidth || yStartInt32 < 0 || yEndInt32 >= imgHeight)
-                    return null;
-                
-                
+
                 var yMin = new ushort[width];
                 var yMax = new ushort[width];
 
@@ -311,7 +308,6 @@ namespace ImageProcess.DataType
 
             Blob blobInside = CreateExpanded(dist, imgWidth, imgHeight);
             Blob blobOutside = CreateExpanded(dist + width, imgWidth, imgHeight);
-            if (blobInside == null || blobOutside == null) return null;
             var ring = new Blob {_shape = RegionShape.Ring, Bound = blobOutside.Bound};
             ring._points.Clear();
             ring._points.AddRange(blobInside._points);

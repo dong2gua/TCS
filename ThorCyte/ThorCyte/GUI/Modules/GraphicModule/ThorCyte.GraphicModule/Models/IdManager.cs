@@ -56,6 +56,11 @@ namespace ThorCyte.GraphicModule.Models
             }
         }
 
+        public void Clear()
+        {
+            _idList.Clear();
+        }
+
         #endregion
     }
 }

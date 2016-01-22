@@ -117,6 +117,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Tools\BoolToVisibilityConverter.cs" />
     <Compile Include="Tools\Definitions.cs" />
     <Compile Include="Tools\GraphicSelectRectangle.cs" />
     <Compile Include="Tools\Tool.cs" />

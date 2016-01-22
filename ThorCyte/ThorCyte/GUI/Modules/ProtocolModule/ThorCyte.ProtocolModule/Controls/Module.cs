@@ -333,7 +333,7 @@ namespace ThorCyte.ProtocolModule.Controls
             if (_isLeftMouseAndControlDown)
             {
                 // Control key was held down.Toggle the selection.
-                IsSelected = !IsSelected;
+                //IsSelected = !IsSelected;
             }
             else
             {

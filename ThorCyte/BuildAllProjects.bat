@@ -5,37 +5,49 @@ cd %VS110COMNTOOLS%
 call VsDevCmd.bat
 @ echo Build in progress ... 
 
-@ echo -- Start to Build ThorCyte.sln ... 
-msbuild %~dp0\ThorCyte\GUI\Application\ThorCyte\ThorCyte.sln  >  %~dp0\BulidLog.txt || echo !!! Build ThorCyte.sln FAILED! Please check the BuildLog.txt!
-
+::ImageProcess
 @ echo -- Start to Build ImageProcess.sln ... 
 msbuild %~dp0\ThorCyte\Common\ImageProcess\ImageProcess.sln >> %~dp0\BulidLog.txt || echo !!! Build ImageProcess.sln FAILED! Please check the BuildLog.txt! 
 
+::Infrastructure
+@ echo -- Start to Build ThorCyte.Infrastructure.csproj ... 
+msbuild %~dp0\ThorCyte\Common\ThorCyteInfrastructure\ThorCyte.Infrastructure.csproj >> %~dp0\BulidLog.txt || echo !!! Build ThorCyte.Infrastructure.csproj FAILED! Please check the BuildLog.txt! 
+
+::ComponentDataService
 @ echo -- Start to Build ComponentDataService.sln ... 
 msbuild %~dp0\ThorCyte\Common\ComponentDataService\ComponentDataService.sln >> %~dp0\BulidLog.txt || echo !!! Build ComponentDataService.sln FAILED! Please check the BuildLog.txt! 
 
+::ROIService
 @ echo -- Start to Build ROIService.sln ... 
 msbuild %~dp0\ThorCyte\Common\ROIService\ROIService.sln >> %~dp0\BulidLog.txt || echo !!! Build ROIService.sln FAILED! Please check the BuildLog.txt! 
 
-@ echo -- Start to Build ProtocolModule.sln ... 
-msbuild %~dp0\ThorCyte\GUI\Modules\ProtocolModule\ProtocolModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ProtocolModule.sln FAILED! Please check the BuildLog.txt! 
+::ThorCyte
+@ echo -- Start to Build ThorCyte.sln ... 
+msbuild %~dp0\ThorCyte\GUI\Application\ThorCyte\ThorCyte.sln  >  %~dp0\BulidLog.txt || echo !!! Build ThorCyte.sln FAILED! Please check the BuildLog.txt!
 
-@ echo -- Start to Build ImageViewerModule.sln ... 
-msbuild %~dp0\ThorCyte\GUI\Modules\ImageViewerModule\ImageViewerModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ImageViewerModule.sln FAILED! Please check the BuildLog.txt! 
-
-@ echo -- Start to Build HeaderModule.sln ... 
-msbuild %~dp0\ThorCyte\GUI\Modules\HeaderModule\HeaderModule.sln >> %~dp0\BulidLog.txt  || echo !!! Build HeaderModule.sln FAILED! Please check the BuildLog.txt! 
-
+::ExperimentDetail
 @ echo -- Start to Build ExperimentDetailModule.sln ... 
 msbuild %~dp0\ThorCyte\GUI\Modules\ExperimentDetailModule\ExperimentDetailModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ExperimentDetailModule.sln FAILED! Please check the BuildLog.txt! 
 
+::Header
+@ echo -- Start to Build HeaderModule.sln ... 
+msbuild %~dp0\ThorCyte\GUI\Modules\HeaderModule\HeaderModule.sln >> %~dp0\BulidLog.txt  || echo !!! Build HeaderModule.sln FAILED! Please check the BuildLog.txt! 
+
+::Protocol
+@ echo -- Start to Build ProtocolModule.sln ... 
+msbuild %~dp0\ThorCyte\GUI\Modules\ProtocolModule\ProtocolModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ProtocolModule.sln FAILED! Please check the BuildLog.txt! 
+
+::ImageViewer
+@ echo -- Start to Build ImageViewerModule.sln ... 
+msbuild %~dp0\ThorCyte\GUI\Modules\ImageViewerModule\ImageViewerModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ImageViewerModule.sln FAILED! Please check the BuildLog.txt! 
+
+::Carrier
 @ echo -- Start to Build CarrierModule.sln ... 
 msbuild %~dp0\ThorCyte\GUI\Modules\CarrierModule\CarrierModule.sln >> %~dp0\BulidLog.txt || echo !!! Build CarrierModule.sln FAILED! Please check the BuildLog.txt! 
 
+::Graphics
 @ echo -- Start to Build ThorCyte.GraphicModule.sln ... 
 msbuild %~dp0\ThorCyte\GUI\Modules\GraphicModule\ThorCyte.GraphicModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ThorCyte.GraphicModule.sln FAILED! Please check the BuildLog.txt! 
-
-
 
 @ echo Build All Done. 
 

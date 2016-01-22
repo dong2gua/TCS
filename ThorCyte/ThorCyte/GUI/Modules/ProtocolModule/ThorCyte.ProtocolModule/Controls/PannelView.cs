@@ -112,7 +112,7 @@ namespace ThorCyte.ProtocolModule.Controls
 
         public static readonly DependencyProperty IsClearSelectionOnEmptySpaceClickEnabledProperty =
             DependencyProperty.Register("IsClearSelectionOnEmptySpaceClickEnabled", typeof(bool), typeof(PannelView),
-                new FrameworkPropertyMetadata(true));
+                new FrameworkPropertyMetadata(false));
 
         public static readonly DependencyProperty EnableConnectionDraggingProperty =
             DependencyProperty.Register("EnableConnectionDragging", typeof(bool), typeof(PannelView),

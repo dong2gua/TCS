@@ -19,6 +19,11 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public const string NoneColorStr = "(None)";
         public const string CustomerColorStr = "Custom";
 
+        public override bool Executable
+        {
+            get { return true; }
+        }
+
         public override string CaptionString
         {
             get

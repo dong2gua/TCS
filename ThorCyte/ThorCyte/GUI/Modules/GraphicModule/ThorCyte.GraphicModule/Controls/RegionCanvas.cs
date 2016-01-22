@@ -318,7 +318,7 @@ namespace ThorCyte.GraphicModule.Controls
             RegionHelper.UpdateRegionLocation(region, graphic, this, _vm);
             region.GraphicId = Id;
             region.Color = graphic.ObjectColor;
-            region.ComponentName = _vm.ComponentName;
+            region.ComponentName = _vm.SelectedComponent;
             SetRegionCommonParas(region);
             RegionHelper.SetCommonRegionParas(region,_vm);
             region.LeftParent = (!string.IsNullOrEmpty(_vm.SelectedGate1) && _vm.SelectedGate1.StartsWith(ConstantHelper.PrefixRegionName)) ? _vm.SelectedGate1 : string.Empty;

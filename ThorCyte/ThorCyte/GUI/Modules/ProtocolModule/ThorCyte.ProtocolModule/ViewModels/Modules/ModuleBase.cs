@@ -18,7 +18,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public int ScanNo { get; set; }
         public string DisplayName { get; set; }
         public ModuleType ModType { get; set; }
-        public bool Executable { get; set; }
+        public abstract bool Executable { get; }
 
         private ContentControl _view;
         public ContentControl View
@@ -175,7 +175,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             _outputPort = new PortModel(PortType.OutPort);
             _enabled = true;
             _hasImage = false;
-            Executable = true;
         }
 
         #endregion

@@ -16,10 +16,10 @@ namespace ComponentDataService
     {
         #region Fields
 
+        internal const string DataStoredFolder = "EVT";
         internal const int ScanId = 1;
         private const int DefaultSize = 5;
         private string _basePath;
-        private readonly List<string> _componentNames = new List<string>(DefaultSize);
         private IExperiment _experiment;
         private readonly Dictionary<string, BioComponent> _bioComponentDict =
             new Dictionary<string, BioComponent>(DefaultSize);
@@ -53,7 +53,7 @@ namespace ComponentDataService
 
         #region Private
 
-        private List<string> GetComponentNamesFromXml()
+        private IEnumerable<string> GetComponentNamesFromXml()
         {
             var names = new List<string>();
             var doc = new XmlDocument();
@@ -71,27 +71,14 @@ namespace ComponentDataService
         }
 
         private void SaveEvtXml(string fileFolder)
-        {
-            string[] files = Directory.GetFiles(_basePath, "*.evt.xml");
-            string file = files.FirstOrDefault();
-            if (string.IsNullOrEmpty(file))
-                throw new FileNotFoundException(string.Format("no evt xml found at {0}", _basePath));
-            else
-            {
-                string destFileName = Path.Combine(fileFolder, Path.GetFileName(file));
-                File.Copy(file, destFileName);
-            }
+        {           
             foreach (BioComponent bioComponent in _bioComponentDict.Values)
             {
                 bioComponent.SaveToEvtXml(fileFolder);
             }
         }
 
-        private void Clear()
-        {
-            _componentNames.Clear();
-            _bioComponentDict.Clear();
-        }
+       
 
         #endregion
 
@@ -99,26 +86,26 @@ namespace ComponentDataService
 
         public IList<string> GetComponentNames()
         {
-            return _componentNames.Count > 0 ? _componentNames : GetComponentNamesFromXml();
+            return _bioComponentDict.Keys.ToList();
         }
 
         public void Load(IExperiment experiment)
         {
             _experiment = experiment;
-            ScanInfo info = experiment.GetScanInfo(ScanId);
-            string dataPath = info.DataPath;
-            _basePath = Path.Combine(dataPath, "carrier1", "EVT");
+            ExperimentInfo info = experiment.GetExperimentInfo();
+            string analysisPath = info.AnalysisPath;
+            _basePath = Path.Combine(analysisPath, DataStoredFolder);
             if (Directory.Exists(_basePath) == false)
-                throw new DirectoryNotFoundException(string.Format("{0} not found", _basePath));
-            Clear();        
-            _componentNames.AddRange(GetComponentNamesFromXml());
-            string softwareVersion = experiment.GetExperimentInfo().SoftwareVersion;
-            foreach (string name in _componentNames)
             {
-                _bioComponentDict[name] = new BioComponent(experiment, name)
-                {
-                    SoftwareVersion = new Version(softwareVersion)
-                };
+                Directory.CreateDirectory(_basePath);
+                return;//for not analysed data
+            }             
+            ClearComponents();
+            IEnumerable<string> componentNames = GetComponentNamesFromXml();       
+            foreach (string name in componentNames)
+            {
+                _bioComponentDict[name] = new BioComponent(experiment, name);
+
             }
         }
 
@@ -223,7 +210,7 @@ namespace ComponentDataService
 
         public void ClearComponents()
         {
-            Clear();
+           _bioComponentDict.Clear();
         }
 
         public IList<Blob> CreateContourBlobs(string componentName, int scanId, int wellId, int tileId,

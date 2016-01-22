@@ -26,7 +26,6 @@ namespace ThorCyte.CarrierModule.Views
         {
             InitializeComponent();
             buttonToolSelect.PreviewMouseDown += ToolButton_PreviewMouseDown;
-            buttonToolDrag.PreviewMouseDown += ToolButton_PreviewMouseDown;
             buttonToolPointer.PreviewMouseDown += ToolButton_PreviewMouseDown;
         }
 

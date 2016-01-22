@@ -12,7 +12,7 @@
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome
-            ResizeBorderThickness="0"
+            ResizeBorderThickness="6"
             CaptionHeight="35"
             CornerRadius="10,10,0,0"
             GlassFrameThickness="0">
@@ -22,40 +22,38 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="102"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="120"/>
+
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Border CornerRadius="0,0,0,0" Grid.ColumnSpan="3" BorderThickness="2,2,2,1" Background="DarkGray" Opacity="0.3" Margin="1,1,1,0" />
-        <Border Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Background="DarkGray" Opacity="0.3" Margin="1,0,1,1" />
-        <ccl:CaptionButtons Grid.Column="2" Margin="0,8"/>
+        <Border CornerRadius="0,0,0,0" Grid.ColumnSpan="3" BorderThickness="0,0,0,1"  BorderBrush="DodgerBlue" Background="#606060" Opacity="0.4"  Margin="1,1,1,0" />
+        <ccl:CaptionButtons Grid.Column="1" Margin="0,8"/>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2">
             <Image Margin="5,4,0,0" Width="32" Height="32"  Source="ThorCyte.png"></Image>
             <Label Margin="0,5,0,0" Content="ThorCyte" FontSize="20" ></Label>
         </StackPanel>
         <ContentControl regions:RegionManager.RegionName="{x:Static inf:RegionNames.TabRegion}" Grid.Row="1" Grid.Column="0"/>
-        <DockPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,8,0">
+        <DockPanel Grid.Column="1" Grid.Row="1" Margin="0,1,8,0">
             <Grid DockPanel.Dock="Right">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition Width="5"/>
                     <ColumnDefinition x:Name="RightCol" Width="0"/>
                 </Grid.ColumnDefinitions>
+                <Border Background="Gray" Opacity="0.3" CornerRadius="5,5,0,0" />
                 <ContentControl  DockPanel.Dock="Right" regions:RegionManager.RegionName="{x:Static inf:RegionNames.MainRegion}"/>
                 <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch">
                     <i:Interaction.Behaviors>
                         <controls:DoubleClickCollapseGridSplitterBehavior />
                     </i:Interaction.Behaviors>
                 </GridSplitter>
-                <Border BorderThickness="1" BorderBrush="CadetBlue" CornerRadius="5" Grid.Column="2">
-                    <DockPanel >
+                <DockPanel Grid.Column="2">
                         <ContentControl DockPanel.Dock="Top" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}"/>
-                        <controls:DockPanelSplitter DockPanel.Dock="Top"/>
                         <ContentControl DockPanel.Dock="Bottom" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ScanInfoRegion}" />
-                    </DockPanel>
-                </Border>
+                </DockPanel>
+                
             </Grid>
         </DockPanel>
     </Grid>

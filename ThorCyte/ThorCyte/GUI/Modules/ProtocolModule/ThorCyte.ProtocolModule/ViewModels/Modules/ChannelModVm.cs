@@ -16,6 +16,12 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         #region Properties and Fields
 
         private ImageData _img;
+
+        public override bool Executable
+        {
+            get { return true; }
+        }
+
         public override string CaptionString
         {
             get { return _selectedChannel; }

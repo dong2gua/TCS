@@ -31,5 +31,6 @@ namespace ThorCyte.ImageViewerModule.Selector
     {
         public int Type { get; set; }
         public List<ViewportView> Viewports { get; set; }
+        public ViewportView CurrentViewport { get; set; }
     }
 }

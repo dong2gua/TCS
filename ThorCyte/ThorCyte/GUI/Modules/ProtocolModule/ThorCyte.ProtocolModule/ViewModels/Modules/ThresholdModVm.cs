@@ -13,6 +13,11 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         #region Properties and fields
         private ImageData _img;
 
+        public override bool Executable
+        {
+            get { return true; }
+        }
+
         public override string CaptionString { get { return string.Format("{0} ({1})", Method, Threshold); } }
 
         private string _componentName;
@@ -188,7 +193,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             InputPorts[0].ParentModule = this;
             OutputPort.DataType = PortDataType.BinaryImage;
             OutputPort.ParentModule = this;
-            Method = ThresholdMethod.Otsu;
         }
 
         public override void OnExecute()

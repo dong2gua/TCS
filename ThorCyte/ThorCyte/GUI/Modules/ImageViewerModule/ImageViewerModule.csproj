@@ -55,8 +55,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Abt.Controls.SciChart.Wpf.2.3">
-      <HintPath>..\..\..\Tools\Abt.Controls.SciChart.Wpf.2.3.dll</HintPath>
+    <Reference Include="Abt.Controls.SciChart.Wpf">
+      <HintPath>..\..\..\Tools\Abt.Controls.SciChart.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="ImageProcess">
       <HintPath>..\..\..\Bin\ImageProcess.dll</HintPath>
@@ -136,7 +136,6 @@
     <Compile Include="Events\OperateChannelEvent.cs" />
     <Compile Include="Events\UpdateProfilePointsEvent.cs" />
     <Compile Include="ImageViererModule.cs" />
-    <Compile Include="Log.cs" />
     <Compile Include="Model\ChannelImage.cs" />
     <Compile Include="Model\ComputeColorItem.cs" />
     <Compile Include="Selector\ViewportSelector.cs" />
@@ -214,15 +213,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SciChartLicense.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\Bin\ImageProcessLib.dll">
-      <Link>ImageProcessLib.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Brightness.png" />
     <Resource Include="Resources\ComputeColor.png" />
     <Resource Include="Resources\Drag.png" />
@@ -247,6 +237,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\collapse.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Ratio.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

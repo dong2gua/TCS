@@ -15,6 +15,13 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         #region Properties and Fields
         private ImageData _img;
 
+        public override bool Executable
+        {
+            get {
+                return _componentName != string.Empty;
+            }
+        }
+
         public override string CaptionString { get { return ComponentName; } }
 
         private string _componentName;
@@ -27,11 +34,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 if (value == _componentName)
                 {
                     return;
-                }
-
-                if (value.Trim() != string.Empty)
-                {
-                    Executable = true;
                 }
 
                 SetProperty(ref _componentName, value);
@@ -154,7 +156,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             MaxArea = 1000;
             MinAreaUnit = UnitType.Micron;
             MaxAreaUnit = UnitType.Micron;
-            Executable = false;
         }
 
         #endregion
@@ -222,10 +223,13 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
                 var min = UnitConversion(MinArea, MinAreaUnit, UnitType.Micron);
                 var max = UnitConversion(MaxArea, MaxAreaUnit, UnitType.Micron);
+                var pixel = Macro.CurrentScanInfo.XPixcelSize * Macro.CurrentScanInfo.YPixcelSize;
+
+
 
                 Macro.CurrentConponentService.CreateContourBlobs(ComponentName, Macro.CurrentScanId,
                     Macro.CurrentRegionId + 1,
-                    Macro.CurrentTileId, _img, min, IsMaxAreaChecked ? max : int.MaxValue);
+                    Macro.CurrentTileId, _img, min/pixel, (IsMaxAreaChecked ? max : int.MaxValue)/pixel);
 
                 _img.Dispose();
 

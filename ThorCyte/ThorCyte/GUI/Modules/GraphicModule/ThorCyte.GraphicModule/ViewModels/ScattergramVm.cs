@@ -43,19 +43,19 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         private bool _isWhiteBackground;
 
-        public bool IsWhiteBackground
-        {
-            get { return _isWhiteBackground; }
-            set
-            {
-                if (_isWhiteBackground == value)
-                {
-                    return;
-                }
-                _isWhiteBackground = value;
-                GraphicModule.GraphicManagerVmInstance.IsBlackBackground = !_isWhiteBackground;
-            }
-        }
+        //public bool IsWhiteBackground
+        //{
+        //    get { return _isWhiteBackground; }
+        //    set
+        //    {
+        //        if (_isWhiteBackground == value)
+        //        {
+        //            return;
+        //        }
+        //        _isWhiteBackground = value;
+        //        GraphicModule.GraphicManagerVmInstance.IsBlackBackground = !_isWhiteBackground;
+        //    }
+        //}
 
         private bool _isMapChecked;
 
@@ -92,11 +92,12 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     return;
                 }
+                SetProperty(ref _isDensity, value);
                 if (_isExpression == value)
                 {
                     IsExpression = !value;
                 }
-                SetProperty(ref _isDensity, value);
+               
                 if (_isDensity)
                 {
                     UpdateEvents();
@@ -177,6 +178,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     return;
                 }
+                SetProperty(ref _selecedZScaleFeature, value);
                 if (value.IsPerChannel)
                 {
                     IsZScaleChannelEnabled = true;
@@ -188,7 +190,6 @@ namespace ThorCyte.GraphicModule.ViewModels
                     SelecedZScaleChannel = null;
                 }
                 CalcZIndex();
-                SetProperty(ref _selecedZScaleFeature, value);
                 UpdateEvents();
             }
         }
@@ -293,10 +294,9 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         #region Methods
 
-        public override void Init()
+        public override void UpdateFeatures()
         {
-            base.Init();
-
+            base.UpdateFeatures();
             var features = ComponentDataManager.Instance.GetFeatures(SelectedComponent).OrderBy(f => f.Name);
             var channels = ComponentDataManager.Instance.GetChannels(SelectedComponent).OrderBy(channel => channel.ChannelName);
             foreach (var feature in features)
@@ -310,16 +310,16 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        public void UpdateBackground()
-        {
-            IsWhiteBackground = !GraphicModule.GraphicManagerVmInstance.IsBlackBackground;
-            var color = GraphicModule.GraphicManagerVmInstance.IsBlackBackground ? Colors.White : Colors.Black;
-            ColorRegionList[0].RegionColor = color;
-            DefaultEventColorIndex = _isWhiteBackground ? RegionColorIndex.Black : RegionColorIndex.White;
-            DefaultBackgroundIndex = _isWhiteBackground ? RegionColorIndex.White : RegionColorIndex.Black;
-            OnPropertyChanged("IsWhiteBackground");
-            UpdateEvents();
-        }
+        //public void UpdateBackground()
+        //{
+        //    IsWhiteBackground = !GraphicModule.GraphicManagerVmInstance.IsBlackBackground;
+        //    var color = GraphicModule.GraphicManagerVmInstance.IsBlackBackground ? Colors.White : Colors.Black;
+        //    ColorRegionList[0].RegionColor = color;
+        //    DefaultEventColorIndex = _isWhiteBackground ? RegionColorIndex.Black : RegionColorIndex.White;
+        //    DefaultBackgroundIndex = _isWhiteBackground ? RegionColorIndex.White : RegionColorIndex.Black;
+        //    OnPropertyChanged("IsWhiteBackground");
+        //    UpdateEvents();
+        //}
 
         public override void UpdateEvents(object args)
         {
@@ -470,8 +470,6 @@ namespace ThorCyte.GraphicModule.ViewModels
         public override void InitGraphParams(string id)
         {
             Id = id;
-            var componentList = ComponentDataManager.Instance.GetComponentNames();
-            ComponentName = componentList[componentList.Count-1];
             IsNormalizexy = true;
             IsInitialized = true;
             Init();
@@ -487,7 +485,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             YAxis.NumeratorFeatureList.FirstOrDefault(feature => feature.FeatureType == FeatureType.YPos);
             YAxis.SetDefaultRange(XAxis.IsLogScale);
             YAxis.UpdateTitle();
-            IsWhiteBackground = !GraphicModule.GraphicManagerVmInstance.IsBlackBackground;
+            //IsWhiteBackground = !GraphicModule.GraphicManagerVmInstance.IsBlackBackground;
             XAxis.IsInitialized = true;
             YAxis.IsInitialized = true;
         }

@@ -97,13 +97,13 @@
                           ItemsSource="{Binding SelectedAxis.NumeratorFeatureList}" SelectedItem="{Binding SelectedAxis.SelectedNumeratorFeature}" DisplayMemberPath="Name"/>
                     <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" 
                           ItemsSource="{Binding NumeratorChannelList}" SelectedItem="{Binding SelectedNumeratorChannel}" Margin="2"
-                          IsEnabled="{Binding IsNumeratorChannelEnabled}" DisplayMemberPath="Label"/>
+                          IsEnabled="{Binding IsNumeratorChannelEnabled}" DisplayMemberPath="ChannelName"/>
 
                     <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="2"
                           ItemsSource="{Binding DenominatorFeatureList}" SelectedItem="{Binding SelectedDenominatorFeature}" DisplayMemberPath="Name"/>
                     <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="2"
                           ItemsSource="{Binding DenominatorChannelList}" SelectedItem="{Binding SelectedDenominatorChannel}" 
-                          IsEnabled="{Binding IsDenominatorChannelEnabled}" DisplayMemberPath="Label"/>
+                          IsEnabled="{Binding IsDenominatorChannelEnabled}" DisplayMemberPath="ChannelName"/>
                 </Grid>
 
             </Grid>

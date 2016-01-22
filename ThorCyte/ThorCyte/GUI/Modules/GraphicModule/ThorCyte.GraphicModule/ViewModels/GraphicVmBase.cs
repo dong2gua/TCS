@@ -15,6 +15,7 @@ using ThorCyte.GraphicModule.Events;
 using ThorCyte.GraphicModule.Infrastructure;
 using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.Utils;
+using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 using ROIService.Region;
 
@@ -135,21 +136,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        private string _propertyWndTitle = string.Empty;
-
-        public string PropertyWndTitle
-        {
-            get { return _propertyWndTitle; }
-            set
-            {
-                if (_propertyWndTitle == value)
-                {
-                    return;
-                }
-                SetProperty(ref _propertyWndTitle, value);
-            }
-        }
-
         private string _title = string.Empty;
 
         public string Title
@@ -261,7 +247,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             set
             {
                 Title = value;
-                SetProperty(ref _componentName, value); 
+                SetProperty(ref _componentName, value);
             }
         }
 
@@ -292,12 +278,12 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     return;
                 }
-                var colorModel = value;
-                if (colorModel.RegionColor.Equals(Colors.Black) || colorModel.RegionColor.Equals(Colors.White))
-                {
-                    colorModel.RegionColor = GraphicModule.GraphicManagerVmInstance.IsBlackBackground ? Colors.White : Colors.Black;
-                }
-                SetProperty(ref _selectedRegionColor, value); 
+                //var colorModel = value;
+                //if (colorModel.RegionColor.Equals(Colors.Black) || colorModel.RegionColor.Equals(Colors.White))
+                //{
+                //    colorModel.RegionColor = GraphicModule.GraphicManagerVmInstance.IsBlackBackground ? Colors.White : Colors.Black;
+                //}
+                SetProperty(ref _selectedRegionColor, value);
             }
         }
 
@@ -435,7 +421,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             new ColorRegionModel
             {
                 IsChecked = true,
-                RegionColor = Colors.White,
+                RegionColor = Colors.Black,
                 RegionColorString = "Default"
             },
             new ColorRegionModel
@@ -494,7 +480,7 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         protected virtual bool ValidateParameters() { return true; }
 
-        public void SetSize(int width,int height)
+        public void SetSize(int width, int height)
         {
             Width = width;
             Height = height;
@@ -526,15 +512,15 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
             else
             {
-                var activewells = args as IList<Well>;
-                if (activewells == null || activewells.Count == 0)
+                var nos = args as IList<int>;
+                if (nos == null || nos.Count == 0)
                 {
                     UpdateGraphData();
                     return;
                 }
-                foreach (var well in activewells)
+                foreach (var no in nos)
                 {
-                    var events = ComponentDataManager.Instance.GetEvents(ComponentName, well.WellId);
+                    var events = ComponentDataManager.Instance.GetEvents(_selectedComponent, no);
 
                     if (events == null || events.Count == 0)
                     {
@@ -553,14 +539,34 @@ namespace ThorCyte.GraphicModule.ViewModels
         {
             DefaultGate = OperationType.None.ToString();
 
+            UpdateComponentList();
+            if (_componentList.Count == 0)
+            {
+                return;
+            }
+            SelectedComponent = _componentList[0];
+            Title = _componentList[0];
+            UpdateFeatures();
+
+            _operatorList.AddRange(Enum.GetValues(typeof(OperationType)));
+            _gate1List.Add(DefaultGate);
+            _selectedGate1 = _gate1List[0];
+            _selectedOperator = _operatorList[0];
+        }
+
+        public void UpdateComponentList()
+        {
+            _componentList.Clear();
             var components = ComponentDataManager.Instance.GetComponentNames();
             foreach (var component in components)
             {
                 _componentList.Add(component);
             }
-            _selectedComponent = _componentList.FirstOrDefault(component => component == ComponentName);
+        }
 
-            var features = ComponentDataManager.Instance.GetFeatures(_selectedComponent).OrderBy(f=>f.Name);
+        public virtual void UpdateFeatures()
+        {
+            var features = ComponentDataManager.Instance.GetFeatures(_selectedComponent).OrderBy(f => f.Name);
             var channels = ComponentDataManager.Instance.GetChannels(_selectedComponent).OrderBy(channel => channel.ChannelName);
 
             _xAxis.AddFeatures(features);
@@ -568,13 +574,7 @@ namespace ThorCyte.GraphicModule.ViewModels
 
             _xAxis.AddChannles(channels);
             _yAxis.AddChannles(channels);
-            
-            _operatorList.AddRange(Enum.GetValues(typeof(OperationType)));
-            _gate1List.Add(DefaultGate);
-            _selectedGate1 = _gate1List[0];
-            _selectedOperator = _operatorList[0];
         }
-
 
         public virtual bool IsVisible(BioEvent ev, out Point point)
         {
@@ -588,65 +588,85 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 return;
             }
+            if (string.IsNullOrEmpty(_selectedComponent))
+            {
+                InitGraphParams(Id);
+                if (string.IsNullOrEmpty(_selectedComponent))
+                {
+                    return;
+                }
+            }
+
             if (_isNormalizexy)
             {
                 Normalizexy();
             }
-            UpdateEvents(GraphicModule.GraphicManagerVmInstance.ActiveWells);
+            UpdateEvents(GraphicModule.GraphicManagerVmInstance.ActiveWellNos);
         }
 
         public void Normalizexy()
         {
-            //var activeWells = GraphicManagerVm.Instance.ActiveWells;
+            var nos = GraphicModule.GraphicManagerVmInstance.ActiveWellNos;
 
-            //if (activeWells == null)
-            //{
-            //    return;
-            //}
-            //double min;
-            //double max;
+            if (nos == null || nos.Count == 0)
+            {
+                return;
+            }
+            double min;
+            double max;
 
-            //if (activeWells.Count == 0)
-            //{
-            //    return;
-            //}
-
-            //if (_xAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos)
-            //{
-            //    min = activeWells[0].ScanRegion.Bounds.Left;
-            //    max = activeWells[0].ScanRegion.Bounds.Right;
-            //    foreach (var well in activeWells)
-            //    {
-            //        var rect = well.ScanRegion.Bounds;
-            //        if (rect.Left < min)
-            //        {
-            //            min = rect.Left;
-            //        }
-            //        if (rect.Right > max)
-            //        {
-            //            max = rect.Right;
-            //        }
-            //    }
-            //    _xAxis.SetRange(min, max);
-            //}
-            //if (_yAxis.SelectedNumeratorFeature != null && _yAxis.SelectedNumeratorFeature.FeatureType == FeatureType.YPos)
-            //{
-            //    min = activeWells[0].ScanRegion.Bounds.Top;
-            //    max = activeWells[0].ScanRegion.Bounds.Bottom;
-            //    foreach (var well in activeWells)
-            //    {
-            //        var rect = well.ScanRegion.Bounds;
-            //        if (rect.Top < min)
-            //        {
-            //            min = rect.Top;
-            //        }
-            //        if (rect.Bottom > max)
-            //        {
-            //            max = rect.Bottom;
-            //        }
-            //    }
-            //    _yAxis.SetRange(min, max);
-            //}
+            var experiment = ServiceLocator.Current.GetInstance<IExperiment>();
+            if (experiment == null)
+            {
+                return;
+            }
+            var scanid = experiment.GetCurrentScanId();
+            var scaninfo = experiment.GetScanInfo(scanid);
+            if (scaninfo == null)
+            {
+                return;
+            }
+            var baseId = nos[0];
+            if (baseId <= 0)
+            {
+                return;
+            }
+            if (_xAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos)
+            {
+                min = scaninfo.ScanWellList[baseId - 1].Bound.Left;
+                max = scaninfo.ScanWellList[baseId - 1].Bound.Right;
+                foreach (var id in nos)
+                {
+                    var well = scaninfo.ScanWellList[id - 1];
+                    if (well.Bound.Left < min)
+                    {
+                        min = well.Bound.Left;
+                    }
+                    if (well.Bound.Right > max)
+                    {
+                        max = well.Bound.Right;
+                    }
+                }
+                _xAxis.SetRange(min, max);
+            }
+            if (_yAxis.SelectedNumeratorFeature != null && _yAxis.SelectedNumeratorFeature.FeatureType == FeatureType.YPos)
+            {
+                min = scaninfo.ScanWellList[baseId - 1].Bound.Top;
+                max = scaninfo.ScanWellList[baseId - 1].Bound.Bottom;
+                foreach (var id in nos)
+                {
+                    var well = scaninfo.ScanWellList[id - 1];
+                    if (well.Bound.Top < min)
+                    {
+                        min = well.Bound.Top;
+                    }
+                    if (well.Bound.Bottom > max)
+                    {
+                        max = well.Bound.Bottom;
+                    }
+                }
+                _yAxis.SetRange(min, max);
+            }
         }
 
         private void UpdateRelationship()

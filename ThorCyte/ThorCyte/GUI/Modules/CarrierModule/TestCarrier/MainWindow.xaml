@@ -4,7 +4,7 @@
         xmlns:regions="http://prismlibrary.com/"
         xmlns:inf="clr-namespace:ThorCyte.Infrastructure.Commom;assembly=ThorCyte.Infrastructure"
         x:Class="TestCarrier.MainWindow"
-        Title="MainWindow">
+        Title="MainWindow" Width="500" Height="600">
     <Window.Resources>
     </Window.Resources>
     <Grid>
@@ -14,7 +14,12 @@
         </Grid.RowDefinitions>
         <ToolBar Grid.Row="0">
             <Button Content="Open" Command="{Binding OpenCommnad}"/>
+
+            <Button Content="Start" Command="{Binding MacroStartCommand}"/>
+            <Button Content="End" Command="{Binding MacroFinishCommand}"/>
+
         </ToolBar>
-        <ContentControl Grid.Row="1" x:Name="MainRegionRev" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}"/>
+
+        <ContentControl Grid.Row="1"  x:Name="MainRegionRev" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}"/>
     </Grid>
 </Window>

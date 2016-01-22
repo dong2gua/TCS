@@ -22,6 +22,8 @@ namespace ThorCyte.GraphicModule.Views
 
         private bool _isLoaded;
 
+        private UniformGrid _uniformgrid;
+
         #endregion
 
         #region Constructor
@@ -42,19 +44,13 @@ namespace ThorCyte.GraphicModule.Views
             {
                 return;
             }
-            if (_gridItems == 0)
+            var itemsPresenter = VisualHelper.GetVisualChild<ItemsPresenter>(GraphicViewList);
+            _uniformgrid = VisualTreeHelper.GetChild(itemsPresenter, 0) as UniformGrid;
+            if (_uniformgrid == null)
             {
-                var itemsPresenter = VisualHelper.GetVisualChild<ItemsPresenter>(GraphicViewList);
-                var uniformGrid = VisualTreeHelper.GetChild(itemsPresenter, 0) as UniformGrid;
-                if (uniformGrid == null)
-                {
-                    return;
-                }
-                uniformGrid.Columns = 4;
-                uniformGrid.Rows = 4;
-                _row = 4;
-                _gridItems = uniformGrid.Columns * uniformGrid.Rows;
+                return;
             }
+
             var containerVm = (GraphicContainerVm)DataContext;
             var items = VisualHelper.GetChildObjects<GraphicUcBase>(GraphicViewList, "");
             foreach (var graphicview in items)
@@ -65,34 +61,57 @@ namespace ThorCyte.GraphicModule.Views
                     containerVm.GraphicDictionary.Add(vm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(graphicview, vm));
                 }
             }
+            UpdateGridLayout();
             _isLoaded = true;
         }
 
-        private void UpdatePanelLayout()
+        public void UpdateGridLayout()
         {
-            if (GraphicViewList.Items.Count >= _gridItems && GraphicViewList.Items.Count % _row == 0)
+            if (_uniformgrid == null)
             {
-                var itemsPresenter = VisualHelper.GetVisualChild<ItemsPresenter>(GraphicViewList);
-                var uniformGrid = VisualTreeHelper.GetChild(itemsPresenter, 0) as UniformGrid;
-                if (uniformGrid != null)
+                return;
+            }
+            var containerVm = (GraphicContainerVm)DataContext;
+            if (containerVm == null)
+            {
+                return;
+            }
+            if (GraphicViewList.ActualWidth <= 900 )
+            {
+                _uniformgrid.Columns = 2;
+            }
+            else if (GraphicViewList.ActualWidth > 900 && GraphicViewList.ActualWidth < 1200)
+            {
+                _uniformgrid.Columns = 3;
+            }
+            else
+            {
+                _uniformgrid.Columns = 4;
+            }
+            if (containerVm.GraphicVmList.Count >= 3 * _uniformgrid.Columns)
+            {
+                if (containerVm.GraphicVmList.Count % _uniformgrid.Columns == 0)
                 {
-                    uniformGrid.Rows = uniformGrid.Rows + 1;
+                    _uniformgrid.Rows = containerVm.GraphicVmList.Count / _uniformgrid.Columns;
                 }
-            }  
+                else
+                {
+                    _uniformgrid.Rows = containerVm.GraphicVmList.Count / _uniformgrid.Columns + 1;
+                }
+            }
+            else
+            {
+                _uniformgrid.Rows = 3;
+            }
         }
 
-        private void  OnAddScattergram(object sender, RoutedEventArgs e)
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            var containerVm = (GraphicContainerVm)DataContext;
-            UpdatePanelLayout();
-            containerVm.CreateScattergram();
-        }
-
-        private void OnAddHistogram(object sender, RoutedEventArgs e)
-        {
-            var containerVm = (GraphicContainerVm)DataContext;
-            UpdatePanelLayout();
-            containerVm.CreateHistogram();
+            if (_uniformgrid == null)
+            {
+                return;
+            }
+            UpdateGridLayout();
         }
 
         #endregion

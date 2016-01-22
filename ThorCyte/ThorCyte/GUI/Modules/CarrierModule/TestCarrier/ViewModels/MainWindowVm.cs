@@ -13,9 +13,13 @@ namespace TestCarrier.ViewModels
 {
     public class MainWindowVm : BindableBase
     {
+        private const int Scanid = 1;
+        
+        
         public ICommand OpenCommnad { get; set; }
+        public ICommand MacroStartCommand { get; set; }
+        public ICommand MacroFinishCommand { get; set; }
         private IExperiment _experiment;
-
         private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
         {
@@ -35,7 +39,31 @@ namespace TestCarrier.ViewModels
         public MainWindowVm()
         {
             OpenCommnad = new DelegateCommand(Open_new);
+            MacroStartCommand = new DelegateCommand(StartMacro);
+            MacroFinishCommand = new DelegateCommand(EndMacro);
         }
+
+        private int _currentWellid = 0;
+
+        private void StartMacro()
+        {
+            var args = new MacroStartEventArgs
+            {
+                WellId = 1,
+                RegionId = _currentWellid,
+                TileId = 1 
+            };
+
+            _currentWellid += 1;
+            EventAggregator.GetEvent<MacroStartEvnet>().Publish(args);
+        }
+
+        private void EndMacro()
+        {
+            _currentWellid = 0;
+            EventAggregator.GetEvent<MacroFinishEvent>().Publish(Scanid);
+        }
+
 
         private void Open_new()
         {
@@ -51,8 +79,7 @@ namespace TestCarrier.ViewModels
             _experiment.Load(openFileDialog1.FileName);
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             container.RegisterInstance(_experiment);
-            var scanid = 1;
-            EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(scanid);
+            EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(Scanid);
         }
     }
 

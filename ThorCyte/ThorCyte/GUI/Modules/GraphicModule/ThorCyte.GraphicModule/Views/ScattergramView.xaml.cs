@@ -117,20 +117,22 @@ namespace ThorCyte.GraphicModule.Views
                 //SciChart.GridLinesPanel.Background = ((ScattergramVm)GraphicVm).IsWhiteBackground ? Brushes.White : Brushes.Black;
             }
 
-            ((XyScatterRenderableSeries)SciChart.RenderableSeries[6]).PointMarker.Fill =
-               ((ScattergramVm)GraphicVm).IsWhiteBackground ? Colors.Black : Colors.White;
+            //((XyScatterRenderableSeries)SciChart.RenderableSeries[6]).PointMarker.Fill =
+            //   ((ScattergramVm)GraphicVm).IsWhiteBackground ? Colors.Black : Colors.White;
         }
 
         public override void SetBindings()
         {
             base.SetBindings();
-            RegionPanel.SetBinding(Scattergram.IsWhiteBackgroudProperty, new Binding("IsWhiteBackground") { Source = GraphicVm, NotifyOnSourceUpdated = true });
+            //RegionPanel.SetBinding(Scattergram.IsWhiteBackgroudProperty, new Binding("IsWhiteBackground") { Source = GraphicVm, NotifyOnSourceUpdated = true });
 
             RegionPanel.SetBinding(Scattergram.IsShowQuadrantProperty, new Binding("IsShowQuadrant") { Source = GraphicVm });
 
             RegionPanel.SetBinding(WidthProperty, new Binding("ActualWidth") { Source = SciChart.AnnotationUnderlaySurface });
 
             RegionPanel.SetBinding(HeightProperty, new Binding("ActualHeight") { Source = SciChart.AnnotationUnderlaySurface });
+
+            SetBinding(HeightProperty, new Binding("ActualWidth") { Source = this });
 
             var yaxisBinding = new Binding("Title") { Source = GraphicVm.YAxis };
 
@@ -157,8 +159,8 @@ namespace ThorCyte.GraphicModule.Views
 
             SciChart.XAxis.VisibleRange = new DoubleRange(GraphicVm.XAxis.MinValue, GraphicVm.XAxis.MaxValue);
             SciChart.YAxis.VisibleRange = new DoubleRange(GraphicVm.YAxis.MinValue, GraphicVm.YAxis.MaxValue);
-            SciChart.XAxis.TextFormatting = GraphicVm.XAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : ConstantHelper.AxisMinTextFormat;
-            SciChart.YAxis.TextFormatting = GraphicVm.YAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : ConstantHelper.AxisMinTextFormat;
+            //SciChart.XAxis.TextFormatting = GraphicVm.XAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : ConstantHelper.AxisMinTextFormat;
+            //SciChart.YAxis.TextFormatting = GraphicVm.YAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : ConstantHelper.AxisMinTextFormat;
         }
 
         //private void DrawPlot()
@@ -273,19 +275,19 @@ namespace ThorCyte.GraphicModule.Views
         }
 
 
-        //public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
-        //{
-        //    base.OnSizeChanged(sender, e);
-        //    ////if (((ScattergramVm)GraphicVm).IsMapChecked)
-        //    ////{
-        //    //if (Math.Abs(e.NewSize.Width - 0) <= double.Epsilon && Math.Abs(e.NewSize.Height - 0) <= double.Epsilon)
-        //    //{
-        //    //    return;
-        //    //}
-        //   // GraphicVm.UpdateEvents(false);
-        //    //// }
-        //    e.Handled = true;
-        //}
+        public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            base.OnSizeChanged(sender, e);
+            if (((ScattergramVm)GraphicVm).IsMapChecked)
+            {
+                //if (Math.Abs(e.NewSize.Width - 0) <= double.Epsilon && Math.Abs(e.NewSize.Height - 0) <= double.Epsilon)
+                //{
+                //    return;
+                //}
+                GraphicVm.UpdateEvents();
+            }
+            e.Handled = true;
+        }
 
         #endregion
 

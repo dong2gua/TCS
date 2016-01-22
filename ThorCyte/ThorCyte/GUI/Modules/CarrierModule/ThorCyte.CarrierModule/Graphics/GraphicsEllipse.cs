@@ -52,7 +52,7 @@ namespace ThorCyte.CarrierModule.Graphics
 
             drawingContext.DrawEllipse(
                 FillObjectBrush,
-                new Pen(new SolidColorBrush(ObjectColor), ActualLineWidth),
+                new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth),
                 center,
                 radiusX,
                 radiusY);

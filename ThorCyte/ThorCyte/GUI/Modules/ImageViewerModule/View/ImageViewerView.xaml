@@ -16,7 +16,7 @@
             <selector:ViewportSelector.OneViewportDataTemplate>
                 <DataTemplate>
                     <Grid>
-                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding CurrentViewport}"/>
                     </Grid>
                 </DataTemplate>
             </selector:ViewportSelector.OneViewportDataTemplate>
@@ -34,7 +34,7 @@
             </selector:ViewportSelector.HorizontalViewportDataTemplate>
             <selector:ViewportSelector.VerticalViewportDataTemplate>
                 <DataTemplate>
-                    <Grid Background="Blue">
+                    <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
@@ -68,36 +68,43 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock VerticalAlignment="Center" Text="{Binding MousePointStatus}"/>
+        <StackPanel Orientation="Horizontal" Grid.Column="1">
             <Button  Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle">
                 <Image Source="..\resources\Rectangle.png"/>
             </Button>
             <Button  Command="{Binding DrawRegionCommand}" CommandParameter="Ellipse">
                 <Image Source="..\resources\ellipse.png"/>
             </Button>
-            <ToggleButton   IsChecked="{Binding IsDragger}" Command="{Binding DraggerCommand}">
-                <Image Source="..\resources\Drag.png"/>
-            </ToggleButton>
             <Button  Command="{Binding ZoomCommand}" CommandParameter="true">
                 <Image Source="..\resources\ZoomIn.png"/>
             </Button>
             <Button  Command="{Binding ZoomCommand}" CommandParameter="false">
                 <Image Source="..\resources\ZoomOut.png"/>
             </Button>
-            <Button  Command="{Binding ComputeColorCommand}">
-                <Image Source="..\resources\ComputeColor.png"/>
-            </Button>
-            <Button  Command="{Binding VirtualChannelCommand}">
-                <Image Source="..\resources\VirtualChannel.png"/>
-            </Button>
+            <ToggleButton   IsChecked="{Binding IsDragger}" Command="{Binding DraggerCommand}">
+                <Image Source="..\resources\Drag.png"/>
+            </ToggleButton>
             <ToggleButton   IsChecked="{Binding IsProfile}" Command="{Binding ProfileCommand}" >
                 <Image Source="..\resources\Profile.png"/>
             </ToggleButton>
             <ToggleButton   IsChecked="{Binding IsRuler}" Command="{Binding RulerCommand}" >
                 <Image Source="..\resources\Ruler.png"/>
             </ToggleButton>
+            <ToggleButton Height="30" Width="30"  IsChecked="{Binding IsAspectRatio}" Command="{Binding AspectRatioCommand}" >
+                <Image Source="..\resources\Ratio.png"/>
+            </ToggleButton>
+            <Button  Command="{Binding VirtualChannelCommand}">
+                <Image Source="..\resources\VirtualChannel.png"/>
+            </Button>
+            <Button  Command="{Binding ComputeColorCommand}">
+                <Image Source="..\resources\ComputeColor.png"/>
+            </Button>
             <Button  Command="{Binding BrightnessContrastCommand}">
                 <Image Source="..\resources\Brightness.png"/>
             </Button>
@@ -107,27 +114,11 @@
                     <control:SelectViewportCanvas x:Name="selectViewportCanvas" Background="Gray" />
                 </xct:DropDownButton.DropDownContent>
             </xct:DropDownButton>
-            <ToggleButton Height="30" Width="30"  IsChecked="{Binding IsAspectRatio}" Command="{Binding AspectRatioCommand}" >
-                <TextBlock Text="µ" FontSize="20"/>
-            </ToggleButton>
+            <Button  Command="{Binding MaximizeViewportCommand}">
+                <Image Source="..\resources\Window-New.png"/>
+            </Button>
         </StackPanel>
-        <ContentControl Grid.Row="1" Content="{Binding ViewportType}"  ContentTemplateSelector="{StaticResource ViewportSelector}"></ContentControl>
+        <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Content="{Binding ViewportType}"  ContentTemplateSelector="{StaticResource ViewportSelector}"/>
 
-        <StatusBar  Grid.Row="2">
-            <StatusBar.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="100" />
-                        </Grid.ColumnDefinitions>
-                    </Grid>
-                </ItemsPanelTemplate>
-            </StatusBar.ItemsPanel>
-            <StatusBarItem Grid.Column="0">
-                <TextBlock Text="{Binding MousePointStatus}"></TextBlock>
-            </StatusBarItem>
-        </StatusBar>
     </Grid>
 </UserControl>

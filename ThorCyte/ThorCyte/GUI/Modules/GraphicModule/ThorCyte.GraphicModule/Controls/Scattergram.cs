@@ -36,11 +36,11 @@ namespace ThorCyte.GraphicModule.Controls
             get { return _graphicQuarant; }
         }
 
-        public bool IsWhiteBackgroud
-        {
-            get { return (bool)GetValue(IsWhiteBackgroudProperty); }
-            set { SetValue(IsWhiteBackgroudProperty, value); }
-        }
+        //public bool IsWhiteBackgroud
+        //{
+        //    get { return (bool)GetValue(IsWhiteBackgroudProperty); }
+        //    set { SetValue(IsWhiteBackgroudProperty, value); }
+        //}
 
         public bool IsShowQuadrant
         {
@@ -58,8 +58,8 @@ namespace ThorCyte.GraphicModule.Controls
 
         #region Dependency Properties
 
-        public static readonly DependencyProperty IsWhiteBackgroudProperty =
-            DependencyProperty.Register("IsWhiteBackgroud", typeof(bool), typeof(Scattergram), new PropertyMetadata(BackGroundChanged));
+        //public static readonly DependencyProperty IsWhiteBackgroudProperty =
+        //    DependencyProperty.Register("IsWhiteBackgroud", typeof(bool), typeof(Scattergram), new PropertyMetadata(BackGroundChanged));
 
         public static readonly DependencyProperty IsShowQuadrantProperty =
             DependencyProperty.Register("IsShowQuadrant", typeof(bool), typeof(Scattergram), new PropertyMetadata(false, Refresh));
@@ -230,57 +230,57 @@ namespace ThorCyte.GraphicModule.Controls
 
         #region CallBacks
 
-        private static void BackGroundChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var canvas = d as Scattergram;
-            if (canvas != null)
-            {
-                canvas.UnSelectAll();
-                var color = Colors.Black;
-                if ((bool)e.NewValue)
-                {
-                    canvas.DrawBrush = Brushes.Black;
-                }
-                else
-                {
-                    color = Colors.White;
-                    canvas.DrawBrush = Brushes.White;
-                }
+        //private static void BackGroundChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        //{
+        //    var canvas = d as Scattergram;
+        //    if (canvas != null)
+        //    {
+        //        canvas.UnSelectAll();
+        //        var color = Colors.Black;
+        //        if ((bool)e.NewValue)
+        //        {
+        //            canvas.DrawBrush = Brushes.Black;
+        //        }
+        //        else
+        //        {
+        //            color = Colors.White;
+        //            canvas.DrawBrush = Brushes.White;
+        //        }
 
-                canvas.ObjectColor = color;
-                canvas._graphicQuarant.ObjectColor = color;
+        //        canvas.ObjectColor = color;
+        //        canvas._graphicQuarant.ObjectColor = color;
 
-                foreach (var child in canvas.VisualList)
-                {
-                    if (!(child is GraphicsBase))
-                    {
-                        continue;
-                    }
-                    var graphic = (GraphicsBase)child;
-                    if (graphic.GraphicType == RegionType.Line)
-                    {
-                        graphic.ObjectColor = color;
-                        continue;
-                    }
-                    var region = ROIManager.Instance.GetRegion(graphic.Name);
-                    if (region != null)
-                    {
-                        if ((bool)e.NewValue)
-                        {
-                            graphic.ObjectColor = region.Color == Colors.White ? color : region.Color;
-                        }
-                        else
-                        {
-                            graphic.ObjectColor = region.Color == Colors.Black ? color : region.Color;
-                        }
-                    }
-                }
-                if (canvas.IsShowQuadrant)
-                {
-                    canvas._graphicQuarant.Draw();
-                }
-            }
-        }
+        //        foreach (var child in canvas.VisualList)
+        //        {
+        //            if (!(child is GraphicsBase))
+        //            {
+        //                continue;
+        //            }
+        //            var graphic = (GraphicsBase)child;
+        //            if (graphic.GraphicType == RegionType.Line)
+        //            {
+        //                graphic.ObjectColor = color;
+        //                continue;
+        //            }
+        //            var region = ROIManager.Instance.GetRegion(graphic.Name);
+        //            if (region != null)
+        //            {
+        //                if ((bool)e.NewValue)
+        //                {
+        //                    graphic.ObjectColor = region.Color == Colors.White ? color : region.Color;
+        //                }
+        //                else
+        //                {
+        //                    graphic.ObjectColor = region.Color == Colors.Black ? color : region.Color;
+        //                }
+        //            }
+        //        }
+        //        if (canvas.IsShowQuadrant)
+        //        {
+        //            canvas._graphicQuarant.Draw();
+        //        }
+        //    }
+        //}
 
         #endregion
     }

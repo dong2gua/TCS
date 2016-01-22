@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converts="clr-namespace:ThorCyte.GraphicModule.Converts"
              xmlns:views="clr-namespace:ThorCyte.GraphicModule.Views"
-             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300">
+             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300" x:Name="GraphicModuleView">
     <UserControl.Resources>
         <converts:VisibilityConverter x:Key="VisibleCvt"/>
     </UserControl.Resources>
@@ -20,10 +20,23 @@
             <Button Command="{Binding AddTabCmd}">
                 <Image Source="../Resource/Images/AddTab.png"/>
             </Button>
-
-            <Button Command="{Binding DeleteTabCmd}">
-                <Image Source="../Resource/Images/DeleteTab.png"/>
-            </Button>
+            <StackPanel Orientation="Horizontal" DataContext="{Binding SelectedContainer}" IsEnabled="{Binding ElementName=GraphicModuleView,Path=DataContext.IsControlEnabled}">
+                <Button Command="{Binding DeleteTabCmd}">
+                    <Image Source="../Resource/Images/DeleteTab.png"/>
+                </Button>
+                <Button Click="OnAddScattergram" ToolTip="Add Scattergram">
+                    <Image Source="../Resource/Images/NewScattergram.png"/>
+                </Button>
+                <Button Click="OnAddHistogram" ToolTip="Add Histogram">
+                    <Image Source="../Resource/Images/NewHistogram.png"/>
+                </Button>
+                <Button IsEnabled="{Binding IsDeleteEnabled}" Command="{Binding DeleteGraphicCmd}" ToolTip="Delete">
+                    <Image Source="../Resource/Images/remove.png"/>
+                </Button>
+                <ToggleButton IsEnabled="{Binding IsPropertyEnabled}" IsChecked="{Binding IsShowProperty}" ToolTip="show/hide properties">
+                    <Image Source="../Resource/Images/properties.png"/>
+                </ToggleButton>
+            </StackPanel>
         </StackPanel>
 
         <TabControl x:Name="GraphicTabControl" Grid.Row="1" Margin="0,5,0,0" ItemsSource="{Binding GraphicContainerVms}"

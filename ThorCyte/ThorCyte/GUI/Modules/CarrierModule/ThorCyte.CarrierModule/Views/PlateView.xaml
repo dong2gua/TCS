@@ -210,14 +210,8 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="24"/>
-        </Grid.RowDefinitions>
-
-        <Grid Grid.Row="0">
+    <StackPanel>
+        <Grid>
             <ToolBar ToolBarTray.IsLocked="True" Margin="0,0,0,0" Style="{DynamicResource ToolBarStyle1}" >
                 <ToggleButton x:Name="buttonToolPointer" ToolTip="Select Area" Tag="Pointer"
 				IsChecked="{Binding Tool, ConverterParameter=Pointer, Converter={StaticResource convToolType}, ElementName=plateCanvas, Mode=OneWay}">
@@ -232,30 +226,15 @@
 				IsChecked="{Binding Tool, ConverterParameter=Select, Converter={StaticResource convToolType}, ElementName=plateCanvas, Mode=OneWay}">
                     <Image Source="../Images/select_rect.png"/>
                 </ToggleButton>
-
-                <ToggleButton x:Name="buttonToolDrag" ToolTip="Drag the Scan Area" Tag="Drag"
-				IsChecked="{Binding Tool, ConverterParameter=Drag, Converter={StaticResource convToolType}, ElementName=slideCanvas, Mode=OneWay}">
-                    <Image Source="../Images/Drag.png"/>
-                </ToggleButton>
-                <Button x:Name="buttonZoomIn" ToolTip="Delete Scan Area" Click="buttonZoomIn_Click" >
-                    <Image Source="../Images/zoom_up.png"/>
-                </Button>
-
-                <Button x:Name="buttonZoomOut" ToolTip="Delete Scan Area" Click="buttonZoomOut_Click" >
-                    <Image Source="../Images/zoom_down.png"/>
-                </Button>
             </ToolBar>
         </Grid>
-        <!--<ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto"  PanningMode="Both" VerticalScrollBarVisibility="Auto" >
-            <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" ToolTip="Left CTRL + Mouse Wheel to Zoom"/>
-        </ScrollViewer>-->
-        <Grid x:Name="CanvGrid" Grid.Row="1">
+        <Grid x:Name="CanvGrid">
             <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" 
                                   OuterHeight="{Binding ElementName=CanvGrid,Path=ActualHeight}"
                                   OuterWidth="{Binding ElementName=CanvGrid,Path=ActualWidth}"/>
         </Grid>
 
-        <Grid Grid.Row="2">
+        <Grid>
             <StatusBar>
                 <StatusBarItem>
                     <StackPanel Orientation="Horizontal">
@@ -265,7 +244,19 @@
                 </StatusBarItem>
             </StatusBar>
         </Grid>
-    </Grid>
+
+    </StackPanel>
+    
+    
+    
+    <!--<Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="24"/>
+        </Grid.RowDefinitions>
+
+    </Grid>-->
 
 
 </UserControl>

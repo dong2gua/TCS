@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:canvases="clr-namespace:ThorCyte.CarrierModule.Canvases"
         xmlns:tools="clr-namespace:ThorCyte.CarrierModule.Tools"
-        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" xmlns:Themes1="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" x:Class="ThorCyte.CarrierModule.Views.SlideView"
+        xmlns:Themes1="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" 
+        x:Class="ThorCyte.CarrierModule.Views.SlideView"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
 
     <UserControl.Resources>
@@ -226,59 +227,44 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="24"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <ToolBar DockPanel.Dock="Top" Height="30" Grid.Row="0" Grid.Column="0" Style="{DynamicResource ToolBarStyle1}">
-            <ToggleButton x:Name="buttonToolPointer" ToolTip="Select Area" Tag="Pointer"
+    <StackPanel>
+        <Grid>
+            <ToolBar DockPanel.Dock="Top" Height="30" Style="{DynamicResource ToolBarStyle1}">
+                <ToggleButton x:Name="buttonToolPointer" ToolTip="Select Area" Tag="Pointer"
 				IsChecked="{Binding Tool, ConverterParameter=Pointer, Converter={StaticResource convToolType}, ElementName=slideCanvas, Mode=OneWay}">
-                <Image Source="../Images/PointerHS.png"/>
-            </ToggleButton>
+                    <Image Source="../Images/PointerHS.png"/>
+                </ToggleButton>
 
-            <Button x:Name="buttonSelectAll" ToolTip="Select All" Click="buttonSelectAll_Click" >
-                <Image Source="../Images/select_all.png"/>
-            </Button>
+                <Button x:Name="buttonSelectAll" ToolTip="Select All" Click="buttonSelectAll_Click" >
+                    <Image Source="../Images/select_all.png"/>
+                </Button>
 
-            <ToggleButton x:Name="buttonToolSelect" ToolTip="Select Scan Area" Tag="Select"
+                <ToggleButton x:Name="buttonToolSelect" ToolTip="Select Scan Area" Tag="Select"
 				IsChecked="{Binding Tool, ConverterParameter=Select, Converter={StaticResource convToolType}, ElementName=slideCanvas, Mode=OneWay}">
-                <Image Source="../Images/select_rect.png"/>
-            </ToggleButton>
+                    <Image Source="../Images/select_rect.png"/>
+                </ToggleButton>
+            </ToolBar>
+        </Grid>
 
-            <ToggleButton x:Name="buttonToolDrag" ToolTip="Drag the Scan Area" Tag="Drag"
-				IsChecked="{Binding Tool, ConverterParameter=Drag, Converter={StaticResource convToolType}, ElementName=slideCanvas, Mode=OneWay}">
-                <Image Source="../Images/Drag.png"/>
-            </ToggleButton>
 
-            <Button x:Name="buttonZoomIn" ToolTip="Delete Scan Area" Click="buttonZoomIn_Click" >
-                <Image Source="../Images/zoom_up.png"/>
-            </Button>
-
-            <Button x:Name="buttonZoomOut" ToolTip="Delete Scan Area" Click="buttonZoomOut_Click" >
-                <Image Source="../Images/zoom_down.png"/>
-            </Button>
-        </ToolBar>
-
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1" Grid.Column="0" Background="DarkGray" >
-            <canvases:SlideCanvas x:Name="slideCanvas" HorizontalAlignment="Center"  VerticalAlignment="Center" Margin="10" 
-				ToolTip="Left CTRL + Mouse Wheel to Zoom"/>
-        </ScrollViewer>
-        <StatusBar DockPanel.Dock="Bottom" Height="24" Grid.Row="2" Grid.Column="0">
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Position:  "/>
-                    <TextBlock Width="89" Text="{Binding MousePosition, ElementName=slideCanvas, Mode=TwoWay}"/>
-                    <TextBlock Text="Zoom: "/>
-                    <TextBlock Width="40" Text="{Binding ActualScale, Converter={StaticResource doubleToStringConverter}, ElementName=slideCanvas, Mode=OneWay}"/>
-                </StackPanel>
-            </StatusBarItem>
-        </StatusBar>
-    </Grid>
+        <Grid x:Name="CanvGrid" Background="PowderBlue">
+            <canvases:SlideCanvas x:Name="slideCanvas" HorizontalAlignment="Center"  VerticalAlignment="Center" Margin="20" 
+                                  OuterHeight="{Binding ElementName=CanvGrid,Path=ActualHeight}"
+                                  OuterWidth="{Binding ElementName=CanvGrid,Path=ActualWidth}"/>
+        </Grid>
+        
+        <Grid>
+            <StatusBar DockPanel.Dock="Bottom" Height="24">
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Position:  "/>
+                        <TextBlock Width="89" Text="{Binding MousePosition, ElementName=slideCanvas, Mode=TwoWay}"/>
+                        <TextBlock Text="Zoom: "/>
+                        <TextBlock Width="40" Text="{Binding ActualScale, Converter={StaticResource doubleToStringConverter}, ElementName=slideCanvas, Mode=OneWay}"/>
+                    </StackPanel>
+                </StatusBarItem>
+            </StatusBar>
+        </Grid>
+    </StackPanel>
 </UserControl>
 

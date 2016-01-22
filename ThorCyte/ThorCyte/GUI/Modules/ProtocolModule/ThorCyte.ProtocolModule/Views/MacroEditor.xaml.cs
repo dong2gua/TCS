@@ -180,12 +180,6 @@ namespace ThorCyte.ProtocolModule.Views
             {
                 var vm = ViewModel.GetSelectedModule();
                 ViewModel.PannelVm.SelectedModuleViewModel = vm;
-
-            }
-            else
-            {
-                ViewModel.PannelVm.UnSelectedAll();
-                ViewModel.PannelVm.SelectedModuleViewModel = null;
             }
         }
 
@@ -220,40 +214,6 @@ namespace ThorCyte.ProtocolModule.Views
                 Grid.SetColumnSpan(PannelBorder, 1);
             }
         }
-
-
-        private void CollapseClick(object sender, RoutedEventArgs e)
-        {
-            var isChecked = (bool)(sender as ToggleButton).IsChecked;
-            if (isChecked)
-            {
-                _recentGridLengths.Clear();
-                foreach (var t in gridMain.ColumnDefinitions)
-                {
-                    _recentGridLengths.Add(t.Width);
-                }
-
-                //Collapse
-                gridMain.ColumnDefinitions[0].Width = new GridLength(0);
-                gridMain.ColumnDefinitions[1].Width = new GridLength(0);
-                gridMain.ColumnDefinitions[2].Width = new GridLength(0);
-                gridMain.ColumnDefinitions[3].Width = new GridLength(0);
-                gridMain.ColumnDefinitions[4].Width = new GridLength(1, GridUnitType.Star);
-
-                expandcollapse.Source = (BitmapImage)Resources["expandImg"];
-
-            }
-            else
-            {
-                for (var i = 0; i < gridMain.ColumnDefinitions.Count; i++)
-                {
-                    gridMain.ColumnDefinitions[i].Width = _recentGridLengths[i];
-                }
-
-                expandcollapse.Source = (BitmapImage)Resources["collapseImg"];
-            }
-        }
-
 
         public void ClearSearch()
         {

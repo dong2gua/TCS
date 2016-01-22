@@ -31,6 +31,10 @@ namespace ThorCyte.CarrierModule.Canvases
         private readonly VisualCollection _graphicsList;
         private readonly Hashtable _regionGraphicHashtable;
         private readonly Dictionary<string, Rect> _roomRectList = new Dictionary<string, Rect>();
+        private GraphicsEllipse _circulePointer;
+        private int _currentWellId;
+        private int _lastWellId;
+        public List<string> AnalyzedWells; 
 
         //96 plates
         private double _plateWidth = 127760.0;
@@ -39,6 +43,8 @@ namespace ThorCyte.CarrierModule.Canvases
         private float _ry;
         private double _cOffsetX;
         private double _cOffsetY;
+
+        public bool IsShowing = false;
 
 
         private const double PlateMargin = 20;  //in pixel
@@ -98,11 +104,11 @@ namespace ThorCyte.CarrierModule.Canvases
 
         public double OuterWidth
         {
-            get { return (double) GetValue(OuterWidthProperty); }
+            get { return (double)GetValue(OuterWidthProperty); }
             set
             {
                 if (value > 0)
-                    SetValue(OuterWidthProperty,value);
+                    SetValue(OuterWidthProperty, value);
             }
         }
 
@@ -206,8 +212,8 @@ namespace ThorCyte.CarrierModule.Canvases
                 "Tool", typeof(ToolType), typeof(PlateCanvas),
                 metaData);
 
-            metaData = new PropertyMetadata(200.0D,OuterSizeChanged);
-            OuterWidthProperty = DependencyProperty.Register("OuterWidth",typeof(double),typeof(PlateCanvas),metaData);
+            metaData = new PropertyMetadata(200.0D, OuterSizeChanged);
+            OuterWidthProperty = DependencyProperty.Register("OuterWidth", typeof(double), typeof(PlateCanvas), metaData);
 
             metaData = new PropertyMetadata(100.0D, OuterSizeChanged);
             OuterHeightProperty = DependencyProperty.Register("OuterHeight", typeof(double), typeof(PlateCanvas), metaData);
@@ -221,6 +227,9 @@ namespace ThorCyte.CarrierModule.Canvases
 
         public PlateCanvas()
         {
+            EventAggregator.GetEvent<MacroStartEvnet>().Subscribe(MacroStart, ThreadOption.UIThread, true);
+            EventAggregator.GetEvent<MacroFinishEvent>().Subscribe(MacroFinish, ThreadOption.UIThread, true);
+
             _graphicsList = new VisualCollection(this);
             _regionGraphicHashtable = new Hashtable();
 
@@ -243,6 +252,10 @@ namespace ThorCyte.CarrierModule.Canvases
             _rx = (float)(_plateWidth / drwidth);
             _ry = (float)(_plateHeight / drHeight);
 
+            ActualScale = 0.25;
+            AnalyzedWells = new List<string>();
+            _currentWellId =0;
+            _lastWellId = 0;
         }
 
         #endregion Constructors
@@ -261,26 +274,12 @@ namespace ThorCyte.CarrierModule.Canvases
 
             if (cnvs == null) return;
 
-            //Debug.WriteLine("Cnvs PlateHeight = {0}", cnvs.PlateHeight);
-            //Debug.WriteLine("Cnvs PlateWidth = {0}", cnvs.PlateWidth);
-            //Debug.WriteLine("Cnvs Height = {0}", cnvs.Height);
-            //Debug.WriteLine("Cnvs Width = {0}", cnvs.Width);
-            //Debug.WriteLine("Cnvs OuterHeight = {0}", cnvs.OuterHeight);
-            //Debug.WriteLine("Cnvs OuterWidth = {0}", cnvs.OuterWidth);
-
-            cnvs.ActualScale = 0.25;
-
             if (Math.Abs(cnvs.OuterWidth) < Tolerance || Math.Abs(cnvs.OuterHeight) < Tolerance) return;
 
-            var factorW = cnvs.PlateWidth/cnvs.OuterWidth;
-            var factorH = cnvs.PlateHeight/cnvs.OuterHeight;
-
-            //choose the small one
-            var factor = factorW > factorH ? factorH : factorW;
-            Debug.WriteLine(factor);
-
+            var factorW = cnvs.OuterWidth / cnvs.PlateWidth;
+            var factorH = cnvs.OuterHeight / cnvs.PlateHeight;
+            cnvs.ActualScale = factorW * 100;
         }
-
 
         static void ActualScaleChanged(object property)
         {
@@ -339,7 +338,7 @@ namespace ThorCyte.CarrierModule.Canvases
             {
                 for (var col = 0; col < _plate.ColumnCount; col++)
                 {
-                    var rect = new Rect(new Point()
+                    var rect = new Rect(new Point
                     {
                         X = (_plate.ColumnCount - col - 1) * _plate.Interval + _cOffsetX,  //form right to left
                         Y = row * _plate.Interval + _cOffsetY
@@ -357,7 +356,6 @@ namespace ThorCyte.CarrierModule.Canvases
 
                     rect.X = Width - rect.X - rect.Width;
 
-
                     _roomRectList.Add(GetPlateId(row, col), rect);
 
                 }
@@ -370,6 +368,17 @@ namespace ThorCyte.CarrierModule.Canvases
             var strCol = (col + 1).ToString();
 
             return strRow + strCol;
+        }
+
+        private string GetPlateId(int wellId)
+        {
+            wellId = wellId - 1;
+            var r = _plate.RowCount;
+            var c = _plate.ColumnCount;
+
+            var row = (int)Math.Floor((double)wellId / c);
+            var col = wellId % c;
+            return GetPlateId(row, col);
         }
 
         private List<CaptureMode> GetBypassMode()
@@ -386,13 +395,19 @@ namespace ThorCyte.CarrierModule.Canvases
             return ret;
         }
 
+        public void RecordSelections()
+        {
+            
+        }
+
         public void SetActiveRegions()
         {
             var prevCount = _plate.ActiveRegions.Count;
             _plate.ClearActiveRegions();
             foreach (var rgn in from GraphicsBase o in _graphicsList where o.IsSelected select _regionGraphicHashtable.Keys.OfType<ScanRegion>().FirstOrDefault(s => Equals(_regionGraphicHashtable[s], o)))
             {
-                _plate.AddActiveRegion(rgn);
+                if(rgn != null)
+                    _plate.AddActiveRegion(rgn);
             }
             if (_plate.ActiveRegions.Count == prevCount && prevCount == 0)
             {
@@ -405,27 +420,31 @@ namespace ThorCyte.CarrierModule.Canvases
                 //just internal use
                 var eventArgs = new List<int>();
                 eventArgs.Clear();
-                eventArgs.AddRange(_plate.ActiveRegions.Select(region => region.RegionId));
-                EventAggregator.GetEvent<RegionsSelected>().Publish(eventArgs);
-
-                if (GetBypassMode().Contains(CurrentScanInfo.Mode)) return;
-
-                switch (CarrierModule.Mode)
+                if (_plate.ActiveRegions != null)
                 {
-                    case DisplayMode.Review:
-                        eventArgs = new List<int>();
-                        eventArgs.Clear();
-                        eventArgs.AddRange(_plate.ActiveRegions.Select(region => region.RegionId));
-                        EventAggregator.GetEvent<SelectRegions>().Publish(eventArgs);
-                        break;
+                    eventArgs.AddRange(_plate.ActiveRegions.Select(region => region.RegionId));
+                    EventAggregator.GetEvent<RegionsSelected>().Publish(eventArgs);
 
-                    case DisplayMode.Analysis:
-                        eventArgs = new List<int>();
-                        eventArgs.Clear();
-                        eventArgs.AddRange(_plate.ActiveRegions.Select(region => region.WellId));
-                        EventAggregator.GetEvent<SelectWells>().Publish(eventArgs);
-                        break;
+                    if (GetBypassMode().Contains(CurrentScanInfo.Mode)) return;
+
+                    switch (CarrierModule.Mode)
+                    {
+                        case DisplayMode.Review:
+                            eventArgs = new List<int>();
+                            eventArgs.Clear();
+                            eventArgs.AddRange(_plate.ActiveRegions.Select(region => region.RegionId));
+                            EventAggregator.GetEvent<SelectRegions>().Publish(eventArgs);
+                            break;
+
+                        case DisplayMode.Analysis:
+                            eventArgs = new List<int>();
+                            eventArgs.Clear();
+                            eventArgs.AddRange(_plate.ActiveRegions.Select(region => region.WellId));
+                            EventAggregator.GetEvent<SelectWells>().Publish(eventArgs);
+                            break;
+                    }
                 }
+
             }
         }
 
@@ -485,6 +504,82 @@ namespace ThorCyte.CarrierModule.Canvases
 
         }
 
+        private bool IsWellChanged(int wellid)
+        {
+            if (wellid == _currentWellId)
+                return false;
+            return true;
+        }
+
+        public void MacroStart(MacroStartEventArgs args)
+        {
+            if (!IsShowing) return;
+            if (!IsWellChanged(args.WellId)) return;
+            _lastWellId = _currentWellId;
+            _currentWellId = args.WellId;
+
+
+            var thiskey = GetPlateId(args.WellId);
+            if (_roomRectList.ContainsKey(thiskey))
+            {
+
+                var rect = _roomRectList[thiskey];
+                var offset = rect.Width / 10;
+
+                var left = rect.Left + offset;
+                var top = rect.Top + offset;
+                var right = rect.Right - offset;
+                var bottom = rect.Bottom - offset;
+
+                if (_circulePointer == null)
+                {
+                    _circulePointer = new GraphicsEllipse(left, top, right, bottom, 2, Colors.Red,
+                      ActualScale, 0) { Clip = new RectangleGeometry(new Rect(0, 0, Width, Height)) };
+                    _circulePointer.Clip = new RectangleGeometry(new Rect(0, 0, Width, Height));
+                }
+                else
+                {
+                    _circulePointer.Left = left;
+                    _circulePointer.Top = top;
+                    _circulePointer.Right = right;
+                    _circulePointer.Bottom = bottom;
+                }
+
+
+                if (!GraphicsList.Contains(_circulePointer))
+                {
+                    GraphicsList.Add(_circulePointer);
+                }
+
+                _circulePointer.RefreshDrawing();
+
+                var lastkey = GetPlateId(_lastWellId);
+                if (lastkey != string.Empty && !AnalyzedWells.Contains(lastkey))
+                    AnalyzedWells.Add(lastkey);
+
+                InvalidateVisual();
+            }
+        }
+
+        public void MacroFinish(int scanid)
+        {
+            //if (!IsShowing) return;
+
+            if (GraphicsList.Contains(_circulePointer))
+            {
+                GraphicsList.Remove(_circulePointer);
+            }
+
+            var lastkey = GetPlateId(_currentWellId);
+            if (lastkey != string.Empty && !AnalyzedWells.Contains(lastkey))
+                AnalyzedWells.Add(lastkey);
+
+            InvalidateVisual();
+            _currentWellId = 0;
+            _lastWellId = 0;
+        }
+
+
         #endregion Methods
 
         #region Override Functions
@@ -519,20 +614,14 @@ namespace ThorCyte.CarrierModule.Canvases
                 var radiusX = (rectRoom.Value.Right - rectRoom.Value.Left) / 2.0;
                 var radiusY = (rectRoom.Value.Bottom - rectRoom.Value.Top) / 2.0;
 
+
+                var bh = AnalyzedWells.Contains(rectRoom.Key) ? Brushes.Green : Brushes.SlateGray;
+
                 dc.DrawEllipse(Brushes.White,
-                    new Pen(Brushes.DarkCyan, LineWidth),
+                    new Pen(bh, LineWidth),
                     center,
                     radiusX,
                     radiusY);
-
-
-                var formattedText = new FormattedText(rectRoom.Key,
-                CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight,
-                new Typeface("Verdana"),
-                9 * ActualScale,
-                Brushes.BlueViolet);
-                dc.DrawText(formattedText, new Point(rectRoom.Value.X + 1, rectRoom.Value.Y));
 
                 if (rectRoom.Key.StartsWith("A"))
                 {
@@ -648,6 +737,8 @@ namespace ThorCyte.CarrierModule.Canvases
             }
 
             var pt = e.GetPosition(this);
+
+            //var x = (int)(pt.X * _rx);
 
             var x = (int)(_plateWidth - pt.X * _rx);
             var y = (int)(pt.Y * _ry);

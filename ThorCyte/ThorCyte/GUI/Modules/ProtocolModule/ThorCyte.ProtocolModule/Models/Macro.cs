@@ -247,6 +247,7 @@ namespace ThorCyte.ProtocolModule.Models
             try
             {
                 if (modInfo.IsCombo) throw new CyteException("Macro.CreateModule", "Combination module does not support.");// create combination module
+                
                 var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
                 module.Name = modInfo.Name;
                 module.DisplayName = modInfo.DisplayName;
@@ -366,7 +367,7 @@ namespace ThorCyte.ProtocolModule.Models
                     {
                         CurrentTileId = tile.ScanFieldId;
                         EventAggregator.GetEvent<MacroStartEvnet>()
-                            .Publish(new MacroStartEventArgs() {RegionId = CurrentRegionId, TileId = CurrentTileId});
+                            .Publish(new MacroStartEventArgs {WellId = region.WellId, RegionId = CurrentRegionId, TileId = CurrentTileId});
 
                         GetImagesDic();
                         //find all channel module 

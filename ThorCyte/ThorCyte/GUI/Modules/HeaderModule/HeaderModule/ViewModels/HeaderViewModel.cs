@@ -1,6 +1,7 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows.Input;
-using Microsoft.Practices.ServiceLocation;
+using ComponentDataService;
 using Microsoft.Practices.Unity;
 using Microsoft.Win32;
 using Prism.Commands;
@@ -54,6 +55,7 @@ namespace ThorCyte.HeaderModule.ViewModels
                     _data.SetExperimentInfo(_experiment);
                     _unityContainer.RegisterInstance<IExperiment>(_experiment);
                     _unityContainer.RegisterInstance<IData>(_data);
+                    ComponentDataManager.Instance.Load(_experiment);
                     if(_experiment.GetScanCount() > 0)
                         _eventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(1);
                 }

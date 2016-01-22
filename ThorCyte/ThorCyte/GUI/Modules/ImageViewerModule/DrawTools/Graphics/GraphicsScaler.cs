@@ -44,7 +44,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             {
                 textLength = tmp * (int)Math.Pow(10, digits);
             }
-            displayLength = textLength * unitC * ActualScale.Item3/ XPixelSize;
+            displayLength = textLength * unitC * ActualScale.Item3* ActualScale.Item1 / XPixelSize;
 
             var start = new Point(Point.X , Point.Y);
             var end = new Point(Point.X  + displayLength, Point.Y );

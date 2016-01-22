@@ -545,7 +545,7 @@ namespace ThorCyte.GraphicModule.Models
             else
             {
                 if (_selectedNumeratorFeature.IsPerChannel)
-                    temStr.Append(string.Format("{0} {1}", _selectedNumeratorChannel, _selectedNumeratorFeature.Name));
+                    temStr.Append(string.Format("{0} {1}", _selectedNumeratorChannel.ChannelName, _selectedNumeratorFeature.Name));
                 else
                     temStr.Append(_selectedNumeratorFeature.Name);
 

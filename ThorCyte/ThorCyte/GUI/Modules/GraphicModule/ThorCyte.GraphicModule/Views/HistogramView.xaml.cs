@@ -46,6 +46,8 @@ namespace ThorCyte.GraphicModule.Views
 
             RegionPanel.SetBinding(HeightProperty, new Binding("ActualHeight") { Source = SciChart.AnnotationUnderlaySurface });
 
+            SetBinding(HeightProperty, new Binding("ActualWidth") { Source = this });
+
             YAxis.SetBinding(AxisBase.AxisTitleProperty, new Binding("Title") { Source = GraphicVm.YAxis });
         }
 
@@ -212,7 +214,6 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     _graphicContainerVm.GraphicDictionary.Add(Id, new Tuple<GraphicUcBase, GraphicVmBase>(this, GraphicVm));
                 }
-
             }
             GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
             IsLoading = false;

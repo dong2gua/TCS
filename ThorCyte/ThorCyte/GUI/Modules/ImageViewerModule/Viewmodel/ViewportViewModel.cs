@@ -30,6 +30,10 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             }
         }
         private bool _isAspectRatio;
+        public bool IsAspectRatio
+        {
+            get { return _isAspectRatio; }
+        }
         private double _aspectRatio;
         public double AspectRatio
         {

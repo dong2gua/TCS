@@ -57,18 +57,40 @@ namespace ThorCyte.CarrierModule.ViewModels
             set { SetProperty(ref _tileview, value); }
         }
 
+        private bool _isTileVisible;
+        public bool IsTileVisible
+        {
+            get { return _isTileVisible; }
+            set { SetProperty(ref _isTileVisible, value); }
+        }
+
         #endregion
 
         public CarrierViewModel()
         {
             CarrierDefMgr.Initialize(@"..\..\..\..\..\..\XML");
-            _slideView = new SlideView();
-            _plateView = new PlateView();
             _tileview = new TileView();
-
+            _plateView = new PlateView();
+            _slideView = new SlideView();
+            CreateCarrier(_currentCarrierType); 
+            
             var loadEvt = EventAggregator.GetEvent<ExperimentLoadedEvent>();
             loadEvt.Subscribe(RequestLoadModule);
-            CreateCarrier(_currentCarrierType);
+
+            var showRegionEvt = EventAggregator.GetEvent<ShowRegionEvent>();
+            showRegionEvt.Subscribe(ShowRegion, ThreadOption.UIThread);
+        }
+
+        private void ShowRegion(string moduleName)
+        {
+            object theView;
+            switch (moduleName)
+            {
+                case "ReviewModule":
+                    break;
+                case "AnalysisModule":
+                    break;
+            }
         }
 
         /// <summary>
@@ -86,18 +108,25 @@ namespace ThorCyte.CarrierModule.ViewModels
 
         public void SetCarrier(CarrierDef carrierDef)
         {
+            _plateView.plateCanvas.IsShowing = false;
+            _slideView.slideCanvas.IsShowing = false;
+            
             if (carrierDef.Type == CarrierType.Microplate)
             {
                 _carrier = new Microplate(carrierDef);
                 _plateView.CurrentPlate = (Microplate)_carrier;
                 ShowingView = _plateView;
+                _plateView.plateCanvas.IsShowing = true;
+                _plateView.plateCanvas.AnalyzedWells.Clear();
                 ShowingView.Tag = "PlateView";
             }
             else
             {
                 _carrier = new Slide(carrierDef);
                 _slideView.CurrentSlide = (Slide)_carrier;
+                _slideView.slideCanvas.CurrentScanInfo = _currentScanInfo;
                 ShowingView = _slideView;
+                _slideView.slideCanvas.IsShowing = true;
                 ShowingView.Tag = "SlideView";
             }
         }

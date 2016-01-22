@@ -8,6 +8,7 @@ using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using ThorCyte.CarrierModule.Common;
 using ThorCyte.CarrierModule.Events;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
@@ -145,14 +146,28 @@ namespace ThorCyte.CarrierModule.ViewModels
         {
             //subscribe select region event.
             var selectRegionEvt = EventAggregator.GetEvent<RegionsSelected>();
+            var shwoRegionEvent = EventAggregator.GetEvent<ShowRegionEvent>();
             selectRegionEvt.Subscribe(OnSelectRegionChanged);
+            shwoRegionEvent.Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
 
             //delegate button click command
-            CmdTileTrigger = new DelegateCommand<object>(this.OnTileSelect);
-
+            CmdTileTrigger = new DelegateCommand<object>(OnTileSelect);
 
             //Define button infomations to show on UI
             _tilesShowInCanvas = new ObservableCollection<TileItem>();
+        }
+
+        private void ShowRegionEventHandler(string moduleName)
+        {
+            object theView;
+            switch (moduleName)
+            {
+                case "ReviewModule":
+                    break;
+                case "AnalysisModule":
+                    SetEmptyContent();
+                    break;
+            }
         }
 
         public void SetEmptyContent()
@@ -195,6 +210,7 @@ namespace ThorCyte.CarrierModule.ViewModels
             if (_viewHeight == 0)
                 _viewSizeMax = InitialViewSize;
 
+            //CalcPxFactor(sr.ScanFieldList[0].SFRect);
             CalcPxFactor(sr.Bound);
             //every tile rect size is same.
 
@@ -232,7 +248,7 @@ namespace ThorCyte.CarrierModule.ViewModels
         {
             try
             {
-                if (args.Count != 1)
+                if (args.Count != 1 || CarrierModule.Mode == DisplayMode.Analysis)
                 {
                     //Clear Canvas items and set size to 0,0
                     SetEmptyContent();

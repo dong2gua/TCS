@@ -93,7 +93,7 @@
 
         </Style>
     </UserControl.Resources>
-    <Border x:Name="viewportBorder" BorderThickness="1" CornerRadius="5" BorderBrush="CadetBlue">
+    <Border Margin="1" x:Name="viewportBorder" BorderThickness="2"  BorderBrush="Black">
         <Grid Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>

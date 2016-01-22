@@ -51,9 +51,6 @@ namespace ComponentDataService.Types
         #region Delegate
 
         public delegate void WriteTileBlobsFile(string folder, int wellId, int tileId, BlobType type);
-
-        public delegate void CopyTileBlobsFile(string folder, int wellId, int tileId, BlobType type);
-
         #endregion
 
         #region Properties
@@ -76,7 +73,7 @@ namespace ComponentDataService.Types
         }
 
         public int FeatureCount { get; private set; }
-        public Version SoftwareVersion { get; set; }
+        public Version SoftwareVersion { get; private set; }
 
         #endregion
 
@@ -179,11 +176,19 @@ namespace ComponentDataService.Types
 
         internal void SaveToEvtXml(string baseFolder)
         {
+            var doc = new XmlDocument();
             string[] files = Directory.GetFiles(baseFolder, "*.evt.xml");
             string file = files.FirstOrDefault();
             if (string.IsNullOrEmpty(file))
-                throw new FileNotFoundException(string.Format("no evt xml file found at {0}", baseFolder));
-            var doc = new XmlDocument();
+            {
+                string expName = _experiment.GetExperimentInfo().Name;
+                string filename = string.Format("{0}-Cr1.evt.xml", expName);
+                file = Path.Combine(baseFolder, filename);
+                File.Create(file);
+                CreateCommonNodesForEvtXml(doc);
+                doc.Save(file);
+            }
+
             doc.Load(file);
             XmlElement root = doc.DocumentElement;
             if (root == null) return;
@@ -203,6 +208,7 @@ namespace ComponentDataService.Types
             {
                 compsNode.ReplaceChild(newlyCompNode, compNode);
             }
+            doc.Save(file);
 
         }
 
@@ -231,15 +237,19 @@ namespace ComponentDataService.Types
             int id = stored.Count + 1;//1 base
             foreach (Blob contour in contours)
             {
-                Blob dataBlob = contour.CreateExpanded(define.DataExpand, _imageWidth, _imageHeight);
-                if (dataBlob != null)
+                if (contour.TouchesEdge(define.DataExpand, _imageWidth, _imageHeight)==false)
                 {
-                    dataBlob.Id = id;
-                    id++;
-                    BioEvent ev = CreateEvent(contour, dataBlob, define, imageDict, scanId, wellId, tileId);
-                    if (ev != null)
-                        evs.Add(ev);
+                    Blob dataBlob = contour.CreateExpanded(define.DataExpand, 0, 0);
+                    if (dataBlob != null)
+                    {
+                        dataBlob.Id = id;
+                        id++;
+                        BioEvent ev = CreateEvent(contour, dataBlob, define, imageDict, scanId, wellId, tileId);
+                        if (ev != null)
+                            evs.Add(ev);
+                    }
                 }
+                
 
             }
             stored.AddRange(evs);
@@ -253,8 +263,9 @@ namespace ComponentDataService.Types
 
         private void Init()
         {
-            ScanInfo info = _experiment.GetScanInfo(ComponentDataManager.ScanId);
-            string basePath = Path.Combine(info.DataPath, "carrier1", "EVT");
+            ExperimentInfo info = _experiment.GetExperimentInfo();
+            SoftwareVersion = new Version(info.SoftwareVersion);
+            string basePath = Path.Combine(info.AnalysisPath, ComponentDataManager.DataStoredFolder);
             if (Directory.Exists(basePath) == false)
                 Directory.CreateDirectory(basePath);
             _basePath = basePath;
@@ -264,16 +275,10 @@ namespace ComponentDataService.Types
             ParseEvtXml();
         }
 
-        private static string NormalizePath(string path)
-        {
-            return Path.GetFullPath(new Uri(path).LocalPath)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                .ToUpperInvariant();
-        }
-
         private void ParseEvtXml()
         {
             XmlElement root = GetRootOfEvtXml();
+            if(root==null) return;
             string query = string.Format("descendant::component[@name='{0}']", _componentName);
             var compNode = root.SelectSingleNode(query) as XmlElement;
             if (compNode == null) return;
@@ -296,8 +301,10 @@ namespace ComponentDataService.Types
         private List<Blob> ReadTileBlobsInfoFromXml(int wellId, int tileId, BlobType type)
         {
             string filename = string.Format("contours_{0}_{1}.xml", wellId, wellId);
+            string filepath = Path.Combine(_contourXmlPath, filename);
+            if (File.Exists(filepath) == false) return EmptyBlobs.ToList();
             var doc = new XmlDocument();
-            doc.Load(Path.Combine(_contourXmlPath, filename));
+            doc.Load(filepath);
             var root = doc.DocumentElement;
             if (root == null) throw new XmlSyntaxException("no root element found");
             string query = string.Format("descendant::field[@no='{0}']", tileId);
@@ -332,6 +339,7 @@ namespace ComponentDataService.Types
         private List<Blob> ReadBlobsInfoFromBinary(int wellId, int tileId, BlobType type)
         {
             List<Blob> blobs = ReadTileBlobsInfoFromXml(wellId, tileId, type);
+            if (blobs.Count <= 0) return blobs;
             string filename;
             if (type == BlobType.Contour)
             {
@@ -373,7 +381,7 @@ namespace ComponentDataService.Types
             string[] files = Directory.GetFiles(_basePath, "*.evt.xml");
             string file = files.FirstOrDefault();
             if (string.IsNullOrEmpty(file))
-                throw new FileNotFoundException(string.Format("no evt xml file found at {0}", _basePath));
+                return null;
             var doc = new XmlDocument();
             doc.Load(file);
             return doc.DocumentElement;
@@ -432,7 +440,7 @@ namespace ComponentDataService.Types
             string filename = string.Format("{0}_{1}.evt", wellId, wellId);
             string filepath = Path.Combine(_basePath, _componentName, filename);
             if (File.Exists(filepath) == false)
-                throw new FileNotFoundException(string.Format("{0} not found", filepath));
+                return EmptyEvents.ToList();
             else
             {
                 using (var reader = new BinaryReader(File.Open(filepath, FileMode.Open, FileAccess.Read)))
@@ -454,7 +462,7 @@ namespace ComponentDataService.Types
         }
 
 
-        private void WriteBlobsFile(string folder, WriteTileBlobsFile writer, CopyTileBlobsFile copier)
+        private void WriteBlobsFile(string folder, WriteTileBlobsFile writer)
         {
             ScanInfo info = _experiment.GetScanInfo(ComponentDataManager.ScanId);
             IList<ScanRegion> regions = info.ScanRegionList;
@@ -469,19 +477,12 @@ namespace ComponentDataService.Types
                     if (_contourBlobs.ContainsKey(key))
                     {
                         writer(folder, wellId, tileId, BlobType.Contour);
-                    }
-                    else
-                    {
-                        copier(folder, wellId, tileId, BlobType.Contour);
-                    }
+                    }                 
                     if (_dataBlobs.ContainsKey(key))
                     {
                         writer(folder, wellId, tileId, BlobType.Data);
                     }
-                    else
-                    {
-                        copier(folder, wellId, tileId, BlobType.Contour);
-                    }
+                    
                 }
             }
         }
@@ -489,51 +490,9 @@ namespace ComponentDataService.Types
         private void WriteBlobsXml(string folder)
         {
             string destDirName = Path.Combine(folder, "contours");
-            string sourceDirName = Path.Combine(_basePath, "contours");
-            bool needCopy = NormalizePath(folder) == NormalizePath(_basePath);
-            if (needCopy)
-            {
-                DirectoryCopy(sourceDirName, destDirName, true);
-            }
-            WriteBlobsFile(destDirName, WriteBlobsXml, (s, id, tileId, type) => { });
-        }
-
-        private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
-        {
-            // Get the subdirectories for the specified directory.
-            var dir = new DirectoryInfo(sourceDirName);
-            if (!dir.Exists)
-            {
-                //throw new DirectoryNotFoundException(
-                //    "Source directory does not exist or could not be found: "
-                //    + sourceDirName);
-                return;
-            }
-            DirectoryInfo[] dirs = dir.GetDirectories();
-            // If the destination directory doesn't exist, create it.
-            if (!Directory.Exists(destDirName))
-            {
+            if (Directory.Exists(destDirName)) 
                 Directory.CreateDirectory(destDirName);
-            }
-
-            // Get the files in the directory and copy them to the new location.
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
-            {
-                string temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath, false);
-            }
-
-            // If copying subdirectories, copy them and their contents to new location.
-            if (copySubDirs)
-            {
-                foreach (DirectoryInfo subdir in dirs)
-                {
-                    string temppath = Path.Combine(destDirName, subdir.Name);
-                    DirectoryCopy(subdir.FullName, temppath, true);
-                }
-            }
-
+            WriteBlobsFile(destDirName, WriteBlobsXml);
         }
 
         private void WriteBlobsXml(string filepath, int wellId, int tileId, BlobType type)
@@ -541,6 +500,12 @@ namespace ComponentDataService.Types
             var doc = new XmlDocument();
             string filename = Path.Combine(filepath,
                 string.Format("contours_{0}_{1}.xml", wellId, wellId));
+            if (File.Exists(filename) == false)
+            {
+                File.Create(filename);
+                CreateCommonNodeForContourXml(doc, wellId);
+                doc.Save(filename);
+            }
             doc.Load(filename);
             string query = string.Format("descendant::field[@no='{0}']", tileId);
             var fieldNode = doc.SelectSingleNode(query) as XmlElement;
@@ -569,6 +534,26 @@ namespace ComponentDataService.Types
             }
         }
 
+        private void CreateCommonNodeForContourXml(XmlDocument doc, int wellId)
+        {
+
+            var rootNode = doc.CreateElement("contours");
+            rootNode.SetAttribute("version", SoftwareVersion.ToString());
+            doc.AppendChild(rootNode);
+
+            var compNode = doc.CreateElement("component");
+            compNode.SetAttribute("name", _componentName);
+            rootNode.AppendChild(compNode);
+
+            var wellNode = doc.CreateElement("well");
+            wellNode.SetAttribute("no", wellId.ToString(CultureInfo.InvariantCulture));
+            compNode.AppendChild(wellNode);
+
+            var regionNode = doc.CreateElement("region");
+            regionNode.SetAttribute("no", wellId.ToString(CultureInfo.InvariantCulture));
+            wellNode.AppendChild(regionNode);
+         
+        }
         private XmlElement CreateBlobNode(XmlDocument doc, int wellId, int tileId, BlobType type)
         {
             var blobName = string.Empty;
@@ -600,32 +585,9 @@ namespace ComponentDataService.Types
             return blobNode;
         }
 
-        private void CopyBlobsBinary(string folder, int wellId, int tileId, BlobType type)
-        {
-            string filename;
-            switch (type)
-            {
-                case BlobType.Contour:
-                    filename = Path.Combine(folder,
-                        string.Format("t_{0}_{1}_{2}", wellId, wellId, tileId));
-
-                    break;
-                case BlobType.Data:
-                    filename = Path.Combine(folder,
-                        string.Format("d_{0}_{1}_{2}", wellId, wellId, tileId));
-
-                    break;
-                default:
-                    return;
-            }
-            string source = Path.Combine(_basePath, filename);
-            string dest = Path.Combine(folder, filename);
-            File.Copy(source, dest, false);
-        }
-
         private void WriteBlobsBinary(string folder)
         {
-            WriteBlobsFile(folder, WriteBlobsBinary, CopyBlobsBinary);
+            WriteBlobsFile(folder, WriteBlobsBinary);
         }
 
         private void WriteBlobsBinary(string folder, int wellId, int tileId, BlobType type)
@@ -648,6 +610,8 @@ namespace ComponentDataService.Types
                 default:
                     return;
             }
+
+            if (File.Exists(filename) == false) File.Create(filename);
             using (var writer = new BinaryWriter(File.Open(filename, FileMode.OpenOrCreate, FileAccess.Write)))
             {
                 foreach (Blob blob in blobs)
@@ -671,26 +635,16 @@ namespace ComponentDataService.Types
                 if (_eventsDict.ContainsKey(wellId))
                 {
                     WriteEventsBinary(folder, wellId);
-                }
-                else
-                {
-                    CopyEventsBinary(folder, wellId);
-                }
+                }                
             }
         }
 
-        private void CopyEventsBinary(string folder, int wellId)
-        {
-            string filename = string.Format("{0}_{1}.evt", wellId, wellId);
-            string source = Path.Combine(_basePath, filename);
-            string dest = Path.Combine(folder, filename);
-            File.Copy(source, dest, false);
-        }
-
+       
         private void WriteEventsBinary(string folder, int wellId)
         {
             List<BioEvent> evs = _eventsDict[wellId];
             string filename = Path.Combine(folder, string.Format("{0}_{1}.evt", wellId, wellId));
+            if (File.Exists(filename) == false) File.Create(filename);
             using (var writer = new BinaryWriter(File.Open(filename, FileMode.OpenOrCreate, FileAccess.Write)))
             {
                 foreach (BioEvent ev in evs)
@@ -773,7 +727,16 @@ namespace ComponentDataService.Types
             var dst = data.Dilate(expand);
             return dst.FindContour(minArea, maxArea).ToList();
         }
+
 */
+
+        private void CreateCommonNodesForEvtXml(XmlDocument doc)
+        {           
+            var rootNode = doc.CreateElement("data-list");
+            rootNode.SetAttribute("version", SoftwareVersion.ToString());
+            var compsNode = doc.CreateElement("components");
+            rootNode.AppendChild(compsNode);
+        }
 
         private Feature GetFeature(FeatureType type)
         {
@@ -1003,16 +966,27 @@ namespace ComponentDataService.Types
 
         private Blob CreateBackgroundBlob(Blob blobData, BlobDefine define)
         {
-            Blob bkBlob = blobData.CreateRing(define.BackgroundDistance, define.BackgroundWidth, false,
-                _imageWidth, _imageHeight);
-
+            int width = define.BackgroundWidth;
+            int dist = define.BackgroundDistance;
+            int extent = width + dist;
+            Blob bkBlob = null;
+            if (blobData.TouchesEdge(extent, _imageWidth, _imageHeight) == false)
+            {
+               bkBlob = blobData.CreateRing(dist, width, false, 0, 0);
+            }
             return bkBlob;
         }
 
         private Blob CreatePeripheralBlob(Blob blobOrg, BlobDefine define)
         {
-            Blob periBlob = blobOrg.CreateRing(define.PeripheralDistance, define.PeripheralDistance, false,
-                _imageWidth, _imageHeight);
+            int width = define.PeripheralWidth;
+            int dist = define.PeripheralDistance;
+            int extent = width + dist;
+            Blob periBlob = null;
+            if (blobOrg.TouchesEdge(extent, _imageWidth, _imageHeight) == false)
+            {
+                periBlob = blobOrg.CreateRing(dist, width, false, 0, 0);
+            }            
             return periBlob;
         }
 

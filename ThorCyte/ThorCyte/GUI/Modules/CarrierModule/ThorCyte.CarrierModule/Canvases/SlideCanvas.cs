@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -28,7 +30,10 @@ namespace ThorCyte.CarrierModule.Canvases
     class SlideCanvas : Canvas
     {
         #region Static Members
+        private const double Tolerance = 0.000001;
         private static readonly double[] ScaleTable = { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0, 10.0, 12.0 };
+        private int _currentRegionId = -1;
+        private int _lastRegionId = -1;
         #endregion
 
         #region Class Members
@@ -38,7 +43,8 @@ namespace ThorCyte.CarrierModule.Canvases
         private Slide _slideMod;
 
         public static readonly DependencyProperty ToolProperty;
-        public static readonly DependencyProperty ActualScaleProperty;
+        public static readonly DependencyProperty OuterWidthProperty;
+        public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
 
         private readonly Tool[] _tools;                   // Array of tools
@@ -48,11 +54,16 @@ namespace ThorCyte.CarrierModule.Canvases
         private float _rx;
         private float _ry;
 
+        public bool IsShowing = false;
+
         #endregion Class Members
 
         #region Constructors
         public SlideCanvas()
         {
+            EventAggregator.GetEvent<MacroStartEvnet>().Subscribe(MacroStart, ThreadOption.UIThread, true);
+            EventAggregator.GetEvent<MacroFinishEvent>().Subscribe(MacroFinish, ThreadOption.UIThread, true);
+
             _graphicsList = new VisualCollection(this);
             _regionGraphicHashtable = new Hashtable();
             // create array of drawing tools
@@ -74,7 +85,12 @@ namespace ThorCyte.CarrierModule.Canvases
             _rx = (float)(_slideWidth / drwidth);
             _ry = (float)(_slideHeight / drHeight);
             IsLocked = true;
+            ActualScale = 0.5;
         }
+
+
+
+
 
 
         static SlideCanvas()
@@ -86,23 +102,46 @@ namespace ThorCyte.CarrierModule.Canvases
                 "Tool", typeof(ToolType), typeof(SlideCanvas),
                 metaData);
 
-            // ActualScale
-            metaData = new PropertyMetadata(
-                0.5,                                                        // default value
-                ActualScaleChanged);           // change callback
-
-            ActualScaleProperty = DependencyProperty.Register(
-                "ActualScale", typeof(double), typeof(SlideCanvas),
-                metaData);
-
             metaData = new PropertyMetadata("");
             MousePositionProperty = DependencyProperty.Register(
                  "MousePosition", typeof(string), typeof(SlideCanvas),
                  metaData);
+
+            metaData = new PropertyMetadata(200.0D, OuterSizeChanged);
+            OuterWidthProperty = DependencyProperty.Register("OuterWidth", typeof(double), typeof(SlideCanvas), metaData);
+
+            metaData = new PropertyMetadata(100.0D, OuterSizeChanged);
+            OuterHeightProperty = DependencyProperty.Register("OuterHeight", typeof(double), typeof(SlideCanvas), metaData);
+
         }
+
+
+
         #endregion Constructor
 
         #region Properties
+
+
+        public double OuterWidth
+        {
+            get { return (double)GetValue(OuterWidthProperty); }
+            set
+            {
+                if (value > 0)
+                    SetValue(OuterWidthProperty, value);
+            }
+        }
+
+        public double OuterHeight
+        {
+            get { return (double)GetValue(OuterHeightProperty); }
+            set
+            {
+                if (value > 0)
+                    SetValue(OuterHeightProperty, value);
+            }
+        }
+
 
         private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
@@ -136,10 +175,15 @@ namespace ThorCyte.CarrierModule.Canvases
             }
         }
 
+        private double _actualScale;
         public double ActualScale
         {
-            get { return (double)GetValue(ActualScaleProperty); }
-            set { SetValue(ActualScaleProperty, value); }
+            get { return _actualScale; }
+            set
+            {
+                _actualScale = value;
+                ActualScaleChanged(this);
+            }
         }
 
         public Slide SlideMod
@@ -156,10 +200,23 @@ namespace ThorCyte.CarrierModule.Canvases
 
         public bool IsLocked { get; set; }
 
+        private static void OuterSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var cnvs = d as SlideCanvas;
+
+            if (cnvs == null) return;
+
+            if (Math.Abs(cnvs.OuterWidth) < Tolerance || Math.Abs(cnvs.OuterHeight) < Tolerance) return;
+
+            var factorW = cnvs.OuterWidth / cnvs._slideWidth - 0.0005;
+
+            cnvs.ActualScale = factorW * 100;
+        }
+
         /// <summary>
         /// Callback function called when ActualScale dependency property is changed.
         /// </summary>
-        static void ActualScaleChanged(DependencyObject property, DependencyPropertyChangedEventArgs args)
+        static void ActualScaleChanged(DependencyObject property)
         {
             var d = property as SlideCanvas;
 
@@ -507,6 +564,8 @@ namespace ThorCyte.CarrierModule.Canvases
 
         private void UpdateRoomRects()
         {
+            if (SlideMod == null) return;
+
             _roomRectList.Clear();
             foreach (CarrierRoom room in SlideMod.Rooms)
             {
@@ -607,6 +666,42 @@ namespace ThorCyte.CarrierModule.Canvases
             return rPt;
         }
 
+        private bool IsRegionChanged(int wellid)
+        {
+            if (wellid == _currentRegionId)
+                return false;
+            return true;
+        }
+
+        public void MacroStart(MacroStartEventArgs args)
+        {
+            if (!IsShowing) return;
+            if (!IsRegionChanged(args.RegionId)) return;
+            _lastRegionId = _currentRegionId;
+            _currentRegionId = args.RegionId;
+
+            var rgn = _slideMod.TotalRegions.FirstOrDefault(r => r.RegionId == _lastRegionId);
+
+            if (rgn != null && _regionGraphicHashtable.ContainsKey(rgn))
+            {
+                ((GraphicsBase)_regionGraphicHashtable[rgn]).ObjectColor = Colors.Green;
+            }
+        }
+
+        public void MacroFinish(int scanid)
+        {
+            if (!IsShowing) return;
+
+            var rgn = _slideMod.TotalRegions.FirstOrDefault(r => r.RegionId == _currentRegionId);
+
+            if (rgn != null && _regionGraphicHashtable.ContainsKey(rgn))
+            {
+                ((GraphicsBase)_regionGraphicHashtable[rgn]).ObjectColor = Colors.Green;
+            }
+            _currentRegionId = -1;
+            _lastRegionId = -1;
+        }
+
         public void UpdateScanArea()
         {
             _graphicsList.Clear();
@@ -623,7 +718,7 @@ namespace ThorCyte.CarrierModule.Canvases
                         var top = rc.Y * scale;
                         var right = (_slideWidth - rc.X) * scale;
                         var bottom = (rc.Y + rc.Height) * scale;
-                        var ellipse = new GraphicsEllipse(left, top, right, bottom, LineWidth, Colors.Green, ActualScale, 0);
+                        var ellipse = new GraphicsEllipse(left, top, right, bottom, LineWidth, Colors.Black, ActualScale, 0);
                         _graphicsList.Add(ellipse);
                         _regionGraphicHashtable.Add(rgn, ellipse);
                         ellipse.RefreshDrawing();
@@ -636,7 +731,7 @@ namespace ThorCyte.CarrierModule.Canvases
                             ptList[i].X = (_slideWidth - ptList[i].X) * scale;
                             ptList[i].Y = ptList[i].Y * scale;
                         }
-                        var polygon = new GraphicsPolygon(ptList, LineWidth, Colors.Green, ActualScale, 0);
+                        var polygon = new GraphicsPolygon(ptList, LineWidth, Colors.Black, ActualScale, 0);
                         _graphicsList.Add(polygon);
                         _regionGraphicHashtable.Add(rgn, polygon);
                         polygon.RefreshDrawing();
@@ -646,7 +741,7 @@ namespace ThorCyte.CarrierModule.Canvases
                         var top1 = rc.Y * scale;
                         var right1 = (_slideWidth - rc.X) * scale;
                         var bottom1 = (rc.Y + rc.Height) * scale;
-                        var rectangle = new GraphicsRectangle(left1, top1, right1, bottom1, LineWidth, Colors.Green, ActualScale, 0);
+                        var rectangle = new GraphicsRectangle(left1, top1, right1, bottom1, LineWidth, Colors.Black, ActualScale, 0);
                         _graphicsList.Add(rectangle);
                         _regionGraphicHashtable.Add(rgn, rectangle);
                         rectangle.RefreshDrawing();
