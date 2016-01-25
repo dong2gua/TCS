@@ -5,7 +5,7 @@ using ThorCyte.ProtocolModule.Models;
 
 namespace ThorCyte.ProtocolModule.Converts
 {
-    class AreaTypeConvert : IValueConverter
+    public class AreaTypeConvert : IValueConverter
     {
         private const string Um = "um";
         private const string Mm = "mm";

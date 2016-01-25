@@ -119,6 +119,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 {
                     Name = name,
                     ItemType = GetModuleType(name)
+                    
                 });
             }
 

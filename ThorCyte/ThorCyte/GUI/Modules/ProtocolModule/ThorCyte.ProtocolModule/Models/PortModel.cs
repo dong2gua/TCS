@@ -46,43 +46,49 @@ namespace ThorCyte.ProtocolModule.Models
 
         public ModuleBase ParentModule { get; set; }
 
-        public bool IsImageDataType
-        {
-            get
-            {
-                return DataType == PortDataType.BinaryImage || DataType == PortDataType.GrayImage ||
-                    DataType == PortDataType.Image || DataType == PortDataType.MultiChannelImage;
-            }
-        }
-
-        public bool EmptyData { get; set; }
 
         public bool DataExists
         {
             get
             {
-                if (EmptyData)
+                bool res;
+                switch (DataType)
                 {
-                    return true;
-                }
+                    case PortDataType.None:
+                        res = true;
+                        break;
 
-                if (DataType == PortDataType.Event)
-                {
-                    return false;
-                    // return (Component != null);
+                    case PortDataType.Event:
+                        if (ComponentName == null)
+                        {
+                            res = false;
+                        }
+                        else
+                        {
+                            res = ComponentName.Trim() != string.Empty;
+                        }
+                        break;
+
+                    case PortDataType.BinaryImage:
+                    case PortDataType.GrayImage: 
+                    case PortDataType.Image:
+                    case PortDataType.MultiChannelImage:
+                        res = Image != null;
+                        break;
+
+                    case PortDataType.Setting:
+                        res = true;
+                        break;
+
+                    case PortDataType.Flag:
+                        res = true;
+                        break;
+
+                    default :
+                        res = false;
+                        break;
                 }
-                else if (DataType == PortDataType.Setting) // do not check Setting Type
-                {
-                    return true;
-                }
-                else if (IsImageDataType)
-                {
-                    return (Image != null);
-                }
-                else
-                {
-                    return false;
-                }
+                return res;
             }
         }
 
@@ -262,6 +268,7 @@ namespace ThorCyte.ProtocolModule.Models
         public void Clear()
         {
             Image = null;
+            ComponentName = string.Empty;
         }
 
         #endregion

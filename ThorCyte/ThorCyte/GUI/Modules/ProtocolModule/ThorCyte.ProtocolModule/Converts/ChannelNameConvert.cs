@@ -5,7 +5,7 @@ using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.ProtocolModule.Converts
 {
-    class ChannelNameConvert :  IValueConverter
+    public class ChannelNameConvert :  IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

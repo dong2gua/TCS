@@ -99,6 +99,7 @@
     <Compile Include="Converts\BoolReverseConverter.cs" />
     <Compile Include="Converts\BoolToVisibilityConverter .cs" />
     <Compile Include="Converts\ChannelNameConvert.cs" />
+    <Compile Include="Converts\PhantomPatternConvert.cs" />
     <Compile Include="Converts\ThresholdMethodConvert.cs" />
     <Compile Include="Events\ConnectionDragEvents.cs" />
     <Compile Include="Events\ConnectorDragEvents.cs" />
@@ -123,10 +124,13 @@
     <Compile Include="Utils\RequiredValidationRule.cs" />
     <Compile Include="Utils\VisualUtils.cs" />
     <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
+    <Compile Include="ViewModels\Modules\OverlapParentChildModVm.cs" />
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
     <Compile Include="ViewModels\Modules\ContourModVm.cs" />
     <Compile Include="ViewModels\Modules\EventModVm.cs" />
+    <Compile Include="ViewModels\Modules\FilterModVm.cs" />
     <Compile Include="ViewModels\Modules\ModuleBase.cs" />
+    <Compile Include="ViewModels\Modules\PhantomModVm.cs" />
     <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
     <Compile Include="ViewModels\PannelViewModel.cs" />
     <Compile Include="Views\Modules\ChannelModule.xaml.cs">
@@ -140,6 +144,12 @@
     </Compile>
     <Compile Include="Views\Modules\EventModule.xaml.cs">
       <DependentUpon>EventModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\FilterModule.xaml.cs">
+      <DependentUpon>FilterModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\PhantomModule.xaml.cs">
+      <DependentUpon>PhantomModule.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Modules\ThresholdModule.xaml.cs">
       <DependentUpon>ThresholdModule.xaml</DependentUpon>
@@ -163,6 +173,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\EventModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\FilterModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\PhantomModule.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

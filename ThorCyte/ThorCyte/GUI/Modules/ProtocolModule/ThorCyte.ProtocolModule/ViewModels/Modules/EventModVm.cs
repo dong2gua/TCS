@@ -12,7 +12,7 @@ using ThorCyte.ProtocolModule.Views.Modules;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
-    internal class EventModVm : ModuleBase
+    public class EventModVm : ModuleBase
     {
         #region Properties and Fields
 
@@ -221,8 +221,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         {
             try
             {
-
-                var componentName = InputPorts[0].ComponentName;
+                var componentName = GetInPort(0).ComponentName;
                 var define = new BlobDefine
                 {
                     DataExpand = ExpandBy,
@@ -239,15 +238,14 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
                 Macro.CurrentConponentService.CreateEvents(componentName, Macro.CurrentScanId, Macro.CurrentRegionId + 1,
                     Macro.CurrentTileId, Macro.CurrentImages, define);
+
+                SetOutputComponent(componentName);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("Event Module error: " + ex.Message);
                 throw;
             }
-            
-
-
         }
 
         private bool[] GetChCorr()
@@ -277,7 +275,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 ChannelCollection.Add(new ChannelsCorrection(true, channel.ChannelName));
             }
-
         }
 
         public override void OnSerialize(XmlWriter writer)

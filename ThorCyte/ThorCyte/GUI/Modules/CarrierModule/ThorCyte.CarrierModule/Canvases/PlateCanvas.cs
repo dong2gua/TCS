@@ -301,7 +301,6 @@ namespace ThorCyte.CarrierModule.Canvases
                 o.Clip = rg;
             }
             d.UpdatePlateRoomsRect();
-
         }
 
         private void InitPlate()
@@ -593,7 +592,7 @@ namespace ThorCyte.CarrierModule.Canvases
 
         private void DrawBackgrouds(DrawingContext dc)
         {
-            this.Background = Brushes.PowderBlue;
+            Background = Brushes.DimGray;
         }
 
         private void DrawPlateRooms(DrawingContext dc)
@@ -626,7 +625,7 @@ namespace ThorCyte.CarrierModule.Canvases
                 if (rectRoom.Key.StartsWith("A"))
                 {
                     var str = rectRoom.Key.Replace("A", string.Empty);
-                    var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 50 * ActualScale, Brushes.Black);
+                    var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 50 * ActualScale, Brushes.LightGray);
 
                     dc.DrawText(ft,
                         str.Length == 2
@@ -638,10 +637,9 @@ namespace ThorCyte.CarrierModule.Canvases
                 if (rectRoom.Key.EndsWith("1") && rectRoom.Key.Length == 2)
                 {
                     var str = rectRoom.Key.Replace("1", string.Empty);
-                    var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 50 * ActualScale, Brushes.Black);
+                    var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 50 * ActualScale, Brushes.LightGray);
                     dc.DrawText(ft, new Point(rectRoom.Value.X - 60 * ActualScale, rectRoom.Value.Y + rectRoom.Value.Height / 4));
                 }
-
             }
 
         }

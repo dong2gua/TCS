@@ -16,9 +16,22 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public int Id { get; set; }
         public int ScanNo { get; set; }
-        public string DisplayName { get; set; }
         public ModuleType ModType { get; set; }
         public abstract bool Executable { get; }
+
+        private string _displayName;
+        public string DisplayName
+        {
+            get {
+                return _displayName.Trim() == string.Empty ? _name : _displayName;
+            }
+            set
+            {
+                if(_displayName == value) return;
+                SetProperty(ref _displayName,value);
+            }
+        }
+
 
         private ContentControl _view;
         public ContentControl View
@@ -217,8 +230,17 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public void Execute()
         {
+            if (!Enabled) return;
+            
+            if (_inputPorts.Any(p => !p.DataExists))
+            {
+                Debug.WriteLine("Data not exist return execute");
+                return;
+            }
+
             try
             {
+                
                 if (_hasImage)    // set the input image from the first image input port
                 {
                     foreach (var port in _inputPorts)

@@ -7,7 +7,6 @@ using System.Threading;
 using System.Windows;
 using System.Xml;
 using ComponentDataService;
-using ComponentDataService.Types;
 using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Events;
@@ -247,7 +246,7 @@ namespace ThorCyte.ProtocolModule.Models
             try
             {
                 if (modInfo.IsCombo) throw new CyteException("Macro.CreateModule", "Combination module does not support.");// create combination module
-                
+
                 var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
                 module.Name = modInfo.Name;
                 module.DisplayName = modInfo.DisplayName;
@@ -367,17 +366,20 @@ namespace ThorCyte.ProtocolModule.Models
                     {
                         CurrentTileId = tile.ScanFieldId;
                         EventAggregator.GetEvent<MacroStartEvnet>()
-                            .Publish(new MacroStartEventArgs {WellId = region.WellId, RegionId = CurrentRegionId, TileId = CurrentTileId});
+                            .Publish(new MacroStartEventArgs { WellId = region.WellId, RegionId = CurrentRegionId, TileId = CurrentTileId });
 
                         GetImagesDic();
                         //find all channel module 
                         foreach (var mod in Modules.Where(m => m is ChannelModVm))
                         {
+                            Debug.WriteLine("Current Process - Region: {0}; Tile: {1}; Channel: {2};",
+                                            CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel);
+
                             mod.Execute();
 
                             MessageHelper.PostMessage(
-                                string.Format("Current Processing - Region: {0}; Tile: {1}; Channel: {2};",
-                                    CurrentRegionId, CurrentTileId, ((ChannelModVm) mod).SelectedChannel));
+                                string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};",
+                                    CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
                         }
                         //wait all channel executed here
                         ClearImagesDic();

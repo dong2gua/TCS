@@ -6,27 +6,29 @@
         public const string MultiNodeStr = "Multi-Module Templates";
 
         public const string Systemstr = "System";
-        public const string ExperimentModuleName = "Experiment";
 
-        public const string OutputCateName = "Output";
+        public const string OutputCateName = "Output Category";
 
-        public const string FilterCateName = "Filter";
+        public const string FilterCateName = "Filter Category";
+        public const string FilterModuleName = "Filter";
 
-        public const string OperationCateName = "Operation";
+        public const string OperationCateName = "Operation Category";
 
-        public const string ContourCateName = "Contour";
+        public const string ContourCateName = "Contour Category";
         public const string ChannelModuleName = "Channel";
         public const string ThresholdModuleName = "Threshold";
         public const string ContourModuleName = "Contour";
 
-        public const string EventCateName = "Event";
+        public const string EventCateName = "Event Category";
         public const string EventModuleName = "Event";
+        public const string PhantomModuleName = "Phantom";
+        public const string OverlapParentChildModuleName = "Association";
 
-        public const string ExperimentalCateName = "Experimental";
+        public const string ExperimentalCateName = "Experimental Category";
 
-        public const string AdvancedImageAnalysisCateName = "Advanced Image Analysis";
+        public const string AdvancedImageAnalysisCateName = "Advanced Image Analysis Category";
 
-        public const string CustomModulesCateName = "Custom Modules";
+        public const string CustomModulesCateName = "Custom Modules Category";
 
         //public const string ImageViewName = "Image View";
         //public const string FilterName = "Filter";

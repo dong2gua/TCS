@@ -5,7 +5,7 @@ using ThorCyte.ProtocolModule.Models;
 
 namespace ThorCyte.ProtocolModule.Converts
 {
-    class ThresholdMethodConvert : IValueConverter
+    public class ThresholdMethodConvert : IValueConverter
     {
         private const string ManualMethod = "Manual";
         private const string OtsuMethod = "Otsu";

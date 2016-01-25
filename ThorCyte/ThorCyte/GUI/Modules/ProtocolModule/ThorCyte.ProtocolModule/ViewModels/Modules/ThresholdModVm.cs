@@ -223,7 +223,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 Debug.WriteLine("Threshold Module error: " + ex.Message);
                 throw;
-
             }
            
         }

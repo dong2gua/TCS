@@ -38,7 +38,7 @@
 
 
         SmtFilterCategory,
-
+        SmtFilterModule,
 
         SmtOperationCategory,
 
@@ -50,6 +50,8 @@
 
         SmtEventCategory,
         SmtEventModule,
+        SmtPhantomModule,
+        SmtOverlapParentChildModule,
 
         SmtExperimentalCategory,
         SmtAdvancedImageAnalysisCategory,

@@ -7,22 +7,26 @@ namespace ThorCyte.ProtocolModule.Models
     {
         #region Properties and Fields
 
-        private static Dictionary<string, ModuleType> _moduleTypeDic = new Dictionary<string, ModuleType>
+        private static readonly Dictionary<string, ModuleType> _moduleTypeDic = new Dictionary<string, ModuleType>
         {
             {GlobalConst.Systemstr,ModuleType.SmtSystemCategory},
-            {GlobalConst.ExperimentModuleName,ModuleType.SmtExperimentModule},
 
             {GlobalConst.OutputCateName,ModuleType.SmtOutputCategory},
 
             {GlobalConst.FilterCateName,ModuleType.SmtFilterCategory},
+            {GlobalConst.FilterModuleName,ModuleType.SmtFilterModule},
 
             {GlobalConst.OperationCateName,ModuleType.SmtOperationCategory},
 
             {GlobalConst.ContourCateName,ModuleType.SmtContourCategory},
             {GlobalConst.ChannelModuleName,ModuleType.SmtChannelModule},
             {GlobalConst.ThresholdModuleName,ModuleType.SmtThresholdModule},
+            {GlobalConst.ContourModuleName,ModuleType.SmtContourModule},
 
             {GlobalConst.EventCateName,ModuleType.SmtEventCategory},
+            {GlobalConst.EventModuleName,ModuleType.SmtEventModule},
+            {GlobalConst.PhantomModuleName,ModuleType.SmtPhantomModule},
+            {GlobalConst.OverlapParentChildModuleName,ModuleType.SmtOverlapParentChildModule},
 
             {GlobalConst.ExperimentalCateName,ModuleType.SmtExperimentalCategory},
 

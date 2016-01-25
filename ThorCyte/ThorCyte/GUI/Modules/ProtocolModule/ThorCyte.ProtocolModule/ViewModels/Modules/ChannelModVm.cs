@@ -71,7 +71,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     throw new CyteException("ChannelModVm", "Invaild execution image is null");
                 }
                 SetOutputImage(_img);
-
             }
             catch (Exception ex)
             {
@@ -115,7 +114,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public override void OnSerialize(XmlWriter writer)
         {
             writer.WriteAttributeString("channel", SelectedChannel);
-
         }
 
         #endregion
