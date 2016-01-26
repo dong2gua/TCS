@@ -111,6 +111,7 @@
   <ItemGroup>
     <Compile Include="Control\HistogramPanel.cs" />
     <Compile Include="Control\SelectViewportCanvas.cs" />
+    <Compile Include="Converter\BoolToStringConverter.cs" />
     <Compile Include="Converter\OperatorConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
     <Compile Include="DrawTools\DrawingCanvas.cs" />
@@ -217,7 +218,6 @@
     <Resource Include="Resources\ComputeColor.png" />
     <Resource Include="Resources\Drag.png" />
     <Resource Include="Resources\ellipse.png" />
-    <Resource Include="Resources\New.png" />
     <Resource Include="Resources\Profile.png" />
     <Resource Include="Resources\Rectangle.png" />
     <Resource Include="Resources\Ruler.png" />
@@ -240,6 +240,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Ratio.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\MultiWindow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ToSingle.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

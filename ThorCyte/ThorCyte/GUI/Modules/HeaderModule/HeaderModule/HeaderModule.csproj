@@ -85,12 +85,19 @@
     <Compile Include="Views\HeaderView.xaml.cs">
       <DependentUpon>HeaderView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\InitialView.xaml.cs">
+      <DependentUpon>InitialView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\TabView.xaml.cs">
       <DependentUpon>TabView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\HeaderView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InitialView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -105,6 +112,18 @@
   <ItemGroup>
     <Resource Include="Icons\Analytics.png" />
     <Resource Include="Icons\Review.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\InitialBackground.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\ThorlabsLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Exit.png" />
+    <Resource Include="Icons\Open.png" />
+    <Resource Include="Icons\Save.png" />
+    <Resource Include="Icons\Settings.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

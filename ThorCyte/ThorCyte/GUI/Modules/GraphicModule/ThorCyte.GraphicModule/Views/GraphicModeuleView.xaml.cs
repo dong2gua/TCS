@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using ComponentDataService;
 using Microsoft.Practices.ServiceLocation;
 using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.Models;
@@ -35,12 +34,15 @@ namespace ThorCyte.GraphicModule.Views
             DataContext = graphicManagerVm = new GraphicManagerVm();
             var experiment = ServiceLocator.Current.GetInstance<IExperiment>();
             GraphicModule.RegisterGaphicManager(graphicManagerVm);
-            var scaid = experiment.GetCurrentScanId();
-
-            if (scaid > 0)
+            if (experiment != null)
             {
-                graphicManagerVm.LoadXml(scaid);
+                var scaid = experiment.GetCurrentScanId();
+                if (scaid > 0)
+                {
+                    graphicManagerVm.LoadXml(scaid);
+                }
             }
+
             _idManager.InsertId(1);
         }
 
@@ -91,45 +93,36 @@ namespace ThorCyte.GraphicModule.Views
             }
         }
 
-        private void UpdatePanelLayout()
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            var panel = sender as GraphicPanelView;
+            if (panel == null)
+            {
+                return;
+            }
             if (_panel == null)
             {
-                _panel = VisualHelper.GetVisualChild<GraphicPanelView>(GraphicTabControl);
-                if (_panel == null)
-                {
-                    return;
-                }
+                _panel = panel;
             }
-            _panel.UpdateGridLayout();
         }
 
         private void OnAddScattergram(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button == null)
-            {
-                return;
-            }
-            var containerVm = (GraphicContainerVm) button.DataContext;
-            
-            containerVm.CreateScattergram();
-            UpdatePanelLayout();
+            _panel.AddScattergram();
         }
 
         private void OnAddHistogram(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button == null)
-            {
-                return;
-            }
-            var containerVm = (GraphicContainerVm)button.DataContext;
-            containerVm.CreateHistogram();
-            UpdatePanelLayout();
+            _panel.AddHistogram();
+        }
+
+        private void OnDeleteGraphic(object sender, RoutedEventArgs e)
+        {
+            _panel.DeleteGraphic();
         }
 
         #endregion
+
 
     }
 }

@@ -16,11 +16,11 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ProfileViewModel : BindableBase
     {
-        private double _profileCf;
-        public double ProfileCf
+        private string _profileCf;
+        public string ProfileCf
         {
-            get { return _profileCf * 100; }
-            set { SetProperty<double>(ref _profileCf, value, "ProfileCf"); }
+            get { return _profileCf ; }
+            set { SetProperty<string>(ref _profileCf, value, "ProfileCf"); }
         }
 
         private DoubleRange _axisYRange = new DoubleRange(0, 0x01 << 14);
@@ -37,8 +37,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         {
             SeriesSource = new ObservableCollection<IChartSeriesViewModel>();
             var eventAggregator = ServiceLocator.Current.GetInstance<Prism.Events.IEventAggregator>();
-            eventAggregator.GetEvent<UpdateProfilePointsEvent>().Subscribe(OnUpdateProfilePoints);
-            eventAggregator.GetEvent<UpdateCurrentChannelEvent>().Subscribe(OnUpdateChannel);
         }
         public void Initialization(ChannelImage channel)
         {
@@ -53,13 +51,13 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _start = null;
             _end = null;
         }
-        private void OnUpdateProfilePoints(ProfilePoints e)
+        public void UpdateProfilePoints(Point start,Point end)
         {
-            _start = e.StartPoint;
-            _end = e.EndPoint;
+            _start = start;
+            _end = end;
             DisplayProfileData();
         }
-        private void OnUpdateChannel(ChannelImage channel)
+        public void UpdateChannel(ChannelImage channel)
         {
             _channel = channel;
             DisplayProfileData();
@@ -87,6 +85,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         private void FillChartData(ImageData data, Color color)
         {
+            if ((int)_start.Value.X > data.XSize || (int)_start.Value.Y > data.YSize || (int)_end.Value.X > data.XSize || (int)_end.Value.Y > data.YSize) return;
             var buffer = data.GetDataInProfileLine(new Point(_start.Value.X, _start.Value.Y), new Point(_end.Value.X, _end.Value.Y));
             if (buffer == null) return;
             var n = buffer.Count();
@@ -112,7 +111,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 };
 
                 SeriesSource.Add(new ChartSeriesViewModel(dataSeries, renderSeries));
-                ProfileCf = ComputeContrastFactor(buffer.ToArray());
+                ProfileCf = ComputeContrastFactor(buffer.ToArray()).ToString("0.00")+"%";
             }
         }
         private double ComputeContrastFactor(ushort[] sorted)

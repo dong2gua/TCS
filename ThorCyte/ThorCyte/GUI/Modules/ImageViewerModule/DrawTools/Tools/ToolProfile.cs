@@ -41,7 +41,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
         {
             Profile.Normalize();
             drawingCanvas.ReleaseMouseCapture();
-            _event.Publish(new ProfilePoints() { StartPoint = new Point(Profile.Start.X * drawingCanvas.ActualScale.Item3, Profile.Start.Y * drawingCanvas.ActualScale.Item3), EndPoint = new Point(Profile.End.X * drawingCanvas.ActualScale.Item3, Profile.End.Y * drawingCanvas.ActualScale.Item3) });
+            _event.Publish(new ProfilePoints() { StartPoint = new Point(Profile.Start.X , Profile.Start.Y ), EndPoint = new Point(Profile.End.X , Profile.End.Y ) });
         }
         protected static void AddNewObject(DrawingCanvas drawingCanvas, GraphicsBase o)
         {

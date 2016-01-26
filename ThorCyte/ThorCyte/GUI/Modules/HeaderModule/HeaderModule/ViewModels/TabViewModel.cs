@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows.Input;
 using ComponentDataService;
+using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
 using Microsoft.Win32;
 using Prism.Commands;
@@ -33,21 +35,14 @@ namespace ThorCyte.HeaderModule.ViewModels
 
         public ICommand TabCommand { get; set; }
 
-        public TabViewModel(IUnityContainer container, IEventAggregator eventAggregator)
+        public TabViewModel()
         {
-            _unityContainer = container;
-            _eventAggregator = eventAggregator;
+            _unityContainer = ServiceLocator.Current.GetInstance<IUnityContainer>();
+            _eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>();
             TabCommand = new DelegateCommand<object>(SelectTab);
             OpenCommand = new DelegateCommand(OpenExperiment);
             CloseCommand = new DelegateCommand(CloseExperiment);
             SaveCommand = new DelegateCommand(SaveAnalysisResult);
-            //_eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(EventHandler);
-        }
-
-        private void EventHandler(int id)
-        {
-            IsLoaded = true;
-            SelectTab("ReviewModule");
         }
 
         private void SelectTab(object obj)

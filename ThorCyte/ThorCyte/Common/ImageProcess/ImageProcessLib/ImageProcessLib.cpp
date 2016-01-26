@@ -451,7 +451,184 @@ IPP_LIB_API int fnipp_lib_sum_16uC1M(unsigned short* buffer, int width, int heig
 }
 
 
-IppStatus saturate(unsigned short* buffer, int width, int height, int channels, unsigned short maxValue)
+
+IPP_LIB_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int height, int channels, 
+									 unsigned short* dstBuffer, FilterType type, int maskSize)
+{
+	const Ipp32s* pKernel = getFilterKernel(type, maskSize);
+	const IppiSize roi = {width, height};
+	IppStatus status = ippStsNoErr;
+	const int elementSize = sizeof(unsigned short);
+	const int step = width * elementSize * channels;
+	const IppiSize kernelSize = {maskSize, maskSize};	
+	const int divisor = 1;
+	int stepBorder = 0;
+	IppiPoint anchor = {0, 0};
+	Ipp16u* srcWithBorder = getBorder(srcBuffer, width, height, channels, maskSize, &stepBorder, &anchor);
+	const int srcElementPerLine = stepBorder / elementSize;
+	switch (channels)
+	{
+		case 1:
+		{
+			status = ippiFilter_16u_C1R(&srcWithBorder[srcElementPerLine*anchor.y+anchor.x*channels], 
+				stepBorder, dstBuffer, step, roi, pKernel, kernelSize, anchor, divisor);
+			break;
+		}
+		case 3:
+		{
+			status = ippiFilter_16u_C3R(&srcWithBorder[srcElementPerLine*anchor.y+anchor.x*channels], 
+				stepBorder, dstBuffer, step, roi, pKernel, kernelSize, anchor, divisor);
+		}
+		default:
+		{
+			status = ippStsChannelErr;
+			break;
+		}
+		
+	}
+	ippiFree(srcWithBorder);
+	saturate(dstBuffer, width, height, channels, MaxValue);
+	return status;
+}
+
+
+
+const Ipp32s* getFilterKernel(FilterType type, int maskSize) 
+{
+	switch (type)
+	{
+		case HiGauss:
+		{
+			switch (maskSize)
+			{
+				case 5:
+					return HiGauss5Kernel;
+				case 7:
+					return HiGauss7Kernel;
+				case 9:
+					return HiGauss9Kernel;
+			}
+		}
+		case HiPass:
+		{
+			switch (maskSize)
+			{
+				case 3:
+					return HiPass3Kernel;
+				case 5:
+					return HiPass5Kernel;
+				case 7:
+					return HiPass7Kernel;			
+			}
+		}
+		case HorizontalEdge:
+		{
+			switch (maskSize)
+			{
+				case 3:
+					return HorizontalEdge3Kernel;
+				case 5:
+					return HorizontalEdge5Kernel;
+				case 7:
+					return HorizontalEdge7Kernel;			
+			}
+		}
+		case Laplace:
+		{
+			switch (maskSize)
+			{
+				case 3:
+					return Laplace3Kernel;
+				case 5:
+					return Laplace5Kernel;
+				case 7:
+					return Laplace7Kernel;
+			
+			}
+		}
+
+		case LowPass:
+		{
+			switch (maskSize)
+			{
+			case 3: 
+				return LowPass3Kernel;
+			case 5: 
+				return LowPass5Kernel;
+			case 7:
+				return LowPass7Kernel;
+			}
+		}
+		case VerticalEdge:
+		{
+			switch (maskSize)
+			{
+				case 3:
+					return VerticalEdge3Kernel;
+				case 5:
+					return VerticalEdge5Kernel;
+				case 7:
+					return VerticalEdge7Kernel;
+			}
+		}
+		case Fish:
+		{
+			switch (maskSize)
+			{
+				case 11:
+					return Fish11Kernel;
+			}
+		}
+
+		case FishB:
+		{
+			switch (maskSize)
+			{
+				case 11:
+					return FishB11Kernel;
+			}
+		}
+
+		case FishC:
+		{
+			switch (maskSize)
+			{
+				case 11:
+					return FishC11Kernel;
+			}
+		}
+	
+	}
+	return NULL;
+	
+}
+
+Ipp16u* getBorder(const Ipp16u* buffer, Ipp32s width, Ipp32s height, Ipp32s channels, Ipp32s maskSize, 
+				  Ipp32s* pStep, IppiPoint* pAnchor)
+{
+	const int anchorX = maskSize/2;
+	const int anchorY = anchorX;
+	(*pAnchor).x = anchorX;
+	(*pAnchor).y = anchorY;
+	const int offsetTop = anchorY;
+	const int offsetLeft = anchorX;
+	const int offsetRight = maskSize - anchorX - 1;
+	const int offsetBottom = maskSize - anchorY - 1;
+	const int elementSize = sizeof(Ipp16u);
+	const IppiPoint anchor = {anchorX, anchorY};
+	const IppiSize ippMaskSize = {maskSize, maskSize};
+	const IppiSize roiWithBorder = {width + offsetLeft + offsetRight, height + offsetTop + offsetBottom};
+	const IppiSize roi = {width, height};	
+	const int srcStep = width * elementSize;
+	int stepWithBorder = 0;		
+	Ipp16u* bufferWithBorder = ippiMalloc_16u_C1(roiWithBorder.width , roiWithBorder.height, &stepWithBorder);	
+	IppStatus status = ippiCopyConstBorder_16u_C1R(buffer, srcStep, roi, bufferWithBorder, 
+												   stepWithBorder, roiWithBorder, offsetTop, offsetLeft, 0); 
+	*pStep = stepWithBorder;
+	return bufferWithBorder;
+}
+
+IppStatus saturate(Ipp16u* buffer, int width, int height, int channels, unsigned short maxValue)
 {
 	const IppiSize roi = {width, height};
 	const int step = width * channels * sizeof(unsigned short);

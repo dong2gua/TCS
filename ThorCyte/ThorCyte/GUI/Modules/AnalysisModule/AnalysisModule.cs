@@ -14,24 +14,30 @@ namespace ThorCyte.AnalysisModule
     {
         private IRegionManager _regionManager;
         private IEventAggregator _eventAggregator;
+        private IUnityContainer _unityContainer;
         private AnalysisView _analysisView;
 
         public AnalysisMoudel(IRegionManager regionManager, IEventAggregator eventAggregator, IUnityContainer container)
         {
             _regionManager = regionManager;
             _eventAggregator = eventAggregator;
-            _analysisView = container.Resolve<AnalysisView>();
+            _unityContainer = container;
+            _analysisView = null;
         }
 
         public void Initialize()
         {
-            _eventAggregator.GetEvent<ShowRegionEvent>().Subscribe(EventHandler, ThreadOption.UIThread, true);
+            //_eventAggregator.GetEvent<ShowRegionEvent>().Subscribe(EventHandler, ThreadOption.UIThread, true);
         }
 
         private void EventHandler(string moduleName)
         {
             if (moduleName == "AnalysisModule")
             {
+                if (_analysisView == null)
+                {
+                    _analysisView = _unityContainer.Resolve<AnalysisView>();
+                }
                 IRegion mainRegion = _regionManager.Regions[RegionNames.MainRegion];
                 foreach (object view in new List<object>(mainRegion.Views))
                 {

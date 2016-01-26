@@ -89,7 +89,6 @@
                                 ItemContainerStyle="{TemplateBinding ConnectionItemContainerStyle}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <!-- Connections are presented in a Canvas. -->
                                         <Canvas />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>

@@ -199,15 +199,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             eventAggregator.GetEvent<FrameChangedEvent>().Subscribe(OnFrameChanged);
             eventAggregator.GetEvent<UpdateCurrentChannelEvent>().Subscribe(OnUpdateChannel);
             eventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(SaveChannels);
+            eventAggregator.GetEvent<UpdateProfilePointsEvent>().Subscribe(OnUpdateProfilePoints);
 
             _viewports = new List<ViewportView>();
             AddVP();
-            CurrentViewport = Viewports.FirstOrDefault();
-            CurrentViewport.viewportBorder.BorderBrush = Brushes.White;
 
             profileViewModel = new ProfileViewModel();
-            ViewportType = new ViewportDisplayType { Type = 1, Viewports = _viewports,CurrentViewport=_viewports[0] };
-            _viewportDic[CurrentViewport].IsShown = true;
             InitializeExperiment();
         }
         public void OnViewportTypeChange(int type)
@@ -246,12 +243,23 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         public void OnMaximizeViewport()
         {
-            _viewportDic[_viewports[0]].IsShown = false;
-            _viewportDic[_viewports[1]].IsShown = false;
-            _viewportDic[_viewports[2]].IsShown = false;
-            _viewportDic[_viewports[3]].IsShown = false;
-            _viewportDic[_currentViewport].IsShown = true;
-            ViewportType = new ViewportDisplayType { Type = 1, Viewports = _viewports, CurrentViewport = _currentViewport };
+            if (ViewportType.Type == 1)
+            {
+                _viewportDic[_viewports[0]].IsShown = true;
+                _viewportDic[_viewports[1]].IsShown = true;
+                _viewportDic[_viewports[2]].IsShown = true;
+                _viewportDic[_viewports[3]].IsShown = true;
+                ViewportType = new ViewportDisplayType { Type = 4, Viewports = _viewports, CurrentViewport = _currentViewport };
+            }
+            else
+            {
+                for(int i=0;i<4;i++)
+                {
+                    if (_viewports[i] != _currentViewport)
+                        _viewportDic[_viewports[i]].IsShown = false;
+                }
+                ViewportType = new ViewportDisplayType { Type = 1, Viewports = _viewports, CurrentViewport = _currentViewport };
+            }
         }
         
         private void OnSelectRegionTile(RegionTile regionTile)
@@ -296,11 +304,16 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             ImageViewEnable = false;
             foreach (var o in _viewports)
             {
+                o.viewportBorder.BorderBrush = Brushes.Black;
                 o.listView.Visibility = Visibility.Visible;
                 o.drawCanvas.Tool = ToolType.Pointer;
                 _viewportDic[o].Clear();
             }
             LoadChannels();
+            ViewportType = new ViewportDisplayType { Type = 1, Viewports = _viewports, CurrentViewport = _viewports[0] };
+            CurrentViewport = Viewports.FirstOrDefault();
+            CurrentViewport.viewportBorder.BorderBrush = Brushes.White;
+            _viewportDic[CurrentViewport].IsShown = true;
         }
         private void OnDisplay()
         {
@@ -443,23 +456,33 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             brightnessContrastWindow.DataContext = this;
             brightnessContrastWindow.Topmost = true;
             brightnessContrastWindow.Owner = Application.Current.MainWindow;
-            brightnessContrastWindow.ShowDialog();
+            brightnessContrastWindow.HistogramPanel.SetData(_viewportDic[CurrentViewport].CurrentChannelImage.ThumbnailImageData);
             _brightness = _viewportDic[CurrentViewport].CurrentChannelImage.Brightness;
             _contrast = _viewportDic[CurrentViewport].CurrentChannelImage.Contrast;
             OnPropertyChanged("Brightness");
             OnPropertyChanged("Contrast");
             OnPropertyChanged("SliderContrast");
-            brightnessContrastWindow.HistogramPanel.SetData(_viewportDic[CurrentViewport].CurrentChannelImage.ThumbnailImageData);
+            brightnessContrastWindow.ShowDialog();
         }
         private void OnUpdateChannel(ChannelImage channel)
         {
+            profileViewModel.UpdateChannel(channel);
+
             if (channel ==null|| brightnessContrastWindow==null) return;
+            brightnessContrastWindow.HistogramPanel.SetData(channel.ThumbnailImageData);
             _brightness = channel.Brightness;
             _contrast = channel.Contrast;
             OnPropertyChanged("Brightness");
             OnPropertyChanged("Contrast");
             OnPropertyChanged("SliderContrast");
-            brightnessContrastWindow.HistogramPanel.SetData(channel.ThumbnailImageData);
+        }
+        private void OnUpdateProfilePoints(ProfilePoints e)
+        {
+            var rect = _viewportDic[CurrentViewport].VisualRect;
+            var scale = _viewportDic[CurrentViewport].Scale.Item3;
+            var start = new Point((e.StartPoint.X - rect.X) * scale, (e.StartPoint.Y - rect.Y) * scale);
+            var end = new Point((e.EndPoint.X - rect.X) * scale, (e.EndPoint.Y - rect.Y) * scale);
+            profileViewModel.UpdateProfilePoints(start, end);            
         }
         private void OnAspectRatio()
         {
@@ -538,8 +561,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             foreach (var o in _viewports)
             {
                 o.viewportBorder.BorderBrush = Brushes.Black;
-                CurrentViewport.viewportBorder.BorderBrush = Brushes.White;
             }
+            CurrentViewport.viewportBorder.BorderBrush = Brushes.White;
             if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown)
             {
                 IsProfile = false;
@@ -556,12 +579,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             updateDrawTool();
             if (brightnessContrastWindow != null)
             {
+                brightnessContrastWindow.HistogramPanel.SetData(_viewportDic[CurrentViewport].CurrentChannelImage.ThumbnailImageData);
                 _brightness = _viewportDic[CurrentViewport].CurrentChannelImage.Brightness;
                 _contrast = _viewportDic[CurrentViewport].CurrentChannelImage.Contrast;
                 OnPropertyChanged("Brightness");
                 OnPropertyChanged("Contrast");
                 OnPropertyChanged("SliderContrast");
-                brightnessContrastWindow.HistogramPanel.SetData(_viewportDic[CurrentViewport].CurrentChannelImage.ThumbnailImageData);
             }
             e.Handled = true;
         }

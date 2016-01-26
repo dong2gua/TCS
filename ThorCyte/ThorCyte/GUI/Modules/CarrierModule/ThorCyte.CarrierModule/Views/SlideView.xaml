@@ -8,7 +8,6 @@
 
     <UserControl.Resources>
         <tools:ToolTypeConverter x:Key="convToolType"/>
-        <tools:DoubletoStringConverter x:Key="doubleToStringConverter"/>
     </UserControl.Resources>
     <StackPanel>
         <Grid>
@@ -31,7 +30,7 @@
 
 
         <Grid x:Name="CanvGrid" Background="DimGray">
-            <canvases:SlideCanvas x:Name="slideCanvas" HorizontalAlignment="Center"  VerticalAlignment="Center" Margin="20" 
+            <canvases:SlideCanvas x:Name="slideCanvas" HorizontalAlignment="Center" Focusable="True" VerticalAlignment="Center" Margin="20" 
                                   OuterHeight="{Binding ElementName=CanvGrid,Path=ActualHeight}"
                                   OuterWidth="{Binding ElementName=CanvGrid,Path=ActualWidth}"/>
         </Grid>

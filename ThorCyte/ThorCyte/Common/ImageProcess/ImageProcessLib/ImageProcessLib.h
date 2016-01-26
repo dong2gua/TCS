@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-
+#include "ConstDef.h"
 // The following ifdef block is the standard way of creating macros which make exporting 
 // from a DLL simpler. All files within this DLL are compiled with the IPP_LIB_EXPORTS
 // symbol defined on the command line. This symbol should not be defined on any project
@@ -53,4 +53,14 @@ IPP_LIB_API int fnipp_lib_dilate_16uC1(unsigned short* srcBuffer, int width, int
 
 IPP_LIB_API int fnipp_lib_sum_16uC1M(unsigned short* buffer, int width, int height, unsigned char* mask, int maskStep,  double* sum);
 
-IppStatus saturate(unsigned short* buffer, int width, int height, int channels, unsigned short maxValue);
+IPP_LIB_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int height, int channels, unsigned short* dstBuffer, FilterType type, int maskSize);
+
+
+
+IppStatus saturate(Ipp16u* buffer, int width, int height, int channels, unsigned short maxValue);
+Ipp16u* getBorder(const Ipp16u* buffer, Ipp32s width, Ipp32s height, Ipp32s channels, Ipp32s maskSize, 
+				  Ipp32s* pStep, IppiPoint* pAnchor);
+const Ipp32s* getFilterKernel(FilterType type, int maskSize);
+
+
+

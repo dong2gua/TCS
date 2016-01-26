@@ -8,10 +8,9 @@ namespace ThorCyte.HeaderModule.Views
     /// </summary>
     public partial class HeaderView : UserControl
     {
-        public HeaderView(HeaderViewModel headerViewModel)
+        public HeaderView()
         {
             InitializeComponent();
-            DataContext = headerViewModel;
         }
     }
 }

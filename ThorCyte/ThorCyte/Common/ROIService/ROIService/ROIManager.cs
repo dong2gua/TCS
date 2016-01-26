@@ -194,6 +194,13 @@ namespace ROIService
 
             _eventAggregator.GetEvent<InitRegionEvent>().Publish(0);
         }
+
+        public void Clear()
+        {
+            _roiDictionary.Clear();
+            _regionEventsDictionary.Clear();
+            _bitmap.Clear();
+        }
         #endregion
 
         #region Internal
@@ -203,12 +210,7 @@ namespace ROIService
         }
 
 
-        internal void Clear()
-        {
-            _roiDictionary.Clear();
-            _regionEventsDictionary.Clear();
-            _bitmap.Clear();
-        }
+      
         #endregion
 
         #region Private

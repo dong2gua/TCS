@@ -21,6 +21,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
@@ -29,16 +30,15 @@
             <Label Content="Channel Name:"  VerticalAlignment="Center"   Margin="20,0"/>
             <TextBox  Text="{Binding ChannelName}"  Height="20" Width="120" IsEnabled="{Binding IsNew}"/>
         </StackPanel>
-        <GroupBox Grid.Row="1">
+        <GroupBox Grid.Row="1" Margin="10">
             <GroupBox.Header>
                 <TextBlock Text="Properties" />
-
             </GroupBox.Header>
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

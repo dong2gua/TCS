@@ -4,15 +4,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="100" d:DesignWidth="400">
-    <Grid>
-         <Menu>
+             d:DesignHeight="35" d:DesignWidth="400" Height="35">
+    <DockPanel>
+         <!--<Menu DockPanel.Dock="Left" Margin="5,8,0,5">
             <MenuItem Header="File">
                 <MenuItem Header="Open..." Command="{Binding OpenCommand}"></MenuItem>
                 <MenuItem Header="Close" Command="{Binding CloseCommand}"></MenuItem>
                 <MenuItem Header="Save Analysis Result" Command="{Binding SaveCommand}"></MenuItem>
             </MenuItem>
             <MenuItem Header="Settings"></MenuItem>
-        </Menu>  
-    </Grid>
+        </Menu>-->
+        <StackPanel Margin="6,0,0,0" Orientation="Horizontal">
+            <Button ToolTip="Open Experiment" Margin="2" Command="{Binding OpenCommand}">
+                <Image Source="../Icons/Open.png" Stretch="Fill"></Image>
+            </Button>
+            <Button ToolTip="Save Analysis Result" Margin="2" Command="{Binding SaveCommand}" >
+                <Image Source="../Icons/Save.png" Stretch="Fill"></Image>
+            </Button>
+            <Button ToolTip="Settings" Margin="2">
+                <Image Source="../Icons/Settings.png"  Stretch="Fill"></Image>
+            </Button>
+        </StackPanel>
+        <Image  DockPanel.Dock="Right" HorizontalAlignment="Right" Height="35" Width="100" Margin="0,0,6,0" Source="../Icons/ThorlabsLogo.png"/>
+    </DockPanel>
 </UserControl>

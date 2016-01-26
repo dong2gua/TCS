@@ -600,6 +600,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             if (_isNormalizexy)
             {
                 Normalizexy();
+                GraphicModule.GraphicManagerVmInstance.UpdateRegionPoint(this);
             }
             UpdateEvents(GraphicModule.GraphicManagerVmInstance.ActiveWellNos);
         }

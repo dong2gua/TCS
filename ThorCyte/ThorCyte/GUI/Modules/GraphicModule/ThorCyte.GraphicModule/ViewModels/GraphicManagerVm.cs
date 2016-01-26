@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using Prism.Regions;
 using ROIService;
 using ROIService.Region;
 using ThorCyte.GraphicModule.Controls;
@@ -132,6 +134,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(LoadXml);
             eventAggregator.GetEvent<SelectWells>().Subscribe(ActiveWellChanged);
             eventAggregator.GetEvent<MacroRunEvent>().Subscribe(OnUpdateComponentList);
+            _activeWellNos = new List<int>();
         }
 
         #endregion
@@ -148,6 +151,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
             _graphicContainerVms.Clear();
             _tabIdManager.Clear();
+            _activeWellNos.Clear();
+            ROIManager.Instance.Clear();
         }
 
         private void OnAddTab()
@@ -309,17 +314,15 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 var id = ConstantHelper.PrefixRegionName + regionItem.Id;
                 var scattergramVm = dictionary[regionItem.GraphicId].Item2 as ScattergramVm;
+                UpdateRegionPoint(id, regionItem, dictionary[regionItem.GraphicId].Item2, dictionary[regionItem.GraphicId].Item1);
                 if (scattergramVm != null)
                 {
-                    UpdateRegionPoint(id, regionItem, dictionary[regionItem.GraphicId].Item2, dictionary[regionItem.GraphicId].Item1, false);
                     RegionHelper.Set2DCommonRegionParas(regionItem, scattergramVm);
                 }
                 else
                 {
-                    UpdateRegionPoint(id, regionItem, dictionary[regionItem.GraphicId].Item2, dictionary[regionItem.GraphicId].Item1);
                     RegionHelper.SetCommonRegionParas(regionItem, dictionary[regionItem.GraphicId].Item2);
                 }
-
                 list.Add(regionItem);
             }
             var count = list.Count(region => region.GraphicId.Equals(graphId));
@@ -466,12 +469,35 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        private void UpdateRegionPoint(string id, MaskRegion region, GraphicVmBase vm, GraphicUcBase graph, bool isHistogram = true)
+        private void UpdateRegionPoint(string id, MaskRegion region, GraphicVmBase vm, GraphicUcBase graph)
         {
             var canvas = graph.RegionPanel;
             var graphic = graph.RegionPanel.GetGraphic(id);
-
             RegionHelper.UpdateRegionLocation(region, graphic, canvas, vm);
+        }
+
+        public void UpdateRegionPoint(GraphicVmBase vm)
+        {
+            var regions = RegionHelper.GetRegionList();
+            var dic = GetGraphicDictionary();
+            if (!dic.ContainsKey(vm.Id))
+            {
+                return;
+            }
+            var list = new List<MaskRegion>();
+            foreach (var region in regions)
+            {
+                if (vm.Id == region.GraphicId)
+                {
+                    var graphic = dic[vm.Id].Item1.RegionPanel.GetGraphic(string.Format("R{0}", region.Id));
+                    RegionHelper.UpdateRegionLocation(region, graphic, dic[vm.Id].Item1.RegionPanel, vm);
+                    list.Add(region);
+                }
+            }
+            if (list.Count > 0)
+            {
+                _roiInstance.UpdateRegions(list);
+            }
         }
 
         private void SetRegion(GraphicVmBase vm, ref MaskRegion region, bool isScattergram = true)
@@ -545,6 +571,10 @@ namespace ThorCyte.GraphicModule.ViewModels
                             if (containerVm != null && graphicVm != null)
                             {
                                 containerVm.GraphicVmList.Add(graphicVm);
+                                if (containerVm.GraphicVmList.Count == 1)
+                                {
+                                    containerVm.SelectedGraphic = graphicVm;
+                                }
                             }
                         }
                     }
@@ -791,10 +821,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                             }
                             if (!double.IsNaN(x) && !double.IsNaN(y))
                             {
-                                //if (scattergram != null)
-                                //{
-                                //    scattergram.QuadrantCenterPoint = new Point(x, y);
-                                //}
+                                vm.QuadrantCenterPoint = new Point(x,y);
                             }
                             vm.IsShowQuadrant = true;
                             break;

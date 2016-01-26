@@ -93,7 +93,7 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
             o.CreatedCanvasSize = graph.RenderSize;
             o.Clip = new RectangleGeometry(new Rect(0, 0, graph.ActualWidth, graph.ActualHeight));
            graph.VisualList.Add(o);
-           graph.CaptureMouse();
+          // graph.CaptureMouse();
         }
 
         /// <summary>

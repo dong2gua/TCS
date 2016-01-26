@@ -46,6 +46,7 @@ namespace ComponentDataService.Types
         private readonly IExperiment _experiment;
         private int _imageWidth;
         private int _imageHeight;
+        private readonly int _scanId;
         #endregion
 
         #region Delegate
@@ -75,12 +76,22 @@ namespace ComponentDataService.Types
         public int FeatureCount { get; private set; }
         public Version SoftwareVersion { get; private set; }
 
+        public int ScanId
+        {
+            get { return _scanId; }
+        }
+
         #endregion
 
-        public BioComponent(IExperiment experiment, string name)
+        public BioComponent(IExperiment experiment, string name) : this(experiment, name, 1)
+        {           
+        }
+
+        public BioComponent(IExperiment experiment, string name, int scanId)
         {
             _experiment = experiment;
             _componentName = name;
+            _scanId = scanId;
             Init();
         }
 
@@ -90,15 +101,20 @@ namespace ComponentDataService.Types
 
         internal void Update(IList<Feature> features)
         {
+            int idIndex = CheckIdFeature(features);
+            Feature first = features.FirstOrDefault();
+            if (first == null) return;
+            first.Index = 1;
             _features.Clear();
             _features.AddRange(features);
-            ScanInfo info = _experiment.GetScanInfo(ComponentDataManager.ScanId);
+            ScanInfo info = _experiment.GetScanInfo(ScanId);
             IList<Channel> physicalChannels = info.ChannelList;
             IList<VirtualChannel> virtualChannels = info.VirtualChannelList;
             _channels.Clear();
             _channels.AddRange(physicalChannels.OrderBy(chn => chn.ChannelId));
             _channels.AddRange(virtualChannels.OrderBy(chn => chn.ChannelId));
             int n = _features.Count;
+            
             for (int i = 1; i < n; i++)
             {
                 Feature prev = _features[i - 1];
@@ -107,7 +123,7 @@ namespace ComponentDataService.Types
             }
             Feature last = _features.LastOrDefault();
             FeatureCount = last != null ? (last.IsPerChannel ? last.Index + ChannelCount : last.Index + 1) : 0;
-
+            features.Insert(idIndex, new Feature(FeatureType.Id));
         }
 
         internal List<Blob> GetTileBlobs(int scanId, int wellId, int tileId, BlobType type)
@@ -464,7 +480,7 @@ namespace ComponentDataService.Types
 
         private void WriteBlobsFile(string folder, WriteTileBlobsFile writer)
         {
-            ScanInfo info = _experiment.GetScanInfo(ComponentDataManager.ScanId);
+            ScanInfo info = _experiment.GetScanInfo(ScanId);
             IList<ScanRegion> regions = info.ScanRegionList;
             foreach (ScanRegion region in regions)
             {
@@ -473,7 +489,7 @@ namespace ComponentDataService.Types
                 foreach (Scanfield field in fields)
                 {
                     int tileId = field.ScanFieldId;
-                    int key = GetBlobKey(ComponentDataManager.ScanId, wellId, tileId);
+                    int key = GetBlobKey(ScanId, wellId, tileId);
                     if (_contourBlobs.ContainsKey(key))
                     {
                         writer(folder, wellId, tileId, BlobType.Contour);
@@ -558,7 +574,7 @@ namespace ComponentDataService.Types
         {
             var blobName = string.Empty;
             List<Blob> blobs = EmptyBlobs.ToList();
-            int key = GetBlobKey(ComponentDataManager.ScanId, wellId, tileId);
+            int key = GetBlobKey(ScanId, wellId, tileId);
             switch (type)
             {
                 case BlobType.Contour:
@@ -593,7 +609,7 @@ namespace ComponentDataService.Types
         private void WriteBlobsBinary(string folder, int wellId, int tileId, BlobType type)
         {
             string filename;
-            int key = GetBlobKey(ComponentDataManager.ScanId, wellId, tileId);
+            int key = GetBlobKey(ScanId, wellId, tileId);
             List<Blob> blobs;
             switch (type)
             {
@@ -627,7 +643,7 @@ namespace ComponentDataService.Types
 
         private void WriteEventsBinary(string folder)
         {
-            ScanInfo info = _experiment.GetScanInfo(ComponentDataManager.ScanId);
+            ScanInfo info = _experiment.GetScanInfo(ScanId);
             IList<ScanRegion> regions = info.ScanRegionList;
             foreach (ScanRegion region in regions)
             {
@@ -660,13 +676,13 @@ namespace ComponentDataService.Types
 
         private XmlElement CreateComponent(XmlDocument doc)
         {
-            ScanInfo info = _experiment.GetScanInfo(ComponentDataManager.ScanId);
+            ScanInfo info = _experiment.GetScanInfo(ScanId);
             var compNode = doc.CreateElement("component");
             compNode.SetAttribute("name", _componentName);
             compNode.SetAttribute("pixel-width", info.XPixcelSize.ToString(CultureInfo.InvariantCulture));
             compNode.SetAttribute("pixel-height", info.YPixcelSize.ToString(CultureInfo.InvariantCulture));
             compNode.SetAttribute("blob-type", "Field");
-            compNode.SetAttribute("scan-no", ComponentDataManager.ScanId.ToString(CultureInfo.InvariantCulture));
+            compNode.SetAttribute("scan-no",ScanId.ToString(CultureInfo.InvariantCulture));
             compNode.SetAttribute("array", "false");
             return compNode;
         }
@@ -743,10 +759,18 @@ namespace ComponentDataService.Types
             return Features.FirstOrDefault(f => f.FeatureType == type);
         }
 
+        private int CheckIdFeature(IList<Feature> features)
+        {
+            Feature idFeature = features.FirstOrDefault(f => f.FeatureType == FeatureType.Id);
+            if (idFeature == null) throw new ArgumentException("Must contain id in feature list");
+            int index = features.IndexOf(idFeature);
+            features.Remove(idFeature);
+            return index;
+        }
         public BioEvent CreateEvent(Blob blobOrg, Blob blobData,
             BlobDefine define, IDictionary<string, ImageData> imageDict, int scanId, int wellId, int tileId)
         {
-            ScanInfo info = _experiment.GetScanInfo(ComponentDataManager.ScanId);
+            ScanInfo info = _experiment.GetScanInfo(ScanId);
             ScanRegion regions = info.ScanRegionList[wellId - 1];
             Scanfield field = regions.ScanFieldList[tileId - 1];
             double pixelWidth = info.XPixcelSize;
@@ -841,7 +865,8 @@ namespace ComponentDataService.Types
             // common features
 
             Point center = blobData.Centroid();
-            double px = field.SFRect.X + (_imageWidth - center.X)*pixelWidth;
+            double px = field.SFRect.X + (_imageWidth - center.X) * pixelWidth;
+            //double px = field.SFRect.X + (center.X) * pixelWidth;
             double py = field.SFRect.Y + center.Y*pixelHeight;
             ev[GetFeature(FeatureType.XPos).Index] = (int) px;
             ev[GetFeature(FeatureType.YPos).Index] = (int) py;

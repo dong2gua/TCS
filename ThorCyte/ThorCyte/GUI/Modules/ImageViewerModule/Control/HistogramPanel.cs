@@ -51,7 +51,15 @@ namespace ThorCyte.ImageViewerModule.Control
             this.AddVisualChild(_visualRaw);
             this.AddVisualChild(_visualChanged);
             Background = Brushes.White;
+            this.SizeChanged += HistogramPanel_SizeChanged;
         }
+
+        private void HistogramPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            RefreshChangedData();
+            RefreshRawData();
+        }
+
         public void SetData(ImageData imageData)
         {
             _data = imageData;

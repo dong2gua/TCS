@@ -1,5 +1,4 @@
-﻿
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using ThorCyte.ReviewModule.ViewModels;
 
 namespace ThorCyte.ReviewModule.Views
@@ -12,7 +11,7 @@ namespace ThorCyte.ReviewModule.Views
         public ReviewView(ReviewViewModel reviewViewModel)
         {
             InitializeComponent();
-            this.DataContext = reviewViewModel;
+            DataContext = reviewViewModel;
         }
     }
 }

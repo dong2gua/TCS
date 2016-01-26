@@ -230,7 +230,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             FIBITMAP dib = FIBITMAP.Zero;         
             try
             {
-                dib = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_JPEG, filename, FREE_IMAGE_LOAD_FLAGS.DEFAULT);                
+                dib = FreeImage.Load(FREE_IMAGE_FORMAT.FIF_JPEG, filename, FREE_IMAGE_LOAD_FLAGS.JPEG_ACCURATE);                
                 FillJpegBuffer(dib, total, startX, startY, totalWidth,totalHeight, copiedX, copiedY, tilePosX, tilePosY);
             }
             finally
@@ -255,7 +255,6 @@ namespace ThorCyte.Infrastructure.Interfaces
             int offset = startY*totalWidth + startX;
             int y = startY;
             bool isLittleEndian = FreeImage.IsLittleEndian();
-          
             unsafe
             {
                 var pDest = (byte*) dest.ToPointer();
@@ -263,17 +262,19 @@ namespace ThorCyte.Infrastructure.Interfaces
                 {
                     for (int i = height - tilePosY - 1; i >= height - copiedY - tilePosY; i--)
                     {
+                        
                         IntPtr line = FreeImage.GetScanLine(source, i);
                         var pLine = (byte*) line.ToPointer();
                         for (int j = 0; j < copiedX; j++)
                         {
                             var value = (ushort) (pLine[(tilePosX + j)*channels]*_maxIntensity/byte.MaxValue);
-                            var hi = (byte)((value >> 8) & (0xFF));
-                            var low = (byte) (value & 0xFF);
+                            var hi = (byte)(value >> 8);
+                            var low = (byte) (value);
                             pDest[2*(offset + j)] = low;
                             pDest[2*(offset + j) + 1] = hi;
                         }
                         y++;
+                       
                         offset = y*totalWidth + startX;
                     }
                 }

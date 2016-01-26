@@ -8,10 +8,9 @@ namespace ThorCyte.HeaderModule.Views
     /// </summary>
     public partial class TabView : UserControl
     {
-        public TabView(TabViewModel tabViewModel)
+        public TabView()
         {
             InitializeComponent();
-            DataContext = tabViewModel;
         }
     }
 }

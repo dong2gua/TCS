@@ -20,7 +20,7 @@ namespace ThorCyte.GraphicModule.Views
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class ScattergramView 
+    public partial class ScattergramView
     {
         #region Fields
 
@@ -28,15 +28,12 @@ namespace ThorCyte.GraphicModule.Views
 
         private readonly Dictionary<int, List<Point>> _dotDictionary = new Dictionary<int, List<Point>>();
 
-        public Point QuadrantCenterPoint = new Point(double.NaN, double.NaN);
-
-        private GraphicContainerVm _graphicContainerVm;
-
         #endregion
 
         #region Constructor
 
-        public ScattergramView() : base(8, new Scattergram {Background = Brushes.Transparent})
+        public ScattergramView()
+            : base(8, new Scattergram { Background = Brushes.Transparent })
         {
             InitializeComponent();
             Init();
@@ -64,8 +61,8 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     PointMarker = new EllipsePointMarker
                     {
-                        Width = 5,
-                        Height = 5,
+                        Width = 1,
+                        Height = 1,
                         Stroke = ((SolidColorBrush)ConstantHelper.BrushTable[i]).Color,
                         Fill = ((SolidColorBrush)ConstantHelper.BrushTable[i]).Color
                     }
@@ -78,8 +75,8 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     PointMarker = new EllipsePointMarker
                     {
-                        Width = 5,
-                        Height = 5,
+                        Width = 1,
+                        Height = 1,
                         Stroke = ConstantHelper.TemperatureColors[i],
                         Fill = ConstantHelper.TemperatureColors[i]
                     }
@@ -159,8 +156,8 @@ namespace ThorCyte.GraphicModule.Views
 
             SciChart.XAxis.VisibleRange = new DoubleRange(GraphicVm.XAxis.MinValue, GraphicVm.XAxis.MaxValue);
             SciChart.YAxis.VisibleRange = new DoubleRange(GraphicVm.YAxis.MinValue, GraphicVm.YAxis.MaxValue);
-            //SciChart.XAxis.TextFormatting = GraphicVm.XAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : ConstantHelper.AxisMinTextFormat;
-            //SciChart.YAxis.TextFormatting = GraphicVm.YAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : ConstantHelper.AxisMinTextFormat;
+            SciChart.XAxis.TextFormatting = GraphicVm.XAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : string.Empty;
+            SciChart.YAxis.TextFormatting = GraphicVm.YAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : string.Empty;
         }
 
         //private void DrawPlot()
@@ -181,12 +178,14 @@ namespace ThorCyte.GraphicModule.Views
 
         private void DrawPlot()
         {
+            var pointList = new List<Point>();
             for (var index = 0; index < SciChart.RenderableSeries.Count; index++)
             {
                 SciChart.RenderableSeries[index].DataSeries = null;
             }
             if (((ScattergramVm)GraphicVm).DotTupleList.Count == 0)
             {
+                ((Scattergram)RegionPanel).Update(pointList);
                 return;
             }
 
@@ -199,7 +198,7 @@ namespace ThorCyte.GraphicModule.Views
             var xscale = GraphicVm.Width / (GraphicVm.XAxis.MaxRange - GraphicVm.XAxis.MinRange);
             var yscale = GraphicVm.Height / (GraphicVm.YAxis.MaxRange - GraphicVm.YAxis.MinRange);
 
-            var pointList = new List<Point>();
+
 
             if (!((ScattergramVm)GraphicVm).IsMapChecked)
             {
@@ -212,7 +211,7 @@ namespace ThorCyte.GraphicModule.Views
                     var index = item.Key;
                     var xList = item.Value.Select(pt => pt.X).ToList();
                     var yList = item.Value.Select(pt => pt.Y).ToList();
-                    var physicalList = item.Value.Select(pt => new Point(pt.X * xscale, GraphicVm.Height - pt.Y * yscale)).ToList();
+                    var physicalList = item.Value.Select(pt => new Point((pt.X - GraphicVm.XAxis.MinRange) * xscale, GraphicVm.Height - (pt.Y - GraphicVm.YAxis.MinRange) * yscale)).ToList();
                     pointList.AddRange(physicalList);
                     DataSeriesArray[index].Append(xList, yList);
                     SciChart.RenderableSeries[baseIndex + index].DataSeries = DataSeriesArray[index];
@@ -231,7 +230,7 @@ namespace ThorCyte.GraphicModule.Views
                     var xList = item.Value.Select(pt => GraphicVm.XAxis.IsLogScale ? GraphicVm.XAxis.GetActualValue((int)pt.X) : pt.X / xscale).ToList();
                     var yList = item.Value.Select(pt => GraphicVm.YAxis.IsLogScale ? GraphicVm.YAxis.GetActualValue((int)pt.Y) : pt.Y / yscale).ToList();
 
-                    var physicalList = item.Value.Select(pt => GraphicVm.XAxis.IsLogScale ? pt : new Point(pt.X / xscale, pt.Y / yscale)).ToList();
+                    var physicalList = item.Value.Select(pt => GraphicVm.XAxis.IsLogScale ? pt : new Point((pt.X - GraphicVm.XAxis.MinRange) / xscale, (pt.Y - GraphicVm.YAxis.MinRange) / yscale)).ToList();
                     pointList.AddRange(physicalList);
                     DataSeriesArray[index].Append(xList, yList);
                     SciChart.RenderableSeries[baseIndex + index].DataSeries = DataSeriesArray[index];
@@ -243,17 +242,17 @@ namespace ThorCyte.GraphicModule.Views
 
         public override void OnLoad(object sender, RoutedEventArgs e)
         {
-            if (!double.IsNaN(QuadrantCenterPoint.X) && !double.IsNaN(QuadrantCenterPoint.Y))
-            {
-                ((Scattergram)RegionPanel).QuadrantCenterPoint = QuadrantCenterPoint;
-            }
-            
             if (IsLoading)
             {
                 GraphicVm = (GraphicVmBase)DataContext;
                 GraphicVm.ViewDispatcher = Dispatcher;
                 Id = GraphicVm.Id;
-                _graphicContainerVm = (GraphicContainerVm)Tag;
+
+                if (!double.IsNaN(((Scattergram)RegionPanel).QuadrantCenterPoint.X) &&
+                    !double.IsNaN(((Scattergram)RegionPanel).QuadrantCenterPoint.Y))
+                {
+                    ((Scattergram)RegionPanel).QuadrantCenterPoint = ((ScattergramVm)GraphicVm).QuadrantCenterPoint;
+                }
 
                 SetAxis();
 
@@ -262,13 +261,8 @@ namespace ThorCyte.GraphicModule.Views
                 //SciChart.AnnotationUnderlaySurface.Background = ((ScattergramVm)GraphicVm).IsWhiteBackground ? Brushes.White : Brushes.Black;
 
                 SciChart.AdornerLayerCanvas.Children.Add(RegionPanel);
-
-                if (!_graphicContainerVm.GraphicDictionary.ContainsKey(Id))
-                {
-                    _graphicContainerVm.GraphicDictionary.Add(Id, new Tuple<GraphicUcBase, GraphicVmBase>(this, GraphicVm));
-                    GraphicVm.UpdateEvents();
-                }
             }
+            
             GraphicVm.UpdateEvents();
             GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
             IsLoading = false;
@@ -278,14 +272,8 @@ namespace ThorCyte.GraphicModule.Views
         public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             base.OnSizeChanged(sender, e);
-            if (((ScattergramVm)GraphicVm).IsMapChecked)
-            {
-                //if (Math.Abs(e.NewSize.Width - 0) <= double.Epsilon && Math.Abs(e.NewSize.Height - 0) <= double.Epsilon)
-                //{
-                //    return;
-                //}
-                GraphicVm.UpdateEvents();
-            }
+
+            GraphicVm.UpdateEvents();
             e.Handled = true;
         }
 

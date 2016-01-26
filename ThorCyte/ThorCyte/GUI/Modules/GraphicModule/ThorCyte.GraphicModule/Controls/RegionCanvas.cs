@@ -47,7 +47,7 @@ namespace ThorCyte.GraphicModule.Controls
 
         protected RegionTool[] Tools; // Array of _tools
 
-        protected RegionTool CurrentTool;
+        public RegionTool CurrentTool;
 
         private readonly VisualCollection _visualList;
 
@@ -204,6 +204,7 @@ namespace ThorCyte.GraphicModule.Controls
             MouseMove += OnMouseMove;
             MouseUp += OnMouseUp;
             Loaded += OnLoaded;
+            MouseLeave += OnMouseLeave;
         }
 
         #endregion
@@ -237,7 +238,7 @@ namespace ThorCyte.GraphicModule.Controls
                 graph.Refresh();
             }
         }
-        
+
         private static void RegionColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var color = (Color)e.NewValue;
@@ -278,6 +279,10 @@ namespace ThorCyte.GraphicModule.Controls
 
         public void AddRegion(GraphicsBase graphic)
         {
+            if (string.IsNullOrEmpty(graphic.Name))
+            {
+                return;
+            }
             var region = GetRegion(graphic);
             if (region == null)
             {
@@ -294,7 +299,7 @@ namespace ThorCyte.GraphicModule.Controls
         {
             RegionHelper.SetCommonRegionParas(region, _vm);
         }
-        
+
         private MaskRegion GetRegion(GraphicsBase graphic)
         {
             MaskRegion region = null;
@@ -303,15 +308,15 @@ namespace ThorCyte.GraphicModule.Controls
             var point = new Point(0, 0);
             if (graphic.GraphicType == RegionType.Ellipse)
             {
-                region = new EllipseRegion(id,size, point);
+                region = new EllipseRegion(id, size, point);
             }
             else if (graphic.GraphicType == RegionType.Rectangle)
             {
-                region = new RectangleRegion(id,size, point);
+                region = new RectangleRegion(id, size, point);
             }
             else if (graphic.GraphicType == RegionType.Polygon)
             {
-                region = new PolygonRegion(id,new List<Point>());
+                region = new PolygonRegion(id, new List<Point>());
             }
             if (region == null)
                 return null;
@@ -320,7 +325,7 @@ namespace ThorCyte.GraphicModule.Controls
             region.Color = graphic.ObjectColor;
             region.ComponentName = _vm.SelectedComponent;
             SetRegionCommonParas(region);
-            RegionHelper.SetCommonRegionParas(region,_vm);
+            RegionHelper.SetCommonRegionParas(region, _vm);
             region.LeftParent = (!string.IsNullOrEmpty(_vm.SelectedGate1) && _vm.SelectedGate1.StartsWith(ConstantHelper.PrefixRegionName)) ? _vm.SelectedGate1 : string.Empty;
             region.RightParent = (!string.IsNullOrEmpty(_vm.SelectedGate2) && _vm.SelectedGate2.StartsWith(ConstantHelper.PrefixRegionName)) ? _vm.SelectedGate2 : string.Empty;
             return region;
@@ -463,6 +468,12 @@ namespace ThorCyte.GraphicModule.Controls
             }
         }
 
+        private void OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            var eventArgs = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, Tool == ToolType.Polygon ? MouseButton.Right : MouseButton.Left);
+            OnMouseUp(this, eventArgs);
+        }
+
         private void DeleteSelected()
         {
             var count = _visualList.Count - 1;
@@ -578,5 +589,7 @@ namespace ThorCyte.GraphicModule.Controls
             return graphicBase;
         }
         #endregion
+
+
     }
 }

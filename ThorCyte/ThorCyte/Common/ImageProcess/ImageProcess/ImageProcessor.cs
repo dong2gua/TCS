@@ -1,5 +1,7 @@
 ﻿
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
+using System.Text;
 using ImageProcess.DataType;
 using System;
 using System.Collections.Generic;
@@ -12,76 +14,98 @@ namespace ImageProcess
     {
         Auto = 0,
         Manual
-    }
+    };
 
-    public static class ImageProcessor
+    public enum FilterType
+    {
+        HiGauss = 0,
+        HiPass,
+        LowPass,
+        HorizontalEdge,
+        VerticalEdge,
+        Laplace,
+        Fish,
+        FishB,
+        FishC
+    };
+
+    public partial class ImageData
     {
         #region Fields
 
+        private const int KernelCount = 9;
         private static readonly int[] Dx = {-1, -1, 0, 1, 1, 1, 0, -1};
         private static readonly int[] Dy = {0, 1, 1, 1, 0, -1, -1, -1};
+        private static readonly int[][] KernelSizeList = new int[KernelCount][];
+        #endregion
+
+        #region constructor
+
+        static ImageData() 
+        {
+            InitKernelSizeList();
+        }
         #endregion
 
         #region Public
 
-        public static ImageData Resize(this ImageData srcData, int dstWidth, int dstHeight)
+        public static ReadOnlyCollection<int> GetSupportedKernelSize(FilterType type)
+        {
+            return Array.AsReadOnly(KernelSizeList[(int) type]);
+        }
+
+        public ImageData Resize(int dstWidth, int dstHeight)
         {
             if (dstHeight <= 0) throw new ArgumentOutOfRangeException("dstWidth");
             if (dstWidth <= 0) throw new ArgumentOutOfRangeException("dstWidth");
             var dstData = new ImageData((uint) dstWidth, (uint) dstHeight);
-            ImageProcessLib.Resize16U(srcData.DataBuffer, (int) srcData.XSize, (int) srcData.YSize,
-                dstData.DataBuffer, dstWidth, dstHeight, srcData.Channels);
+            ImageProcessLib.Resize16U(this, (int) XSize, (int) YSize, dstData, dstWidth, dstHeight, Channels);
             return dstData;
         }
 
-        public static ImageData AddConstant(this ImageData srcData, ushort value, int depth = 14)
+        public ImageData AddConstant(ushort value, int depth = 14)
         {
-            var width = (int) srcData.XSize;
-            var height = (int) srcData.YSize;
-            var dstData = new ImageData(srcData.XSize, srcData.YSize);
+            var width = (int) XSize;
+            var height = (int) YSize;
+            var dstData = new ImageData(XSize, YSize);
             var maxValue = (ushort) ((0x01 << depth) - 1);
-            ImageProcessLib.AddConstant16U(value, srcData.DataBuffer, width, height,
-                dstData.DataBuffer, srcData.Channels, maxValue);
+            ImageProcessLib.AddConstant16U(value, this, width, height, dstData, Channels, maxValue);
 
             return dstData;
         }
 
-        public static ImageData Add(this ImageData srcData, ImageData other, int depth = 14)
+        public ImageData Add(ImageData other, int depth = 14)
         {
-            if (srcData.XSize != other.XSize) throw new ArgumentException("Image data XSize not equal");
-            if (srcData.YSize != other.YSize) throw new ArgumentException("Image data YSize not equal");
-            if (srcData.Channels != other.Channels) throw new ArgumentException("Image data Channels not equal");
-            var dstData = new ImageData(srcData.XSize, srcData.YSize, srcData.IsGray);
-            var height = (int) srcData.XSize;
-            var width = (int) srcData.YSize;
-            int channels = srcData.Channels;
+            if (XSize != other.XSize) throw new ArgumentException("Image data XSize not equal.");
+            if (YSize != other.YSize) throw new ArgumentException("Image data YSize not equal.");
+            if (Channels != other.Channels) throw new ArgumentException("Image data Channels not equal.");
+            var dstData = new ImageData(XSize, YSize, IsGray);
+            var height = (int) XSize;
+            var width = (int) YSize;
+            int channels = Channels;
             var maxValue = (ushort) ((0x01 << depth) - 1);
-            ImageProcessLib.Add16U(srcData.DataBuffer, other.DataBuffer, width, height, dstData.DataBuffer, channels,
-                maxValue);
+            ImageProcessLib.Add16U(this, other, width, height, dstData, channels, maxValue);
             return dstData;
         }
 
-        public static ImageData SubConstant(this ImageData srcData, ushort value)
+        public ImageData SubConstant(ushort value)
         {
-            var width = (int) srcData.XSize;
-            var height = (int) srcData.YSize;
-            var dstData = new ImageData(srcData.XSize, srcData.YSize);
-            ImageProcessLib.SubConstant16U(value, srcData.DataBuffer, width, height, dstData.DataBuffer,
-                srcData.Channels);      
+            var width = (int) XSize;
+            var height = (int) YSize;
+            var dstData = new ImageData(XSize, YSize);
+            ImageProcessLib.SubConstant16U(value, this, width, height, dstData, Channels);      
             return dstData;
         }
 
-        public static ImageData Sub(this ImageData minuend, ImageData subtracter)
+        public  ImageData Sub(ImageData subtracter)
         {
-            if (minuend.XSize != subtracter.XSize) throw new ArgumentException("Image data XSize not equal");
-            if (minuend.YSize != subtracter.YSize) throw new ArgumentException("Image data YSize not equal");
-            if (minuend.Channels != subtracter.Channels) throw new ArgumentException("Image data Channels not equal");
-            var dstData = new ImageData(minuend.XSize, minuend.YSize, minuend.IsGray);
-            var height = (int)minuend.XSize;
-            var width = (int)minuend.YSize;
-            int channels = minuend.Channels;
-            ImageProcessLib.Sub16U(minuend.DataBuffer, subtracter.DataBuffer, width, height, dstData.DataBuffer,
-                channels);
+            if (XSize != subtracter.XSize) throw new ArgumentException("Image data XSize not equal.");
+            if (YSize != subtracter.YSize) throw new ArgumentException("Image data YSize not equal.");
+            if (Channels != subtracter.Channels) throw new ArgumentException("Image data Channels not equal.");
+            var dstData = new ImageData(XSize, YSize, IsGray);
+            var height = (int)XSize;
+            var width = (int)YSize;
+            ImageProcessLib.Sub16U(this, subtracter, width, height, dstData, Channels);
             return dstData;
         }
 
@@ -96,19 +120,19 @@ namespace ImageProcess
         //    return dstData;
         //}
 
-        public static ImageData MulConstant(this ImageData srcData, double value, int depth = 14)
+        public ImageData MulConstant(double value, int depth = 14)
         {
-            return srcData.SetBrightnessAndContrast(value, 0, depth);
+            return SetBrightnessAndContrast(value, 0, depth);
         }
 
-        public static ImageData SetBrightnessAndContrast(this ImageData srcData, double alpha, int beta, int depth = 14)
+        public ImageData SetBrightnessAndContrast(double alpha, int beta, int depth = 14)
         {
-            var dstData = new ImageData(srcData.XSize, srcData.YSize, srcData.IsGray);
+            var dstData = new ImageData(XSize, YSize, IsGray);
             var maxValue = (ushort)((0x01 << depth) - 1);
-            int n = srcData.Length;
+            int n = Length;
             for (int i = 0; i < n; i++)
             {
-                var value = (int)(alpha * srcData[i] + beta);
+                var value = (int)(alpha * this[i] + beta);
                 if (value > maxValue) value = maxValue;
                 else if (value < 0) value = 0;
                 dstData[i] = (ushort) value;
@@ -116,110 +140,107 @@ namespace ImageProcess
             return dstData;
         }
 
-        public static ushort Max(this ImageData data)
+        public ushort Max()
         {
-            int channels = data.Channels;
-            if (channels != 1) throw new ArgumentOutOfRangeException("data", "must be 1 channel image data");
+            if (Channels != 1) throw new ArgumentOutOfRangeException("", "must be 1 channel image data.");
             ushort maxValue;
-            int status = ImageProcessLib.Max16U(data.DataBuffer, (int) data.XSize, (int) data.YSize, channels,
-                out maxValue);
+            int status = ImageProcessLib.Max16U(this, (int) XSize, (int) YSize, Channels, out maxValue);
             return maxValue;
         }
 
-        public static ushort Min(this ImageData data)
+        public  ushort Min()
         {
-            int channels = data.Channels;
-            if (channels != 1) throw new ArgumentOutOfRangeException("data", "must be 1 channel image data");
+            if (Channels != 1) throw new ArgumentOutOfRangeException("", "must be 1 channel image data.");
             ushort minValue;
-            int status = ImageProcessLib.Min16U(data.DataBuffer, (int)data.XSize, (int)data.YSize, channels,
-                out minValue);
+            int status = ImageProcessLib.Min16U(this, (int) XSize, (int) YSize, Channels, out minValue);
             return minValue;
         }
 
-        public static ImageData Max(this ImageData data, ImageData other)
+        public ImageData Max(ImageData other)
         {
-            if (data.XSize != other.XSize) throw new ArgumentException("Image data XSize not equal");
-            if (data.YSize != other.YSize) throw new ArgumentException("Image data YSize not equal");
-            if (data.Channels != other.Channels) throw new ArgumentException("Image data Channels not equal");
-            var dstData = new ImageData(data.XSize, data.YSize, data.IsGray);
-            int status = ImageProcessLib.MaxEvery16U(data.DataBuffer, other.DataBuffer, (int) data.XSize,
-                (int) data.YSize, data.Channels, dstData.DataBuffer);
+            if (XSize != other.XSize) throw new ArgumentException("Image data XSize not equal.");
+            if (YSize != other.YSize) throw new ArgumentException("Image data YSize not equal.");
+            if (Channels != other.Channels) throw new ArgumentException("Image data Channels not equal.");
+            var dstData = new ImageData(XSize, YSize, IsGray);
+            int status = ImageProcessLib.MaxEvery16U(this, other, (int) XSize, (int) YSize, Channels, dstData);
             return dstData;
         }
 
-        public static ImageData Min(this ImageData data, ImageData other)
+        public  ImageData Min(ImageData other)
         {
-            if (data.XSize != other.XSize) throw new ArgumentException("Image data XSize not equal");
-            if (data.YSize != other.YSize) throw new ArgumentException("Image data YSize not equal");
-            if (data.Channels != other.Channels) throw new ArgumentException("Image data Channels not equal");
-            var dstData = new ImageData(data.XSize, data.YSize, data.IsGray);
-            int status = ImageProcessLib.MinEvery16U(data.DataBuffer, other.DataBuffer, (int)data.XSize,
-                (int)data.YSize, data.Channels, dstData.DataBuffer);
+            if (XSize != other.XSize) throw new ArgumentException("Image data XSize not equal.");
+            if (YSize != other.YSize) throw new ArgumentException("Image data YSize not equal.");
+            if (Channels != other.Channels) throw new ArgumentException("Image data Channels not equal.");
+            var dstData = new ImageData(XSize, YSize, IsGray);
+            int status = ImageProcessLib.MinEvery16U(this, other, (int) XSize, (int) YSize, Channels, dstData);
             return dstData;
         }
 
-        public static ImageData Invert(this ImageData data, int depth = 14)
+        public ImageData Invert(int depth = 14)
         {
             var maxValue = (ushort) ((0x01 << depth) - 1);
-            var dstData = new ImageData(data.XSize, data.YSize, data.IsGray);
-            int status = ImageProcessLib.Invert16U(data.DataBuffer, (int) data.XSize, (int) data.YSize, data.Channels,
-                maxValue, dstData.DataBuffer);
+            var dstData = new ImageData(XSize, YSize, IsGray);
+            int status = ImageProcessLib.Invert16U(this, (int) XSize, (int) YSize, Channels, maxValue, dstData);
             return dstData;
         }
 
-        public static IList<ushort> GetDataInProfileLine(this ImageData data, Point start, Point end)
+        public IList<ushort> GetDataInProfileLine(Point start, Point end)
         {
             List<Point> points = GetPointsInProfileLine((int) start.X, (int) start.Y, (int) end.X, (int) end.Y);
             return points.ConvertAll(pt =>
             {
                 var x = (int) pt.X;
                 var y = (int) pt.Y;
-                return data[(int) (y*data.XSize + x)];
+                return this[(int) (y*XSize + x)];
             });
         }
 
-        public static IList<IList<ushort>> GetMultiChannelsDataInProfileLine(this ImageData data, Point start, Point end)
+        public IList<IList<ushort>> GetMultiChannelsDataInProfileLine(Point start, Point end)
         {
-            if (data.Channels != 3) throw new ArgumentOutOfRangeException("data", "Must be 3 channel image data");
+            if (Channels != 3) throw new ArgumentOutOfRangeException("", "Must be 3 channel image data.");
             const int channels = 3;
             List<Point> points = GetPointsInProfileLine((int) start.X, (int) start.Y, (int) end.X, (int) end.Y);
             int n = points.Count;
             var first = new ushort[n];
             var second = new ushort[n];
             var third = new ushort[n];
-            Int64 step = data.XSize*channels;
+            Int64 step = XSize*channels;
             for (int i = 0; i < n; i++)
             {
                 Point pt = points[i];
                 var x = (int) pt.X;
                 var y = (int) pt.Y;
-                first[i] = data[(int) (y*step + channels*x)];
-                second[i] = data[(int) (y*step + channels*x + 1)];
-                third[i] = data[(int) (y*step + channels*x + 2)];
+                first[i] = this[(int) (y*step + channels*x)];
+                second[i] = this[(int)(y * step + channels * x + 1)];
+                third[i] = this[(int)(y * step + channels * x + 2)];
             }
             return new IList<ushort>[] {first, second, third};
         }
 
-        public static IList<Blob> FindContour(this ImageData data, double minArea, double maxArea = int.MaxValue)
+        public IList<Blob> FindContour(double minArea, double maxArea = int.MaxValue)
         {
-            return data.Contour(minArea, maxArea, false, default(Point));
+            return Contour((int)minArea, (int)maxArea, false, default(Point));
         }
 
-        public static ImageData Threshold(this ImageData data, ushort threshold, ThresholdType thresholdType)
+        public ImageData Threshold(ushort threshold, ThresholdType thresholdType)
         {
-            if (data.Channels != 1)
-                throw new ArgumentOutOfRangeException("data", "Must be 1 channel image");
-            var dstData = new ImageData(data.XSize, data.YSize, data.IsGray);
-            var width = (int)data.XSize;
-            var height = (int)data.YSize;
+            if (Channels != 1)
+                throw new ArgumentOutOfRangeException("", "Must be 1 channel image.");
+            var dstData = new ImageData(XSize, YSize, IsGray);
+            var width = (int)XSize;
+            var height = (int)YSize;
             int status = 0;
             if (thresholdType == ThresholdType.Auto)
             {
-                status = ImageProcessLib.OtsuThreshold16UC1(data.DataBuffer, width, height, dstData.DataBuffer);
+                status = ImageProcessLib.OtsuThreshold16UC1(this, width, height, dstData);
             }
             else if (thresholdType == ThresholdType.Manual)
             {
-                status = ImageProcessLib.Threshold16UC1(data.DataBuffer, width, height, threshold, dstData.DataBuffer);
+                //status = ImageProcessLib.Threshold16UC1(data.DataBuffer, width, height, threshold, dstData.DataBuffer);
+                for (int i = 0; i < Length; i++)
+                {
+                    dstData[i] = this[i] > threshold ? (ushort) 16383 : (ushort) 0;
+                }
             }
             return dstData;
         }
@@ -227,27 +248,76 @@ namespace ImageProcess
 
       
 
-        public static ImageData Dilate(this ImageData data, int expand)
+        public ImageData Dilate(int expand)
         {
-            if (expand <= 0) throw new ArgumentOutOfRangeException("expand", "must be larger than 0");
-            var dstData = new ImageData(data.XSize, data.YSize, data.IsGray);
-            ImageProcessLib.Dilate16UC1(data.DataBuffer, (int) data.XSize, (int) data.YSize, 2*expand + 1,
-                dstData.DataBuffer);
+            if (expand <= 0) throw new ArgumentOutOfRangeException("expand", "must be larger than 0.");
+            var dstData = new ImageData(XSize, YSize, IsGray);
+            ImageProcessLib.Dilate16UC1(this, (int) XSize, (int) YSize, 2*expand + 1, dstData);
             return dstData;
 
         }
 
-        public static double Sum(this ImageData data, byte[] mask, int maskStep)
+        public double Sum(byte[] mask, int maskStep)
         {
             IntPtr pMask = Marshal.AllocHGlobal(mask.Length);
             Marshal.Copy(mask, 0, pMask, mask.Length);
-            double sum = 0;
-            ImageProcessLib.Sum16UC1M(data.DataBuffer, (int) data.XSize, (int) data.YSize, pMask, maskStep, out sum);
+            double sum;
+            ImageProcessLib.Sum16UC1M(this, (int) XSize, (int) YSize, pMask, maskStep, out sum);
             return sum;
         }
+
+
+        public ImageData CommonFilter(FilterType type, int maskSize, int pass)
+        {
+            CheckKernelSize(type, maskSize);
+            if (pass <= 0 || pass > int.MaxValue)
+                throw new ArgumentOutOfRangeException("pass");
+            else
+            {
+                var width = (int) XSize;
+                var height = (int) YSize;
+                ImageData srcData = this;
+                var dstData = new ImageData(XSize, YSize, IsGray);
+                for (int i = 0; i < pass; i++)
+                {
+                    ImageProcessLib.Filter16U(srcData, width, height, Channels, dstData, type, maskSize);
+                    srcData = dstData;
+                }
+                return dstData;
+            }
+        }
+
         #endregion
 
-        #region Private
+            #region Private
+
+        private void CheckKernelSize(FilterType type, int maskSize)
+        {
+            int[] size = KernelSizeList[(int) type];
+            bool vaild = false;
+            int n = size.Length;
+            for (int i = 0; i < n; i++)
+            {
+                vaild = vaild || (maskSize == size[i]);
+            }
+            if (vaild == false)
+            {
+                string msg = GenerateMaskErrorMsg(size);
+                throw new ArgumentOutOfRangeException("maskSize", msg);
+            }
+        }
+
+        private string GenerateMaskErrorMsg(int[] size)
+        {
+            int n = size.Length;
+            var sb = new StringBuilder(2 * n);
+            for (int i = 0; i < n; i++)
+            {
+                sb.Append(size[i]);
+                sb.Append(',');
+            }
+            return string.Format("only support mask size = {0}.", sb);
+        }
 
         private static List<Point> GetPointsInProfileLine(int startX, int startY, int endX, int endY)
         {
@@ -296,30 +366,29 @@ namespace ImageProcess
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="data"></param>
         /// <param name="minArea">min area in pixels</param>
         /// <param name="maxArea"></param>
         /// <param name="concave"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        private static IList<Blob> Contour(this ImageData data, double minArea, double maxArea, bool concave,
+        private IList<Blob> Contour(int minArea, int maxArea, bool concave,
             Point offset)
         {
             var points = new List<Point>();
             var blobs = new List<Blob>();
 
-            var width = (int) data.XSize;
-            var height = (int) data.YSize;
+            var width = (int) XSize;
+            var height = (int) YSize;
             // Search for starting positions
             for (int sy = 0; sy < height - 1; sy++)
             {
                 for (int sx = 0; sx < width - 1; sx++)
                 {
-                    if (data[sx + sy*width] == 0) continue;
+                    if (this[sx + sy*width] == 0) continue;
 
-                    if ((sx != 0 && sy != 0 && data[sx - 1 + (sy - 1)*width] != 0) ||
-                        (sx != 0 && data[sx - 1 + sy*width] != 0) ||
-                        (sy != 0 && (data[sx + (sy - 1)*width] != 0 || data[sx + 1 + (sy - 1)*width] != 0)))
+                    if ((sx != 0 && sy != 0 && this[sx - 1 + (sy - 1) * width] != 0) ||
+                        (sx != 0 && this[sx - 1 + sy * width] != 0) ||
+                        (sy != 0 && (this[sx + (sy - 1) * width] != 0 || this[sx + 1 + (sy - 1) * width] != 0)))
                         continue;
 
                     // Prepare to track contour 
@@ -337,7 +406,7 @@ namespace ImageProcess
 
                     points.Add(pt); // start of a contour
                     int last = 0;
-                    int next = data.GetNext(x, y, last);
+                    int next = GetNext(x, y, last);
 
                     // Track contour counter clockwise
                     while (true)
@@ -345,7 +414,7 @@ namespace ImageProcess
                         x = x + Dx[next];
                         y = y + Dy[next];
 
-                        if (x < 0 || y < 0 || data[x + y*width] == 0)
+                        if (x < 0 || y < 0 || this[x + y*width] == 0)
                             break;
 
                         if (x == sx && y == sy) // complete a contour
@@ -367,7 +436,7 @@ namespace ImageProcess
                             points.Add(new Point(x, y));
 
                         last = (next + 4)%8;
-                        next = data.GetNext(x, y, last);
+                        next = GetNext(x, y, last);
                     }
 
                     points.Clear();
@@ -378,17 +447,17 @@ namespace ImageProcess
         }
 
 
-        private static int GetNext(this ImageData data, int x, int y, int last)
+        private  int GetNext(int x, int y, int last)
         {
             int next = (last + 2)%8;
             int nx = x + Dx[next];
             int ny = y + Dy[next];
-            var width = (int) data.XSize;
-            var height = (int) data.YSize;
+            var width = (int) XSize;
+            var height = (int) YSize;
             while ((next != last) &&
                    ((nx < 0) || (nx >= width) ||
                     (ny < 0) || (ny >= height) ||
-                    (data[nx + ny*width] == 0)))
+                    (this[nx + ny*width] == 0)))
             {
                 next = (next + 1)%8;
                 nx = x + Dx[next];
@@ -397,7 +466,21 @@ namespace ImageProcess
             return (next);
         }
 
-      
+        private static void InitKernelSizeList()
+        {
+            const int fishCount = 3;
+            int[] hiGuassKernelSize = {5, 7, 9};
+            KernelSizeList[0] = hiGuassKernelSize;
+            int[] commonKernelSize = {3, 5, 7};
+            for (int i = 1; i < KernelCount - fishCount; i++) // except 3 fish filter, all 3,5,7 kernel size
+            {
+                KernelSizeList[i] = commonKernelSize;
+            }
+            int[] fishKernelSize = {11};
+            for (int i = KernelCount - fishCount; i < KernelCount; i++)
+                KernelSizeList[i] = fishKernelSize;
+
+        }
         #endregion
     }
 }

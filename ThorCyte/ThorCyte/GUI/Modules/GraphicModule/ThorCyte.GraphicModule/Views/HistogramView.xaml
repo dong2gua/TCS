@@ -5,8 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:s="http://schemas.abtsoftware.co.uk/scichart"
              xmlns:controls="clr-namespace:ThorCyte.GraphicModule.Controls"
-             mc:Ignorable="d">
+             MinHeight="300" MinWidth="300"
+             mc:Ignorable="d" RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode= "NearestNeighbor" >
 
     <!--  Create the chart surface  -->
-    <s:SciChartSurface Name="SciChart" s:ThemeManager.Theme="BrightSpark" ChartTitle="{Binding Title}"/>
+    <s:SciChartSurface Name="SciChart" s:ThemeManager.Theme="BrightSpark" ChartTitle="{Binding Title}" Padding="8,8,15,8"/>
 </controls:GraphicUcBase>

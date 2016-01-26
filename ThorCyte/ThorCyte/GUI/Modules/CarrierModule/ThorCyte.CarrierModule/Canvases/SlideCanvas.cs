@@ -30,7 +30,7 @@ namespace ThorCyte.CarrierModule.Canvases
     class SlideCanvas : Canvas
     {
         #region Static Members
-        private const double Tolerance = 0.000001;
+        private const double Tolerance = 0.00000001;
         private static readonly double[] ScaleTable = { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0, 10.0, 12.0 };
         private int _currentRegionId = -1;
         private int _lastRegionId = -1;
@@ -206,9 +206,13 @@ namespace ThorCyte.CarrierModule.Canvases
 
             if (cnvs == null) return;
 
-            if (Math.Abs(cnvs.OuterWidth) < Tolerance || Math.Abs(cnvs.OuterHeight) < Tolerance) return;
+            if (Math.Abs(cnvs.OuterWidth) < Tolerance || Math.Abs(cnvs.OuterHeight) < Tolerance)
+            {
+                cnvs.ActualScale = Tolerance;
+                return;
+            }
 
-            var factorW = cnvs.OuterWidth / cnvs._slideWidth - 0.0005;
+            var factorW = cnvs.OuterWidth / (cnvs._slideWidth * 1.1);
 
             cnvs.ActualScale = factorW * 100;
         }
@@ -867,7 +871,7 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             var cp = GetCurrentP();
 
-            if(cp.X < 0 || cp.Y < 0) return;
+            if (cp.X < 0 || cp.Y < 0) return;
 
             var destp = new Point()
             {

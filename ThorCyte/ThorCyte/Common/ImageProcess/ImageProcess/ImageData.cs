@@ -1,24 +1,18 @@
 ﻿
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Win32.SafeHandles;
 
 namespace ImageProcess
 {
-
-    public class ImageData : IDisposable, ICloneable
+    public partial class ImageData : SafeHandleZeroOrMinusOneIsInvalid, ICloneable
     {
-
-        [DllImport("kernel32.dll")]
-        private static extern void RtlZeroMemory(IntPtr dst, int length);
-        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
-        private static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
-
 
         #region Fields
 
         private const int ElementSize = sizeof (ushort);
         private readonly bool _isGray = true;
-        private bool _disposed;
+        private readonly IntPtr _dataBuffer;
 
         #endregion
 
@@ -27,7 +21,10 @@ namespace ImageProcess
         public uint XSize { get; private set; }
         public uint YSize { get; private set; }
 
-        public IntPtr DataBuffer { get; private set; }
+        public IntPtr DataBuffer
+        {
+            get { return _dataBuffer; }
+        }
 
         public bool IsGray
         {
@@ -65,7 +62,7 @@ namespace ImageProcess
 
         #region Constructors
 
-        public ImageData(uint xSize, uint ySize, bool isGray = true)
+        public ImageData(uint xSize, uint ySize, bool isGray = true) : base(true)
         {
             _isGray = isGray;
             XSize = xSize;
@@ -73,48 +70,19 @@ namespace ImageProcess
             int totalBytes;
             checked
             {
-                totalBytes = (int) (Channels*xSize*ySize*ElementSize);
+                totalBytes = Length*ElementSize;
             }
-            DataBuffer = Marshal.AllocHGlobal(totalBytes);
-            RtlZeroMemory(DataBuffer, totalBytes);
+            _dataBuffer = Marshal.AllocHGlobal(totalBytes);
+            SetHandle(_dataBuffer);
+            NativeMethods.RtlZeroMemory(this, (uint) totalBytes);
+            
         }
 
-
-      
         #endregion
 
+        #region Methods
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                _disposed = true;
-                if (disposing)
-                {
-                    // Free any other managed objects here.
-
-                }
-
-                // Free any unmanaged objects here.
-                if (DataBuffer != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(DataBuffer);
-                    DataBuffer = IntPtr.Zero;
-                }
-
-            }
-        }
-
-        ~ImageData()
-        {
-            Dispose(false);
-        }
+        #region Interface
 
         object ICloneable.Clone()
         {
@@ -124,8 +92,33 @@ namespace ImageProcess
         public ImageData Clone()
         {
             var data = new ImageData(XSize, YSize, IsGray);
-            CopyMemory(data.DataBuffer, DataBuffer, (uint) (XSize*YSize*Channels*sizeof (ushort)));
+            NativeMethods.CopyMemory(data, this, (uint) (Length*sizeof (ushort)));
             return data;
         }
+
+        #endregion
+
+        #region Override base class 
+
+        protected override bool ReleaseHandle()
+        {
+            Marshal.FreeHGlobal(DataBuffer);
+            return true;
+        }
+
+        #endregion
+
+        #endregion
+    }
+
+    internal class NativeMethods
+    {
+        [DllImport("kernel32.dll")]
+        public static extern void RtlZeroMemory(SafeHandle dst, uint length);
+
+        [DllImport("kernel32.dll")]
+        public static extern void CopyMemory(SafeHandle dest, SafeHandle src, uint count);
+
+
     }
 }

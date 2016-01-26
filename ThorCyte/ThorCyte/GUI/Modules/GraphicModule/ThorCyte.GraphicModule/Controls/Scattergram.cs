@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using ROIService;
 using ROIService.Region;
 using ThorCyte.GraphicModule.Controls.Graphics;
 using ThorCyte.GraphicModule.Controls.RegionTools;
@@ -99,6 +97,7 @@ namespace ThorCyte.GraphicModule.Controls
             base.OnRenderSizeChanged(sizeInfo);
             var widthChanged = sizeInfo.NewSize.Width - sizeInfo.PreviousSize.Width;
             var heightChanged = sizeInfo.NewSize.Height - sizeInfo.PreviousSize.Height;
+            _graphicQuarant.ClientRect = new Rect(EndYPoint, RenderSize);
             if (Math.Abs(widthChanged) > double.Epsilon || Math.Abs(heightChanged) > double.Epsilon)
             {
                 if (IsShowQuadrant)
@@ -106,7 +105,7 @@ namespace ThorCyte.GraphicModule.Controls
                     _graphicQuarant.Draw();
                 }
             }
-            _graphicQuarant.ClientRect = new Rect(EndYPoint, RenderSize);
+           
         }
 
         public void Update(List<Point> pointList)
@@ -172,6 +171,7 @@ namespace ThorCyte.GraphicModule.Controls
             if (_isLoading)
             {
                 InitGraphics();
+                _graphicQuarant.BaseRect = new Rect(new Point(0, 0), RenderSize);
                 SetQuadrantPosition();
             }
             _isLoading = false;

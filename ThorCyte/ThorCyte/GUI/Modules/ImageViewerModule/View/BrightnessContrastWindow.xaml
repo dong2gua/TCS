@@ -10,7 +10,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Margin="10">
 
@@ -26,17 +26,15 @@
             <Slider x:Name="ScaleSlider" Grid.Column="1" Orientation="Vertical" Maximum="5" Minimum="1" />
             <Rectangle x:Name="ColorScale" Grid.Row="1" Margin="0,2">
             </Rectangle>
-        </Grid>
-            
+        </Grid>            
         <Grid Grid.Row="1" Margin="10">
-
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -45,10 +43,9 @@
             <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding Brightness}" Height="20" Width="60" />
             <Label  Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Content="Contrast"/>
             <Slider Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Maximum="3100" Minimum="-1000" Value="{Binding SliderContrast}"/>
-            <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Contrast}" Height="20" Width="60" />
+            <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Contrast, StringFormat={}{0:f2}}" Height="20" Width="60" />
             <Button Grid.Row="0" Grid.Column="3" Height="20" Width="60" Content="AutoGrey" Command="{Binding AutoGreyCommand}"/>
             <Button Grid.Row="1" Grid.Column="3" Height="20" Width="60" Content="Reset" Command="{Binding ResetBrightnessCommand}"/>
         </Grid>
-
     </Grid>
 </Window>

@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using CustomChromeLibrary;
 using Prism.Events;
 using ThorCyte.Infrastructure.Events;
 
@@ -9,7 +8,7 @@ namespace ThorCyte
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : CustomChromeWindow
+    public partial class MainWindow : Window
     {
         private IEventAggregator _eventAggregator;
         public MainWindow(IEventAggregator eventAggregator)

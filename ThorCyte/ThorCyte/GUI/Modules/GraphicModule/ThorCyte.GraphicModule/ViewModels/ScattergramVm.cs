@@ -36,6 +36,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             get { return _zIndex; }
         }
 
+        public Point QuadrantCenterPoint { get; set; }
+
         public List<Tuple<Point, int>> DotTupleList
         {
             get { return _dotTupleList; }

@@ -108,7 +108,7 @@
                     <Image Source="../Resource/Images/toolbox.png" />
                 </ToggleButton>
 
-                <Button Padding="-1" Margin="5,2,0,2" Content="Save" Command="{Binding SaveMacroCommand}"/>
+                <!--<Button Padding="-1" Margin="5,2,0,2" Content="Save" Command="{Binding SaveMacroCommand}"/>-->
             </StackPanel>
         </Border>
 
@@ -138,7 +138,7 @@
         <!--Canvas: Create Module-->
         <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="CadetBlue" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
             <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="{Binding ElementName=PannelBorder,Path=ActualHeight}" Width="{Binding ElementName=PannelBorder,Path=ActualWidth}">
-                <control:PannelView x:Name="pannel" Background="LightCyan" PreviewKeyDown="PannelKeyDown" 
+                <control:PannelView x:Name="pannel" Background="DimGray" PreviewKeyDown="PannelKeyDown" 
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
                             ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown" PreviewMouseLeftButtonUp="OnMouseLeftUp"/>

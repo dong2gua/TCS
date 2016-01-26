@@ -374,12 +374,8 @@ namespace ThorCyte.ProtocolModule.Models
                         {
                             Debug.WriteLine("Current Process - Region: {0}; Tile: {1}; Channel: {2};",
                                             CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel);
-
+                            MessageHelper.PostMessage(string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};",CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
                             mod.Execute();
-
-                            MessageHelper.PostMessage(
-                                string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};",
-                                    CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
                         }
                         //wait all channel executed here
                         ClearImagesDic();

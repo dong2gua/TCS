@@ -5,30 +5,37 @@ using System.Windows.Media.Imaging;
 
 namespace ImageProcess
 {
-    public static class ImageProcessExtensions
+    public partial class ImageData
     {
         private const double DpiX = 96;
         private const double DpiY = 96;
 
-        public static BitmapSource ToBitmapSource(this ImageData data, int sourceDepth = 14)
+        public BitmapSource ToBitmapSource(int sourceDepth = 14)
         {
-            var width = (int) data.XSize;
-            var height = (int) data.YSize;
-            int stride = width*data.Channels;
+            return ToBitmapSource(1.0, sourceDepth);
+        }
+
+
+        public BitmapSource ToBitmapSource(double scale, int sourceDepth = 14)
+        {
+            var width = (int)XSize;
+            var height = (int)YSize;
+            int stride = width * Channels;
             const int destDepth = 8;
             int rightShift = sourceDepth - destDepth;
-            IntPtr buffer = DoRightShift(data, rightShift);
+            IntPtr buffer = DoRightShift(this, rightShift);
             BitmapSource bmp;
+            double dpiY = DpiY/scale;
             try
             {
-                if (data.IsGray)
+                if (IsGray)
                 {
-                    bmp = BitmapSource.Create(width, height, DpiX, DpiY, PixelFormats.Gray8,
+                    bmp = BitmapSource.Create(width, height, DpiX, dpiY, PixelFormats.Gray8,
                         BitmapPalettes.Gray256, buffer, stride*height, stride);
                 }
                 else
                 {
-                    bmp = BitmapSource.Create(width, height, DpiX, DpiY, PixelFormats.Bgr24, null,
+                    bmp = BitmapSource.Create(width, height, DpiX, dpiY, PixelFormats.Bgr24, null,
                         buffer, stride*height, stride);
                 }
             }

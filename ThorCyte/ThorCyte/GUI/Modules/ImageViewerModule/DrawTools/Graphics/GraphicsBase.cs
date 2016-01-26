@@ -163,7 +163,11 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         protected Point VerifyPoint(Point point)
         {
             if (Canvas == null) return point;
-            var rect = new Rect(0,0,Canvas.ImageSize.Width, Canvas.ImageSize.Height);
+            var rect = new Rect(Math.Max(0, Canvas.CanvasDisplyRect.X),
+                                Math.Max(0, Canvas.CanvasDisplyRect.Y),
+                                Math.Min(Canvas.ImageSize.Width, Canvas.CanvasDisplyRect.Width),
+                                Math.Min(Canvas.ImageSize.Height, Canvas.CanvasDisplyRect.Height));
+
             if (rect.IsEmpty) return point;
             if (rect.Contains(point)) return point;
 

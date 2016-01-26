@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:s="http://schemas.abtsoftware.co.uk/scichart"
         xmlns:controls="clr-namespace:ThorCyte.GraphicModule.Controls"
-        SnapsToDevicePixels="True" >
+        MinHeight="300" MinWidth="300"
+        SnapsToDevicePixels="True" RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode= "NearestNeighbor">
 
         <!--  Create the chart surface  -->
-    <s:SciChartSurface Name="SciChart" s:ThemeManager.Theme="BrightSpark" ChartTitle="{Binding Title}"/>
+    <s:SciChartSurface Name="SciChart" s:ThemeManager.Theme="BrightSpark" ChartTitle="{Binding Title}" Padding="8,8,15,8"/>
 </controls:GraphicUcBase>
    

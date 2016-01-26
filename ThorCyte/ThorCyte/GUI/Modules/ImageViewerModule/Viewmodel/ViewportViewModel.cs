@@ -103,7 +103,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         public ICommand ListViewDeleteCommand { get; private set; }
         public ICommand ListViewEditCommand { get; private set; }
         public ICommand ExpandListCommand { get; private set; }
-        private Int32Rect VisualRect;
+        public Int32Rect VisualRect { get; set; }
         private double VisualScale;
         private double DataScale;
         private double ActualScale;
@@ -167,6 +167,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             int x, y;
             x = (int)Math.Max(canvasRect.X - 250, 0);
             y = (int)Math.Max(canvasRect.Y - 250, 0);
+            width = Math.Min((int)ImageSize.Width - x, width);
+            width = Math.Min((int)ImageSize.Height - y, width);
             VisualRect = new Int32Rect(x, y, width, height);
             if (CurrentChannelImage.ImageData != null) CurrentChannelImage.ImageData.Dispose();
             CurrentChannelImage.ImageData = getData(_currentChannelImage, VisualRect, DataScale);
@@ -185,15 +187,14 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         public void OnMousePoint(Point point)
         {
-            int x = (int)(point.X );
-            int y = (int)(point.Y );
+            int x = (int)(point.X);
+            int y = (int)(point.Y);
             if (x >= ImageSize.Width || x < 0 || y >= ImageSize.Height || y < 0) return;
             var index = (int)(x * DataScale) - (int)(VisualRect.X * DataScale) + ((int)(y * DataScale) - (int)(VisualRect.Y * DataScale)) * (int)(VisualRect.Width * DataScale);
-            if (index >= CurrentChannelImage.ImageData.Length||index<0) return;
-            var gv = CurrentChannelImage.IsComputeColor ? 0: CurrentChannelImage.ImageData[index];
-            var status = new MousePointStatus() {Scale=ActualScale, Point = new Point(x*_scanInfo.XPixcelSize, y * _scanInfo.YPixcelSize), GrayValue = gv, IsComputeColor = CurrentChannelImage.IsComputeColor };
+            if (index >= CurrentChannelImage.ImageData.Length || index < 0) return;
+            var gv = CurrentChannelImage.IsComputeColor ? 0 : CurrentChannelImage.ImageData[index];
+            var status = new MousePointStatus() { Scale = ActualScale, Point = new Point(x * _scanInfo.XPixcelSize, y * _scanInfo.YPixcelSize), GrayValue = gv, IsComputeColor = CurrentChannelImage.IsComputeColor };
             _updateMousePointEvent.Publish(status);
-
         }
         public void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -368,7 +369,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 result = channelImage.ThumbnailImageData;
             else
                 result = channelImage.ThumbnailImageData.SetBrightnessAndContrast(channelImage.Contrast,channelImage.Brightness,_maxBits);
-            channelImage.Thumbnail = result.ToBitmapSource(_maxBits);
+            channelImage.Thumbnail = result.ToBitmapSource(_aspectRatio,_maxBits);
         }
         public void Initialization(IData iData, ScanInfo scanInfo,ExperimentInfo experimentInfo, int scanId, int regionId, int tileId)
         {
@@ -402,6 +403,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 ActualScale = DataScale * VisualScale;
             }
             RefreshChannel();
+            if (CurrentChannelImage.ImageData.Length >= 0)
+            {
+                var gv = CurrentChannelImage.IsComputeColor ? 0 : CurrentChannelImage.ImageData[0];
+                var status = new MousePointStatus() { Scale = ActualScale, Point = new Point(0, 0), GrayValue = gv, IsComputeColor = CurrentChannelImage.IsComputeColor };
+                _updateMousePointEvent.Publish(status);
+            }
             IsActive = true;
         }
         public void Clear()
@@ -412,6 +419,9 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         public void RefreshChannel()
         {
+            int currentChannelIndex = 0;
+            if(_currentChannelImage!=null&&_channelImages.Count>0)
+                currentChannelIndex= _channelImages.IndexOf(CurrentChannelImage);
             var channels = _scanInfo.ChannelList;
             var virtualChannels = _scanInfo.VirtualChannelList;
             var computeColors = _scanInfo.ComputeColorList;
@@ -449,20 +459,18 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 _channelImages.Add(channelImage);
             }
             OnPropertyChanged("ChannelImages");
-            CurrentChannelImage = _channelImages.FirstOrDefault();
+            CurrentChannelImage = _channelImages[currentChannelIndex];
         }
         public void FrameDisplay(FrameIndex frameIndex)
         {
             _frameIndex = frameIndex;
-            var rect = new Int32Rect(0, 0, (int)ImageSize.Width, (int)ImageSize.Height);
             foreach (var o in _channelImages)
             {
                 if (o.ThumbnailImageData != null) o.ThumbnailImageData.Dispose();
                 o.ThumbnailImageData= getData(o, VisualRect, Math.Min(ThumbnailSize / ImageSize.Width, ThumbnailSize / ImageSize.Height));
                 UpdateThumbnail(o);
             }
-            OnPropertyChanged("ChannelImages");
-            CurrentChannelImage = _channelImages.FirstOrDefault();
+            CurrentChannelImage = _currentChannelImage;
         }
 
         public void AddVirtualChannel(VirtualChannel virtrualChannel)

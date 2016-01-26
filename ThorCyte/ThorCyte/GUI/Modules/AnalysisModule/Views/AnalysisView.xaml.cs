@@ -18,10 +18,10 @@ namespace ThorCyte.AnalysisModule.Views
             //TabControl.ItemContainerStyle = s;
         }
 
-        private void TabOnChecked(object sender, RoutedEventArgs e)
-        {
-            var btn = sender as RadioButton;
-            TabControl.SelectedIndex = btn.TabIndex;
-        }
+        //private void TabOnChecked(object sender, RoutedEventArgs e)
+        //{
+        //    var btn = sender as RadioButton;
+        //    TabControl.SelectedIndex = btn.TabIndex;
+        //}
     }
 }

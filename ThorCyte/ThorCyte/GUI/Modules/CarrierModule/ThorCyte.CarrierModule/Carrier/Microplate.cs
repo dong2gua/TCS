@@ -36,7 +36,11 @@ namespace ThorCyte.CarrierModule.Carrier
             get { return _activeRegions.Count; }
         }
 
-        public int Interval { get { return ((MicroplateDef)_carrierDef).Interval; } }
+        public double Interval { get { return ((MicroplateDef)_carrierDef).Interval; } }
+
+        public double WellSize{
+            get { return ((MicroplateDef) _carrierDef).WellSize; }
+        }
 
         public RegionShape ScanAreaShape { get { return _scanAreaShape; } }
 

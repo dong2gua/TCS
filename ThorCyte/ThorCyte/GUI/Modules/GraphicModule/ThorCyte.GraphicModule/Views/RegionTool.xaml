@@ -12,61 +12,48 @@
         <converts:ColorBrushConvert x:Key="BrushCvt"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibleCvt"/>
     </UserControl.Resources>
-    
-    <StackPanel>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="3*"/>
-            </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
 
-                <ToggleButton Grid.Row="0" Width="30" Height="30" Margin="2" ToolTip="draw rectangle" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=rectangle}">
-                    <Image Source="../Resource/Images/rectangle.png"/>
-                </ToggleButton>
-                <Label Grid.Row="1" Content="Color Region" Margin="2" IsEnabled="{Binding IsColorListEnabled}"/>
-            </Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
 
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
+            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="draw rectangle" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=rectangle}">
+                <Image Source="../Resource/Images/rectangle.png"/>
+            </ToggleButton>
 
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
+            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="draw ellipse" Visibility="{Binding IsDrawEllipseEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=ellipse}">
+                <Image Source="../Resource/Images/ellipse.png"/>
+            </ToggleButton>
 
-                <ToggleButton Grid.Column="0" Grid.Row="0" Width="30" Height="30" Margin="2" ToolTip="draw ellipse" Visibility="{Binding IsDrawEllipseEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=ellipse}">
-                    <Image Source="../Resource/Images/ellipse.png"/>
-                </ToggleButton>
-
-                <ToggleButton Grid.Column="1" Grid.Row="0" Width="30" Height="30" Margin="2" ToolTip="draw polygon" Visibility="{Binding IsDrawPolygonEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=polygon}">
-                    <Image Source="../Resource/Images/polygon.png"/>
-                </ToggleButton>
+            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="draw polygon" Visibility="{Binding IsDrawPolygonEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=polygon}">
+                <Image Source="../Resource/Images/polygon.png"/>
+            </ToggleButton>
+        </StackPanel>
 
 
-                <ComboBox x:Name="ColorRegionCb" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" ItemsSource="{Binding Source={StaticResource GraphicVm}, Path=ColorRegionList}" SelectedItem="{Binding SelectedRegionColor}" IsEnabled="{Binding IsColorListEnabled}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Width="{Binding ElementName=ColorRegionCb,Path=ActualWidth}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Rectangle Grid.Column="0" Margin="2" Fill="{Binding RegionColor,Converter={StaticResource BrushCvt}}" Stroke="Black"/>
-                                <Label Grid.Column="1" Margin="2" Content="{Binding RegionColorString}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-            </Grid>
-        </Grid>
-    </StackPanel>
+        <Label Grid.Row="1" Grid.Column="0" Content="Color Region" Margin="2" IsEnabled="{Binding IsColorListEnabled}"/>
+
+        <ComboBox x:Name="ColorRegionCb" Grid.Row="1" Grid.Column="1" Margin="2" ItemsSource="{Binding Source={StaticResource GraphicVm}, Path=ColorRegionList}" SelectedItem="{Binding SelectedRegionColor}" IsEnabled="{Binding IsColorListEnabled}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width="{Binding ElementName=ColorRegionCb,Path=ActualWidth}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Rectangle Grid.Column="0" Margin="2" Fill="{Binding RegionColor,Converter={StaticResource BrushCvt}}" Stroke="Black"/>
+                        <Label Grid.Column="1" Margin="2" Content="{Binding RegionColorString}"/>
+                    </Grid>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </Grid>
 </UserControl>

@@ -11,10 +11,10 @@ namespace ThorCyte.CarrierModule.Carrier
         public int NumColumns = 0;						//Number of well columns
         //public WellShape WellShape = WellShape.Circle;	//rectangle or ellipse
         
-        public int WellSize = 0;						//size of well
-        public int Interval = 0;						//center to center spacing between wells
-        public int MarginTop = 0;						//distance from top edge of plate to center of first row
-        public int MarginLeft = 0;						//distance from left edge of plate to center of first column
+        public double WellSize = 0;						//size of well
+        public double Interval = 0;						//center to center spacing between wells
+        public double MarginTop = 0;						//distance from top edge of plate to center of first row
+        public double MarginLeft = 0;						//distance from left edge of plate to center of first column
         private static int sm_xWidth = 0;
         private static int sm_yHeight = 0;
 
@@ -32,10 +32,10 @@ namespace ThorCyte.CarrierModule.Carrier
                     NumRows = 8;
                     NumColumns = 12;
                     //WellShape = WellShape.Circle;
-                    WellSize = Convert.ToInt32(6.55 * UnitFactor);
-                    Interval = Convert.ToInt32(9.0 * UnitFactor);
-                    MarginLeft = Convert.ToInt32(14.38 * UnitFactor);
-                    MarginTop = Convert.ToInt32(11.24 * UnitFactor);
+                    WellSize = 6.55 * UnitFactor;
+                    Interval = 9.0 * UnitFactor;
+                    MarginLeft =14.38 * UnitFactor;
+                    MarginTop = 11.24 * UnitFactor;
                     break;
 
                 default: break;
@@ -142,12 +142,12 @@ namespace ThorCyte.CarrierModule.Carrier
         {
             n.SetAttribute("rows", NumRows.ToString());
             n.SetAttribute("columns", NumColumns.ToString());
-            n.SetAttribute("wellsize", (((double)(WellSize)) / UnitFactor).ToString());
-            n.SetAttribute("interval", (((double)(Interval)) / UnitFactor).ToString());
+            n.SetAttribute("wellsize", (WellSize / UnitFactor).ToString());
+            n.SetAttribute("interval", (Interval / UnitFactor).ToString());
             //n.SetAttribute("well-shape", WellShape.ToString().ToLower());
             var d = doc.CreateElement("margin");
-            d.SetAttribute("left", (((double)(MarginLeft)) / UnitFactor).ToString());
-            d.SetAttribute("top", (((double)(MarginTop)) / UnitFactor).ToString());
+            d.SetAttribute("left", (MarginLeft / UnitFactor).ToString());
+            d.SetAttribute("top", (MarginTop / UnitFactor).ToString());
             var descriptionNode = n.SelectSingleNode("description");
             n.InsertAfter(d, descriptionNode);
         }
@@ -179,12 +179,12 @@ namespace ThorCyte.CarrierModule.Carrier
             NumRows = Convert.ToInt32(attributes["rows"].InnerText, 10);
             NumColumns = Convert.ToInt32(attributes["columns"].InnerText, 10);
             //WellShape = (WellShape)Enum.Parse(typeof(WellShape), attributes["well-shape"].InnerText, true);
-            WellSize = (int)(XmlConvert.ToDouble(attributes["wellsize"].InnerText) * UnitFactor);
-            Interval = (int)(Convert.ToDouble(attributes["interval"].InnerText) * UnitFactor);
+            WellSize =XmlConvert.ToDouble(attributes["wellsize"].InnerText) * UnitFactor;
+            Interval = Convert.ToDouble(attributes["interval"].InnerText) * UnitFactor;
             var marginNode = carrierNode.SelectSingleNode("margin");
             attributes = marginNode.Attributes;
-            MarginTop = (int)(Convert.ToDouble(attributes["top"].InnerText) * UnitFactor);
-            MarginLeft = (int)(Convert.ToDouble(attributes["left"].InnerText) * UnitFactor);
+            MarginTop = Convert.ToDouble(attributes["top"].InnerText) * UnitFactor;
+            MarginLeft =Convert.ToDouble(attributes["left"].InnerText) * UnitFactor;
         }
 
         public override CarrierDef Copy()

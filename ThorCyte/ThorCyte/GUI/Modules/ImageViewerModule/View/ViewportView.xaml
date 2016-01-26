@@ -98,16 +98,13 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-
-            </Grid.ColumnDefinitions>
             <drawtools:DrawingCanvas x:Name="drawCanvas"  DisplayImage="{Binding CurrentChannelImage.Image}" ActualScale="{Binding Scale}" ImageSize="{Binding ImageSize}"/>
-
-            <Button Grid.Row="1" Height="20" Width="20" VerticalAlignment="Top" HorizontalAlignment="Right" Command="{Binding ExpandListCommand}" Panel.ZIndex="1" Style="{StaticResource ExpandButtonStyle}"/>
+            <Rectangle Grid.Row="1" Height="1" Fill="{Binding Path=BorderBrush,ElementName=viewportBorder}" />
+            <Button Grid.Row="2" Height="20" Width="20" VerticalAlignment="Top" HorizontalAlignment="Right" Command="{Binding ExpandListCommand}" Panel.ZIndex="1" Style="{StaticResource ExpandButtonStyle}"/>
             
-            <ListView Grid.Row="1" x:Name="listView" ItemsSource="{Binding ChannelImages}" SelectedItem="{Binding CurrentChannelImage}"  ItemContainerStyle="{StaticResource ChannelListStyle}">
+            <ListView Grid.Row="2" x:Name="listView" ItemsSource="{Binding ChannelImages}" SelectedItem="{Binding CurrentChannelImage}"  ItemContainerStyle="{StaticResource ChannelListStyle}" >
                 <ListView.ContextMenu>
                     <ContextMenu  >
                         <MenuItem Header="Edit"  Command="{Binding  ListViewEditCommand}"

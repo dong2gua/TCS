@@ -11,39 +11,16 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="30"/>
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <Button Command="{Binding AddTabCmd}">
-                <Image Source="../Resource/Images/AddTab.png"/>
-            </Button>
-            <StackPanel Orientation="Horizontal" DataContext="{Binding SelectedContainer}" IsEnabled="{Binding ElementName=GraphicModuleView,Path=DataContext.IsControlEnabled}">
-                <Button Command="{Binding DeleteTabCmd}">
-                    <Image Source="../Resource/Images/DeleteTab.png"/>
-                </Button>
-                <Button Click="OnAddScattergram" ToolTip="Add Scattergram">
-                    <Image Source="../Resource/Images/NewScattergram.png"/>
-                </Button>
-                <Button Click="OnAddHistogram" ToolTip="Add Histogram">
-                    <Image Source="../Resource/Images/NewHistogram.png"/>
-                </Button>
-                <Button IsEnabled="{Binding IsDeleteEnabled}" Command="{Binding DeleteGraphicCmd}" ToolTip="Delete">
-                    <Image Source="../Resource/Images/remove.png"/>
-                </Button>
-                <ToggleButton IsEnabled="{Binding IsPropertyEnabled}" IsChecked="{Binding IsShowProperty}" ToolTip="show/hide properties">
-                    <Image Source="../Resource/Images/properties.png"/>
-                </ToggleButton>
-            </StackPanel>
-        </StackPanel>
-
-        <TabControl x:Name="GraphicTabControl" Grid.Row="1" Margin="0,5,0,0" ItemsSource="{Binding GraphicContainerVms}"
-                    SelectedItem="{Binding SelectedContainer}" SelectionChanged="OnSelectedChanged">
-            <TabControl.ItemTemplate>
+        <TabControl x:Name="GraphicTabControl" Grid.Column="0" Margin="0,5,0,0" ItemsSource="{Binding GraphicContainerVms}" 
+                    TabStripPlacement="Bottom"  SelectedItem="{Binding SelectedContainer}" SelectionChanged="OnSelectedChanged">
+                <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid MinWidth="30" Height="20">
                         <TextBlock Text="{Binding Name}" Visibility="{Binding IsEdit,Converter={StaticResource VisibleCvt},ConverterParameter=false}" MouseLeftButtonDown="OnClickName"/>
                         <TextBox Text="{Binding Name}" MaxLength="64" Visibility="{Binding IsEdit,Converter={StaticResource VisibleCvt}}"
                                 IsVisibleChanged="OnTbIsVisibleChanged">
@@ -57,9 +34,32 @@
 
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <views:GraphicPanelView DataContext="{Binding DataContext.SelectedContainer, RelativeSource={RelativeSource FindAncestor,AncestorType=TabControl}}" Margin="5"/>
+                    <views:GraphicPanelView DataContext="{Binding DataContext.SelectedContainer, RelativeSource={RelativeSource FindAncestor,AncestorType=TabControl}}" Margin="5" Loaded="OnLoaded"/>
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
+
+        <StackPanel Grid.Column="1" Orientation="Vertical">
+            <Button Command="{Binding AddTabCmd}">
+                <Image Source="../Resource/Images/AddTab.png"/>
+            </Button>
+            <StackPanel Orientation="Vertical" DataContext="{Binding SelectedContainer}" IsEnabled="{Binding ElementName=GraphicModuleView,Path=DataContext.IsControlEnabled}">
+                <Button Command="{Binding Path=DataContext.DeleteTabCmd,ElementName=GraphicModuleView}">
+                    <Image Source="../Resource/Images/DeleteTab.png"/>
+                </Button>
+                <Button Click="OnAddScattergram" ToolTip="Add Scattergram">
+                    <Image Source="../Resource/Images/NewScattergram.png"/>
+                </Button>
+                <Button Click="OnAddHistogram" ToolTip="Add Histogram">
+                    <Image Source="../Resource/Images/NewHistogram.png"/>
+                </Button>
+                <Button IsEnabled="{Binding IsDeleteEnabled}" Click="OnDeleteGraphic" ToolTip="Delete">
+                    <Image Source="../Resource/Images/remove.png"/>
+                </Button>
+                <ToggleButton IsEnabled="{Binding IsPropertyEnabled}" IsChecked="{Binding IsShowProperty}" ToolTip="show/hide properties">
+                    <Image Source="../Resource/Images/properties.png"/>
+                </ToggleButton>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </UserControl>

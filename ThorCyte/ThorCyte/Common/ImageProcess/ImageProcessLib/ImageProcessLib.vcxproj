@@ -14,6 +14,10 @@
     <ProjectGuid>{58D6E351-A7F9-43B4-8E59-D743D3C39836}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ImageProcessLib</RootNamespace>
+    <SccProjectName>%24/ThorCyte/ThorCyte/Common/ImageProcess/ImageProcessLib</SccProjectName>
+    <SccAuxPath>http://chn-vm-46:8080/tfs/thorcyteprocessteam</SccAuxPath>
+    <SccLocalPath>.</SccLocalPath>
+    <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -87,6 +91,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConstDef.h" />
     <ClInclude Include="ImageProcessLib.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

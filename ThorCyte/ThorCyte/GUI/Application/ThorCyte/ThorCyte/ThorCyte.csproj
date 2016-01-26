@@ -150,10 +150,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="ThorCyte.png" />
+    <Resource Include="Splash.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Splash.png" />
+    <Resource Include="ThorCyte.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

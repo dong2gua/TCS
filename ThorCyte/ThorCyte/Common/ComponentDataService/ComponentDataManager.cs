@@ -17,7 +17,6 @@ namespace ComponentDataService
         #region Fields
 
         internal const string DataStoredFolder = "EVT";
-        internal const int ScanId = 1;
         private const int DefaultSize = 5;
         private string _basePath;
         private IExperiment _experiment;
@@ -113,16 +112,17 @@ namespace ComponentDataService
         {          
             if (_bioComponentDict.ContainsKey(componentName) == false)
                 throw new ArgumentException("invaild componenet name", "componentName");
-            ScanInfo info = _experiment.GetScanInfo(ScanId);
+            BioComponent comp = _bioComponentDict[componentName];
+            int scanId = comp.ScanId;
+            ScanInfo info = _experiment.GetScanInfo(scanId);
             int scanRegionCount = info.ScanRegionList.Count;
             if (wellId < 0 || wellId >= scanRegionCount)
                 throw new ArgumentOutOfRangeException("wellId");
             int tileCount = info.ScanRegionList[wellId].ScanFieldList.Count;
             if (tileId <= 0 || tileId > tileCount) throw new ArgumentOutOfRangeException("tileId");
             try
-            {
-                BioComponent comp = _bioComponentDict[componentName];
-                return comp.GetTileBlobs(ScanId, wellId, tileId, type);
+            {          
+                return comp.GetTileBlobs(scanId, wellId, tileId, type);
             }
             catch (FileNotFoundException)
             {
@@ -136,14 +136,15 @@ namespace ComponentDataService
            
             if (_bioComponentDict.ContainsKey(componentName) == false)
                 throw new ArgumentException("invaild componenet name", "componentName");
-            ScanInfo info = _experiment.GetScanInfo(ScanId);
+            BioComponent comp = _bioComponentDict[componentName];
+            int scanId = comp.ScanId;
+            ScanInfo info = _experiment.GetScanInfo(scanId);
             int scanRegionCount = info.ScanRegionList.Count;
             if (wellId <= 0 || wellId > scanRegionCount)
                 throw new ArgumentOutOfRangeException("wellId");
             try
-            {
-                BioComponent comp = _bioComponentDict[componentName];
-                return comp.GetEvents(ScanId, wellId);
+            {               
+                return comp.GetEvents(scanId, wellId);
             }
             catch (FileNotFoundException)
             {
@@ -184,18 +185,11 @@ namespace ComponentDataService
             return feature.IsPerChannel ? feature.Index + channelId : feature.Index;
         }
 
-        public void SaveBlobs(string fileFolder)
+        public void Save(string fileFolder)
         {
             foreach (BioComponent bioComponent in _bioComponentDict.Values)
             {
                 bioComponent.SaveTileBlobs(fileFolder);
-            }
-        }
-
-        public void SaveEvents(string fileFolder)
-        {
-            foreach (BioComponent bioComponent in _bioComponentDict.Values)
-            {
                 bioComponent.SaveEvents(fileFolder);
             }
             SaveEvtXml(fileFolder);
@@ -230,7 +224,13 @@ namespace ComponentDataService
             BioComponent component = _bioComponentDict[componentName];
             return component.CreateEvents(scanId, wellId, tileId, imageDict, define);
         }
-        
+
+        public int GetComponentScanId(string componentName)
+        {
+            if (_bioComponentDict.ContainsKey(componentName) == false)
+                throw new ArgumentException("invaild componenet name", "componentName");
+            return _bioComponentDict[componentName].ScanId;
+        }
 
         #endregion
 

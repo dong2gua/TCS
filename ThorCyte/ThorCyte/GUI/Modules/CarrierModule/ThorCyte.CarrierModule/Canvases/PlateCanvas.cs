@@ -25,7 +25,7 @@ namespace ThorCyte.CarrierModule.Canvases
     public class PlateCanvas : Canvas
     {
         #region Fileds
-        private const double Tolerance = 0.000001;
+        private const double Tolerance = 0.00000001;
         private static readonly double[] ScaleTable = { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0, 10.0, 12.0 };
         private Microplate _plate;
         private readonly VisualCollection _graphicsList;
@@ -34,7 +34,7 @@ namespace ThorCyte.CarrierModule.Canvases
         private GraphicsEllipse _circulePointer;
         private int _currentWellId;
         private int _lastWellId;
-        public List<string> AnalyzedWells; 
+        public List<string> AnalyzedWells;
 
         //96 plates
         private double _plateWidth = 127760.0;
@@ -43,6 +43,10 @@ namespace ThorCyte.CarrierModule.Canvases
         private float _ry;
         private double _cOffsetX;
         private double _cOffsetY;
+        private double _trimLeft;
+        private double _trimRight;
+        private double _trimTop;
+        private double _trimBottom;
 
         public bool IsShowing = false;
 
@@ -254,7 +258,7 @@ namespace ThorCyte.CarrierModule.Canvases
 
             ActualScale = 0.25;
             AnalyzedWells = new List<string>();
-            _currentWellId =0;
+            _currentWellId = 0;
             _lastWellId = 0;
         }
 
@@ -274,10 +278,13 @@ namespace ThorCyte.CarrierModule.Canvases
 
             if (cnvs == null) return;
 
-            if (Math.Abs(cnvs.OuterWidth) < Tolerance || Math.Abs(cnvs.OuterHeight) < Tolerance) return;
+            if (Math.Abs(cnvs.OuterWidth) < Tolerance || Math.Abs(cnvs.OuterHeight) < Tolerance)
+            {
+                cnvs.ActualScale = Tolerance;
+                return;
+            }
 
             var factorW = cnvs.OuterWidth / cnvs.PlateWidth;
-            var factorH = cnvs.OuterHeight / cnvs.PlateHeight;
             cnvs.ActualScale = factorW * 100;
         }
 
@@ -303,26 +310,38 @@ namespace ThorCyte.CarrierModule.Canvases
             d.UpdatePlateRoomsRect();
         }
 
+        /// <summary>
+        /// Cut Plate From all directions
+        /// </summary>
+        private void SetPlateTrim()
+        {
+            _trimLeft = ((MicroplateDef)_plate.CarrierDef).MarginLeft * 0.2;
+            _trimRight = ((MicroplateDef)_plate.CarrierDef).MarginLeft * 0.55;
+            _trimTop = ((MicroplateDef)_plate.CarrierDef).MarginTop * 0.1;
+            _trimBottom = ((MicroplateDef)_plate.CarrierDef).MarginTop * 0.45;
+        }
+
         private void InitPlate()
         {
             PlateHelperFunctions.DeleteAll(this);
 
+            SetPlateTrim();
+
             Width =
-                (double)(_plate.Interval * (_plate.ColumnCount - 1) + 2 * ((MicroplateDef)_plate.CarrierDef).MarginLeft) /
+                (_plate.Interval * (_plate.ColumnCount - 1) + 2 * ((MicroplateDef)_plate.CarrierDef).MarginLeft - _trimRight - _trimLeft) /
                 100 * ActualScale;
-            Height = (double)(_plate.Interval * (_plate.RowCount - 1) + 2 * ((MicroplateDef)_plate.CarrierDef).MarginTop) /
+            Height = (_plate.Interval * (_plate.RowCount - 1) + 2 * ((MicroplateDef)_plate.CarrierDef).MarginTop - _trimBottom - _trimTop) /
                      100 * ActualScale;
 
             _cOffsetX = ((MicroplateDef)_plate.CarrierDef).MarginLeft - (_plate.Interval / 2);
             _cOffsetY = ((MicroplateDef)_plate.CarrierDef).MarginTop - (_plate.Interval / 2);
 
-            _plateWidth = _plate.Interval * (_plate.ColumnCount - 1) + 2 * ((MicroplateDef)_plate.CarrierDef).MarginLeft;
-            _plateHeight = _plate.Interval * (_plate.RowCount - 1) + 2 * ((MicroplateDef)_plate.CarrierDef).MarginTop;
+            _plateWidth = _plate.Interval * (_plate.ColumnCount - 1) + 2 * ((MicroplateDef)_plate.CarrierDef).MarginLeft - _trimRight - _trimLeft;
+            _plateHeight = _plate.Interval * (_plate.RowCount - 1) + 2 * ((MicroplateDef)_plate.CarrierDef).MarginTop - _trimBottom - _trimTop;
 
             UpdatePlateRoomsRect();
             InvalidateVisual();
         }
-
 
         /// <summary>
         /// Draw all plate rooms.
@@ -339,8 +358,8 @@ namespace ThorCyte.CarrierModule.Canvases
                 {
                     var rect = new Rect(new Point
                     {
-                        X = (_plate.ColumnCount - col - 1) * _plate.Interval + _cOffsetX,  //form right to left
-                        Y = row * _plate.Interval + _cOffsetY
+                        X = (_plate.ColumnCount - col - 1) * _plate.Interval + _cOffsetX - _trimRight,  //form right to left
+                        Y = row * _plate.Interval + _cOffsetY - _trimTop
                     }, new Size()
                     {
                         Height = _plate.Interval,
@@ -394,9 +413,23 @@ namespace ThorCyte.CarrierModule.Canvases
             return ret;
         }
 
-        public void RecordSelections()
+        public void SwitchSelections(DisplayMode mode)
         {
+            _plate.ClearActiveRegions();
             
+            //Record current Selected regions
+            switch (mode)
+            {
+                case DisplayMode.Analysis:
+                    //swtich to analysis
+
+
+                    break;
+                case DisplayMode.Review:
+                    //switch to review
+
+                    break;
+            }
         }
 
         public void SetActiveRegions()
@@ -405,7 +438,7 @@ namespace ThorCyte.CarrierModule.Canvases
             _plate.ClearActiveRegions();
             foreach (var rgn in from GraphicsBase o in _graphicsList where o.IsSelected select _regionGraphicHashtable.Keys.OfType<ScanRegion>().FirstOrDefault(s => Equals(_regionGraphicHashtable[s], o)))
             {
-                if(rgn != null)
+                if (rgn != null)
                     _plate.AddActiveRegion(rgn);
             }
             if (_plate.ActiveRegions.Count == prevCount && prevCount == 0)
@@ -465,10 +498,10 @@ namespace ThorCyte.CarrierModule.Canvases
                 switch (rgn.ScanRegionShape)
                 {
                     case RegionShape.Ellipse:
-                        var left = (_plateWidth - rc.X - rc.Width) * scale;
-                        var top = rc.Y * scale;
-                        var right = (_plateWidth - rc.X) * scale;
-                        var bottom = (rc.Y + rc.Height) * scale;
+                        var left = (_plateWidth - rc.X - rc.Width + _trimRight) * scale;
+                        var top = (rc.Y - _trimTop) * scale;
+                        var right = (_plateWidth - rc.X + _trimRight) * scale;
+                        var bottom = (rc.Y + rc.Height - _trimTop) * scale;
                         var ellipse = new GraphicsEllipse(left, top, right, bottom, LineWidth, Colors.Green, ActualScale, 0);
                         _graphicsList.Add(ellipse);
                         _regionGraphicHashtable.Add(rgn, ellipse);
@@ -479,8 +512,8 @@ namespace ThorCyte.CarrierModule.Canvases
                         for (var i = 0; i < rgn.Points.Length; i++)
                         {
                             ptList[i] = rgn.Points[i];
-                            ptList[i].X = (_plateWidth - ptList[i].X) * scale;
-                            ptList[i].Y = ptList[i].Y * scale;
+                            ptList[i].X = (_plateWidth - ptList[i].X + _trimRight) * scale;
+                            ptList[i].Y = (ptList[i].Y - _trimTop) * scale;
                         }
                         var polygon = new GraphicsPolygon(ptList, LineWidth, Colors.Green, ActualScale, 0);
                         _graphicsList.Add(polygon);
@@ -488,10 +521,10 @@ namespace ThorCyte.CarrierModule.Canvases
                         polygon.RefreshDrawing();
                         break;
                     case RegionShape.Rectangle:
-                        var left1 = (_plateWidth - rc.X - rc.Width) * scale;
-                        var top1 = rc.Y * scale;
-                        var right1 = (_plateWidth - rc.X) * scale;
-                        var bottom1 = (rc.Y + rc.Height) * scale;
+                        var left1 = (_plateWidth - rc.X - rc.Width + _trimRight) * scale;
+                        var top1 = (rc.Y - _trimTop) * scale;
+                        var right1 = (_plateWidth - rc.X + _trimRight) * scale;
+                        var bottom1 = (rc.Y + rc.Height - _trimTop) * scale;
                         var rectangle = new GraphicsRectangle(left1, top1, right1, bottom1, LineWidth, Colors.Green,
                             ActualScale, 0);
                         _graphicsList.Add(rectangle);
@@ -514,6 +547,9 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             if (!IsShowing) return;
             if (!IsWellChanged(args.WellId)) return;
+
+            IsEnabled = false;
+
             _lastWellId = _currentWellId;
             _currentWellId = args.WellId;
 
@@ -521,9 +557,8 @@ namespace ThorCyte.CarrierModule.Canvases
             var thiskey = GetPlateId(args.WellId);
             if (_roomRectList.ContainsKey(thiskey))
             {
-
                 var rect = _roomRectList[thiskey];
-                var offset = rect.Width / 10;
+                var offset = rect.Width / 5;
 
                 var left = rect.Left + offset;
                 var top = rect.Top + offset;
@@ -562,7 +597,7 @@ namespace ThorCyte.CarrierModule.Canvases
 
         public void MacroFinish(int scanid)
         {
-            //if (!IsShowing) return;
+            if (!IsShowing) return;
 
             if (GraphicsList.Contains(_circulePointer))
             {
@@ -573,6 +608,7 @@ namespace ThorCyte.CarrierModule.Canvases
             if (lastkey != string.Empty && !AnalyzedWells.Contains(lastkey))
                 AnalyzedWells.Add(lastkey);
 
+            IsEnabled = true;
             InvalidateVisual();
             _currentWellId = 0;
             _lastWellId = 0;
@@ -610,8 +646,8 @@ namespace ThorCyte.CarrierModule.Canvases
                              (rectRoom.Value.Left + rectRoom.Value.Right) / 2.0,
                              (rectRoom.Value.Top + rectRoom.Value.Bottom) / 2.0);
 
-                var radiusX = (rectRoom.Value.Right - rectRoom.Value.Left) / 2.0;
-                var radiusY = (rectRoom.Value.Bottom - rectRoom.Value.Top) / 2.0;
+                var radiusX = (rectRoom.Value.Right - rectRoom.Value.Left) / 2.0 * _plate.WellSize / _plate.Interval;
+                var radiusY = (rectRoom.Value.Bottom - rectRoom.Value.Top) / 2.0 * _plate.WellSize / _plate.Interval;
 
 
                 var bh = AnalyzedWells.Contains(rectRoom.Key) ? Brushes.Green : Brushes.SlateGray;
@@ -622,23 +658,55 @@ namespace ThorCyte.CarrierModule.Canvases
                     radiusX,
                     radiusY);
 
+                const double ftMaxScale = 0.8;
+
                 if (rectRoom.Key.StartsWith("A"))
                 {
                     var str = rectRoom.Key.Replace("A", string.Empty);
-                    var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 50 * ActualScale, Brushes.LightGray);
 
-                    dc.DrawText(ft,
-                        str.Length == 2
-                            ? new Point(rectRoom.Value.X + rectRoom.Value.Width / 5, rectRoom.Value.Y - 60 * ActualScale)
-                            : new Point(rectRoom.Value.X + rectRoom.Value.Width / 4, rectRoom.Value.Y - 60 * ActualScale));
+                    double ftsize;
+                    if (ActualScale > ftMaxScale)
+                    {
+                        const double tempscale = ftMaxScale;
+                        ftsize = 50 * tempscale;
+                        var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                           new Typeface("Verdana"), ftsize, Brushes.LightGray);
+
+                        dc.DrawText(ft,
+                            str.Length == 2
+                                ? new Point(rectRoom.Value.X + rectRoom.Value.Width / 4.5, rectRoom.Value.Y - 60 * tempscale)
+                                : new Point(rectRoom.Value.X + rectRoom.Value.Width / 2.5, rectRoom.Value.Y - 60 * tempscale));
+                    }
+                    else
+                    {
+                        ftsize = 50 * ActualScale;
+                        var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                                                   new Typeface("Verdana"), ftsize, Brushes.LightGray);
+
+                        dc.DrawText(ft,
+                            str.Length == 2
+                                ? new Point(rectRoom.Value.X + rectRoom.Value.Width / 5, rectRoom.Value.Y - 60 * ActualScale)
+                                : new Point(rectRoom.Value.X + rectRoom.Value.Width / 4, rectRoom.Value.Y - 60 * ActualScale));
+                    }
                 }
 
 
                 if (rectRoom.Key.EndsWith("1") && rectRoom.Key.Length == 2)
                 {
                     var str = rectRoom.Key.Replace("1", string.Empty);
-                    var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 50 * ActualScale, Brushes.LightGray);
-                    dc.DrawText(ft, new Point(rectRoom.Value.X - 60 * ActualScale, rectRoom.Value.Y + rectRoom.Value.Height / 4));
+
+                    if (ActualScale > ftMaxScale)
+                    {
+                        const double tempscale = ftMaxScale;
+                        var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 50 * tempscale, Brushes.LightGray);
+                        dc.DrawText(ft, new Point(rectRoom.Value.X - 60 * tempscale, rectRoom.Value.Y + rectRoom.Value.Height / 4));
+                    }
+                    else
+                    {
+                        var ft = new FormattedText(str, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Verdana"), 50 * ActualScale, Brushes.LightGray);
+                        dc.DrawText(ft, new Point(rectRoom.Value.X - 60 * ActualScale, rectRoom.Value.Y + rectRoom.Value.Height / 4));
+                    }
+
                 }
             }
 
@@ -736,17 +804,15 @@ namespace ThorCyte.CarrierModule.Canvases
 
             var pt = e.GetPosition(this);
 
-            //var x = (int)(pt.X * _rx);
-
-            var x = (int)(_plateWidth - pt.X * _rx);
-            var y = (int)(pt.Y * _ry);
+            var x = (int)(_plateWidth - pt.X * _rx + _trimRight);
+            var y = (int)(pt.Y * _ry + _trimTop);
 
             if (x < 0) x = 0;
-            if (x >= _plateWidth)
-                x = (int)_plateWidth;
+            if (x >= _plateWidth + _trimRight)
+                x = (int)(_plateWidth + _trimRight);
             if (y < 0) y = 0;
-            if (y >= _plateHeight)
-                y = (int)_plateHeight;
+            if (y >= _plateHeight + _trimTop)
+                y = (int)(_plateHeight + _trimTop);
 
             MousePosition = x + ", " + y;
 

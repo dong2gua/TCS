@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Windows;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
@@ -42,8 +43,6 @@ namespace ThorCyte.GraphicModule.ViewModels
         private readonly ImpObservableCollection<GraphicVmBase> _graphicVmList;
 
         private static readonly IdManager _idManager = new IdManager();
-
-        private readonly DelegateCommand _deleteGraphicCmd;
 
         private readonly DelegateCommand _cancelEditCommand;
 
@@ -172,11 +171,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        public DelegateCommand DeleteGraphicCmd
-        {
-            get { return _deleteGraphicCmd; }
-        }
-
         public DelegateCommand CancelEditCommand
         {
             get { return _cancelEditCommand; }
@@ -206,7 +200,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             _graphicDictionary = new Dictionary<string, Tuple<GraphicUcBase, GraphicVmBase>>();
             _graphicVmList = new ImpObservableCollection<GraphicVmBase>();
             _name = name;
-            _deleteGraphicCmd = new DelegateCommand(OnDeleteGraphic);
             _cancelEditCommand = new DelegateCommand(() => IsEdit = false);
         }
 
@@ -242,7 +235,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        private void OnDeleteGraphic()
+        public void OnDeleteGraphic()
         {
             if (_selectedGraphic == null)
             {
@@ -273,21 +266,32 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        public void CreateScattergram()
+        public GraphicVmBase CreateScattergram()
         {
             var id = _idManager.GetId().ToString(CultureInfo.InvariantCulture);
             var vm = new ScattergramVm();
             vm.InitGraphParams(id);
             _graphicVmList.Add(vm);
+            if (_graphicVmList.Count == 1)
+            {
+                SelectedGraphic = vm;
+            }
             GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
+            return vm;
         }
 
-        public void CreateHistogram()
+        public GraphicVmBase CreateHistogram()
         {
             var id = _idManager.GetId().ToString(CultureInfo.InvariantCulture);
             var vm = new HistogramVm();
             vm.InitGraphParams(id);
             _graphicVmList.Add(vm);
+            if (_graphicVmList.Count == 1)
+            {
+                SelectedGraphic = vm;
+            }
+            GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
+            return vm;
         }
 
         public void Clear()

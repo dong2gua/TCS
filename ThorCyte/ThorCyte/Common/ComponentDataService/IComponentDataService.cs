@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using ComponentDataService.Types;
 using ImageProcess;
 using ImageProcess.DataType;
@@ -6,8 +7,7 @@ using ThorCyte.Infrastructure.Interfaces;
 
 namespace ComponentDataService
 {
-   
-
+  
     public interface IComponentDataService
     {
         void Load(IExperiment experiment);
@@ -18,13 +18,12 @@ namespace ComponentDataService
         void AddComponent(string componentName, IList<Feature> features);
         void ClearComponents();
         int GetFeatureIndex(string componentName, FeatureType type, string channelName = null);
-        void SaveBlobs(string fileFolder);
-        void SaveEvents(string fileFolder);
-
+        void Save(string fileFolder);
         IList<Blob> CreateContourBlobs(string componentName, int scanId, int wellId, int tileId,
             ImageData data, double minArea, double maxArea);
 
         IList<BioEvent> CreateEvents(string componentName, int scanId, int wellId, int tileId, 
             IDictionary<string, ImageData> imageDict, BlobDefine define);
+        int GetComponentScanId(string componentName);
     }
 }

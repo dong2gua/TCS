@@ -18,5 +18,6 @@ namespace ROIService
         IEnumerable<string> GetRegionIdList(string componentName);
         MaskRegion GetRegion(string id);
         void InitRegions(IEnumerable<MaskRegion> regions);
+        void Clear();
     }
 }
