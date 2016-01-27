@@ -55,6 +55,7 @@ IPP_LIB_API int fnipp_lib_sum_16uC1M(unsigned short* buffer, int width, int heig
 
 IPP_LIB_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int height, int channels, unsigned short* dstBuffer, FilterType type, int maskSize);
 
+IPP_LIB_API int fnipp_lib_mean_16uC1(const Ipp16u* srcBuffer, Ipp32s width, Ipp32s height, Ipp64f* pAverage);
 
 
 IppStatus saturate(Ipp16u* buffer, int width, int height, int channels, unsigned short maxValue);

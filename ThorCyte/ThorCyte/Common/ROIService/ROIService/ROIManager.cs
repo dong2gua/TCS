@@ -165,10 +165,9 @@ namespace ROIService
         {
             return (from entry in _roiDictionary
                 let key = entry.Key
-                select entry.Value
-                into region
+                let region = entry.Value
                 where region.ComponentName.Equals(componentName)
-                select region.ComponentName).ToList();
+                select key).ToList();
         }
 
         public MaskRegion GetRegion(string id)

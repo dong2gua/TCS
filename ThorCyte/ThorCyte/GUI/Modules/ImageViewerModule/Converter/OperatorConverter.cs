@@ -16,11 +16,11 @@ namespace ThorCyte.ImageViewerModule.Converter
                 switch(parameter.ToString())
                 {
                     case "0":
-                        if (operation == ImageOperator.Multiply)
+                        if (operation == ImageOperator.Multiply|| operation == ImageOperator.ShiftPeak)
                             return Visibility.Collapsed;
                         else return Visibility.Visible;
                     case "1":
-                        if (operation == ImageOperator.Multiply)
+                        if (operation == ImageOperator.Multiply || operation == ImageOperator.ShiftPeak)
                             return Visibility.Visible;
                         else return Visibility.Collapsed;
                     case "2":

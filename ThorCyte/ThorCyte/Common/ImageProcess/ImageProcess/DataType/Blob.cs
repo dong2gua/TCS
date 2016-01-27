@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 
 namespace ImageProcess.DataType
 {
@@ -16,7 +17,7 @@ namespace ImageProcess.DataType
         private readonly List<Point> _points = new List<Point>();
         private readonly List<Point> _points2 = new List<Point>(); 
         private readonly List<VLine> _lines = new List<VLine>();
-        //private PathGeometry _pathGeometry;
+        private PathGeometry _pathGeometry;
         private bool _concave;
         private RegionShape _shape = RegionShape.Contour;
         #endregion
@@ -44,7 +45,7 @@ namespace ImageProcess.DataType
         }
 
         public int Area { get; private set; }
-
+        public int EventId { get; set; }
         //public double AreaByGeometry
         //{
         //    get { return _pathGeometry.GetArea(); }
@@ -76,6 +77,11 @@ namespace ImageProcess.DataType
 
         #region Public
 
+        public bool Contains(Blob blob)
+        {
+            return _pathGeometry.FillContains(blob._pathGeometry);
+        }
+
         public void FlipH(int width)
         {
             int n = _points.Count;
@@ -89,7 +95,7 @@ namespace ImageProcess.DataType
             _points.Clear();
             _points.AddRange(points);
             _points.Sort(SortCornersClockwise);
-            //_pathGeometry = MakeGeometryFromPoints();
+            _pathGeometry = MakeGeometryFromPoints();
             //Rect bound = _pathGeometry.Bounds;
             //Bound = new Int32Rect((int) bound.X, (int) bound.Y, (int) bound.Width, (int) bound.Height);
             Bound = RecalcPolygonBounds();
@@ -292,7 +298,7 @@ namespace ImageProcess.DataType
                 // repeat the first point
                 VLine ln = expBlob._lines[0];
                 expBlob._points[count - 1] = new Point(ln.X, ln.Y1);
-                //expBlob._pathGeometry = expBlob.MakeGeometryFromPoints(expBlob._points);
+                expBlob._pathGeometry = expBlob.MakeGeometryFromPoints(expBlob._points);
                 return expBlob;
             }
            
@@ -500,22 +506,22 @@ namespace ImageProcess.DataType
 
         }
 
-        public bool IsVisible(Point pt)
-        {
-            if (Bound.Contains(pt) == false) return false;
-            if (_lines != null)
-            {
-                return
-                    _lines.Where(line => Math.Abs(pt.X - line.X) < Tolerance)
-                        .Any(line => pt.Y >= line.Y1 && pt.Y <= line.Y2);
-            }
-            return false;
-        }
-
         //public bool IsVisible(Point pt)
         //{
-        //    return _pathGeometry.FillContains(pt);
+        //    if (Bound.Contains(pt) == false) return false;
+        //    if (_lines != null)
+        //    {
+        //        return
+        //            _lines.Where(line => Math.Abs(pt.X - line.X) < Tolerance)
+        //                .Any(line => pt.Y >= line.Y1 && pt.Y <= line.Y2);
+        //    }
+        //    return false;
         //}
+
+        public bool IsVisible(Point pt)
+        {
+            return _pathGeometry.FillContains(pt);
+        }
         #endregion
 
         #region Private
@@ -548,14 +554,13 @@ namespace ImageProcess.DataType
 
         }
 
-/*
         private PathGeometry MakeGeometryFromPoints()
         {
             return MakeGeometryFromPoints(_points);
         }
-*/
 
-/*
+
+
         private PathGeometry MakeGeometryFromPoints(List<Point> points)
         {
             if (points == null || points.Count <= 2)
@@ -581,7 +586,7 @@ namespace ImageProcess.DataType
 
             return pathGeometry;
         }
-*/
+
 
         private void InitContourLines()
         {

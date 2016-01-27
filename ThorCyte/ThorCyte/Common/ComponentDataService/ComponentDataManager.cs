@@ -1,4 +1,5 @@
-﻿using ComponentDataService.Types;
+﻿using System.Collections.ObjectModel;
+using ComponentDataService.Types;
 using ImageProcess;
 using ImageProcess.DataType;
 using System;
@@ -77,6 +78,27 @@ namespace ComponentDataService
             }
         }
 
+
+        private static void Association(IEnumerable<Blob> masterDataBlobs, IList<BioEvent> masterEvents, IList<Blob> slaveDataBlobs,
+            IList<BioEvent> slavEvents)
+        {
+            foreach (Blob masterDataBlob in masterDataBlobs)
+            {
+                foreach (Blob slaveDataBlob in slaveDataBlobs)
+                {
+                    if (masterDataBlob.Contains(slaveDataBlob))
+                    {
+                        BioEvent master = masterEvents.BinarySearch(masterDataBlob.EventId);
+                        BioEvent slave = slavEvents.BinarySearch(slaveDataBlob.EventId);
+                        if (master != null && slave != null)
+                        {
+                            master.Children.Add(slave);
+                            slave.Parent = master;
+                        }
+                    }
+                }
+            }
+        }
        
 
         #endregion
@@ -122,7 +144,7 @@ namespace ComponentDataService
             if (tileId <= 0 || tileId > tileCount) throw new ArgumentOutOfRangeException("tileId");
             try
             {          
-                return comp.GetTileBlobs(scanId, wellId, tileId, type);
+                return comp.GetTileBlobs(wellId, tileId, type);
             }
             catch (FileNotFoundException)
             {
@@ -144,7 +166,7 @@ namespace ComponentDataService
                 throw new ArgumentOutOfRangeException("wellId");
             try
             {               
-                return comp.GetEvents(scanId, wellId);
+                return comp.GetEvents(wellId);
             }
             catch (FileNotFoundException)
             {
@@ -213,7 +235,7 @@ namespace ComponentDataService
             if (_bioComponentDict.ContainsKey(componentName) == false)
                 throw new ArgumentException("invaild componenet name", "componentName");
             BioComponent component = _bioComponentDict[componentName];
-            return component.CreateContourBlobs(scanId, wellId, tileId, data, minArea, maxArea);
+            return component.CreateContourBlobs(wellId, tileId, data, minArea, maxArea);
         }
 
         public IList<BioEvent> CreateEvents(string componentName, int scanId, int wellId, int tileId,
@@ -222,7 +244,7 @@ namespace ComponentDataService
             if (_bioComponentDict.ContainsKey(componentName) == false)
                 throw new ArgumentException("invaild componenet name", "componentName");
             BioComponent component = _bioComponentDict[componentName];
-            return component.CreateEvents(scanId, wellId, tileId, imageDict, define);
+            return component.CreateEvents(wellId, tileId, imageDict, define);
         }
 
         public int GetComponentScanId(string componentName)
@@ -230,6 +252,40 @@ namespace ComponentDataService
             if (_bioComponentDict.ContainsKey(componentName) == false)
                 throw new ArgumentException("invaild componenet name", "componentName");
             return _bioComponentDict[componentName].ScanId;
+        }
+
+
+        public void Association(string masterComponentName, string slaveComponentName)
+        {
+            if (_bioComponentDict.ContainsKey(masterComponentName) == false ||
+                _bioComponentDict.ContainsKey(slaveComponentName) == false)
+                throw new ArgumentException("invaild component name");
+            BioComponent master = _bioComponentDict[masterComponentName];
+            BioComponent slave = _bioComponentDict[slaveComponentName];
+            ScanInfo info = _experiment.GetScanInfo(master.ScanId);
+            IList<ScanRegion> regions = info.ScanRegionList;
+            foreach (ScanRegion region in regions)
+            {
+                int wellId = region.WellId;
+                IList<Scanfield> fields = region.ScanFieldList;
+                foreach (Scanfield field in fields)
+                {
+                    int tileId = field.ScanFieldId;
+                    IList<Blob> masterDataBlob = master.GetTileBlobs(wellId, tileId, BlobType.Data);
+                    IList<Blob> slaveDataBlob = slave.GetTileBlobs(wellId, tileId, BlobType.Data);
+                    IList<BioEvent> slaveEvents = slave.GetEvents(wellId);
+                    IList<BioEvent> masterEvents = master.GetEvents(wellId);
+                    Association(masterDataBlob, masterEvents, slaveDataBlob, slaveEvents);
+                }
+            }
+
+        }
+
+        public void Association(string masterComponentName, string firstSlaveComponentName,
+            string secondSlaveComponentName)
+        {
+            Association(masterComponentName, firstSlaveComponentName);
+            Association(masterComponentName, secondSlaveComponentName);
         }
 
         #endregion
@@ -243,6 +299,9 @@ namespace ComponentDataService
         }
         #endregion
 
+
+
+        
     }
 
     internal static class Utils
@@ -307,6 +366,36 @@ namespace ComponentDataService
                 return value;
             }
         }
+        #endregion
+
+        #region IList<T>
+
+        public static BioEvent BinarySearch(this IList<BioEvent> bioEvents, int id)
+        {
+            int n = bioEvents.Count;
+            int low = 0;
+            int hi = n - 1;
+            while (low<=hi)
+            {
+                int mid = (hi - low) >> 1 + low;
+                int curId = bioEvents[mid].Id;
+                if (curId == id)
+                {
+                    return bioEvents[mid];
+                }                   
+                else if (curId > id)
+                {
+                    hi = mid - 1;
+                }
+                else
+                {
+                    low = mid + 1;
+                }
+                    
+            }
+            return null;
+        }
+
         #endregion
     }
 

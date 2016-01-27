@@ -117,9 +117,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
             {
                 ListModuleInfos[0].Items.Add(new TreeViewItemModel
                 {
-                    Name = name,
-                    ItemType = GetModuleType(name)
-                    
+                    Name = name ,
+                    ItemType = ModuleType.None 
                 });
             }
 

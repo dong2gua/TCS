@@ -11,7 +11,7 @@ using System.Windows;
 using System.Windows.Media;
 using ThorCyte.ImageViewerModule.Events;
 using ThorCyte.ImageViewerModule.Model;
-
+using System.Collections.Generic;
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ProfileViewModel : BindableBase
@@ -21,6 +21,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         {
             get { return _profileCf ; }
             set { SetProperty<string>(ref _profileCf, value, "ProfileCf"); }
+        }
+        private bool _isCFVisibility;
+        public bool IsCFVisibility
+        {
+            get { return _isCFVisibility; }
+            set { SetProperty<bool>(ref _isCFVisibility, value, "IsCFVisibility"); }
         }
 
         private DoubleRange _axisYRange = new DoubleRange(0, 0x01 << 14);
@@ -76,17 +82,22 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             if (_channel.ComputeColorDicWithData == null) return;
             foreach(var o in _channel.ComputeColorDicWithData)
             {
-                FillChartData(o.Value.Item1,o.Value.Item2);
+                if ((int)_start.Value.X > o.Value.Item1.XSize || (int)_start.Value.Y > o.Value.Item1.YSize || (int)_end.Value.X > o.Value.Item1.XSize || (int)_end.Value.Y > o.Value.Item1.YSize) return;
+                var buffer = o.Value.Item1.GetDataInProfileLine(new Point(_start.Value.X, _start.Value.Y), new Point(_end.Value.X, _end.Value.Y));
+                FillChartData(buffer, o.Value.Item2);
             }
+            IsCFVisibility = false;
         }
         private void DisplayProfileDataInNormalColor()
         {
-            FillChartData(_channel.ImageData, Colors.Black);
+            if ((int)_start.Value.X > _channel.ImageData.XSize || (int)_start.Value.Y > _channel.ImageData.YSize || (int)_end.Value.X > _channel.ImageData.XSize || (int)_end.Value.Y > _channel.ImageData.YSize) return;
+            var buffer = _channel.ImageData.GetDataInProfileLine(new Point(_start.Value.X, _start.Value.Y), new Point(_end.Value.X, _end.Value.Y));
+            FillChartData(buffer, Colors.Black);
+            ProfileCf = (ComputeContrastFactor(buffer.ToArray()) * 100).ToString("0.00") + "%";
+            IsCFVisibility = true;
         }
-        private void FillChartData(ImageData data, Color color)
+        private void FillChartData(IList<ushort> buffer, Color color)
         {
-            if ((int)_start.Value.X > data.XSize || (int)_start.Value.Y > data.YSize || (int)_end.Value.X > data.XSize || (int)_end.Value.Y > data.YSize) return;
-            var buffer = data.GetDataInProfileLine(new Point(_start.Value.X, _start.Value.Y), new Point(_end.Value.X, _end.Value.Y));
             if (buffer == null) return;
             var n = buffer.Count();
             var xDataSeries = new double[n];
@@ -111,7 +122,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 };
 
                 SeriesSource.Add(new ChartSeriesViewModel(dataSeries, renderSeries));
-                ProfileCf = ComputeContrastFactor(buffer.ToArray()).ToString("0.00")+"%";
             }
         }
         private double ComputeContrastFactor(ushort[] sorted)

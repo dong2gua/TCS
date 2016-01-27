@@ -380,11 +380,6 @@ namespace ThorCyte.GraphicModule.Controls
                 }
                 else
                 {
-                    if ((Tool == ToolType.Polygon) || (Tool == ToolType.Rectangle) || (Tool == ToolType.Ellipse))
-                    {
-
-                    }
-
                     CurrentTool.OnMouseDown(this, e);
                     foreach (var g in VisualList)
                     {
@@ -454,7 +449,7 @@ namespace ThorCyte.GraphicModule.Controls
             }
         }
 
-        private void OnMouseUp(object sender, MouseButtonEventArgs e)
+        public void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
             Focus();
             if (e.ChangedButton == MouseButton.Left)
@@ -470,8 +465,15 @@ namespace ThorCyte.GraphicModule.Controls
 
         private void OnMouseLeave(object sender, MouseEventArgs e)
         {
-            var eventArgs = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, Tool == ToolType.Polygon ? MouseButton.Right : MouseButton.Left);
-            OnMouseUp(this, eventArgs);
+            if ((CurrentTool as RegionToolObject) != null)
+            {
+                var toolobj = CurrentTool as RegionToolObject;
+                if (toolobj.IsNew)
+                {
+                    var eventArgs = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, Tool == ToolType.Polygon ? MouseButton.Right : MouseButton.Left);
+                    OnMouseUp(this, eventArgs);
+                }
+            }
         }
 
         private void DeleteSelected()

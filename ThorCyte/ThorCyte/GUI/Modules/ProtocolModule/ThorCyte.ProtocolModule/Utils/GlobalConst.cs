@@ -13,6 +13,7 @@
         public const string FilterModuleName = "Filter";
 
         public const string OperationCateName = "Operation Category";
+        public const string AddModuleName = "Add";
 
         public const string ContourCateName = "Contour Category";
         public const string ChannelModuleName = "Channel";
@@ -23,6 +24,7 @@
         public const string EventModuleName = "Event";
         public const string PhantomModuleName = "Phantom";
         public const string OverlapParentChildModuleName = "Association";
+        public const string OverlapParentChild2ModuleName = "Association 2";
 
         public const string ExperimentalCateName = "Experimental Category";
 

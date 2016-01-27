@@ -78,6 +78,9 @@ namespace ImageProcess
         [DllImport(DllName, EntryPoint = "fnipp_lib_filter_16u", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int Filter16U(SafeHandle srcBuffer, int width, int height, int channels,
             SafeHandle dstBuffer, FilterType type, int maskSize);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_mean_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Mean16UC1(SafeHandle srcBuffer, int width, int height, out double mean);
         #endregion
 
         static ImageProcessLib()

@@ -17,7 +17,7 @@
 		<module name="Mask"/>
 	</category>
 	<category name="Operation">
-		<module name="Add"  />
+		<module name="Add" reference="ThorCyte.ProtocolModule.ViewModels.Modules.AddModVm" />
 		<module name="Subtract" />
 		<module name="Invert"  />
 		<module name="And" />
@@ -36,7 +36,7 @@
 		<module name="Phantom" reference="ThorCyte.ProtocolModule.ViewModels.Modules.PhantomModVm" />
 		<module name="ScanAreaEvent" disp-name="Scan Area Event" />
 		<module name="OverlapParentChild" disp-name="Association" reference="ThorCyte.ProtocolModule.ViewModels.Modules.OverlapParentChildModVm" />
-		<module name="OverlapParentChild2" disp-name="Association 2" />
+		<module name="OverlapParentChild2" disp-name="Association 2" reference="ThorCyte.ProtocolModule.ViewModels.Modules.OverlapParentChild2ModVm" />
 		<module name="MultiScalParentChild" disp-name="Multi-Scale Association"  />
 		<module name="ArrayAlignment" disp-name="Array Alignment" />
 	</category>

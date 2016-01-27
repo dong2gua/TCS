@@ -48,7 +48,7 @@
             </Style>
 
             <DataTemplate DataType="{x:Type modulesBase:ModuleBase}" >
-                <Grid Width="120" MinHeight="60" ZIndex="-1">
+                <Grid Width="125" MinHeight="60" ZIndex="-1">
                     <Rectangle Fill="LightGray" RadiusX="3" RadiusY="3"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -159,7 +159,7 @@
         <Border x:Name="contentGrid" Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="CadetBlue">
             <ScrollViewer x:Name="Scroller" VerticalAlignment="Top" Margin="-1,-1,6,0" Height="{Binding ElementName=contentGrid,Path=ActualHeight}" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
-                    <Label Content="{Binding PannelVm.SelectedModuleViewModel.Name}" HorizontalAlignment="Center" FontWeight="Bold" Margin="5" FontSize="15" />
+                    <Label Content="{Binding PannelVm.SelectedModuleViewModel.DisplayName}" HorizontalAlignment="Center" FontWeight="Bold" Margin="5" FontSize="15" />
                     <ContentControl  x:Name="contentControl" DataContext="{Binding PannelVm.SelectedModuleViewModel}" Content="{Binding View}" VerticalAlignment="Top"/>
                 </StackPanel>
             </ScrollViewer>

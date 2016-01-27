@@ -6,7 +6,6 @@ using Microsoft.Practices.Unity;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
-using Prism.Regions;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 
@@ -15,6 +14,8 @@ namespace TestProtocol.ViewModels
     public class MainWndVm:BindableBase
     {
         public ICommand LoadExpCommand { get; private set; }
+        public ICommand SaveCommand { get; private set; }
+        private const int Scanid = 1;
 
         private string _captionString;
 
@@ -27,6 +28,7 @@ namespace TestProtocol.ViewModels
         public MainWndVm()
         {
             LoadExpCommand = new DelegateCommand(LoadExp);
+            SaveCommand = new DelegateCommand(Save);
             CaptionString = "Protocol Test View";
         }
 
@@ -43,6 +45,10 @@ namespace TestProtocol.ViewModels
             }
         }
 
+        private void Save()
+        {
+            EventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(Scanid);
+        }
 
         private void LoadExp()
         {
@@ -69,8 +75,7 @@ namespace TestProtocol.ViewModels
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             container.RegisterInstance(_experiment);
             container.RegisterInstance(_dataMgr);
-            const int scanid = 1;
-            EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(scanid);
+            EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(Scanid);
         }
 
 

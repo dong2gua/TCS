@@ -100,10 +100,7 @@ namespace ThorCyte.GraphicModule.Views
             {
                 return;
             }
-            if (_panel == null)
-            {
-                _panel = panel;
-            }
+            _panel = panel;
         }
 
         private void OnAddScattergram(object sender, RoutedEventArgs e)

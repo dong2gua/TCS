@@ -8,6 +8,7 @@
 
     <UserControl.Resources>
         <tools:ToolTypeConverter x:Key="convToolType"/>
+        <tools:BoolToVisibilityConverter x:Key="convVisible"/>
     </UserControl.Resources>
     <StackPanel>
         <Grid>
@@ -17,7 +18,7 @@
                     <Image Source="../Images/PointerHS.png"/>
                 </ToggleButton>
 
-                <Button x:Name="buttonSelectAll" ToolTip="Select All" Click="buttonSelectAll_Click" >
+                <Button x:Name="buttonSelectAll" ToolTip="Select All" Click="buttonSelectAll_Click" Visibility="{Binding ElementName=slideCanvas, Path=IsSelectAllVisible, Converter={StaticResource convVisible}}">
                     <Image Source="../Images/select_all.png"/>
                 </Button>
 

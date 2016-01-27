@@ -492,6 +492,16 @@ IPP_LIB_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int h
 }
 
 
+IPP_LIB_API int fnipp_lib_mean_16uC1(const Ipp16u* srcBuffer, Ipp32s width, Ipp32s height, Ipp64f* pAverage)
+{
+	const Ipp32s step = ElementSize * width;
+	const IppiSize roi = {width, height};
+	IppStatus status = ippiMean_16u_C1R(srcBuffer, step, roi, pAverage);	
+	return status;
+}
+
+
+
 
 const Ipp32s* getFilterKernel(FilterType type, int maskSize) 
 {

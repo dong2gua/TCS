@@ -15,6 +15,7 @@
         </Grid.RowDefinitions>
         <ToolBar Grid.Row="0">
             <Button Content="Open" Command="{Binding LoadExpCommand}"/>
+            <Button Content="Save" Command="{Binding SaveCommand}"/>
         </ToolBar>
         
         <ContentControl Grid.Row="1" x:Name="ProtocolRegion" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ProtocolRegion}"/>

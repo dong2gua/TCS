@@ -17,6 +17,8 @@ namespace ThorCyte.ProtocolModule.Models
             {GlobalConst.FilterModuleName,ModuleType.SmtFilterModule},
 
             {GlobalConst.OperationCateName,ModuleType.SmtOperationCategory},
+            {GlobalConst.AddModuleName,ModuleType.SmtAddModule},
+
 
             {GlobalConst.ContourCateName,ModuleType.SmtContourCategory},
             {GlobalConst.ChannelModuleName,ModuleType.SmtChannelModule},
@@ -27,6 +29,7 @@ namespace ThorCyte.ProtocolModule.Models
             {GlobalConst.EventModuleName,ModuleType.SmtEventModule},
             {GlobalConst.PhantomModuleName,ModuleType.SmtPhantomModule},
             {GlobalConst.OverlapParentChildModuleName,ModuleType.SmtOverlapParentChildModule},
+            {GlobalConst.OverlapParentChild2ModuleName,ModuleType.SmtOverlapParentChild2Module},
 
             {GlobalConst.ExperimentalCateName,ModuleType.SmtExperimentalCategory},
 

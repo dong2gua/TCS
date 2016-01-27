@@ -15,6 +15,7 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
             var p = e.GetPosition(graph);
             var name = ConstantHelper.PrefixRegionName + ROIManager.Instance.GetRegionId();
             AddNewObject(graph, new GraphicsEllipse(p.X,p.Y, p.X + 1, p.Y + 1, graph.LineWidth, graph.ObjectColor, 1, graph.RenderSize, name));
+            _isNew = true;
         }
     }
 }

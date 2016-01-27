@@ -276,7 +276,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 SelectedGraphic = vm;
             }
-            GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
             return vm;
         }
 
@@ -290,7 +289,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 SelectedGraphic = vm;
             }
-            GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
             return vm;
         }
 

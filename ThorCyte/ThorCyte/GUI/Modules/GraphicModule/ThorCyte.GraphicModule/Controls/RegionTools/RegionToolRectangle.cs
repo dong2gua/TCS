@@ -20,6 +20,7 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
             var rect = new GraphicsRectangle(p.X, startY, p.X + 1, endY, graph.LineWidth, graph.ObjectColor, 1, graph.RenderSize, name, isDrawTrackerAll);
             rect.OriginalPoint = p;
             AddNewObject(graph, rect);
+            _isNew = true;
         }
     }
 }

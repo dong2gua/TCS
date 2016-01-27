@@ -41,7 +41,7 @@
         SmtFilterModule,
 
         SmtOperationCategory,
-
+        SmtAddModule,
 
         SmtContourCategory,
         SmtChannelModule,
@@ -52,6 +52,7 @@
         SmtEventModule,
         SmtPhantomModule,
         SmtOverlapParentChildModule,
+        SmtOverlapParentChild2Module,
 
         SmtExperimentalCategory,
         SmtAdvancedImageAnalysisCategory,

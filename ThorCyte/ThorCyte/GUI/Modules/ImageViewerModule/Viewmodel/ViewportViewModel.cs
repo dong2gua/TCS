@@ -263,7 +263,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 data1 = getVirtualData(channel.FirstChannel as VirtualChannel, dic);
             }
 
-            if (channel.Operator != ImageOperator.Multiply && channel.Operator != ImageOperator.Invert)
+            if (channel.Operator != ImageOperator.Multiply && channel.Operator != ImageOperator.Invert && channel.Operator != ImageOperator.ShiftPeak)
             {
                 if (!channel.SecondChannel.IsvirtualChannel)
                 {
@@ -274,7 +274,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                     data2 = getVirtualData(channel.SecondChannel as VirtualChannel, dic);
                 }
             }
-            if (data1 == null || (data2 == null && (channel.Operator != ImageOperator.Multiply && channel.Operator != ImageOperator.Invert))) return null;
+            if (data1 == null || (data2 == null && (channel.Operator != ImageOperator.Multiply && channel.Operator != ImageOperator.Invert && channel.Operator != ImageOperator.ShiftPeak))) return null;
             ImageData result = new ImageData(data1.XSize, data1.YSize);
             switch (channel.Operator)
             {
@@ -295,6 +295,9 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                     break;
                 case ImageOperator.Multiply:
                     result = data1.MulConstant(channel.Operand,_maxBits);
+                    break;
+                case ImageOperator.ShiftPeak:
+                    result = data1.ShiftPeak((ushort)channel.Operand, _maxBits);
                     break;
                 default:
                     break;
@@ -360,7 +363,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 result = channelImage.ImageData;
             else
                 result = channelImage.ImageData.SetBrightnessAndContrast(channelImage.Contrast, channelImage.Brightness, _maxBits);
-            channelImage.Image =new Tuple<ImageSource, Int32Rect>( result.ToBitmapSource(_maxBits),VisualRect);
+            if (result != null)
+                channelImage.Image = new Tuple<ImageSource, Int32Rect>(result.ToBitmapSource(_maxBits), VisualRect);
         }
         private void UpdateThumbnail(ChannelImage channelImage)
         {
@@ -369,7 +373,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 result = channelImage.ThumbnailImageData;
             else
                 result = channelImage.ThumbnailImageData.SetBrightnessAndContrast(channelImage.Contrast,channelImage.Brightness,_maxBits);
-            channelImage.Thumbnail = result.ToBitmapSource(_aspectRatio,_maxBits);
+            if (result != null)
+                channelImage.Thumbnail = result.ToBitmapSource(_aspectRatio,_maxBits);
         }
         public void Initialization(IData iData, ScanInfo scanInfo,ExperimentInfo experimentInfo, int scanId, int regionId, int tileId)
         {

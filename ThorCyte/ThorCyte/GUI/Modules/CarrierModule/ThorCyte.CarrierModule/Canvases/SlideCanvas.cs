@@ -46,6 +46,9 @@ namespace ThorCyte.CarrierModule.Canvases
         public static readonly DependencyProperty OuterWidthProperty;
         public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
+        public static readonly DependencyProperty IsSelectAllVisibleProperty;
+        private Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
+
 
         private readonly Tool[] _tools;                   // Array of tools
 
@@ -63,6 +66,8 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             EventAggregator.GetEvent<MacroStartEvnet>().Subscribe(MacroStart, ThreadOption.UIThread, true);
             EventAggregator.GetEvent<MacroFinishEvent>().Subscribe(MacroFinish, ThreadOption.UIThread, true);
+            EventAggregator.GetEvent<ShowRegionEvent>().Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
+
 
             _graphicsList = new VisualCollection(this);
             _regionGraphicHashtable = new Hashtable();
@@ -86,10 +91,11 @@ namespace ThorCyte.CarrierModule.Canvases
             _ry = (float)(_slideHeight / drHeight);
             IsLocked = true;
             ActualScale = 0.5;
+
+
+            _regionListDic = new Dictionary<DisplayMode, List<ScanRegion>>();
+            ShowRegionEventHandler("ReviewModule");
         }
-
-
-
 
 
 
@@ -112,6 +118,9 @@ namespace ThorCyte.CarrierModule.Canvases
 
             metaData = new PropertyMetadata(100.0D, OuterSizeChanged);
             OuterHeightProperty = DependencyProperty.Register("OuterHeight", typeof(double), typeof(SlideCanvas), metaData);
+
+            metaData = new PropertyMetadata(false);
+            IsSelectAllVisibleProperty = DependencyProperty.Register("IsSelectAllVisible", typeof(bool), typeof(SlideCanvas), metaData);
 
         }
 
@@ -319,6 +328,15 @@ namespace ThorCyte.CarrierModule.Canvases
             set { SetValue(MousePositionProperty, value); }
         }
 
+        public bool IsSelectAllVisible
+        {
+            get { return (bool)GetValue(IsSelectAllVisibleProperty); }
+            set
+            {
+                SetValue(IsSelectAllVisibleProperty, value);
+            }
+        }
+
         #endregion Properties
 
         #region Override Functions
@@ -476,6 +494,88 @@ namespace ThorCyte.CarrierModule.Canvases
             _slideHeight = SlideMod.Height;
             UpdateRoomRects();
             InvalidateVisual();
+        }
+
+
+
+        private void ShowRegionEventHandler(string moduleName)
+        {
+            try
+            {
+                if (!IsShowing) return;
+
+                switch (moduleName)
+                {
+                    case "ReviewModule":
+                        SwitchSelections(DisplayMode.Review);
+                        IsSelectAllVisible = false;
+                        break;
+                    case "AnalysisModule":
+                        SwitchSelections(DisplayMode.Analysis);
+                        IsSelectAllVisible = true;
+                        break;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        public void SwitchSelections(DisplayMode mode)
+        {
+            //Record current Selected regions
+            switch (mode)
+            {
+                case DisplayMode.Analysis:
+                    //swtich to analysis
+                    RecordSelections(DisplayMode.Review);
+                    break;
+                case DisplayMode.Review:
+                    //switch to review
+                    RecordSelections(DisplayMode.Analysis);
+                    break;
+            }
+
+            ApplySelections(mode);
+        }
+
+        private void RecordSelections(DisplayMode mode)
+        {
+            if (_slideMod.ActiveRegions == null) return;
+            var rList = _slideMod.ActiveRegions.ToList();
+
+            if (_regionListDic.ContainsKey(mode))
+            {
+                _regionListDic.Remove(mode);
+            }
+
+            _regionListDic.Add(mode, rList);
+        }
+
+        private void ClearSelections()
+        {
+            _slideMod.ClearActiveRegions();
+            foreach (var gphcs in _graphicsList.Cast<GraphicsBase>())
+            {
+                gphcs.IsSelected = false;
+            }
+        }
+
+        private void ApplySelections(DisplayMode mode)
+        {
+            ClearSelections();
+
+            if (!_regionListDic.ContainsKey(mode)) return;
+
+            foreach (var region in _regionListDic[mode])
+            {
+                var gph = (GraphicsBase)_regionGraphicHashtable[region];
+                gph.IsSelected = true;
+                _slideMod.AddActiveRegion(region);
+            }
         }
 
         private void DrawRooms(DrawingContext dc)

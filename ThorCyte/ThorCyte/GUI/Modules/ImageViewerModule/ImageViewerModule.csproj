@@ -114,6 +114,7 @@
     <Compile Include="Converter\BoolToStringConverter.cs" />
     <Compile Include="Converter\OperatorConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
+    <Compile Include="Converter\VisibilityConverter.cs" />
     <Compile Include="DrawTools\DrawingCanvas.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsBase.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsEllipse.cs" />

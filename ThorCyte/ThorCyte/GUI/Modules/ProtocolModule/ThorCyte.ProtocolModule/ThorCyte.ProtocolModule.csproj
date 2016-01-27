@@ -124,6 +124,8 @@
     <Compile Include="Utils\RequiredValidationRule.cs" />
     <Compile Include="Utils\VisualUtils.cs" />
     <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
+    <Compile Include="ViewModels\Modules\AddModVm.cs" />
+    <Compile Include="ViewModels\Modules\OverlapParentChild2ModVm.cs" />
     <Compile Include="ViewModels\Modules\OverlapParentChildModVm.cs" />
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
     <Compile Include="ViewModels\Modules\ContourModVm.cs" />

@@ -227,7 +227,7 @@ namespace ThorCyte.GraphicModule.Helper
                             var item = updateRegionList.Find(region => region.Id == leftId);
                             if (item != null)
                             {
-                                regionItem.Children.Add(ConstantHelper.PrefixRegionName + regionItem.Id);
+                                item.Children.Add(ConstantHelper.PrefixRegionName + regionItem.Id);
                             }
                         }
                         if (!string.IsNullOrEmpty(right))
@@ -236,7 +236,7 @@ namespace ThorCyte.GraphicModule.Helper
                             var item = updateRegionList.Find(regionTuple => regionTuple.Id == rightId);
                             if (item != null)
                             {
-                                regionItem.Children.Add(ConstantHelper.PrefixRegionName + regionItem.Id);
+                                item.Children.Add(ConstantHelper.PrefixRegionName + regionItem.Id);
                             }
                         }
                     }          

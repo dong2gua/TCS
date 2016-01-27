@@ -58,7 +58,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             SelectionChangedCommand = new DelegateCommand<ComputeColorItem>(OnSelectionChanged);
             ClickOKCommand = new DelegateCommand<SetComputeColorWindow>(OnClickOK);
             ClickCancelCommand = new DelegateCommand<SetComputeColorWindow>(OnClickCancel);
-            ChannelName = "color "+(computeColors.Count+1).ToString();
             if (channels == null || virtualChannels==null|| computeColors == null) return;
             _channels = channels;
             _virtualChannels = virtualChannels;

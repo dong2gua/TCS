@@ -74,12 +74,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 ChannelList.Add(o);
             foreach (var o in virtualChannels)
                 ChannelList.Add(o);
-            ChannelName = "virtual "+(virtualChannels.Count+1).ToString();
             _computeColors = computeColors;
         }
         private void OnClickOK(SetVirtualChannelWindow window)
         {
-            if (Channel1 == null || (Channel2 == null && (Operator != ImageOperator.Multiply && Operator != ImageOperator.Invert))) return;
+            if (Channel1 == null || (Channel2 == null && (Operator != ImageOperator.Multiply && Operator != ImageOperator.Invert && Operator != ImageOperator.ShiftPeak)))
+                return;
             if (IsNew)
             {
                 foreach (var o in _channelList)

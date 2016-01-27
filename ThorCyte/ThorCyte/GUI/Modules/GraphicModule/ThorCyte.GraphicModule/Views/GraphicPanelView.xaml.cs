@@ -48,14 +48,26 @@ namespace ThorCyte.GraphicModule.Views
             }
 
             var containerVm = (GraphicContainerVm)DataContext;
-            var items = VisualHelper.GetChildObjects<GraphicUcBase>(GraphicViewList, "");
-            foreach (var graphicview in items)
+            foreach (var graphivm in containerVm.GraphicVmList)
             {
-                var vm = (GraphicVmBase)graphicview.DataContext;
-                if (!containerVm.GraphicDictionary.ContainsKey(vm.Id))
+                var scattervm = graphivm as ScattergramVm;
+                if (scattervm != null)
                 {
-                    containerVm.GraphicDictionary.Add(vm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(graphicview, vm));
+                    var graphic = new ScattergramView {DataContext = scattervm};
+                    containerVm.GraphicDictionary.Add(scattervm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(graphic, scattervm));
+                    GraphicViewList.Items.Add(graphic);
                 }
+                else
+                {
+                    var graphic = new HistogramView{ DataContext = graphivm };
+                    containerVm.GraphicDictionary.Add(graphivm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(graphic, graphivm));
+                    GraphicViewList.Items.Add(graphic);
+                }
+            }
+            if (GraphicViewList.Items.Count > 0)
+            {
+                GraphicViewList.SelectedIndex = 0;
+                containerVm.SelectedGraphic = containerVm.GraphicVmList[0];
             }
             UpdateGridLayout();
             _isLoaded = true;
@@ -72,15 +84,15 @@ namespace ThorCyte.GraphicModule.Views
             {
                 return;
             }
-            if (GraphicViewList.ActualWidth <= 600)
+            if (GraphicViewList.ActualWidth <= 640)
             {
                 _uniformgrid.Columns = 1;
             }
-            else if (GraphicViewList.ActualWidth > 600 && GraphicViewList.ActualWidth <= 900 )
+            else if (GraphicViewList.ActualWidth > 640 && GraphicViewList.ActualWidth <= 960 )
             {
                 _uniformgrid.Columns = 2;
             }
-            else if (GraphicViewList.ActualWidth > 900 && GraphicViewList.ActualWidth < 1200)
+            else if (GraphicViewList.ActualWidth > 960 && GraphicViewList.ActualWidth < 1280)
             {
                 _uniformgrid.Columns = 3;
             }
@@ -150,6 +162,7 @@ namespace ThorCyte.GraphicModule.Views
                 DataContext = vm
             };
             containerVm.GraphicDictionary.Add(vm.Id,new Tuple<GraphicUcBase, GraphicVmBase>(scattergram,vm));
+            GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
             GraphicViewList.Items.Add(scattergram);
             if (containerVm.GraphicVmList.Count == 1)
             {
@@ -173,6 +186,7 @@ namespace ThorCyte.GraphicModule.Views
             };
             
             containerVm.GraphicDictionary.Add(vm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(histogram, vm));
+            GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
             GraphicViewList.Items.Add(histogram);
 
             if (containerVm.GraphicVmList.Count == 1)

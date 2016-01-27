@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using ImageProcess.DataType;
 using ThorCyte.Infrastructure.Types;
@@ -11,6 +12,7 @@ namespace ComponentDataService.Types
         
         #region Fields
         private readonly float[] _buffer;// buffer to contain feature data
+        private readonly List<BioEvent> _children = new List<BioEvent>(); 
         #endregion
 
         #region Properties
@@ -33,6 +35,13 @@ namespace ComponentDataService.Types
             get { return _buffer; }
         }
 
+        public BioEvent Parent { get; set; }
+
+        public ICollection<BioEvent> Children
+        {
+            get { return _children; }
+        }
+
         public Rect BoundRect { get; set; }
 
         public Blob DataBlob { get; set; }
@@ -40,7 +49,7 @@ namespace ComponentDataService.Types
         public Blob BackgroundBlob { get; set; }
         public Blob PeripheralBlob { get; set; }
         public RegionColorIndex ColorIndex { get; set; }
-
+        
         #endregion
 
 

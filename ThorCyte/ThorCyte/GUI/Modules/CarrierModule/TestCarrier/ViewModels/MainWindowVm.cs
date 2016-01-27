@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.Windows.Input;
 using Microsoft.Practices.ServiceLocation;
@@ -19,6 +20,7 @@ namespace TestCarrier.ViewModels
         public ICommand OpenCommnad { get; set; }
         public ICommand MacroStartCommand { get; set; }
         public ICommand MacroFinishCommand { get; set; }
+        public ICommand ModeCommand { get; set; }
         private IExperiment _experiment;
         private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
@@ -41,6 +43,23 @@ namespace TestCarrier.ViewModels
             OpenCommnad = new DelegateCommand(Open_new);
             MacroStartCommand = new DelegateCommand(StartMacro);
             MacroFinishCommand = new DelegateCommand(EndMacro);
+            ModeCommand = new DelegateCommand<string>(SwtichMode);
+        }
+
+        private void SwtichMode(string para)
+        {
+            switch (para)
+            {
+                case "Review":
+                    EventAggregator.GetEvent<ShowRegionEvent>().Publish("ReviewModule");
+                    Debug.WriteLine("ShowRegionEvent -- " + para);
+                    break;
+                case "Analysis":
+                    EventAggregator.GetEvent<ShowRegionEvent>().Publish("AnalysisModule");
+                    Debug.WriteLine("ShowRegionEvent -- " + para);
+
+                    break;
+            }
         }
 
         private int _currentWellid = 0;

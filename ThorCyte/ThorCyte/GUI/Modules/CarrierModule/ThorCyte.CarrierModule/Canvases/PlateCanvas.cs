@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -59,6 +58,9 @@ namespace ThorCyte.CarrierModule.Canvases
         public static readonly DependencyProperty OuterWidthProperty;
         public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
+        public static readonly DependencyProperty IsSelectAllVisibleProperty;
+        private Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
+
 
         #endregion
 
@@ -123,6 +125,15 @@ namespace ThorCyte.CarrierModule.Canvases
             {
                 if (value > 0)
                     SetValue(OuterHeightProperty, value);
+            }
+        }
+
+        public bool IsSelectAllVisible
+        {
+            get { return (bool)GetValue(IsSelectAllVisibleProperty); }
+            set
+            {
+                    SetValue(IsSelectAllVisibleProperty, value);
             }
         }
 
@@ -202,7 +213,6 @@ namespace ThorCyte.CarrierModule.Canvases
                 return 1.0;
             }
         }
-
         #endregion Properties
 
         #region Constructors
@@ -226,6 +236,9 @@ namespace ThorCyte.CarrierModule.Canvases
             MousePositionProperty = DependencyProperty.Register(
                  "MousePosition", typeof(string), typeof(PlateCanvas),
                  metaData);
+
+            metaData = new PropertyMetadata(false);
+            IsSelectAllVisibleProperty = DependencyProperty.Register("IsSelectAllVisible", typeof(bool), typeof(PlateCanvas), metaData);
         }
 
 
@@ -233,16 +246,15 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             EventAggregator.GetEvent<MacroStartEvnet>().Subscribe(MacroStart, ThreadOption.UIThread, true);
             EventAggregator.GetEvent<MacroFinishEvent>().Subscribe(MacroFinish, ThreadOption.UIThread, true);
+            EventAggregator.GetEvent<ShowRegionEvent>().Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
 
             _graphicsList = new VisualCollection(this);
             _regionGraphicHashtable = new Hashtable();
-
 
             _tools = new Tool[(int)ToolType.Max];
             _tools[(int)ToolType.Pointer] = new ToolPointer();
             _tools[(int)ToolType.Select] = new ToolSelect();
             _tools[(int)ToolType.Drag] = new ToolDrag();
-
 
             Loaded += DrawingCanvas_Loaded;
             MouseDown += DrawingCanvas_MouseDown;
@@ -260,7 +272,12 @@ namespace ThorCyte.CarrierModule.Canvases
             AnalyzedWells = new List<string>();
             _currentWellId = 0;
             _lastWellId = 0;
+
+            _regionListDic = new Dictionary<DisplayMode,List<ScanRegion>>();
+            ShowRegionEventHandler("ReviewModule");
+
         }
+
 
         #endregion Constructors
 
@@ -413,24 +430,87 @@ namespace ThorCyte.CarrierModule.Canvases
             return ret;
         }
 
+        private void ShowRegionEventHandler(string moduleName)
+        {
+            try
+            {
+                if (!IsShowing) return;
+
+                switch (moduleName)
+                {
+                    case "ReviewModule":
+                        SwitchSelections(DisplayMode.Review);
+                        IsSelectAllVisible = false;
+                        break;
+                    case "AnalysisModule":
+                        SwitchSelections(DisplayMode.Analysis);
+                        IsSelectAllVisible = true;
+                        break;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         public void SwitchSelections(DisplayMode mode)
         {
-            _plate.ClearActiveRegions();
-            
             //Record current Selected regions
             switch (mode)
             {
                 case DisplayMode.Analysis:
                     //swtich to analysis
-
-
+                    RecordSelections(DisplayMode.Review);
                     break;
                 case DisplayMode.Review:
                     //switch to review
-
+                    RecordSelections(DisplayMode.Analysis);
                     break;
             }
+
+            ApplySelections(mode);
         }
+
+        private void RecordSelections(DisplayMode mode)
+        {
+            if (_plate.ActiveRegions == null) return;
+            var rList = _plate.ActiveRegions.ToList();
+
+            if (_regionListDic.ContainsKey(mode))
+            {
+                _regionListDic.Remove(mode);
+            }
+            
+            //_regionListDic.Clear();
+            _regionListDic.Add(mode, rList);
+        }
+
+        private void ClearSelections()
+        {
+            _plate.ClearActiveRegions();
+            foreach (var gphcs in _graphicsList.Cast<GraphicsBase>())
+            {
+                gphcs.IsSelected = false;
+            }
+        }
+
+        private void ApplySelections(DisplayMode mode)
+        {
+            ClearSelections();
+
+            if (!_regionListDic.ContainsKey(mode)) return;
+
+            foreach (var region in _regionListDic[mode])
+            {
+                var gph = (GraphicsBase)_regionGraphicHashtable[region];
+                gph.IsSelected = true;                                
+                _plate.AddActiveRegion(region);
+            }
+        }
+
+
 
         public void SetActiveRegions()
         {
@@ -658,7 +738,7 @@ namespace ThorCyte.CarrierModule.Canvases
                     radiusX,
                     radiusY);
 
-                const double ftMaxScale = 0.8;
+                const double ftMaxScale = 0.5;
 
                 if (rectRoom.Key.StartsWith("A"))
                 {

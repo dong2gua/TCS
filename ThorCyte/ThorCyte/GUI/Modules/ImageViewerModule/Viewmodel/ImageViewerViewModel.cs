@@ -357,6 +357,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             var window = new SetComputeColorWindow();
             var vm = new SetComputeColorViewModel(_channels, _virtualChannels, _computeColors);
             vm.IsNew = true;
+            vm.ChannelName = "color " + (_computeColors.Count + 1).ToString();
             window.DataContext = vm;
             window.Owner = Application.Current.MainWindow;
             window.ShowDialog();
@@ -381,6 +382,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             var window = new SetVirtualChannelWindow();
             var vm = new SetVirtualChannelViewModel(_channels, _virtualChannels, _computeColors);
             vm.IsNew = true;
+            vm.ChannelName = "virtual " + (_virtualChannels.Count + 1).ToString();
             window.DataContext = vm;
             window.Owner = Application.Current.MainWindow;
             window.ShowDialog();
@@ -669,6 +671,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             var window = new SetComputeColorWindow();
             var vm = new SetComputeColorViewModel(_channels, _virtualChannels, _computeColors);
             vm.IsNew = false;
+            vm.ChannelName = computeColor.Name;
             vm.ChannelList = computeColorDic2List(computeColor.ComputeColorDictionary);
             window.DataContext = vm;
             window.Owner = Application.Current.MainWindow;

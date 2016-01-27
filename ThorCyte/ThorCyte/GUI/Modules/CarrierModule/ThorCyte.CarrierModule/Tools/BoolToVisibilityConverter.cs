@@ -10,6 +10,7 @@ namespace ThorCyte.CarrierModule.Tools
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            
             if (value == null)
                 return Visibility.Visible;
             return (bool)value ? Visibility.Visible : Visibility.Collapsed;

@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using ComponentDataService.Types;
+﻿using ComponentDataService.Types;
 using ImageProcess;
 using ImageProcess.DataType;
+using System.Collections.Generic;
 using ThorCyte.Infrastructure.Interfaces;
 
 namespace ComponentDataService
@@ -25,5 +24,7 @@ namespace ComponentDataService
         IList<BioEvent> CreateEvents(string componentName, int scanId, int wellId, int tileId, 
             IDictionary<string, ImageData> imageDict, BlobDefine define);
         int GetComponentScanId(string componentName);
+        void Association(string masterComponentName, string slaveComponentName);
+        void Association(string masterComponentName, string firstSlaveComponentName, string secondSlaveComponentName);
     }
 }

@@ -265,6 +265,8 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             OutputPort.ParentModule = this;
 
 
+            if (Macro.CurrentScanInfo == null) return;
+
             ChannelCollection.Clear();
             foreach (var channel in Macro.CurrentScanInfo.ChannelList)
             {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Media;
 using System.Xml;
@@ -12,7 +12,6 @@ using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
-using Prism.Regions;
 using ROIService;
 using ROIService.Region;
 using ThorCyte.GraphicModule.Controls;
@@ -21,7 +20,6 @@ using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.Infrastructure;
 using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.Utils;
-using ThorCyte.GraphicModule.Views;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 
@@ -590,7 +588,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
             if (_graphicContainerVms.Count > 0)
             {
-                _selectedContainer = _graphicContainerVms[0];
+                SelectedContainer = _graphicContainerVms[0];
             }
             _tempGraphicvmList.Clear();
         }
@@ -623,22 +621,13 @@ namespace ThorCyte.GraphicModule.ViewModels
                             break;
                     }
                 }
-                //else if (reader.NodeType == XmlNodeType.EndElement)
-                //{
-                //    if (reader.Name == "graphs")
-                //    {
-                //        var vmlist = GetGraphicVmList();
-                //        foreach (var vm in vmlist)
-                //        {
-                //            var scatterVm = vm as ScattergramVm;
-                //            if (scatterVm != null)
-                //            {
-                //                scatterVm.UpdateBackground();
-                //            }
-                //        }
-                //        break;
-                //    }
-                //}
+                else if (reader.NodeType == XmlNodeType.EndElement)
+                {
+                    if (reader.Name == "graphs")
+                    {
+                        break;
+                    }
+                }
             }
         }
 
@@ -692,7 +681,6 @@ namespace ThorCyte.GraphicModule.ViewModels
                     if (reader.Name == "gates")
                     {
                         IsLoadGateEnd = true;
-
                         break;
                     }
                 }

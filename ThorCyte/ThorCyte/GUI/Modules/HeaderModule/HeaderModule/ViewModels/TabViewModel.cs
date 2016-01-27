@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using ComponentDataService;
 using Microsoft.Practices.ServiceLocation;
@@ -95,23 +96,36 @@ namespace ThorCyte.HeaderModule.ViewModels
         {
             if (_experiment == null)
                 return;
-            var di = new DirectoryInfo(_experiment.GetExperimentInfo().AnalysisPath);
-            if (!di.Exists)
+
+            MessageBoxResult result = MessageBox.Show("Are you sure replace analysis result?", "Save analysis result", MessageBoxButton.YesNo, MessageBoxImage.Question,MessageBoxResult.No);
+            switch (result)
             {
-                di.Create();
+                case MessageBoxResult.Yes:
+                    var di = new DirectoryInfo(_experiment.GetExperimentInfo().AnalysisPath);
+                    if (!di.Exists)
+                    {
+                        di.Create();
+                    }
+                    else
+                    {
+                        foreach (FileInfo file in di.GetFiles())
+                        {
+                            file.Delete();
+                        }
+                        foreach (DirectoryInfo dir in di.GetDirectories())
+                        {
+                            dir.Delete(true);
+                        }
+                    }
+                    ComponentDataManager.Instance.Save(_experiment.GetExperimentInfo().AnalysisPath);
+                    _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0);
+                    break;
+                case MessageBoxResult.No:
+                case MessageBoxResult.Cancel:
+                    break;
             }
-            else
-            {
-                foreach (FileInfo file in di.GetFiles())
-                {
-                    file.Delete();
-                }
-                foreach (DirectoryInfo dir in di.GetDirectories())
-                {
-                    dir.Delete(true);
-                }
-            }
-            _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0);
+
+            
         }  
     }
 }

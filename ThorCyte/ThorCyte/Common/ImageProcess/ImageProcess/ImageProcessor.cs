@@ -1,11 +1,11 @@
 ﻿
-using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
-using System.Text;
 using ImageProcess.DataType;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows;
 
 namespace ImageProcess
@@ -76,9 +76,9 @@ namespace ImageProcess
 
         public ImageData Add(ImageData other, int depth = 14)
         {
-            if (XSize != other.XSize) throw new ArgumentException("Image data XSize not equal.");
-            if (YSize != other.YSize) throw new ArgumentException("Image data YSize not equal.");
-            if (Channels != other.Channels) throw new ArgumentException("Image data Channels not equal.");
+            if (XSize != other.XSize) throw new InvalidOperationException("Image data XSize not equal.");
+            if (YSize != other.YSize) throw new InvalidOperationException("Image data YSize not equal.");
+            if (Channels != other.Channels) throw new InvalidOperationException("Image data Channels not equal.");
             var dstData = new ImageData(XSize, YSize, IsGray);
             var height = (int) XSize;
             var width = (int) YSize;
@@ -99,9 +99,9 @@ namespace ImageProcess
 
         public  ImageData Sub(ImageData subtracter)
         {
-            if (XSize != subtracter.XSize) throw new ArgumentException("Image data XSize not equal.");
-            if (YSize != subtracter.YSize) throw new ArgumentException("Image data YSize not equal.");
-            if (Channels != subtracter.Channels) throw new ArgumentException("Image data Channels not equal.");
+            if (XSize != subtracter.XSize) throw new InvalidOperationException("Image data XSize not equal.");
+            if (YSize != subtracter.YSize) throw new InvalidOperationException("Image data YSize not equal.");
+            if (Channels != subtracter.Channels) throw new InvalidOperationException("Image data Channels not equal.");
             var dstData = new ImageData(XSize, YSize, IsGray);
             var height = (int)XSize;
             var width = (int)YSize;
@@ -142,7 +142,7 @@ namespace ImageProcess
 
         public ushort Max()
         {
-            if (Channels != 1) throw new ArgumentOutOfRangeException("", "must be 1 channel image data.");
+            if (Channels != 1) throw new InvalidOperationException("must be 1 channel image data.");
             ushort maxValue;
             int status = ImageProcessLib.Max16U(this, (int) XSize, (int) YSize, Channels, out maxValue);
             return maxValue;
@@ -150,7 +150,7 @@ namespace ImageProcess
 
         public  ushort Min()
         {
-            if (Channels != 1) throw new ArgumentOutOfRangeException("", "must be 1 channel image data.");
+            if (Channels != 1) throw new InvalidOperationException("must be 1 channel image data.");
             ushort minValue;
             int status = ImageProcessLib.Min16U(this, (int) XSize, (int) YSize, Channels, out minValue);
             return minValue;
@@ -158,9 +158,9 @@ namespace ImageProcess
 
         public ImageData Max(ImageData other)
         {
-            if (XSize != other.XSize) throw new ArgumentException("Image data XSize not equal.");
-            if (YSize != other.YSize) throw new ArgumentException("Image data YSize not equal.");
-            if (Channels != other.Channels) throw new ArgumentException("Image data Channels not equal.");
+            if (XSize != other.XSize) throw new InvalidOperationException("Image data XSize not equal.");
+            if (YSize != other.YSize) throw new InvalidOperationException("Image data YSize not equal.");
+            if (Channels != other.Channels) throw new InvalidOperationException("Image data Channels not equal.");
             var dstData = new ImageData(XSize, YSize, IsGray);
             int status = ImageProcessLib.MaxEvery16U(this, other, (int) XSize, (int) YSize, Channels, dstData);
             return dstData;
@@ -168,9 +168,9 @@ namespace ImageProcess
 
         public  ImageData Min(ImageData other)
         {
-            if (XSize != other.XSize) throw new ArgumentException("Image data XSize not equal.");
-            if (YSize != other.YSize) throw new ArgumentException("Image data YSize not equal.");
-            if (Channels != other.Channels) throw new ArgumentException("Image data Channels not equal.");
+            if (XSize != other.XSize) throw new InvalidOperationException("Image data XSize not equal.");
+            if (YSize != other.YSize) throw new InvalidOperationException("Image data YSize not equal.");
+            if (Channels != other.Channels) throw new InvalidOperationException("Image data Channels not equal.");
             var dstData = new ImageData(XSize, YSize, IsGray);
             int status = ImageProcessLib.MinEvery16U(this, other, (int) XSize, (int) YSize, Channels, dstData);
             return dstData;
@@ -197,7 +197,7 @@ namespace ImageProcess
 
         public IList<IList<ushort>> GetMultiChannelsDataInProfileLine(Point start, Point end)
         {
-            if (Channels != 3) throw new ArgumentOutOfRangeException("", "Must be 3 channel image data.");
+            if (Channels != 3) throw new InvalidOperationException("only support 3 channel image");
             const int channels = 3;
             List<Point> points = GetPointsInProfileLine((int) start.X, (int) start.Y, (int) end.X, (int) end.Y);
             int n = points.Count;
@@ -219,13 +219,13 @@ namespace ImageProcess
 
         public IList<Blob> FindContour(double minArea, double maxArea = int.MaxValue)
         {
-            return Contour((int)minArea, (int)maxArea, false, default(Point));
+            return Contour(Math.Floor(minArea), maxArea, false, default(Point));
         }
 
         public ImageData Threshold(ushort threshold, ThresholdType thresholdType)
         {
             if (Channels != 1)
-                throw new ArgumentOutOfRangeException("", "Must be 1 channel image.");
+                throw new InvalidOperationException("only support 1 channel image");
             var dstData = new ImageData(XSize, YSize, IsGray);
             var width = (int)XSize;
             var height = (int)YSize;
@@ -246,7 +246,23 @@ namespace ImageProcess
         }
 
 
-      
+        public double Mean()
+        {
+            if (Channels != 1) throw new InvalidOperationException("only support 1 channel image");
+            double mean;
+            ImageProcessLib.Mean16UC1(this, (int) XSize, (int) YSize, out mean);
+            return mean;
+        }
+
+        public ImageData ShiftPeak(ushort refPos, int maxBits = 14)
+        {
+            if (Channels != 1) throw new InvalidOperationException("only support 1 channel image");
+            double mean = Mean();
+            var offset = (int) (refPos - mean);
+            if (offset > 0) return AddConstant((ushort) offset, maxBits);
+            else if (offset == 0) return Clone();
+            else return SubConstant((ushort)(-offset));
+        }
 
         public ImageData Dilate(int expand)
         {
@@ -371,7 +387,7 @@ namespace ImageProcess
         /// <param name="concave"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        private IList<Blob> Contour(int minArea, int maxArea, bool concave,
+        private IList<Blob> Contour(double minArea, double maxArea, bool concave,
             Point offset)
         {
             var points = new List<Point>();

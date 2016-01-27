@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using ThorCyte.ProtocolModule.Models;
-using ThorCyte.ProtocolModule.Utils;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
@@ -19,8 +18,8 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 var parent = GetInPort(0).ComponentName;
                 var child = GetInPort(1).ComponentName;
 
-                //todo: call find parent and child.
-                Debug.WriteLine("Find Association (parent: {0} child: {1}) overlap.",parent,child);
+                Debug.WriteLine("Find association of parent: {0}, child: {1}",parent,child);
+                Macro.CurrentConponentService.Association(parent,child);
 
                 SetOutputComponent(parent);
             }

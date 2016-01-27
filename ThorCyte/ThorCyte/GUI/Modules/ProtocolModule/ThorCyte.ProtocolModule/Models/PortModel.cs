@@ -73,7 +73,14 @@ namespace ThorCyte.ProtocolModule.Models
                     case PortDataType.GrayImage: 
                     case PortDataType.Image:
                     case PortDataType.MultiChannelImage:
-                        res = Image != null;
+                        if (Image != null && !Image.IsClosed)
+                        {
+                            res = true;
+                        }
+                        else
+                        {
+                            res = false;
+                        }
                         break;
 
                     case PortDataType.Setting:

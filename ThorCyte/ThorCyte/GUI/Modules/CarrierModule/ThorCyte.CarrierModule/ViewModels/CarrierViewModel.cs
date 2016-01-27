@@ -76,21 +76,6 @@ namespace ThorCyte.CarrierModule.ViewModels
             
             var loadEvt = EventAggregator.GetEvent<ExperimentLoadedEvent>();
             loadEvt.Subscribe(RequestLoadModule);
-
-            var showRegionEvt = EventAggregator.GetEvent<ShowRegionEvent>();
-            showRegionEvt.Subscribe(ShowRegion, ThreadOption.UIThread);
-        }
-
-        private void ShowRegion(string moduleName)
-        {
-            object theView;
-            switch (moduleName)
-            {
-                case "ReviewModule":
-                    break;
-                case "AnalysisModule":
-                    break;
-            }
         }
 
         /// <summary>

@@ -42,7 +42,6 @@ namespace ThorCyte.CarrierModule
 
         private void ShowRegionEventHandler(string moduleName)
         {
-            object theView;
             switch (moduleName)
             {
                 case "ReviewModule":

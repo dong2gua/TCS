@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ThorCyte.ImageViewerModule.View"
         xmlns:sciChart="http://schemas.abtsoftware.co.uk/scichart"
+        xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
         mc:Ignorable="d"
         Title="ProfileWindow" Height="300" Width="400"  WindowStyle="ToolWindow" Style="{StaticResource {x:Type Window}}">
+    <Window.Resources>
+        <converter:VisibilityConverter x:Key="VisibilityC"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -24,8 +28,8 @@
         </sciChart:SciChartSurface>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" >
-            <Label Content="CF :" Margin="20,0,5,0" Foreground="{Binding Foreground, ElementName=numericAxis}" FontFamily="{Binding FontFamily, ElementName=numericAxis}" FontSize="{Binding FontSize,ElementName=numericAxis}" FontWeight="{Binding FontWeight, ElementName=numericAxis}"/>
-            <Label Content="{Binding Path=ProfileCf}" Foreground="{Binding Foreground, ElementName=numericAxis}" FontFamily="{Binding FontFamily, ElementName=numericAxis}" FontSize="{Binding FontSize,ElementName=numericAxis}" FontWeight="{Binding FontWeight, ElementName=numericAxis}"/>
+            <Label Visibility="{Binding IsCFVisibility,Converter={StaticResource VisibilityC}}" Content="CF :" Margin="20,0,5,0" Foreground="{Binding Foreground, ElementName=numericAxis}" FontFamily="{Binding FontFamily, ElementName=numericAxis}" FontSize="{Binding FontSize,ElementName=numericAxis}" FontWeight="{Binding FontWeight, ElementName=numericAxis}"/>
+            <Label Visibility="{Binding IsCFVisibility,Converter={StaticResource VisibilityC}}" Content="{Binding Path=ProfileCf}" Foreground="{Binding Foreground, ElementName=numericAxis}" FontFamily="{Binding FontFamily, ElementName=numericAxis}" FontSize="{Binding FontSize,ElementName=numericAxis}" FontWeight="{Binding FontWeight, ElementName=numericAxis}"/>
         </StackPanel>
     </Grid>
 </Window>

@@ -126,9 +126,9 @@ namespace ComponentDataService.Types
             features.Insert(idIndex, new Feature(FeatureType.Id));
         }
 
-        internal List<Blob> GetTileBlobs(int scanId, int wellId, int tileId, BlobType type)
+        internal List<Blob> GetTileBlobs(int wellId, int tileId, BlobType type)
         {
-            int key = GetBlobKey(scanId, wellId, tileId);
+            int key = GetBlobKey(wellId, tileId);
             switch (type)
             {
                 case BlobType.Contour:
@@ -163,7 +163,7 @@ namespace ComponentDataService.Types
 
         }
 
-        internal List<BioEvent> GetEvents(int scanId, int wellId)
+        internal List<BioEvent> GetEvents(int wellId)
         {
             if (_eventsDict.ContainsKey(wellId) == false)
             {
@@ -228,21 +228,21 @@ namespace ComponentDataService.Types
 
         }
 
-        internal IList<Blob> CreateContourBlobs(int scanId, int wellId, int tileId,
+        internal IList<Blob> CreateContourBlobs(int wellId, int tileId,
             ImageData data, double minArea, double maxArea = int.MaxValue)
         {
             IList<Blob> contours = data.FindContour(minArea, maxArea);
-            int key = GetBlobKey(scanId, wellId, tileId);
+            int key = GetBlobKey(wellId, tileId);
             _contourBlobs[key] = contours.ToList();
             _imageWidth = (int)data.XSize;
             _imageHeight = (int) data.YSize;
             return contours;
         }
 
-        internal IList<BioEvent> CreateEvents(int scanId, int wellId, int tileId,
+        internal IList<BioEvent> CreateEvents(int wellId, int tileId,
             IDictionary<string, ImageData> imageDict, BlobDefine define)
         {
-            int key = GetBlobKey(scanId, wellId, tileId);
+            int key = GetBlobKey(wellId, tileId);
             List<Blob> contours = _contourBlobs[key];
             var evs = new List<BioEvent>(contours.Count);
             if (_eventsDict.ContainsKey(wellId) == false)
@@ -260,7 +260,7 @@ namespace ComponentDataService.Types
                     {
                         dataBlob.Id = id;
                         id++;
-                        BioEvent ev = CreateEvent(contour, dataBlob, define, imageDict, scanId, wellId, tileId);
+                        BioEvent ev = CreateEvent(contour, dataBlob, define, imageDict, wellId, tileId);
                         if (ev != null)
                             evs.Add(ev);
                     }
@@ -306,9 +306,9 @@ namespace ComponentDataService.Types
             ReadEventsCountFromXml(wellsNode);
         }
 
-        private int GetBlobKey(int scanId, int wellId, int tileId)
+        private int GetBlobKey(int wellId, int tileId)
         {
-            int scanIdBits = (scanId - 1) & 0x01; // 1 bit for scanId
+            int scanIdBits = (_scanId - 1) & 0x01; // 1 bit for scanId
             int wellIdBits = (wellId - 1) & 0x7FFF; //15 bits for wellId
             int tileIdBits = (tileId - 1) & 0xFFFF; //16 bits for tileId
             return (wellIdBits << 15) | (tileIdBits) | (scanIdBits << 31);
@@ -489,7 +489,7 @@ namespace ComponentDataService.Types
                 foreach (Scanfield field in fields)
                 {
                     int tileId = field.ScanFieldId;
-                    int key = GetBlobKey(ScanId, wellId, tileId);
+                    int key = GetBlobKey(wellId, tileId);
                     if (_contourBlobs.ContainsKey(key))
                     {
                         writer(folder, wellId, tileId, BlobType.Contour);
@@ -574,7 +574,7 @@ namespace ComponentDataService.Types
         {
             var blobName = string.Empty;
             List<Blob> blobs = EmptyBlobs.ToList();
-            int key = GetBlobKey(ScanId, wellId, tileId);
+            int key = GetBlobKey(wellId, tileId);
             switch (type)
             {
                 case BlobType.Contour:
@@ -609,7 +609,7 @@ namespace ComponentDataService.Types
         private void WriteBlobsBinary(string folder, int wellId, int tileId, BlobType type)
         {
             string filename;
-            int key = GetBlobKey(ScanId, wellId, tileId);
+            int key = GetBlobKey(wellId, tileId);
             List<Blob> blobs;
             switch (type)
             {
@@ -768,7 +768,7 @@ namespace ComponentDataService.Types
             return index;
         }
         public BioEvent CreateEvent(Blob blobOrg, Blob blobData,
-            BlobDefine define, IDictionary<string, ImageData> imageDict, int scanId, int wellId, int tileId)
+            BlobDefine define, IDictionary<string, ImageData> imageDict, int wellId, int tileId)
         {
             ScanInfo info = _experiment.GetScanInfo(ScanId);
             ScanRegion regions = info.ScanRegionList[wellId - 1];
@@ -957,13 +957,17 @@ namespace ComponentDataService.Types
             // event should be added to the list after all the values have been set in order for the min/max to be updated correctly
 
             if (blobData.Id != 0)
+            {
                 // editing existing blob, set event id to the blob id so that the new event replaces the original event when added to the list
                 ev.Id = blobData.Id;
+                blobData.EventId = ev.Id; 
+            }
+           
             ev.DataBlob = blobData;
             ev.ContourBlob = blobOrg;
             blobOrg.Id = blobData.Id = ev.Id;
                 // set blob id equal to the event id (1-based event id is set when an event is added to the list)
-            int key = GetBlobKey(scanId, wellId, tileId);
+            int key = GetBlobKey(wellId, tileId);
             if (bkBlob != null)
             {
                 bkBlob.Id = ev.Id;

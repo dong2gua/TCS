@@ -15,9 +15,11 @@
         <ToolBar Grid.Row="0">
             <Button Content="Open" Command="{Binding OpenCommnad}"/>
 
-            <Button Content="Start" Command="{Binding MacroStartCommand}"/>
-            <Button Content="End" Command="{Binding MacroFinishCommand}"/>
+            <!--<Button Content="Start" Command="{Binding MacroStartCommand}"/>
+            <Button Content="End" Command="{Binding MacroFinishCommand}"/>-->
 
+            <Button Content="Review" Command="{Binding ModeCommand}" CommandParameter="Review"/>
+            <Button Content="Analysis" Command="{Binding ModeCommand}" CommandParameter="Analysis"/>            
         </ToolBar>
 
         <ContentControl Grid.Row="1"  x:Name="MainRegionRev" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}"/>

@@ -25,7 +25,7 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListBoxItem">
-                                <Border x:Name="ItemBorder" BorderThickness="2" CornerRadius="2" VerticalAlignment="Stretch">
+                                <Border x:Name="ItemBorder" CornerRadius="2" VerticalAlignment="Stretch">
                                     <ContentPresenter/>
                                 </Border>
                                 <ControlTemplate.Triggers>

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Security.AccessControl;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.GraphicModule.Controls.Graphics;
@@ -17,6 +18,8 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
 
         private Cursor _toolCursor;
 
+        protected bool _isNew;
+
         /// <summary>
         /// Tool cursor.
         /// </summary>
@@ -24,6 +27,11 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
         {
             get { return _toolCursor; }
             set { _toolCursor = value; }
+        }
+
+        public bool IsNew
+        {
+            get { return _isNew; }
         }
 
         #endregion
@@ -70,6 +78,7 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
             if (!isRemove)
             {
                 regionCanvas.AddRegion(graphic);
+                _isNew = false;
             }
 
             regionCanvas.Tool = ToolType.Pointer;

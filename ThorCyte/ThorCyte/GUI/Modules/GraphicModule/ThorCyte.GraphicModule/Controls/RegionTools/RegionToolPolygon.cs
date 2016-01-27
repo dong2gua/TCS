@@ -10,7 +10,6 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
     {
         #region Fields
 
-        private bool _isNewPolygon;
         private GraphicsPolygon _newPolygon;
 
         #endregion
@@ -23,14 +22,14 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
         public override void OnMouseDown(RegionCanvas graph, MouseButtonEventArgs e)
         {
             var p = e.GetPosition(graph);
-            if (!_isNewPolygon)
+            if (!_isNew)
             {
                 var name = ConstantHelper.PrefixRegionName + ROIManager.Instance.GetRegionId();
                 _newPolygon = new GraphicsPolygon(
                      new[] { p, new Point(p.X + 1, p.Y + 1) },
                      graph.LineWidth, graph.ObjectColor, graph.RenderSize, name);
                 AddNewObject(graph, _newPolygon);
-                _isNewPolygon = true;
+                _isNew = true;
             }
             else
             {
@@ -39,7 +38,7 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
 
                 if (e.ChangedButton == MouseButton.Right)
                 {
-                    _isNewPolygon = false;
+                    _isNew = false;
                 }
                 else
                 {
@@ -73,7 +72,7 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
             if (e.ChangedButton == MouseButton.Right)
             {
                 _newPolygon = null;
-                _isNewPolygon = false;
+                _isNew = false;
                 base.OnMouseUp(graph, e);
             }
             else if (e.ChangedButton == MouseButton.Left)

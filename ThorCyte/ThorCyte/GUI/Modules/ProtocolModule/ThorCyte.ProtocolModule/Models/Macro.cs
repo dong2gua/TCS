@@ -250,9 +250,19 @@ namespace ThorCyte.ProtocolModule.Models
                 var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
                 module.Name = modInfo.Name;
                 module.DisplayName = modInfo.DisplayName;
-                Modules.Add(module);
-                module.Id = Modules.Count - 1;
+
+                if (Modules.Count == 0)
+                {
+                    module.Id = 0;
+                }
+                else
+                {
+                    module.Id = Modules[Modules.Count - 1].Id + 1;
+                }
+
+                //module.Id = Modules.Count - 1;
                 module.ScanNo = CurrentScanId;
+                Modules.Add(module);
                 return module;
             }
             catch (Exception ex)

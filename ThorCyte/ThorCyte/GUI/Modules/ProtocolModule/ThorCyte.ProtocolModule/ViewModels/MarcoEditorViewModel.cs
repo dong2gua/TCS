@@ -255,7 +255,11 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             // Remove all connections attached to the moduleVm.
             PannelVm.Connections.RemoveRange(moduleVm.AttachedConnections);
-
+            foreach (var c in moduleVm.AttachedConnections)
+            {
+                c.DestPort.AttachedConnections.Remove(c);
+                c.SourcePort.AttachedConnections.Remove(c);
+            }
             // Remove the moduleVm from the PannelVm.
             PannelVm.Modules.Remove(moduleVm);
 
