@@ -14,6 +14,7 @@ using ThorCyte.GraphicModule.Events;
 using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.Utils;
 using ThorCyte.GraphicModule.ViewModels;
+using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.GraphicModule.Controls
 {
@@ -312,7 +313,15 @@ namespace ThorCyte.GraphicModule.Controls
             }
             else if (graphic.GraphicType == RegionType.Rectangle)
             {
-                region = new RectangleRegion(id, size, point);
+                var rect = (GraphicsRectangle)graphic;
+                if (rect.IsDrawTrackerAll)
+                {
+                    region = new RectangleRegion(id, size, point);
+                }
+                else
+                {
+                    region = new GateRegion(id,0,0);
+                }
             }
             else if (graphic.GraphicType == RegionType.Polygon)
             {
@@ -520,24 +529,30 @@ namespace ThorCyte.GraphicModule.Controls
                 if (region != null && region.GraphicId == Id)
                 {
                     GraphicsBase graphic;
-                    if (region is RectangleRegion)
+                    if (region.Shape == RegionShape.Rectangle)
                     {
                         var rect = (RectangleRegion)region;
                         var left = new Point(rect.LeftUp.X * XScale, ActualHeight - rect.LeftUp.Y * YScale);
-                        var isDrawTrackerAll = (this as Scattergram) != null;
                         graphic = new GraphicsRectangle(left.X, left.Y,
                             left.X + rect.Size.Width * XScale, left.Y + rect.Size.Height * YScale, 2.0, rect.Color, 1.0,
-                            RenderSize, id, isDrawTrackerAll);
-
+                            RenderSize, id, true);
                     }
-                    else if (region is EllipseRegion)
+                    else if (region.Shape == RegionShape.Gate)
+                    {
+                        var gate = (GateRegion)region;
+                        var left = new Point(gate.MinValue * XScale, 0);
+                        graphic = new GraphicsRectangle(left.X, left.Y,
+                            gate.MaxValue * XScale, ActualHeight, 2.0, gate.Color, 1.0,
+                            RenderSize, id, false);
+                    }
+                    else if (region.Shape == RegionShape.Ellipse)
                     {
                         var ellipse = (EllipseRegion)region;
                         var width = ellipse.Axis.Width * XScale;
                         var height = ellipse.Axis.Height * YScale;
                         var center = new Point(ellipse.Center.X * XScale, ellipse.Center.Y * YScale);
-                        graphic = new GraphicsEllipse(center.X - width / 2.0, center.Y - height / 2.0,
-                            center.X + width / 2.0, center.Y + height / 2.0, 2.0, ellipse.Color, 1.0,
+                        graphic = new GraphicsEllipse(center.X - width / 2.0, ActualHeight - center.Y - height / 2.0,
+                            center.X + width / 2.0, ActualHeight - center.Y + height / 2.0, 2.0, ellipse.Color, 1.0,
                             RenderSize, id);
 
                     }

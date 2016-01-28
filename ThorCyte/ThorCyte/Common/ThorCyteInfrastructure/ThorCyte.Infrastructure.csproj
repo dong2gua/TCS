@@ -87,6 +87,8 @@
     <Compile Include="Interfaces\ThorCyteExperiment.cs" />
     <Compile Include="Interfaces\ThorImageData.cs" />
     <Compile Include="Interfaces\ThorImageExperiment.cs" />
+    <Compile Include="Interfaces\ThorOCTData.cs" />
+    <Compile Include="Interfaces\ThorOCTExperiment.cs" />
     <Compile Include="Themes\ColorToSolidColorBrushConverter.cs" />
     <Compile Include="Themes\Dark\LeftMarginMultiplierConverter.cs" />
     <Compile Include="Themes\Dark\TreeViewItemExtensions.cs" />

@@ -21,5 +21,7 @@
         public Channel SecondChannel { set; get; }
         public ImageOperator Operator { set; get; }
         public double Operand { set; get; }
+        public int Brightness { set; get; }
+        public double Contrast { set; get; }
     }
 }

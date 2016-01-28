@@ -470,6 +470,15 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         #endregion
 
+        #region Constructor
+
+        protected GraphicVmBase()
+        {
+            _operatorList.AddRange(Enum.GetValues(typeof(OperationType)));
+        }
+
+        #endregion
+
         #region Methods
 
         protected abstract void UpdateGraphData();
@@ -548,7 +557,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             Title = _componentList[0];
             UpdateFeatures();
 
-            _operatorList.AddRange(Enum.GetValues(typeof(OperationType)));
+            
             _gate1List.Add(DefaultGate);
             _selectedGate1 = _gate1List[0];
             _selectedOperator = _operatorList[0];

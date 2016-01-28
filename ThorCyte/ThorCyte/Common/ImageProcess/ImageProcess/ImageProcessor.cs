@@ -76,16 +76,28 @@ namespace ImageProcess
 
         public ImageData Add(ImageData other, int depth = 14)
         {
+            return Add(other, false, depth);
+        }
+
+        private ImageData Add(ImageData other, bool isModify, int depth = 14)
+        {
             if (XSize != other.XSize) throw new InvalidOperationException("Image data XSize not equal.");
             if (YSize != other.YSize) throw new InvalidOperationException("Image data YSize not equal.");
-            if (Channels != other.Channels) throw new InvalidOperationException("Image data Channels not equal.");
-            var dstData = new ImageData(XSize, YSize, IsGray);
-            var height = (int) XSize;
-            var width = (int) YSize;
-            int channels = Channels;
-            var maxValue = (ushort) ((0x01 << depth) - 1);
-            ImageProcessLib.Add16U(this, other, width, height, dstData, channels, maxValue);
-            return dstData;
+            if (Channels != other.Channels) throw new InvalidOperationException("Image data Channels not equal.");           
+            var height = (int)YSize;
+            var width = (int)XSize;
+            var maxValue = (ushort)((0x01 << depth) - 1);
+            if (isModify)
+            {
+                ImageProcessLib.Add16UInplace(other, width, height, Channels, maxValue, this);
+                return this;
+            }
+            else
+            {
+                var dstData = new ImageData(XSize, YSize, IsGray);
+                ImageProcessLib.Add16U(this, other, width, height, dstData, Channels, maxValue);
+                return dstData;
+            }
         }
 
         public ImageData SubConstant(ushort value)
@@ -97,17 +109,19 @@ namespace ImageProcess
             return dstData;
         }
 
-        public  ImageData Sub(ImageData subtracter)
+        public ImageData Sub(ImageData subtracter)
         {
             if (XSize != subtracter.XSize) throw new InvalidOperationException("Image data XSize not equal.");
             if (YSize != subtracter.YSize) throw new InvalidOperationException("Image data YSize not equal.");
             if (Channels != subtracter.Channels) throw new InvalidOperationException("Image data Channels not equal.");
             var dstData = new ImageData(XSize, YSize, IsGray);
-            var height = (int)XSize;
-            var width = (int)YSize;
+            var height = (int) YSize;
+            var width = (int) XSize;
             ImageProcessLib.Sub16U(this, subtracter, width, height, dstData, Channels);
             return dstData;
         }
+
+      
 
         //public static ImageData MulConstant(this ImageData srcData, ushort value, int depth= 14)
         //{
@@ -301,6 +315,40 @@ namespace ImageProcess
                 }
                 return dstData;
             }
+        }
+
+        public ImageData BitwiseAnd(ImageData other)
+        {
+            if (Channels != 1) throw new InvalidOperationException("only support 1 channel image");
+            if (other.Channels != Channels) throw new InvalidOperationException("Image data Channels not equal.");
+            if (other.XSize != XSize || other.YSize != YSize)
+                throw new InvalidOperationException("Image data size not equal.");
+            var dstData = new ImageData(XSize, YSize);
+            ImageProcessLib.BitwiseAnd16UC1(this, other, (int) XSize, (int) YSize, dstData);
+            return dstData;
+
+        }
+
+        public ImageData BitwiseOr(ImageData other)
+        {
+            if (Channels != 1) throw new InvalidOperationException("only support 1 channel image");
+            if (other.Channels != Channels) throw new InvalidOperationException("Image data Channels not equal.");
+            if (other.XSize != XSize || other.YSize != YSize)
+                throw new InvalidOperationException("Image data size not equal.");
+            var dstData = new ImageData(XSize, YSize);
+            ImageProcessLib.BitwiseOr16UC1(this, other, (int)XSize, (int)YSize, dstData);
+            return dstData;
+        }
+
+        public ImageData BitwiseXor(ImageData other)
+        {
+            if (Channels != 1) throw new InvalidOperationException("only support 1 channel image");
+            if (other.Channels != Channels) throw new InvalidOperationException("Image data Channels not equal.");
+            if (other.XSize != XSize || other.YSize != YSize)
+                throw new InvalidOperationException("Image data size not equal.");
+            var dstData = new ImageData(XSize, YSize);
+            ImageProcessLib.BitwiseXor16UC1(this, other, (int)XSize, (int)YSize, dstData);
+            return dstData;
         }
 
         #endregion

@@ -176,6 +176,7 @@ namespace ComponentDataService.Types
         internal void SaveTileBlobs(string baseFolder)
         {
             string folder = Path.Combine(baseFolder, _componentName);
+           
             if (Directory.Exists(folder) == false)
                 Directory.CreateDirectory(folder);
             WriteBlobsXml(folder);
@@ -200,7 +201,8 @@ namespace ComponentDataService.Types
                 string expName = _experiment.GetExperimentInfo().Name;
                 string filename = string.Format("{0}-Cr1.evt.xml", expName);
                 file = Path.Combine(baseFolder, filename);
-                File.Create(file);
+                FileStream fs = File.Create(file);
+                fs.Close();
                 CreateCommonNodesForEvtXml(doc);
                 doc.Save(file);
             }
@@ -506,7 +508,7 @@ namespace ComponentDataService.Types
         private void WriteBlobsXml(string folder)
         {
             string destDirName = Path.Combine(folder, "contours");
-            if (Directory.Exists(destDirName)) 
+            if (Directory.Exists(destDirName) == false)
                 Directory.CreateDirectory(destDirName);
             WriteBlobsFile(destDirName, WriteBlobsXml);
         }
@@ -518,38 +520,48 @@ namespace ComponentDataService.Types
                 string.Format("contours_{0}_{1}.xml", wellId, wellId));
             if (File.Exists(filename) == false)
             {
-                File.Create(filename);
+                FileStream fs = File.Create(filename);
+                fs.Close();
                 CreateCommonNodeForContourXml(doc, wellId);
                 doc.Save(filename);
             }
             doc.Load(filename);
             string query = string.Format("descendant::field[@no='{0}']", tileId);
-            var fieldNode = doc.SelectSingleNode(query) as XmlElement;
-            if (fieldNode != null)
+            var fieldNode = doc.SelectSingleNode(query) as XmlElement ??
+                            CreateFieldNodeForContourXml(doc, tileId);
+            if (fieldNode == null) return;
+            switch (type)
             {
-                switch (type)
-                {
-                    case BlobType.Contour:
-                        query = string.Format("descendant::contour-blobs");
-                        break;
-                    case BlobType.Data:
-                        query = string.Format("descendant::data-blobs");
-                        break;
-                    default:
-                        return;
-                }
-                XmlElement newly = CreateBlobNode(doc, wellId, tileId, type);
-                var blobNode = fieldNode.SelectSingleNode(query) as XmlElement;
-                if (blobNode == null)
-                    fieldNode.AppendChild(newly);
-                else
-                {
-                    fieldNode.ReplaceChild(newly, blobNode);
-                }
-                doc.Save(filepath);
+                case BlobType.Contour:
+                    query = string.Format("descendant::contour-blobs");
+                    break;
+                case BlobType.Data:
+                    query = string.Format("descendant::data-blobs");
+                    break;
+                default:
+                    return;
             }
+            XmlElement newly = CreateBlobNode(doc, wellId, tileId, type);
+            var blobNode = fieldNode.SelectSingleNode(query) as XmlElement;
+            if (blobNode == null)
+                fieldNode.AppendChild(newly);
+            else
+            {
+                fieldNode.ReplaceChild(newly, blobNode);
+            }
+            doc.Save(filename);
+
         }
 
+        private XmlElement CreateFieldNodeForContourXml(XmlDocument doc,int tileId)
+        {
+            var regionNode = doc.DocumentElement.SelectSingleNode("descendant::region");
+            if (regionNode == null) return null;
+            var fieldNode = doc.CreateElement("field");
+            fieldNode.SetAttribute("no", tileId.ToString(CultureInfo.InvariantCulture));
+            regionNode.AppendChild(fieldNode);
+            return fieldNode;
+        }
         private void CreateCommonNodeForContourXml(XmlDocument doc, int wellId)
         {
 
@@ -568,7 +580,8 @@ namespace ComponentDataService.Types
             var regionNode = doc.CreateElement("region");
             regionNode.SetAttribute("no", wellId.ToString(CultureInfo.InvariantCulture));
             wellNode.AppendChild(regionNode);
-         
+
+
         }
         private XmlElement CreateBlobNode(XmlDocument doc, int wellId, int tileId, BlobType type)
         {
@@ -627,7 +640,12 @@ namespace ComponentDataService.Types
                     return;
             }
 
-            if (File.Exists(filename) == false) File.Create(filename);
+            if (File.Exists(filename) == false)
+            {
+                FileStream fs = File.Create(filename);
+                fs.Close();
+            }
+                
             using (var writer = new BinaryWriter(File.Open(filename, FileMode.OpenOrCreate, FileAccess.Write)))
             {
                 foreach (Blob blob in blobs)
@@ -660,7 +678,12 @@ namespace ComponentDataService.Types
         {
             List<BioEvent> evs = _eventsDict[wellId];
             string filename = Path.Combine(folder, string.Format("{0}_{1}.evt", wellId, wellId));
-            if (File.Exists(filename) == false) File.Create(filename);
+            if (File.Exists(filename) == false)
+            {
+                FileStream fs = File.Create(filename);
+                fs.Close();
+            }
+               
             using (var writer = new BinaryWriter(File.Open(filename, FileMode.OpenOrCreate, FileAccess.Write)))
             {
                 foreach (BioEvent ev in evs)
@@ -750,6 +773,7 @@ namespace ComponentDataService.Types
         {           
             var rootNode = doc.CreateElement("data-list");
             rootNode.SetAttribute("version", SoftwareVersion.ToString());
+            doc.AppendChild(rootNode);
             var compsNode = doc.CreateElement("components");
             rootNode.AppendChild(compsNode);
         }

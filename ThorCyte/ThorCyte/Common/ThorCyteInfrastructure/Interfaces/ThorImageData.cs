@@ -59,7 +59,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             return GetDetailData(scanId, scanRegionId, channelId, planeId, timingFrameId, scale, regionRect);
         }
 
-        //3D
+        //3D tile and stream raw data
         public ImageData GetTileData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId, int tileId,
             int timingFrameId)
         {

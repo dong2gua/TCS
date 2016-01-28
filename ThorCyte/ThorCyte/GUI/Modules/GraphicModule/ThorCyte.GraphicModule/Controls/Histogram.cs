@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows;
-using Microsoft.Practices.ServiceLocation;
-using Prism.Events;
-using ROIService;
-using ROIService.Region;
+﻿using System.Windows;
 using ThorCyte.GraphicModule.Controls.RegionTools;
-using ThorCyte.GraphicModule.Events;
-using ThorCyte.GraphicModule.Utils;
 
 namespace ThorCyte.GraphicModule.Controls
 {
@@ -38,24 +30,6 @@ namespace ThorCyte.GraphicModule.Controls
             }
             UnSelectAll();
             _isLoading = false;
-        }
-
-        protected void UpdateRegionPixels()
-        {
-            var regionList = new List<MaskRegion>();
-            var ids = ROIManager.Instance.GetRegionIdList();
-            foreach (var id in ids)
-            {
-                var region = ROIManager.Instance.GetRegion(id);
-                if (region != null && region.GraphicId == Id)
-                {
-                    regionList.Add(region);
-                }
-            }
-            if (regionList.Count > 0)
-            {
-                ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<RegionUpdateEvent>().Publish(new RegionUpdateArgs(Id, regionList, RegionUpdateType.Update));
-            }
         }
 
         #endregion

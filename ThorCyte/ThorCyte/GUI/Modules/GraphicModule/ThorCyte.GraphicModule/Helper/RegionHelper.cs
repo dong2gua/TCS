@@ -7,6 +7,7 @@ using ROIService.Region;
 using ThorCyte.GraphicModule.Controls;
 using ThorCyte.GraphicModule.Controls.Graphics;
 using ThorCyte.GraphicModule.ViewModels;
+using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.GraphicModule.Helper
 {
@@ -17,11 +18,11 @@ namespace ThorCyte.GraphicModule.Helper
             double x, y, width, height;
             var xLogscale = (vm.XAxis.MaxRange - vm.XAxis.MinRange) / canvas.ActualWidth;
             var yLogscale = (vm.YAxis.MaxRange - vm.YAxis.MinRange) / canvas.ActualHeight;
-            var rectRegion = region as RectangleRegion;
 
-            if (rectRegion != null)
+            if (region.Shape == RegionShape.Rectangle)
             {
                 var rectGraphic = (GraphicsRectangleBase)graphic;
+                var rectRegion = (RectangleRegion)region;
                 if (vm.XAxis.IsLogScale)
                 {
                     x = rectGraphic.Rectangle.Left * xLogscale;
@@ -29,7 +30,7 @@ namespace ThorCyte.GraphicModule.Helper
                 }
                 else
                 {
-                    x = rectGraphic.Rectangle.Left / canvas.XScale + vm.XAxis.MinRange; 
+                    x = rectGraphic.Rectangle.Left / canvas.XScale + vm.XAxis.MinRange;
                     width = rectGraphic.Rectangle.Width / canvas.XScale;
                 }
 
@@ -45,12 +46,28 @@ namespace ThorCyte.GraphicModule.Helper
                 }
                 rectRegion.LeftUp = new Point(x, y);
                 rectRegion.Size = new Size(width, height);
-                return;
             }
-
-            var polygonRegion = region as PolygonRegion;
-            if (polygonRegion != null)
+            else if (region.Shape == RegionShape.Gate)
             {
+                var rectGraphic = (GraphicsRectangleBase)graphic;
+                var rectRegion = (GateRegion)region;
+                double min, max;
+                if (vm.XAxis.IsLogScale)
+                {
+                    min = rectGraphic.Rectangle.Left * xLogscale;
+                    max = rectGraphic.Rectangle.Right * xLogscale - min;
+                }
+                else
+                {
+                    min = rectGraphic.Rectangle.Left / canvas.XScale + vm.XAxis.MinRange;
+                    max = rectGraphic.Rectangle.Right / canvas.XScale;
+                }
+                rectRegion.MinValue = min;
+                rectRegion.MaxValue = max;
+            }
+            else if (region.Shape == RegionShape.Polygon)
+            {
+                var polygonRegion = (PolygonRegion)region;
                 var polygonGraphic = (GraphicsPolygon)graphic;
                 polygonRegion.Vertex.Clear();
                 for (var index = 0; index < polygonGraphic.Points.Length; index++)
@@ -60,12 +77,10 @@ namespace ThorCyte.GraphicModule.Helper
                     y = vm.YAxis.IsLogScale ? (canvas.ActualHeight - p.Y) * yLogscale : (canvas.ActualHeight - p.Y) / canvas.YScale + vm.YAxis.MinRange;
                     polygonRegion.Vertex.Add(new Point(x, y));
                 }
-                return;
             }
-
-            var ellipseRegion = region as EllipseRegion;
-            if (ellipseRegion != null)
+            else if (region.Shape == RegionShape.Ellipse)
             {
+                var ellipseRegion = (EllipseRegion)region; 
                 var ellipseGraphic = (GraphicsEllipse)graphic;
                 var centerx = ellipseGraphic.Rectangle.Left + ellipseGraphic.Rectangle.Width / 2.0;
                 var centery = canvas.ActualHeight - (ellipseGraphic.Rectangle.Top + ellipseGraphic.Rectangle.Height / 2.0);
@@ -78,7 +93,7 @@ namespace ThorCyte.GraphicModule.Helper
                 else
                 {
                     x = centerx / canvas.XScale + vm.XAxis.MinRange;
-                    width = ellipseGraphic.Rectangle.Width / canvas.XScale ;
+                    width = ellipseGraphic.Rectangle.Width / canvas.XScale;
                 }
 
                 if (vm.YAxis.IsLogScale)
@@ -88,7 +103,7 @@ namespace ThorCyte.GraphicModule.Helper
                 }
                 else
                 {
-                    y = centery / canvas.YScale + vm.YAxis.MinRange ;
+                    y = centery / canvas.YScale + vm.YAxis.MinRange;
                     height = ellipseGraphic.Rectangle.Height / canvas.YScale;
                 }
 
@@ -152,7 +167,7 @@ namespace ThorCyte.GraphicModule.Helper
 
         public static List<string> GetDescendants(List<MaskRegion> regionList, IList<MaskRegion> selfRegionList)
         {
-            var descendantList = selfRegionList.Select(region =>ConstantHelper.PrefixRegionName + region.Id).ToList();
+            var descendantList = selfRegionList.Select(region => ConstantHelper.PrefixRegionName + region.Id).ToList();
             var queue = selfRegionList.Select(region => region.Id.ToString(CultureInfo.InvariantCulture)).ToList();
 
             while (queue.Count > 0)
@@ -197,49 +212,49 @@ namespace ThorCyte.GraphicModule.Helper
             foreach (var regionItem in regionList)
             {
                 var graphicVm = graphicVmList.Find(vm => vm.Id == regionItem.GraphicId);
-                    if (graphicVm != null)
+                if (graphicVm != null)
+                {
+                    var left = (!string.IsNullOrEmpty(graphicVm.SelectedGate1) && graphicVm.SelectedGate1.StartsWith(ConstantHelper.PrefixRegionName)) ? graphicVm.SelectedGate1 : string.Empty;
+                    var right = (!string.IsNullOrEmpty(graphicVm.SelectedGate2) && graphicVm.SelectedGate2.StartsWith(ConstantHelper.PrefixRegionName)) ? graphicVm.SelectedGate2 : string.Empty;
+                    regionItem.LeftParent = left;
+                    if (graphicVm.IsGate2Enable)
                     {
-                        var left = (!string.IsNullOrEmpty(graphicVm.SelectedGate1) && graphicVm.SelectedGate1.StartsWith(ConstantHelper.PrefixRegionName)) ? graphicVm.SelectedGate1 : string.Empty;
-                        var right = (!string.IsNullOrEmpty(graphicVm.SelectedGate2) && graphicVm.SelectedGate2.StartsWith(ConstantHelper.PrefixRegionName)) ? graphicVm.SelectedGate2 : string.Empty;
-                        regionItem.LeftParent = left;
-                        if (graphicVm.IsGate2Enable)
-                        {
-                            regionItem.RightParent = right;
-                        }
-                        if (graphicVm.IsOperatorEnable)
-                        {
-                            regionItem.Operation = graphicVm.SelectedOperator;
-                        }
-                        updateRegionList.Add(regionItem);
+                        regionItem.RightParent = right;
                     }
+                    if (graphicVm.IsOperatorEnable)
+                    {
+                        regionItem.Operation = graphicVm.SelectedOperator;
+                    }
+                    updateRegionList.Add(regionItem);
+                }
             }
 
             foreach (var regionItem in regionList)
             {
                 var graphicVm = graphicVmList.Find(vm => vm.Id == regionItem.GraphicId);
-                    if (graphicVm != null)
+                if (graphicVm != null)
+                {
+                    var left = (!string.IsNullOrEmpty(graphicVm.SelectedGate1) && graphicVm.SelectedGate1.StartsWith(ConstantHelper.PrefixRegionName)) ? graphicVm.SelectedGate1 : string.Empty;
+                    var right = (!string.IsNullOrEmpty(graphicVm.SelectedGate2) && graphicVm.SelectedGate2.StartsWith(ConstantHelper.PrefixRegionName)) ? graphicVm.SelectedGate2 : string.Empty;
+                    if (!string.IsNullOrEmpty(left))
                     {
-                        var left = (!string.IsNullOrEmpty(graphicVm.SelectedGate1) && graphicVm.SelectedGate1.StartsWith(ConstantHelper.PrefixRegionName)) ? graphicVm.SelectedGate1 : string.Empty;
-                        var right = (!string.IsNullOrEmpty(graphicVm.SelectedGate2) && graphicVm.SelectedGate2.StartsWith(ConstantHelper.PrefixRegionName)) ? graphicVm.SelectedGate2 : string.Empty;
-                        if (!string.IsNullOrEmpty(left))
+                        var leftId = int.Parse(left.Remove(0, 1));
+                        var item = updateRegionList.Find(region => region.Id == leftId);
+                        if (item != null)
                         {
-                            var leftId = int.Parse(left.Remove(0,1));
-                            var item = updateRegionList.Find(region => region.Id == leftId);
-                            if (item != null)
-                            {
-                                item.Children.Add(ConstantHelper.PrefixRegionName + regionItem.Id);
-                            }
+                            item.Children.Add(ConstantHelper.PrefixRegionName + regionItem.Id);
                         }
-                        if (!string.IsNullOrEmpty(right))
+                    }
+                    if (!string.IsNullOrEmpty(right))
+                    {
+                        var rightId = int.Parse(right.Remove(0, 1));
+                        var item = updateRegionList.Find(regionTuple => regionTuple.Id == rightId);
+                        if (item != null)
                         {
-                            var rightId = int.Parse(right.Remove(0, 1));
-                            var item = updateRegionList.Find(regionTuple => regionTuple.Id == rightId);
-                            if (item != null)
-                            {
-                                item.Children.Add(ConstantHelper.PrefixRegionName + regionItem.Id);
-                            }
+                            item.Children.Add(ConstantHelper.PrefixRegionName + regionItem.Id);
                         }
-                    }          
+                    }
+                }
             }
 
             if (updateRegionList.Count > 0)
@@ -263,7 +278,7 @@ namespace ThorCyte.GraphicModule.Helper
 
             foreach (var regionItem in regionList)
             {
-                var id = ConstantHelper.PrefixRegionName + regionItem.Id; 
+                var id = ConstantHelper.PrefixRegionName + regionItem.Id;
                 if (regionItem.GraphicId == graphId)
                 {
                     if (graphicVm != null)

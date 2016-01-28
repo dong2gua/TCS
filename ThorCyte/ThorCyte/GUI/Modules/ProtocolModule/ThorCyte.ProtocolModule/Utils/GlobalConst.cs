@@ -14,6 +14,12 @@
 
         public const string OperationCateName = "Operation Category";
         public const string AddModuleName = "Add";
+        public const string SubtractModuleName = "Subtract";
+        public const string InvertModuleName = "Invert";
+        public const string AndModuleName = "And";
+        public const string OrModuleName = "Or";
+        public const string XorModuleName = "Xor";
+        public const string BrightContrastModuleName = "Bright Contrast";
 
         public const string ContourCateName = "Contour Category";
         public const string ChannelModuleName = "Channel";

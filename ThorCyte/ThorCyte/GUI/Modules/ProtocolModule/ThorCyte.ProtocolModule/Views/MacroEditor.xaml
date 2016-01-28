@@ -88,32 +88,23 @@
         <CommandBinding  Command="{StaticResource Commands.DeleteSelectedNodes}"  Executed="DeleteSelectedNodes_Executed" />
     </UserControl.CommandBindings>
 
-    <Grid x:Name="gridMain" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+    <Grid x:Name="gridMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220"/>
             <ColumnDefinition Width="8"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="8"/>
             <ColumnDefinition Width="210"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="8"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
-            <StackPanel x:Name="toolPannel"  Orientation="Horizontal" >
-                <ToggleButton Click="ToolboxClick" Padding="-1" Margin="5,2,0,2">
-                    <Image Source="../Resource/Images/toolbox.png" />
-                </ToggleButton>
-
-                <!--<Button Padding="-1" Margin="5,2,0,2" Content="Save" Command="{Binding SaveMacroCommand}"/>-->
-            </StackPanel>
-        </Border>
-
         <!--Protocol TreeView-->
-        <Border x:Name="treePannel" Grid.Row="1" Grid.Column="0" BorderBrush="CadetBlue" BorderThickness="1">
+        <Border x:Name="treePannel" Grid.Row="1" Grid.Column="0" BorderBrush="DarkGray" BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25"/>
@@ -136,7 +127,7 @@
         <GridSplitter x:Name="splitter1" Grid.Column="1" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
 
         <!--Canvas: Create Module-->
-        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="CadetBlue" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="DarkGray" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
             <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="{Binding ElementName=PannelBorder,Path=ActualHeight}" Width="{Binding ElementName=PannelBorder,Path=ActualWidth}">
                 <control:PannelView x:Name="pannel" Background="DimGray" PreviewKeyDown="PannelKeyDown" 
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
@@ -148,43 +139,48 @@
         <GridSplitter x:Name="splitter2" Grid.Column="3" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
 
         <StackPanel x:Name="collapseToolPanel" Grid.Column="4" Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Left" Height="30">
-            <Button Margin="5,2,0,2" Padding="-1" Command="{Binding StartMacroCommand}">
-                <Image Source="../Resource/Images/play.png" />
-            </Button>
-            <Button Margin="5,2,0,2" Padding="-1" Command="{Binding StopMacroCommand}">
-                <Image Source="../Resource/Images/stop.png" />
-            </Button>            
+
         </StackPanel>
 
-        <Border x:Name="contentGrid" Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="CadetBlue">
-            <ScrollViewer x:Name="Scroller" VerticalAlignment="Top" Margin="-1,-1,6,0" Height="{Binding ElementName=contentGrid,Path=ActualHeight}" VerticalScrollBarVisibility="Auto">
+        <Border x:Name="contentGrid" Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="DarkGray">
+            <ScrollViewer x:Name="Scroller" VerticalAlignment="Top" Height="{Binding ElementName=contentGrid,Path=ActualHeight}" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <Label Content="{Binding PannelVm.SelectedModuleViewModel.DisplayName}" HorizontalAlignment="Center" FontWeight="Bold" Margin="5" FontSize="15" />
-                    <ContentControl  x:Name="contentControl" DataContext="{Binding PannelVm.SelectedModuleViewModel}" Content="{Binding View}" VerticalAlignment="Top"/>
+                    <ContentControl  x:Name="contentControl" DataContext="{Binding PannelVm.SelectedModuleViewModel}" Content="{Binding View}" VerticalAlignment="Top" Margin="5,0"/>
                 </StackPanel>
             </ScrollViewer>
         </Border>
 
-        <StatusBar x:Name="statBar" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5" BorderBrush="CadetBlue" BorderThickness="1" Margin="0,2,0,0">
-            <Grid Width="{Binding ElementName=statBar, Path=ActualWidth}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <StackPanel Margin="5,0" Orientation="Vertical" Grid.Row="1" Grid.Column="5">
+            <ToggleButton Margin="1"  Click="ToolboxClick" ToolTip="Tool Box">
+                <Image Source="../Resource/Images/toolbox.png"/>
+            </ToggleButton>
+            <Button  Margin="1" Command="{Binding StartMacroCommand}" ToolTip="Start Run">
+                <Image Source="../Resource/Images/play.png" />
+            </Button>
+            <Button  Margin="1" Command="{Binding StopMacroCommand}" ToolTip="Stop Run">
+                <Image Source="../Resource/Images/stop.png" />
+            </Button>
+        </StackPanel>
 
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding StatusMessage}"/>
-                <Grid Grid.Column="4" Margin="10,0,10,0" Visibility="{Binding IsRuning, Converter={StaticResource BoolVisibleCvt}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <ProgressBar Grid.Row="0" Minimum="0" Maximum="{Binding TileCount}" Value="{Binding RegionProgress}" BorderBrush="CadetBlue" BorderThickness="1"/>
-                    <ProgressBar Grid.Row="1" Minimum="0" Maximum="{Binding RegionCount}" Value="{Binding TotalProgress}" BorderBrush="CadetBlue" BorderThickness="1"/>
-                </Grid>
+        <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding StatusMessage}" FontSize="16" VerticalAlignment="Center"/>
+            <Grid Grid.Column="4" Margin="0,5,10,5" Visibility="{Binding IsRuning, Converter={StaticResource BoolVisibleCvt}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ProgressBar Grid.Row="0" Minimum="0" Maximum="{Binding TileCount}" Value="{Binding RegionProgress}" BorderBrush="DarkGray" BorderThickness="1"/>
+                <ProgressBar Grid.Row="1" Minimum="0" Maximum="{Binding RegionCount}" Value="{Binding TotalProgress}" BorderBrush="DarkGray" BorderThickness="1"/>
             </Grid>
-        </StatusBar>
+        </Grid>
     </Grid>
 </UserControl>

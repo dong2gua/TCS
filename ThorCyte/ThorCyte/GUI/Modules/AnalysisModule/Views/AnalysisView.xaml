@@ -67,7 +67,7 @@
                     <ContentControl DockPanel.Dock="Right" regions:RegionManager.RegionName="{x:Static inf:RegionNames.GraphicRegion}"/>
                 </TabItem>
             <TabItem Header="Statistics" Background="LightSkyBlue">
-                
+                <ContentControl DockPanel.Dock="Right" regions:RegionManager.RegionName="{x:Static inf:RegionNames.StatisticRegion}"/>
             </TabItem>
             <TabItem Header="Gallery" Background="SandyBrown">
 

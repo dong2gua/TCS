@@ -12,8 +12,8 @@
         public const string ScanInfoRegion = "ScanInfoRegion";
 
         //Analysis Section
-        public const string AnalysisCarrierRegion = "AnalysisCarrierRegion";
         public const string ProtocolRegion = "ProtocolRegion";
         public const string GraphicRegion = "GraphicRegion";
+        public const string StatisticRegion = "StatisticRegion";
     }
 }

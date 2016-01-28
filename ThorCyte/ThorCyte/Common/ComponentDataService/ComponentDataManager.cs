@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using ComponentDataService.Types;
 using ImageProcess;
 using ImageProcess.DataType;
@@ -116,11 +117,8 @@ namespace ComponentDataService
             ExperimentInfo info = experiment.GetExperimentInfo();
             string analysisPath = info.AnalysisPath;
             _basePath = Path.Combine(analysisPath, DataStoredFolder);
-            if (Directory.Exists(_basePath) == false)
-            {
-                Directory.CreateDirectory(_basePath);
-                return;//for not analysed data
-            }             
+            if (Directory.Exists(_basePath) == false) return;//for not analysed data
+                         
             ClearComponents();
             IEnumerable<string> componentNames = GetComponentNamesFromXml();       
             foreach (string name in componentNames)
@@ -209,12 +207,15 @@ namespace ComponentDataService
 
         public void Save(string fileFolder)
         {
+          
+            if (Directory.Exists(_basePath) == false)
+                Directory.CreateDirectory(_basePath);
             foreach (BioComponent bioComponent in _bioComponentDict.Values)
             {
-                bioComponent.SaveTileBlobs(fileFolder);
-                bioComponent.SaveEvents(fileFolder);
+                bioComponent.SaveTileBlobs(_basePath);
+                bioComponent.SaveEvents(_basePath);
             }
-            SaveEvtXml(fileFolder);
+            SaveEvtXml(_basePath);
         }
 
         public void AddComponent(string componentName, IList<Feature> features)
@@ -299,9 +300,6 @@ namespace ComponentDataService
         }
         #endregion
 
-
-
-        
     }
 
     internal static class Utils

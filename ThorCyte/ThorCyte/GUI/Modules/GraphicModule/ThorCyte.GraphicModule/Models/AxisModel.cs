@@ -209,6 +209,10 @@ namespace ThorCyte.GraphicModule.Models
                     return;
                 }
                 SetProperty(ref _title, value);
+                if (_isDefaultLabel)
+                {
+                    LabelString = value;
+                }
             }
         }
 
@@ -709,6 +713,7 @@ namespace ThorCyte.GraphicModule.Models
             if (IsInitialized && !IsSwitchWell && !IsMaxCountChanged)
             {
                 GraphicModule.GraphicManagerVmInstance.UpdateGraphFeatures(GraphicId);
+                UpdateTitle();
             }
         }
 

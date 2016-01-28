@@ -125,6 +125,10 @@
     <Compile Include="Utils\VisualUtils.cs" />
     <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
     <Compile Include="ViewModels\Modules\AddModVm.cs" />
+    <Compile Include="ViewModels\Modules\AndModVm.cs" />
+    <Compile Include="ViewModels\Modules\BrightContrastModVm.cs" />
+    <Compile Include="ViewModels\Modules\InvertModVm.cs" />
+    <Compile Include="ViewModels\Modules\OrModVm.cs" />
     <Compile Include="ViewModels\Modules\OverlapParentChild2ModVm.cs" />
     <Compile Include="ViewModels\Modules\OverlapParentChildModVm.cs" />
     <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
@@ -133,8 +137,13 @@
     <Compile Include="ViewModels\Modules\FilterModVm.cs" />
     <Compile Include="ViewModels\Modules\ModuleBase.cs" />
     <Compile Include="ViewModels\Modules\PhantomModVm.cs" />
+    <Compile Include="ViewModels\Modules\SubtractModVm.cs" />
     <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
+    <Compile Include="ViewModels\Modules\XorModVm.cs" />
     <Compile Include="ViewModels\PannelViewModel.cs" />
+    <Compile Include="Views\Modules\BrightContrastModule.xaml.cs">
+      <DependentUpon>BrightContrastModule.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Modules\ChannelModule.xaml.cs">
       <DependentUpon>ChannelModule.xaml</DependentUpon>
     </Compile>
@@ -161,6 +170,10 @@
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Modules\BrightContrastModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\ChannelModule.xaml">
       <SubType>Designer</SubType>

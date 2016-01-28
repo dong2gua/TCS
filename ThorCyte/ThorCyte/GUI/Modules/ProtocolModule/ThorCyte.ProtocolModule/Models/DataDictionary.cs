@@ -18,7 +18,12 @@ namespace ThorCyte.ProtocolModule.Models
 
             {GlobalConst.OperationCateName,ModuleType.SmtOperationCategory},
             {GlobalConst.AddModuleName,ModuleType.SmtAddModule},
-
+            {GlobalConst.SubtractModuleName,ModuleType.SmtSubtractModule},
+            {GlobalConst.InvertModuleName,ModuleType.SmtInvertModule},
+            {GlobalConst.AndModuleName,ModuleType.SmtAndModule},
+            {GlobalConst.OrModuleName,ModuleType.SmtOrModule},
+            {GlobalConst.XorModuleName,ModuleType.SmtXorModule},
+            {GlobalConst.BrightContrastModuleName,ModuleType.SmtBrightContrastModule},
 
             {GlobalConst.ContourCateName,ModuleType.SmtContourCategory},
             {GlobalConst.ChannelModuleName,ModuleType.SmtChannelModule},

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Media;
 using System.Xml;
+using System.Xml.Linq;
 using ComponentDataService;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
@@ -15,6 +17,7 @@ using Prism.Mvvm;
 using ROIService;
 using ROIService.Region;
 using ThorCyte.GraphicModule.Controls;
+using ThorCyte.GraphicModule.Controls.Graphics;
 using ThorCyte.GraphicModule.Events;
 using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.Infrastructure;
@@ -22,6 +25,7 @@ using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.Utils;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
+using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.GraphicModule.ViewModels
 {
@@ -32,7 +36,7 @@ namespace ThorCyte.GraphicModule.ViewModels
         private readonly List<GraphicVmBase> _tempGraphicvmList = new List<GraphicVmBase>();
 
         private static ROIManager _roiInstance;
-        
+
         private readonly IdManager _tabIdManager;
 
         private GraphicContainerVm _selectedContainer;
@@ -132,6 +136,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(LoadXml);
             eventAggregator.GetEvent<SelectWells>().Subscribe(ActiveWellChanged);
             eventAggregator.GetEvent<MacroRunEvent>().Subscribe(OnUpdateComponentList);
+            eventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(OnSaveGraphics);
             _activeWellNos = new List<int>();
         }
 
@@ -312,7 +317,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 var id = ConstantHelper.PrefixRegionName + regionItem.Id;
                 var scattergramVm = dictionary[regionItem.GraphicId].Item2 as ScattergramVm;
-                UpdateRegionPoint(id, regionItem, dictionary[regionItem.GraphicId].Item2, dictionary[regionItem.GraphicId].Item1);
+                UpdateRegionPoint(id, regionItem, dictionary[regionItem.GraphicId].Item2,
+                    dictionary[regionItem.GraphicId].Item1);
                 if (scattergramVm != null)
                 {
                     RegionHelper.Set2DCommonRegionParas(regionItem, scattergramVm);
@@ -368,7 +374,7 @@ namespace ThorCyte.GraphicModule.ViewModels
         private void UpdateRegion(RegionUpdateArgs args)
         {
             var regions = args.RegionList.ToList();
-            var regionIds = regions.Select(region => string.Format("R{0}",region.Id)).ToList();
+            var regionIds = regions.Select(region => string.Format("R{0}", region.Id)).ToList();
             switch (args.UpdateType)
             {
                 case RegionUpdateType.Update:
@@ -438,7 +444,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     var gateList = new ImpObservableCollection<string>();
                     gateList.AddRange(regionList.Select(region => ConstantHelper.PrefixRegionName + region.Id).ToList());
                     vm.Gate1List = gateList;
-                    vm.Gate2List = (ImpObservableCollection<string>)gateList.Clone();
+                    vm.Gate2List = (ImpObservableCollection<string>) gateList.Clone();
                 }
                 else
                 {
@@ -450,7 +456,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                         }
                     }
                     vm.Gate1List = list;
-                    vm.Gate2List = (ImpObservableCollection<string>)list.Clone();
+                    vm.Gate2List = (ImpObservableCollection<string>) list.Clone();
                 }
 
                 var noneString = OperationType.None.ToString();
@@ -504,7 +510,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             region.ComponentName = vm.Title;
             if (isScattergram)
             {
-                RegionHelper.Set2DCommonRegionParas(region, (ScattergramVm)vm);
+                RegionHelper.Set2DCommonRegionParas(region, (ScattergramVm) vm);
             }
             else
             {
@@ -809,18 +815,18 @@ namespace ThorCyte.GraphicModule.ViewModels
                             }
                             if (!double.IsNaN(x) && !double.IsNaN(y))
                             {
-                                vm.QuadrantCenterPoint = new Point(x,y);
+                                vm.QuadrantCenterPoint = new Point(x, y);
                             }
                             vm.IsShowQuadrant = true;
                             break;
                         case "density-map":
                             if (reader["min"] != null)
                             {
-                                vm.ZScaleMin = (float)XmlConvert.ToDouble(reader["min"]);
+                                vm.ZScaleMin = (float) XmlConvert.ToDouble(reader["min"]);
                             }
                             if (reader["max"] != null)
                             {
-                                vm.ZScaleMax = (float)XmlConvert.ToDouble(reader["max"]);
+                                vm.ZScaleMax = (float) XmlConvert.ToDouble(reader["max"]);
                             }
                             break;
                         case "xaxis":
@@ -933,7 +939,8 @@ namespace ThorCyte.GraphicModule.ViewModels
                         }
                     }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement && (reader.Name == "xaxis" || reader.Name == "yaxis"))	// end of axis
+                else if (reader.NodeType == XmlNodeType.EndElement && (reader.Name == "xaxis" || reader.Name == "yaxis"))
+                    // end of axis
                     break;
             }
         }
@@ -944,8 +951,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             var name = ConstantHelper.PrefixRegionName;
             var color = Colors.White;
             MaskRegion region = null;
-            var xscale = ConstantHelper.LowBinCount / (vm.XAxis.MaxValue - vm.XAxis.MinValue);
-            var yscale = ConstantHelper.LowBinCount / (vm.YAxis.MaxValue - vm.YAxis.MinValue);
+            var xscale = ConstantHelper.LowBinCount/(vm.XAxis.MaxValue - vm.XAxis.MinValue);
+            var yscale = ConstantHelper.LowBinCount/(vm.YAxis.MaxValue - vm.YAxis.MinValue);
 
             if (string.IsNullOrEmpty(shape))
             {
@@ -960,7 +967,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 var convertFromString = ColorConverter.ConvertFromString(reader["color"]);
                 if (convertFromString != null)
-                    color = (Color)convertFromString;
+                    color = (Color) convertFromString;
             }
             var id = int.Parse(name.Remove(0, 1));
             switch (shape)
@@ -985,27 +992,31 @@ namespace ThorCyte.GraphicModule.ViewModels
                     if (!double.IsNaN(x) && !double.IsNaN(y))
                     {
                         var pt = new Point(x, y);
-                        var left = pt.X / xscale;
-                        var top = pt.Y / yscale;
+                        var left = pt.X/xscale;
+                        var top = pt.Y/yscale;
                         if (reader["w"] != null)
                         {
-                            width = XmlConvert.ToDouble(reader["w"]) / xscale;
+                            width = XmlConvert.ToDouble(reader["w"])/xscale;
                         }
                         if (reader["h"] != null)
                         {
-                            height = XmlConvert.ToDouble(reader["h"]) / yscale;
+                            height = XmlConvert.ToDouble(reader["h"])/yscale;
                         }
                         var rect = new Rect(left, top, width, height);
 
 
-                        if (shape == "Rectangle" || shape == "Range")
+                        if (shape == "Rectangle")
                         {
                             region = new RectangleRegion(id, rect.Size, rect.TopLeft);
                         }
+                        else if(shape == "Range")
+                        {
+                            region = new GateRegion(id,rect.Left,rect.Right);
+                        }
                         else
                         {
-                            var center = new Point((rect.Left + rect.Right) / 2.0,
-                                (rect.Top + rect.Bottom) / 2.0);
+                            var center = new Point(rect.Left + rect.Width/2.0,
+                                rect.Top - rect.Height/2.0);
                             region = new EllipseRegion(id, rect.Size, center);
                         }
 
@@ -1033,8 +1044,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             var points = new List<Point>();
             var x = double.NaN;
             var y = double.NaN;
-            var xscale = ConstantHelper.LowBinCount / (vm.XAxis.MaxValue - vm.XAxis.MinValue);
-            var yscale = ConstantHelper.LowBinCount / (vm.YAxis.MaxValue - vm.YAxis.MinValue);
+            var xscale = ConstantHelper.LowBinCount/(vm.XAxis.MaxValue - vm.XAxis.MinValue);
+            var yscale = ConstantHelper.LowBinCount/(vm.YAxis.MaxValue - vm.YAxis.MinValue);
 
             while (reader.Read())
             {
@@ -1042,11 +1053,11 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     if (reader["x"] != null)
                     {
-                        x = XmlConvert.ToDouble(reader["x"]) / xscale;
+                        x = XmlConvert.ToDouble(reader["x"])/xscale;
                     }
                     if (reader["y"] != null)
                     {
-                        y = (ConstantHelper.LowBinCount - XmlConvert.ToDouble(reader["y"])) / yscale;
+                        y = (ConstantHelper.LowBinCount - XmlConvert.ToDouble(reader["y"]))/yscale;
                     }
 
                     if (!double.IsNaN(x) && !double.IsNaN(y))
@@ -1065,6 +1076,235 @@ namespace ThorCyte.GraphicModule.ViewModels
         }
 
 
+        #endregion
+
+        #region Save Xml
+
+        private void OnSaveGraphics(int i)
+        {
+            var experiment = ServiceLocator.Current.GetInstance<IExperiment>();
+            if (experiment == null)
+            {
+                return;
+            }
+            var xmlPath = experiment.GetExperimentInfo().AnalysisPath;
+            if (!Directory.Exists(xmlPath))
+                Directory.CreateDirectory(xmlPath);
+            var filepath = Path.Combine(xmlPath, ConstantHelper.GraphicXmlPath);
+            if (File.Exists(filepath))
+            {
+                File.Delete(filepath);
+            }
+            var graphicDic = GetGraphicDictionary();
+            var xe = new XElement("display-protocol");
+            var graphs = new XElement("graphs");
+            var gates = new XElement("gates");
+            var subspaces = new XElement("subspaces");
+            xe.Add(graphs);
+            xe.Add(gates);
+            xe.Add(subspaces);
+            SaveGraphics(graphs,graphicDic);
+            SaveGates(gates);
+            SaveSubSpaces(subspaces);
+            xe.Save(filepath);
+        }
+
+        private void SaveGraphics(XElement graphs,Dictionary<string,Tuple<GraphicUcBase,GraphicVmBase>>graphicDic)
+        {
+
+            foreach (var graphicTuple in graphicDic)
+            {
+                XElement graphic = null;
+                XElement xAxis = null;
+                XElement yAxis = null;
+                XElement numerator = null;
+                var vm = graphicTuple.Value.Item2;
+                IList<XAttribute> attributeList = new List<XAttribute>
+                    {
+                        new XAttribute("graph-id", vm.Id),
+                        new XAttribute("component", vm.SelectedComponent ?? string.Empty),
+                        new XAttribute("normalize-xy", vm.IsNormalizexy)
+                    };
+
+                if ((graphicTuple.Value.Item2 as ScattergramVm) != null)
+                {
+                    graphic = new XElement("scattergram", attributeList);
+                }
+                else
+                {
+                    var histogramVm = (HistogramVm)vm;
+                    attributeList.Add(new XAttribute("auto-yscale", histogramVm.IsAutoYScale));
+                    attributeList.Add(new XAttribute("yscale", histogramVm.YScaleValue));
+                    graphic = new XElement("histogram", attributeList);
+                }
+                attributeList = new List<XAttribute>
+                    {
+                        new XAttribute("def-label", vm.XAxis.IsDefaultLabel),
+                        new XAttribute("label", vm.XAxis.LabelString),
+                        new XAttribute("min", vm.XAxis.MinRange),
+                        new XAttribute("max", vm.XAxis.MaxRange),
+                        new XAttribute("log", vm.XAxis.IsLogScale)
+                    };
+                xAxis = new XElement("xaxis", attributeList);
+                attributeList = new List<XAttribute>
+                    {
+                        new XAttribute("feature", vm.XAxis.SelectedNumeratorFeature.Name),
+                        new XAttribute("channel", vm.XAxis.SelectedNumeratorChannel!= null ? vm.XAxis.SelectedNumeratorChannel.ChannelName: string.Empty),
+                    };
+                numerator = new XElement("numerator", attributeList);
+                xAxis.Add(numerator);
+                graphic.Add(xAxis);
+                attributeList = new List<XAttribute>
+                    {
+                        new XAttribute("def-label", vm.YAxis.IsDefaultLabel),
+                        new XAttribute("label", vm.YAxis.LabelString),
+                        new XAttribute("min", vm.YAxis.MinRange),
+                        new XAttribute("max", vm.YAxis.MaxRange),
+                        new XAttribute("log", vm.YAxis.IsLogScale)
+                    };
+                if ((graphicTuple.Value.Item2 as ScattergramVm) != null)
+                {
+                    yAxis = new XElement("yaxis", attributeList);
+                    attributeList = new List<XAttribute>
+                    {
+                        new XAttribute("feature", vm.YAxis.SelectedNumeratorFeature.Name),
+                        new XAttribute("channel", vm.YAxis.SelectedNumeratorChannel!= null ? vm.YAxis.SelectedNumeratorChannel.ChannelName: string.Empty),
+                    };
+                    numerator = new XElement("numerator", attributeList);
+                    yAxis.Add(numerator);
+                    graphic.Add(yAxis);
+                }
+                SaveRegions(graphic, graphicTuple.Value.Item1.RegionPanel);
+                graphs.Add(graphic);
+            }
+           
+        }
+
+        private void SaveRegions(XElement graphic,RegionCanvas regionCanvas)
+        {
+            if (graphic == null || regionCanvas == null)
+            {
+                return;
+            }
+            var xscale = regionCanvas.ActualWidth / ConstantHelper.LowBinCount;
+            var yscale = regionCanvas.ActualHeight / ConstantHelper.LowBinCount;
+
+            XElement region;
+            IList<XAttribute> attributeList ;
+
+            foreach (var visual in regionCanvas.VisualList)
+            {
+                var g = visual as GraphicsBase;
+                if (g == null)
+                    continue;
+
+                switch(g.GraphicType)
+                {
+                    case RegionType.Rectangle:
+                    case RegionType.Ellipse:
+                        var rect = (GraphicsRectangleBase)g;
+                        var color = g.ObjectColor != Colors.Black
+                            ? GraphicVmBase.ColorRegionList.First(colorModel => colorModel.RegionColor == g.ObjectColor)
+                            .RegionColorString : "Black";
+                        string shape = string.Empty;
+                        if (rect.GraphicType == RegionType.Rectangle)
+                        {
+                            shape = (regionCanvas as Scattergram) != null ? "Rectangle" : "Range"; 
+                        }
+                        else if (rect.GraphicType == RegionType.Ellipse)
+                        {
+                            shape = "Ellipse";
+                        }
+
+                        attributeList = new List<XAttribute>
+                        {
+                            new XAttribute("id", rect.Name.Remove(0, 1)),
+                            new XAttribute("shape", shape),
+                            new XAttribute("color", color),
+                            new XAttribute("x", (int)(rect.Left/xscale)),
+                            new XAttribute("y", (int)(rect.Top/yscale)),
+                            new XAttribute("w", (int)(rect.Rectangle.Width/xscale)),
+                            new XAttribute("h", shape == "Range"?  200:(int)(rect.Rectangle.Height / yscale))
+                        };
+                        region = new XElement("region", attributeList);
+                        graphic.Add(region);
+                        break;
+                    case RegionType.Polygon:
+                        var polygon = (GraphicsPolygon)g;
+                        var polygonColor = g.ObjectColor != Colors.Black
+                            ? GraphicVmBase.ColorRegionList.First(colorModel => colorModel.RegionColor == g.ObjectColor)
+                        .RegionColorString : "Black";
+                        attributeList = new List<XAttribute>
+                        {
+                            new XAttribute("id", polygon.Name.Remove(0, 1)),
+                            new XAttribute("shape", "Polygon"),
+                            new XAttribute("color", polygonColor),
+                        };
+                        region = new XElement("region", attributeList);
+
+                        var points = new XElement("points", new XAttribute("count", polygon.Points.Count()));
+                        foreach (var pt in polygon.Points)
+                        {
+                            var point = new XElement("point", new XAttribute("x", (int)(pt.X / xscale)), new XAttribute("y", (int)(pt.Y / yscale)));
+                            points.Add(point);
+                        }
+                        region.Add(points);
+                        graphic.Add(region);
+                        break;
+                }
+            }
+        }
+
+        private void SaveGates(XElement gates)
+        {
+            var vmList = GetGraphicVmList();
+            if (gates == null || vmList.Count == 0)
+            {
+                return;
+            }
+
+            var attributeList = new List<XAttribute>();
+
+            foreach (var graphicVm in vmList)
+            {
+                if (!string.IsNullOrEmpty(graphicVm.SelectedGate1) && graphicVm.SelectedGate1.StartsWith(ConstantHelper.PrefixRegionName))
+                {
+                    attributeList.Add(new XAttribute("gate1", graphicVm.SelectedGate1.Remove(0,1)));
+                }
+                if (!string.IsNullOrEmpty(graphicVm.SelectedGate2) && graphicVm.SelectedGate2.StartsWith(ConstantHelper.PrefixRegionName))
+                {
+                    attributeList.Add(new XAttribute("gate2", graphicVm.SelectedGate2.Remove(0, 1)));
+                }
+                if (attributeList.Count > 0)
+                {
+                    attributeList.Insert(0,new XAttribute("ref-id", graphicVm.Id));
+                    gates.Add(new XElement("graph", attributeList));
+                }
+                attributeList.Clear();
+            }
+        }
+
+        private void SaveSubSpaces(XElement subspaces)
+        {
+            if (subspaces == null || _graphicContainerVms.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var containerVm in _graphicContainerVms)
+            {
+                var subspace = new XElement("subspace", new XAttribute("name", containerVm.Name));
+                foreach (var graphiVm in containerVm.GraphicVmList)
+                {
+                    var name = ((graphiVm as ScattergramVm) != null
+                        ? ConstantHelper.PrefixScattergramName
+                        : ConstantHelper.PrefixHistogramName) + graphiVm.Id;
+                    var info = new XElement("info", new XAttribute("name", name));
+                    subspace.Add(info);
+                }
+                subspaces.Add(subspace);
+            }
+        }
         #endregion
 
         #endregion

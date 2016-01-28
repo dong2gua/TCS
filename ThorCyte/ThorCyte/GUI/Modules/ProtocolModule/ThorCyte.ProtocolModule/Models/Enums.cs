@@ -42,6 +42,12 @@
 
         SmtOperationCategory,
         SmtAddModule,
+        SmtSubtractModule,
+        SmtInvertModule,
+        SmtAndModule,
+        SmtOrModule,
+        SmtXorModule,
+        SmtBrightContrastModule,
 
         SmtContourCategory,
         SmtChannelModule,

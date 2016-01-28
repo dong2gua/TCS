@@ -31,6 +31,10 @@ namespace ImageProcess
         internal static extern int Add16U(SafeHandle srcBuffer1, SafeHandle srcBuffer2, int width, int height,
             SafeHandle dstBuffer, int channels, ushort maxValue);
 
+        [DllImport(DllName, EntryPoint = "fnipp_lib_add_16uI", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Add16UInplace(SafeHandle srcBuffer, int width, int height, int channels,
+            ushort maxValue, SafeHandle srcDstBuffer);
+
         [DllImport(DllName, EntryPoint = "fnipp_lib_subConstant_16u", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int SubConstant16U(ushort value, SafeHandle srcBuffer, int width, int height,
             SafeHandle dstBuffer, int channels);
@@ -38,6 +42,10 @@ namespace ImageProcess
         [DllImport(DllName, EntryPoint = "fnipp_lib_sub_16u", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int Sub16U(SafeHandle minuendBuffer, SafeHandle subtracterBuffer, int width, int height,
             SafeHandle dstBuffer, int channels);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_sub_16uI", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Sub16UInplace(SafeHandle minuendBuffer, SafeHandle subtracterBuffer, int width,
+            int height, int channels);
 
         [DllImport(DllName, EntryPoint = "fnipp_lib_mulConstant_16u", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int MulConstant16U(ushort value, SafeHandle srcBuffer, int width, int height,
@@ -61,6 +69,9 @@ namespace ImageProcess
         internal static extern int Invert16U(SafeHandle srcBuffer, int width, int height, int channels, ushort maxValue,
             SafeHandle dstBuffer);
 
+        [DllImport(DllName, EntryPoint = "fnipp_lib_invert_16uI", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Invert16UInplace(SafeHandle srcDstBuffer, int width, int height, int channels, ushort maxValue);
+
         [DllImport(DllName, EntryPoint = "fnipp_lib_threshold_16uC1", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int Threshold16UC1(SafeHandle srcBuffer, int width, int height, ushort threshold,
             SafeHandle dstBuffer);
@@ -81,6 +92,27 @@ namespace ImageProcess
 
         [DllImport(DllName, EntryPoint = "fnipp_lib_mean_16uC1", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int Mean16UC1(SafeHandle srcBuffer, int width, int height, out double mean);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_And_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int BitwiseAnd16UC1(SafeHandle srcBuffer1, SafeHandle srcBuffer2, int width, int height,
+            SafeHandle dstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_And_16uC1I", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int BitwiseAnd16UC1Inplace(SafeHandle srcBuffer, int width, int height, SafeHandle srcDstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_Or_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int BitwiseOr16UC1(SafeHandle srcBuffer1, SafeHandle srcBuffer2, int width, int height,
+            SafeHandle dstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_Or_16uC1I", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int BitwiseOr16UC1Inplace(SafeHandle srcBuffer, int width, int height, SafeHandle srcDstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_Xor_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int BitwiseXor16UC1(SafeHandle srcBuffer1, SafeHandle srcBuffer2, int width, int height,
+            SafeHandle dstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fnipp_lib_Xor_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int BitwiseXor16UC1Inplace(SafeHandle srcBuffer, int width, int height, SafeHandle srcDstBuffer);
         #endregion
 
         static ImageProcessLib()

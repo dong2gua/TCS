@@ -245,6 +245,7 @@ namespace ThorCyte.GraphicModule.ViewModels
         {
             base.Init();
             YAxis.Title = ConstantHelper.HistogramYTitle;
+            XAxis.UpdateTitle();
             ClearPlot();
         }
 

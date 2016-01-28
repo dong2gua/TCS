@@ -5,7 +5,7 @@
         xmlns:inf="clr-namespace:ThorCyte.Infrastructure.Commom;assembly=ThorCyte.Infrastructure"
         xmlns:controls="clr-namespace:ThorCyte.Infrastructure.Controls;assembly=ThorCyte.Infrastructure"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        Title="ThorCyte" Height="1024" Width="1280" Style ="{StaticResource {x:Type Window}}" MinWidth="1280" MinHeight="1024" 
+        Title="ThorCyte" Height="600" Width="600" Style ="{StaticResource {x:Type Window}}" MinWidth="600" MinHeight="600" 
         Icon="ThorCyte.ico"
         WindowStartupLocation="CenterScreen">
     <Grid>

@@ -89,19 +89,26 @@ namespace ThorCyte.ProtocolModule.Models
         #region Methods
         private void ExpLoaded(int scanId)
         {
-            if (scanId < 1) return;
-            _exp = ServiceLocator.Current.GetInstance<IExperiment>();
-            if (Clear != null) Clear();
-            CurrentScanId = scanId;
-            CurrentScanInfo = _exp.GetScanInfo(scanId);
-            var expinfo = _exp.GetExperimentInfo();
-            ImageMaxBits = expinfo.IntensityBits;
-            AnalysisPath = expinfo.AnalysisPath;
-            CurrentDataMgr = ServiceLocator.Current.GetInstance<IData>();
-            CurrentConponentService = ComponentDataManager.Instance;
-            ClearImagesDic();
-            CurrentImages = new Dictionary<string, ImageData>();
-            Load();
+            try
+            {
+                if (scanId < 1) return;
+                _exp = ServiceLocator.Current.GetInstance<IExperiment>();
+                if (Clear != null) Clear();
+                CurrentScanId = scanId;
+                CurrentScanInfo = _exp.GetScanInfo(scanId);
+                var expinfo = _exp.GetExperimentInfo();
+                ImageMaxBits = expinfo.IntensityBits;
+                AnalysisPath = expinfo.AnalysisPath;
+                CurrentDataMgr = ServiceLocator.Current.GetInstance<IData>();
+                CurrentConponentService = ComponentDataManager.Instance;
+                ClearImagesDic();
+                CurrentImages = new Dictionary<string, ImageData>();
+                Load();
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.ExpLoaded: " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -109,92 +116,106 @@ namespace ThorCyte.ProtocolModule.Models
         /// </summary>
         public void Load()
         {
-
-            if (!File.Exists(ProtocolFileName))
+            try
             {
-                MessageHelper.PostMessage("New protocol edit!");
-                return;
-            }
-
-            MessageHelper.PostMessage("Loading...");
-
-            var streamReader = new StreamReader(ProtocolFileName);
-            var settings = new XmlReaderSettings();
-            var reader = XmlReader.Create(streamReader, settings);
-
-            while (reader.Read())
-            {
-                if (reader.NodeType == XmlNodeType.Element)
+                if (!File.Exists(ProtocolFileName))
                 {
-                    switch (reader.Name)
+                    MessageHelper.PostMessage("New protocol edit!");
+                    return;
+                }
+
+                MessageHelper.PostMessage("Loading...");
+
+                var streamReader = new StreamReader(ProtocolFileName);
+                var settings = new XmlReaderSettings();
+                var reader = XmlReader.Create(streamReader, settings);
+
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element)
                     {
-                        case "module":
-                            var id = XmlConvert.ToInt32(reader["id"]);
-                            if (reader.Name == "combination-module")
-                            {
-                                throw new CyteException("Macro.Load", "Combination module does not support yet.");
-                            }
-                            var info = ModuleInfoMgr.GetModuleInfo(reader["name"]);
-                            if (info == null)
-                                throw new CyteException("Macro.Load", string.Format("Could not create module [{0}].\nModule is not defined in modules.xml.", reader["name"]));
-                            if (string.IsNullOrEmpty(info.Reference))
-                            {
-                                continue;
-                            }
-                            var module = CreateModule(info);
-
-                            module.Id = id;
-                            module.Enabled = Convert.ToBoolean(reader["enabled"]);
-                            module.ScanNo = Convert.ToInt32(reader["scale"]);
-
-                            if (reader["x"] != null)
-                            {
-                                module.X = XmlConvert.ToInt32(reader["x"]);
-                            }
-
-                            if (reader["y"] != null)
-                            {
-                                module.Y = XmlConvert.ToInt32(reader["y"]);
-                            }
-                            module.Initialize();
-                            module.Deserialize(reader);
-                            break;
-                        case "connector":
-                            if (reader["inport-module-id"] != null && reader["outport-module-id"] != null)
-                            {
-                                var inPortId = XmlConvert.ToInt32(reader["inport-module-id"]);
-                                var outPortId = XmlConvert.ToInt32(reader["outport-module-id"]);
-                                var inPortIndex = 0;
-                                if (reader["inport-index"] != null)
+                        switch (reader.Name)
+                        {
+                            case "module":
+                                var id = XmlConvert.ToInt32(reader["id"]);
+                                if (reader.Name == "combination-module")
                                 {
-                                    inPortIndex = XmlConvert.ToInt32(reader["inport-index"]);
+                                    throw new CyteException("Macro.Load", "Combination module does not support yet.");
                                 }
-                                var outPortIndex = 0;
-                                if (reader["outport-index"] != null)
+                                var info = ModuleInfoMgr.GetModuleInfo(reader["name"]);
+                                if (info == null)
+                                    throw new CyteException("Macro.Load", string.Format("Could not create module [{0}].\nModule is not defined in modules.xml.", reader["name"]));
+                                if (string.IsNullOrEmpty(info.Reference))
                                 {
-                                    outPortIndex = XmlConvert.ToInt32(reader["outport-index"]);
+                                    continue;
                                 }
-                                CreateConnector(inPortId, outPortId, inPortIndex, outPortIndex);
-                            }
+                                var module = CreateModule(info);
+
+                                module.Id = id;
+                                module.Enabled = Convert.ToBoolean(reader["enabled"]);
+                                module.ScanNo = Convert.ToInt32(reader["scale"]);
+
+                                if (reader["x"] != null)
+                                {
+                                    module.X = XmlConvert.ToInt32(reader["x"]);
+                                }
+
+                                if (reader["y"] != null)
+                                {
+                                    module.Y = XmlConvert.ToInt32(reader["y"]);
+                                }
+                                module.Initialize();
+                                module.Deserialize(reader);
+                                break;
+                            case "connector":
+                                if (reader["inport-module-id"] != null && reader["outport-module-id"] != null)
+                                {
+                                    var inPortId = XmlConvert.ToInt32(reader["inport-module-id"]);
+                                    var outPortId = XmlConvert.ToInt32(reader["outport-module-id"]);
+                                    var inPortIndex = 0;
+                                    if (reader["inport-index"] != null)
+                                    {
+                                        inPortIndex = XmlConvert.ToInt32(reader["inport-index"]);
+                                    }
+                                    var outPortIndex = 0;
+                                    if (reader["outport-index"] != null)
+                                    {
+                                        outPortIndex = XmlConvert.ToInt32(reader["outport-index"]);
+                                    }
+                                    CreateConnector(inPortId, outPortId, inPortIndex, outPortIndex);
+                                }
+                                break;
+                        }
+                    }
+                    else if (reader.NodeType == XmlNodeType.EndElement)
+                    {
+                        if (reader.Name == "macro")
+                        {
                             break;
+                        }
                     }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement)
-                {
-                    if (reader.Name == "macro")
-                    {
-                        break;
-                    }
-                }
+                reader.Close();
+                streamReader.Close();
+                MessageHelper.PostMessage("All Component Loaded!");
             }
-            reader.Close();
-            streamReader.Close();
-            MessageHelper.PostMessage("All Component Loaded!");
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Load: " + ex.Message);
+            }
         }
 
         private static void Save(int i)
         {
-            Save();
+            try
+            {
+                Save();
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Save: " + ex.Message);
+            }
+
         }
 
         /// <summary>
@@ -303,24 +324,30 @@ namespace ThorCyte.ProtocolModule.Models
 
         public static void Run()
         {
-            if (!CheckExecutable())
+            try
             {
-                MessageHelper.PostMessage("Rules Violated! Macro can not execute.");
-                return;
-            }
-            //SetConponent post event
+                if (!CheckExecutable())
+                {
+                    MessageHelper.PostMessage("Rules Violated! Macro can not execute.");
+                    return;
+                }
+                //SetConponent post event
 
-            CurrentConponentService.ClearComponents();
-            foreach (var m in Modules)
+                CurrentConponentService.ClearComponents();
+                foreach (var m in Modules)
+                {
+                    m.InitialRun();
+                }
+                EventAggregator.GetEvent<MacroRunEvent>().Publish(CurrentScanId);
+
+                _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
+                _tAnalyzeImg.Start();
+            }
+            catch (Exception ex)
             {
-                m.InitialRun();
+                MessageHelper.PostMessage("Error occourd in Macro.Run: " + ex.Message);
             }
-            EventAggregator.GetEvent<MacroRunEvent>().Publish(CurrentScanId);
-
-            _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
-            _tAnalyzeImg.Start();
         }
-
 
         private static bool CheckExecutable()
         {
@@ -384,7 +411,7 @@ namespace ThorCyte.ProtocolModule.Models
                         {
                             Debug.WriteLine("Current Process - Region: {0}; Tile: {1}; Channel: {2};",
                                             CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel);
-                            MessageHelper.PostMessage(string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};",CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
+                            MessageHelper.PostMessage(string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};", CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
                             mod.Execute();
                         }
                         //wait all channel executed here

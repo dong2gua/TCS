@@ -18,12 +18,12 @@
 	</category>
 	<category name="Operation">
 		<module name="Add" reference="ThorCyte.ProtocolModule.ViewModels.Modules.AddModVm" />
-		<module name="Subtract" />
-		<module name="Invert"  />
-		<module name="And" />
-		<module name="Or"/>
-		<module name="Xor"/>
-		<module name="BrightContrast" disp-name="Bright Contrast" />
+		<module name="Subtract" reference="ThorCyte.ProtocolModule.ViewModels.Modules.SubtractModVm" />
+		<module name="Invert" reference="ThorCyte.ProtocolModule.ViewModels.Modules.InvertModVm" />
+		<module name="And" reference="ThorCyte.ProtocolModule.ViewModels.Modules.AndModVm" />
+		<module name="Or" reference="ThorCyte.ProtocolModule.ViewModels.Modules.OrModVm" />
+		<module name="Xor" reference="ThorCyte.ProtocolModule.ViewModels.Modules.XorModVm" />
+		<module name="BrightContrast" disp-name="Bright Contrast" reference="ThorCyte.ProtocolModule.ViewModels.Modules.BrightContrastModVm" />
     <module name="Transform"  />
   </category>
 	<category name="Contour">

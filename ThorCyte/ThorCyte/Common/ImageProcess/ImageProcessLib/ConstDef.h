@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-const Ipp16u MaxValue = 0x3FFF;
 const Ipp16u ElementSize = sizeof(Ipp16u);
 // filter type enum
 enum FilterType
