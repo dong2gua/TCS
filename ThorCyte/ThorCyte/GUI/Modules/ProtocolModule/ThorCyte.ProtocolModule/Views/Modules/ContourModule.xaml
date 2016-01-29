@@ -21,16 +21,11 @@
         <StackPanel>
             <Grid >
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Margin="2" Content="Component name :"/>
-                <TextBox x:Name="TxtConponent"  Grid.Column="1" Margin="2" Text="{Binding ComponentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    <!--<TextBox.Text>
-                        <Binding Path="ComponentName">
-                        </Binding>
-                    </TextBox.Text>-->
-                </TextBox>
+                <TextBox x:Name="TxtConponent"  Grid.Column="1" Margin="2" Text="{Binding ComponentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             <GroupBox Header="Min area">
                 <Grid>

@@ -18,8 +18,8 @@ namespace ThorCyte.ImageViewerModule.View
         }
         private void SelectViewportCanvas_OnClick(int select)
         {
-            dropDownButton.IsOpen = false;
-            vm.OnViewportTypeChange(select);
+            splitButton.IsOpen = false;
+            vm.OnViewportTypeChange(select); 
         }
     }
 }

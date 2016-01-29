@@ -10,7 +10,7 @@
              xmlns:drawtool="clr-namespace:ThorCyte.ImageViewerModule.DrawTools"
              xmlns:selector="clr-namespace:ThorCyte.ImageViewerModule.Selector"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
         <converter:BoolToStringConverter x:Key="BoolToStringC"/>
         <selector:ViewportSelector x:Key="ViewportSelector">
@@ -64,6 +64,82 @@
                 </DataTemplate>
             </selector:ViewportSelector.AllViewportDataTemplate>
         </selector:ViewportSelector>
+        <Style TargetType="{x:Type control:SplitButton}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource ButtonFocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource ButtonForeground}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type control:SplitButton}">
+                        <Border
+						Background="{TemplateBinding Background}" 
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="3">
+                            <StackPanel x:Name="stackpanel" >
+                                <ContentPresenter
+								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+								Margin="{TemplateBinding Padding}"
+								RecognizesAccessKey="True"
+								/>
+                                <Separator  x:Name="separator" Visibility="Hidden" Background="{TemplateBinding BorderBrush}" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+
+                                <Button x:Name="PART_DropDown" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+                                    <Button.Style>
+                                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type Button}">
+                                                        <Border Background="Transparent">
+                                                            <Path Data="M0,0L3,3 6,0z" Margin="1"
+															Stroke="{TemplateBinding Foreground}" 
+															Fill="{TemplateBinding Foreground}" 
+															HorizontalAlignment="Center" 
+															VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter  Property="Background" Value="{StaticResource MouseOverButtonBackground}"/>
+                                <Setter  Property="Foreground" Value="{StaticResource MouseOverButtonForeground}"/>
+                                <Setter TargetName="separator"  Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsOpen" Value="True">
+                                <Setter  Property="Background" Value="{StaticResource PressedButtonBackground}"/>
+                                <Setter  Property="Foreground" Value="{StaticResource ButtonForeground}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter  Property="Background" Value="{StaticResource PressedButtonBackground}"/>
+                                <Setter  Property="Foreground" Value="{StaticResource ButtonForeground}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter  Property="Foreground" Value="{StaticResource DisabledButtonForeground}"/>
+                                <Setter  Property="Background" Value="{StaticResource DisabledButtonBackground}"/>
+                            </Trigger>
+                            <Trigger Property="Orientation" Value="Horizontal">
+                                <Setter TargetName="stackpanel" Property="Orientation" Value="Horizontal"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+            </Style.Triggers>
+        </Style>
+
     </UserControl.Resources>
     <Grid IsEnabled="{Binding ImageViewEnable}">
         <Grid.RowDefinitions>
@@ -73,9 +149,9 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="auto"/>
-        </Grid.ColumnDefinitions>
+        </Grid.ColumnDefinitions>        
         <TextBlock Margin="10,0" FontSize="16" Grid.Row="1"  VerticalAlignment="Center" Height="25" Text="{Binding MousePointStatus}"/>
-        <StackPanel Margin="5,0" Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+        <StackPanel Margin="0,5" Orientation="Vertical" Grid.Row="0" Grid.Column="1">
             <Button Margin="1" Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle" ToolTip="Rectangle">
                 <Image Source="..\resources\Rectangle.png"/>
             </Button>
@@ -109,17 +185,14 @@
             <Button Margin="1" Command="{Binding BrightnessContrastCommand}" ToolTip="Brightness and Contrast">
                 <Image Source="..\resources\Brightness.png"/>
             </Button>
-            <xct:DropDownButton Margin="1" x:Name="dropDownButton" ToolTip="Select Viewport">
-                <Image Source="..\resources\Window-New.png"/>
-                <xct:DropDownButton.DropDownContent >
+            <control:SplitButton Margin="1" x:Name="splitButton" ToolTip="Select Viewport"  Command="{Binding MaximizeViewportCommand}" Orientation="Vertical">
+                <Image Source="{Binding ViewportType.IsSingleWindow,Converter={StaticResource BoolToStringC},ConverterParameter='..\\resources\\ToSingle.png|..\\resources\\MultiWindow.png'}"/>
+                <control:SplitButton.DropDownContent >
                     <control:SelectViewportCanvas x:Name="selectViewportCanvas" Background="Gray" />
-                </xct:DropDownButton.DropDownContent>
-            </xct:DropDownButton>
-            <Button Margin="1" Command="{Binding MaximizeViewportCommand}" ToolTip="Maximize Viewport">
-                <Image Source="{Binding ViewportType.IsSingleWindow,Converter={StaticResource BoolToStringC},ConverterParameter='..\\resources\\MultiWindow.png|..\\resources\\ToSingle.png'}"/>
-            </Button>
+                </control:SplitButton.DropDownContent>
+            </control:SplitButton>
         </StackPanel>
-        <ContentControl Grid.Row="0" Content="{Binding ViewportType}"  ContentTemplateSelector="{StaticResource ViewportSelector}"/>
+        <ContentControl Grid.Row="0"  Content="{Binding ViewportType}"  ContentTemplateSelector="{StaticResource ViewportSelector}"/>
 
     </Grid>
 </UserControl>

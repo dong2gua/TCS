@@ -17,8 +17,10 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
             var isDrawTrackerAll = (graph as Scattergram) != null;
             var startY = isDrawTrackerAll ? p.Y : graph.EndYPoint.Y;
             var endY = isDrawTrackerAll ? p.Y + 1 : graph.OriginalPoint.Y;
-            var rect = new GraphicsRectangle(p.X, startY, p.X + 1, endY, graph.LineWidth, graph.ObjectColor, 1, graph.RenderSize, name, isDrawTrackerAll);
-            rect.OriginalPoint = p;
+            var rect = new GraphicsRectangle(p.X, startY, p.X + 1, endY, graph.LineWidth, graph.ObjectColor, 1, graph.RenderSize, name, isDrawTrackerAll)
+            {
+                OriginalPoint = p
+            };
             AddNewObject(graph, rect);
             _isNew = true;
         }

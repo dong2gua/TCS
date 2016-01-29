@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 using ComponentDataService;
 using ComponentDataService.Types;
 using Microsoft.Practices.ServiceLocation;
@@ -25,7 +24,7 @@ namespace ThorCyte.GraphicModule.ViewModels
         public const float DefaultZScaleMax = 10;
         private int[,] _valueArray;
         private int[,] _densityArray;
-        private List<Tuple<Point, int>> _dotTupleList = new List<Tuple<Point, int>>();
+        private readonly List<Tuple<Point, int>> _dotTupleList = new List<Tuple<Point, int>>();
 
         #endregion
 
@@ -43,7 +42,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             get { return _dotTupleList; }
         }
 
-        private bool _isWhiteBackground;
+        //private bool _isWhiteBackground;
 
         //public bool IsWhiteBackground
         //{

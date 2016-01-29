@@ -1,0 +1,97 @@
+﻿<UserControl x:Class="ThorCyte.Statistic.Views.StatisticSetupDetail"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" 
+             Height="504" Width="600">
+    <!--<UserControl.Resources>
+        <ResourceDictionary>
+            <converter:ReverseBoolConverter x:Key="ReverseBoolConverter"></converter:ReverseBoolConverter>
+            <converter:VisibilityConverter x:Key="VisibilityConverter"></converter:VisibilityConverter>
+            <converter:IndexToVisibilityConverter x:Key="IndexToVisibilityConverter"/>
+        </ResourceDictionary>
+    </UserControl.Resources>-->
+    <Grid Height="504" VerticalAlignment="Top">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"></RowDefinition>
+            <RowDefinition Height="70*"/>
+            <RowDefinition Height="20*"></RowDefinition>
+        </Grid.RowDefinitions> 
+        <Grid Row="0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Label Content="Label" Margin="10,0" FontSize="16" FontStyle="Italic"></Label>
+                <TextBox Width="300" Margin="10,0" Text="{Binding RunFeatureName}" IsReadOnly="{Binding IsChecked, ElementName=CheckBoxUseDefault}" />
+                <CheckBox x:Name="CheckBoxUseDefault" x:FieldModifier="private" 
+                          VerticalAlignment="Center" Margin="10,0" IsChecked="True"></CheckBox>
+            </StackPanel>
+        </Grid>
+        <Grid Row="1" VerticalAlignment="Top" Grid.RowSpan="2">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="25,0" Height="354" VerticalAlignment="Top">
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343" VerticalAlignment="Top">
+                    <Label Content="Component" Margin="5,0" FontSize="16"></Label>
+                    <ListBox Width="100" Height="300" Margin="5,0" ItemsSource="{Binding ComponentContainer}" DisplayMemberPath="Name"
+                            SelectedItem="{Binding SelectedComponent}" SelectionMode="Extended"  >
+                        <ListBox.Resources>
+                            <!--高亮状态（选中且有焦点）-->
+                        	<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" x:Key="{x:Static SystemColors.HighlightBrushKey}">
+                        		<GradientStop Color="White" Offset="0"/>
+                        		<GradientStop Color="#FFFFE47A" Offset="1"/>
+                        	</LinearGradientBrush>
+                        	<SolidColorBrush Color="Green" x:Key="{x:Static SystemColors.HighlightTextBrushKey}"/>
+                            <!--选中状态（选中但失去焦点）-->
+                        	<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" x:Key="{x:Static SystemColors.ControlDarkBrushKey}">
+                        		<GradientStop Color="White" Offset="0"/>
+                        		<GradientStop Color="#FF42F006" Offset="1"/>
+                        	</LinearGradientBrush>
+                        </ListBox.Resources>
+                    </ListBox>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343" VerticalAlignment="Top">
+                    <Label Content="Statistic" Margin="5,0" FontSize="16"></Label>
+                    <ListBox x:Name="ListBoxStat" x:FieldModifier="private"
+                        Width="100" Height="300" Margin="5,0" 
+                             SelectedItem="{Binding SelectedStatisticMethod}" ItemsSource="{Binding StatisticMethodContainer}" DisplayMemberPath="Name">
+                    </ListBox>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343" VerticalAlignment="Top">
+                    <Label Content="Feature" Margin="5,0" FontSize="16"></Label>
+                    <ScrollViewer  Margin="5,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ListBox x:Name="ListBoxFeature" x:FieldModifier="private"
+                            Width="100" Height="300" ItemsSource="{Binding FeatureContainer}" DisplayMemberPath="Name"
+                                 SelectedItem="{Binding SelectedFeature}">
+                        </ListBox>
+                    </ScrollViewer>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343" VerticalAlignment="Top">
+                    <Label Content="Channel" Margin="5,0" FontSize="16"></Label>
+                    <ListBox Width="100" Height="300" Margin="5,0" ItemsSource="{Binding ChannelContainer}" DisplayMemberPath="Name"
+                             SelectedItem="{Binding SelectedChannel}">
+                    </ListBox>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343" VerticalAlignment="Top">
+                    <Label Content="Region" Margin="5,0" FontSize="16"></Label>
+                    <ScrollViewer Margin="5,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ListBox Width="100" Height="300" ItemsSource="{Binding RegionContainer}" DisplayMemberPath="Name"
+                                 SelectedItem="{Binding SelectedRegion}">
+                        </ListBox>
+                    </ScrollViewer>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2">
+			<Grid.RowDefinitions></Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="50*"></ColumnDefinition>
+				<ColumnDefinition Width="50*"></ColumnDefinition>
+			</Grid.ColumnDefinitions>
+        		<Button Width="80" Height="40" Content="OK"
+        			Command="{Binding ConfirmCommand}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0"/>
+        		<Button Width="80" Height="40" Content="Cancel" IsCancel="True" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1"/>
+        </Grid>
+    </Grid>
+    
+</UserControl>

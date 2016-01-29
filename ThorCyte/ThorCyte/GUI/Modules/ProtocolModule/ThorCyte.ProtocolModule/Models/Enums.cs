@@ -48,6 +48,7 @@
         SmtOrModule,
         SmtXorModule,
         SmtBrightContrastModule,
+        SmtTransformModule,
 
         SmtContourCategory,
         SmtChannelModule,

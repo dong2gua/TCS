@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Windows;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;

@@ -73,7 +73,7 @@ namespace ThorCyte.GraphicModule.Helper
                 for (var index = 0; index < polygonGraphic.Points.Length; index++)
                 {
                     var p = polygonGraphic.Points[index];
-                    x = vm.XAxis.IsLogScale ? p.X * xLogscale : p.X / canvas.XScale + vm.XAxis.MinRange; ;
+                    x = vm.XAxis.IsLogScale ? p.X * xLogscale : p.X / canvas.XScale + vm.XAxis.MinRange; 
                     y = vm.YAxis.IsLogScale ? (canvas.ActualHeight - p.Y) * yLogscale : (canvas.ActualHeight - p.Y) / canvas.YScale + vm.YAxis.MinRange;
                     polygonRegion.Vertex.Add(new Point(x, y));
                 }

@@ -183,8 +183,6 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
         /// Call this function in the end of object resizing,
         /// </summary>
         public virtual void Normalize() { }
-
-        public virtual void UpdateRegion(Point basePoint) { }
         
         /// <summary>
         /// Implements actual drawing code.

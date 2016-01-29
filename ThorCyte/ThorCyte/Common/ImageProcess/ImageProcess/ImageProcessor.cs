@@ -351,6 +351,12 @@ namespace ImageProcess
             return dstData;
         }
 
+        public ImageData Transform(int xshift, int yshift, double angle)
+        {
+            var dstData = new ImageData(XSize, YSize, IsGray);
+            ImageProcessLib.RotateShift16U(this, (int) XSize, (int) YSize, Channels, angle, -xshift, yshift, dstData);
+            return dstData;
+        }
         #endregion
 
             #region Private

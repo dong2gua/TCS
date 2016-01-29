@@ -7,8 +7,8 @@
     <Expander Header="Channel" IsExpanded="True">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.2*"/>
-                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="Channel :" Margin="2"/>
             <ComboBox Grid.Column="1" Margin="2" ItemsSource="{Binding ChannelNames}" SelectedItem="{Binding SelectedChannel}"/>

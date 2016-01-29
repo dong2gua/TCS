@@ -156,9 +156,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// </summary>
         private void connections_ItemsRemoved(object sender, CollectionItemsChangedEventArgs e)
         {
-            
-            
-            
             foreach (ConnectorModel connection in e.Items)
             {
                 connection.SourcePort.AttachedConnections.Remove(connection);
@@ -166,7 +163,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 connection.SourcePort = null;
                 connection.DestPort = null;
             }
-
         }
 
         public void FilterModuleInfo(string mName)

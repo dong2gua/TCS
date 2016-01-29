@@ -15,7 +15,7 @@ namespace ThorCyte.GraphicModule.Controls
     {
         #region Fields
 
-        private IList<Tuple<Point, int>> _valueList = new List<Tuple<Point, int>>();
+        private readonly IList<Tuple<Point, int>> _valueList = new List<Tuple<Point, int>>();
         private readonly GraphicQuarant _graphicQuarant;
 
         #endregion

@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
-using ComponentDataService.Types;
+﻿using ComponentDataService.Types;
 using ImageProcess;
 using ImageProcess.DataType;
 using System;
@@ -19,6 +17,7 @@ namespace ComponentDataService
         #region Fields
 
         internal const string DataStoredFolder = "EVT";
+        internal const string ContourXmlFolder = "contours";
         private const int DefaultSize = 5;
         private string _basePath;
         private IExperiment _experiment;
@@ -207,15 +206,21 @@ namespace ComponentDataService
 
         public void Save(string fileFolder)
         {
-          
-            if (Directory.Exists(_basePath) == false)
-                Directory.CreateDirectory(_basePath);
+            string evtFolder = Path.Combine(fileFolder, DataStoredFolder);
+            if (Directory.Exists(evtFolder) == false)
+                Directory.CreateDirectory(evtFolder);
             foreach (BioComponent bioComponent in _bioComponentDict.Values)
             {
-                bioComponent.SaveTileBlobs(_basePath);
-                bioComponent.SaveEvents(_basePath);
+                string componentFolder = Path.Combine(evtFolder, bioComponent.Name);
+                if (Directory.Exists(componentFolder) == false)
+                    Directory.CreateDirectory(componentFolder);
+                string contourFolder = Path.Combine(componentFolder, ContourXmlFolder);
+                if (Directory.Exists(contourFolder) == false)
+                    Directory.CreateDirectory(contourFolder);
+                bioComponent.SaveTileBlobs(componentFolder);
+                bioComponent.SaveEvents(componentFolder);
             }
-            SaveEvtXml(_basePath);
+            SaveEvtXml(evtFolder);
         }
 
         public void AddComponent(string componentName, IList<Feature> features)

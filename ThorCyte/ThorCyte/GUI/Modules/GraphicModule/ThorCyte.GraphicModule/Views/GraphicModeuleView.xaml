@@ -40,23 +40,23 @@
         </TabControl>
 
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <Button Command="{Binding AddTabCmd}">
+            <Button Command="{Binding AddTabCmd}" ToolTip="New tab">
                 <Image Source="../Resource/Images/AddTab.png"/>
             </Button>
             <StackPanel Orientation="Vertical" DataContext="{Binding SelectedContainer}" IsEnabled="{Binding ElementName=GraphicModuleView,Path=DataContext.IsControlEnabled}">
-                <Button Command="{Binding Path=DataContext.DeleteTabCmd,ElementName=GraphicModuleView}">
+                <Button Command="{Binding Path=DataContext.DeleteTabCmd,ElementName=GraphicModuleView}" ToolTip="Delete tab">
                     <Image Source="../Resource/Images/DeleteTab.png"/>
                 </Button>
-                <Button Click="OnAddScattergram" ToolTip="Add Scattergram">
+                <Button Click="OnAddScattergram" ToolTip="New Scattergram">
                     <Image Source="../Resource/Images/NewScattergram.png"/>
                 </Button>
-                <Button Click="OnAddHistogram" ToolTip="Add Histogram">
+                <Button Click="OnAddHistogram" ToolTip="New Histogram">
                     <Image Source="../Resource/Images/NewHistogram.png"/>
                 </Button>
                 <Button IsEnabled="{Binding IsDeleteEnabled}" Click="OnDeleteGraphic" ToolTip="Delete">
                     <Image Source="../Resource/Images/remove.png"/>
                 </Button>
-                <ToggleButton IsEnabled="{Binding IsPropertyEnabled}" IsChecked="{Binding IsShowProperty}" ToolTip="show/hide properties">
+                <ToggleButton IsEnabled="{Binding IsPropertyEnabled}" IsChecked="{Binding IsShowProperty}" ToolTip="Show/Hide properties">
                     <Image Source="../Resource/Images/properties.png"/>
                 </ToggleButton>
             </StackPanel>

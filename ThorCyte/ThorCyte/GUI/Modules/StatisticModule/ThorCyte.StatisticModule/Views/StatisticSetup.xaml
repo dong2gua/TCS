@@ -1,0 +1,105 @@
+﻿<UserControl
+             x:Class="ThorCyte.Statistic.Views.StatisticSetup"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:v="http://schemas.microsoft.com/expression/2010/interactions"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:views="clr-namespace:ThorCyte.Statistic.Views"
+             mc:Ignorable="d" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="400" Width="400">
+    <UserControl.Resources>
+    <Style TargetType="{x:Type Window}" x:Key="NoBorderWin">
+        <Setter Property="WindowStyle" Value="None"/>
+        <Setter Property="MaxHeight" Value="600"/>
+        <Setter Property="MaxWidth" Value="600"/>
+        <Setter Property="Background" Value="Gray"/>
+        <Setter Property="ResizeMode" Value="NoResize"/>
+    </Style></UserControl.Resources>    
+    <i:Interaction.Triggers>
+        <prism:InteractionRequestTrigger SourceObject="{Binding SetupPopupDetail, Mode=OneWay}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True" WindowStyle="{DynamicResource NoBorderWin}" >
+                <prism:PopupWindowAction.WindowContent>
+                    <views:StatisticSetupDetail>
+                    </views:StatisticSetupDetail>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <TabControl Margin="10" x:Name="TabControlStat"
+					ItemsSource="{Binding TabComponent}" SelectedItem="{Binding SelectedComponent, Mode=TwoWay}" >
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding CurrentComponent.Name}"/>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <ListBox ItemsSource="{Binding RunFeatureContainer}"  SelectedItem="{Binding DataContext.SelectedRunFeature, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" Width="260"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+
+            </Grid>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60*"/>
+                    <RowDefinition Height="40*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,4,0,56">
+                        <Button Content="New..." x:Name="ButtonNew" x:FieldModifier="private"
+							Margin="5,10" Width="80" Height="30" 
+							Command="{Binding SetupStatisticDetailCommand}"/>
+                        <Button Content="Edit..." Margin="5,10" Width="80" Height="30"
+							Command="{Binding EditCommand}"/>
+                        <Button Content="Delete" Margin="5,10" Width="80" Height="30"
+							Command="{Binding DeleteCommand}"                             
+                                />
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,-11.5,0,51.5">
+                        <Button Content="Move Up" Margin="5,10" Width="80" Height="30"
+							Command="{Binding MoveUpCommand}" 
+                                />
+                        <Button Content="Move Down" Margin="5,10" Width="80" Height="30"
+							Command="{Binding MoveDownCommand}"
+                                />
+                    </StackPanel>
+                </Grid>
+
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+                <Button Content="OK" x:Name="ButtonOk" IsDefault="True" Width="100" Height="35" Margin="0,0,206,0"
+        			Command="{Binding ConfirmCommand}"/>
+                <Button Content="Cancel" IsCancel="True" Width="100" Height="35" Margin="206,0,0,0"/>
+        </Grid>
+    </Grid>
+</UserControl>

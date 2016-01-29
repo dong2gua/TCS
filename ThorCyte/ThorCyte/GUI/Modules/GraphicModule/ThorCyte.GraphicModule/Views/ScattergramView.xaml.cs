@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Input;
 using System.Windows.Media;
 using Abt.Controls.SciChart;
 using Abt.Controls.SciChart.Visuals.Axes;
@@ -263,7 +262,6 @@ namespace ThorCyte.GraphicModule.Views
                 SciChart.AdornerLayerCanvas.Children.Add(RegionPanel);
             }
             
-            GraphicVm.UpdateEvents();
             GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
             IsLoading = false;
         }
@@ -272,8 +270,10 @@ namespace ThorCyte.GraphicModule.Views
         public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             base.OnSizeChanged(sender, e);
-
-            GraphicVm.UpdateEvents();
+            if (((ScattergramVm)GraphicVm).IsMapChecked)
+            {
+                GraphicVm.UpdateEvents();
+            }
             e.Handled = true;
         }
 

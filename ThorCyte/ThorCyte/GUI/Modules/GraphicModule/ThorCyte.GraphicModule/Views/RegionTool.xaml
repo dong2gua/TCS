@@ -25,15 +25,15 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
-            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="draw rectangle" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=rectangle}">
+            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="Draw rectangle" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=rectangle}">
                 <Image Source="../Resource/Images/rectangle.png"/>
             </ToggleButton>
 
-            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="draw ellipse" Visibility="{Binding IsDrawEllipseEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=ellipse}">
+            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="Draw ellipse" Visibility="{Binding IsDrawEllipseEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=ellipse}">
                 <Image Source="../Resource/Images/ellipse.png"/>
             </ToggleButton>
 
-            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="draw polygon" Visibility="{Binding IsDrawPolygonEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=polygon}">
+            <ToggleButton Width="30" Height="30" Margin="5,2" ToolTip="Draw polygon" Visibility="{Binding IsDrawPolygonEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=polygon}">
                 <Image Source="../Resource/Images/polygon.png"/>
             </ToggleButton>
         </StackPanel>

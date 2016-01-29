@@ -1,5 +1,4 @@
-﻿using System.Security.AccessControl;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.GraphicModule.Controls.Graphics;
@@ -94,15 +93,10 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
         /// </summary>
         public static void AddNewObject(RegionCanvas graph, GraphicsBase o)
         {
-            //var width = regionCanvas.BmpImage == null ? 200 : regionCanvas.BmpImage.Width;
-            //var width = 200;
             graph.UnSelectAll();
-            //o.FontSize = DefaultFontSize * graph.XScale;
-            //o.CreatedBmpWidth = width;
             o.CreatedCanvasSize = graph.RenderSize;
             o.Clip = new RectangleGeometry(new Rect(0, 0, graph.ActualWidth, graph.ActualHeight));
-           graph.VisualList.Add(o);
-          // graph.CaptureMouse();
+            graph.VisualList.Add(o);
         }
 
         /// <summary>

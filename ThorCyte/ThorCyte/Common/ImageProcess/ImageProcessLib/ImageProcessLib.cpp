@@ -637,3 +637,37 @@ IPP_LIB_API int fnipp_lib_Xor_16uC1I(const unsigned short* srcBuffer, int width,
 	IppStatus status = ippiXor_16u_C1IR(srcBuffer, step, srcDstBuffer, step, roi);	
 	return status;
 }
+
+
+IPP_LIB_API int fn_ipp_lib_rotateShift_16u(const unsigned short* srcBuffer, int width, int height, int channels, double angle,
+										   int shiftX, int shiftY, unsigned short* dstBuffer)
+{
+	const int step = width * channels * ElementSize;
+	const IppiRect roi = {0, 0, width, height};
+	const IppiSize imageSize = {width, height};
+	double offsetX = 0;
+	double offsetY = 0;
+	ippiGetRotateShift(width/2, height/2,angle, &offsetX, &offsetY);
+	IppStatus status = ippStsNoErr;
+	switch (channels)
+	{
+		case 1:
+		{
+			status = ippiRotate_16u_C1R(srcBuffer, imageSize, step, roi, dstBuffer, step, roi, 
+				angle, shiftX+offsetX, shiftY+offsetY, IPPI_INTER_LINEAR );
+			break;
+		}
+		case 3:
+		{
+			status = ippiRotate_16u_C1R(srcBuffer, imageSize, step, roi, dstBuffer, step, roi, 
+			angle, shiftX+offsetX, shiftY+offsetY, IPPI_INTER_LINEAR );
+			break;
+		}
+
+		default:
+			status = ippStsChannelErr;
+			break;
+	}
+	return status;
+
+}

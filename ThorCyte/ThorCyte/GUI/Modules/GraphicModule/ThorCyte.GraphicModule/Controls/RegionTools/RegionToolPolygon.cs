@@ -75,16 +75,6 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
                 _isNew = false;
                 base.OnMouseUp(graph, e);
             }
-            else if (e.ChangedButton == MouseButton.Left)
-            {
-                //var p = e.GetPosition(graph);
-                //if (!graph.IsPointInCanvas(p))
-                //{
-                //    _newPolygon = null;
-                //    _isNewPolygon = false;
-                //    base.OnMouseUp(graph, e);
-                //}
-            }
         }
 
         #endregion

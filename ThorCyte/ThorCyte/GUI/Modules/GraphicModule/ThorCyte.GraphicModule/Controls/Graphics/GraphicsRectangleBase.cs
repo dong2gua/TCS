@@ -250,32 +250,6 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
             RefreshDrawing();
         }
 
-        public override void UpdateRegion(Point basePoint)
-        {
-            if (string.IsNullOrEmpty(Name))
-            {
-                return;
-            }
-            if (!ROIManager.Instance.GetRegionIdList().Contains(Name))
-            {
-                return;
-            }
-            var region = ROIManager.Instance.GetRegion(Name);
-            
-            if (region == null)
-            {
-                return;
-            }
-
-            var rect = region as RectangleRegion;
-            if (rect == null)
-            {
-                return;
-            }
-            rect.Size = Rectangle.Size;
-            rect.LeftUp = new Point(Rectangle.TopLeft.X - basePoint.X, Rectangle.TopLeft.Y-basePoint.Y);
-        }
-
          //<summary>
          //Test whether object intersects with rectangle
          //</summary>

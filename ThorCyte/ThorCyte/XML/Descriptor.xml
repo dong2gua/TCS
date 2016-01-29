@@ -202,7 +202,18 @@
         <room no="12" shape="rectangle" x="38.905" y="19.577" w="26.226" h="2.141" />
       </rooms>
     </slide>
-  </slides>
+    <slide id="7d762e8a-fed7-40c9-b171-440b8a20d2da" name="4 Slide Carrier Through Slide" owner="Custom" thickness="0.764" width="115" length="70" available-focus-methods="Bottom Top" default-focus-method="Bottom Top" retraction-offset="0" robot="yes" hidden="no" released="yes">
+      <description>4 Slide Carrier</description>
+      <margin right="6" top="8" />
+      <height base-to-well="0.973" />
+      <rooms>
+        <room no="1" shape="rectangle" x="7" y="5" w="20" h="60" />
+        <room no="2" shape="rectangle" x="34" y="5" w="20" h="60" />
+        <room no="3" shape="rectangle" x="61" y="5" w="20" h="60" />
+        <room no="4" shape="rectangle" x="88" y="5" w="20" h="60" />
+      </rooms>
+    </slide>
+	</slides>
   <microplates unit="mm" width="85.48" length="127.76">
     <microplate id="00000000-0000-0000-0001-000000000001" name="96 Well Plastic Plate" owner="CompuCyte" thickness="0.53" available-focus-methods="Bottom Only;Bottom Top" default-focus-method="Bottom Top" retraction-offset="0.0" robot="yes" hidden="no" rows="8" columns="12" wellsize="6.55" interval="9.0" well-shape="circle">
       <description>96 Well Plastic Plate</description>

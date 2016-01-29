@@ -99,14 +99,6 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
         }
 
         /// <summary>
-        /// Return array of _points.
-        /// </summary>
-        public Point[] GetPoints()
-        {
-            return _points;
-        }
-
-        /// <summary>
         /// Convert array of _points to geometry.
         /// </summary>
         void MakeGeometryFromPoints(ref Point[] points)

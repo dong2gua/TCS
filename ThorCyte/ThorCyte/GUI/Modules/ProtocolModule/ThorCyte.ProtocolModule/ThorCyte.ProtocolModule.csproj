@@ -139,6 +139,7 @@
     <Compile Include="ViewModels\Modules\PhantomModVm.cs" />
     <Compile Include="ViewModels\Modules\SubtractModVm.cs" />
     <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
+    <Compile Include="ViewModels\Modules\TransformModVm.cs" />
     <Compile Include="ViewModels\Modules\XorModVm.cs" />
     <Compile Include="ViewModels\PannelViewModel.cs" />
     <Compile Include="Views\Modules\BrightContrastModule.xaml.cs">
@@ -164,6 +165,9 @@
     </Compile>
     <Compile Include="Views\Modules\ThresholdModule.xaml.cs">
       <DependentUpon>ThresholdModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\TransformModule.xaml.cs">
+      <DependentUpon>TransformModule.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +204,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\ThresholdModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\TransformModule.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

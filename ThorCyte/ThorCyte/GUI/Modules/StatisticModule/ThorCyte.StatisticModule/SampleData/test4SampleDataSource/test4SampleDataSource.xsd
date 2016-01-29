@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+      *********    请勿修改此文件     *********
+      此文件由设计工具再生成。更改
+      此文件可能会导致错误。
+-->
+<xs:schema xmlns:blend="http://schemas.microsoft.com/expression/blend/2008" xmlns:tns="Expression.Blend.SampleData.test4SampleDataSource" targetNamespace="Expression.Blend.SampleData.test4SampleDataSource" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="StatisticModel" type="tns:StatisticModel" />
+  <xs:complexType name="StatisticModel">
+    <xs:sequence>
+      <xs:element name="ComponentContainer" type="tns:ComponentContainer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ComponentContainer">
+    <xs:sequence>
+      <xs:element name="ComponentCollection" type="tns:ComponentCollection" />
+      <xs:element name="ComponentRecordCollection" type="tns:ComponentRecordCollection" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ComponentCollection">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="Component" type="tns:Component" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Component">
+    <xs:attribute name="Name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ComponentRecordCollection">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="ComponentRecord" type="tns:ComponentRecord" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ComponentRecord">
+    <xs:sequence>
+      <xs:element name="StatisticRecordContainer" type="tns:StatisticRecordCollection" />
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="StatisticRecordCollection">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="StatisticRecord" type="tns:StatisticRecord" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="StatisticRecord">
+    <xs:sequence>
+      <xs:element name="ComponentContainer" type="tns:ComponentContainer" />
+      <xs:element name="StatisticMethodContainer" type="tns:StatisticMethodCollection" />
+      <xs:element name="FeatureContainer" type="tns:FeatureCollection" />
+      <xs:element name="ChannelContainer" type="tns:ChannelCollection" />
+      <xs:element name="RegionContainer" type="tns:RegionCollection" />
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="StatisticMethodCollection">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="StatisticMethod" type="tns:StatisticMethod" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="StatisticMethod">
+    <xs:attribute name="Name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="FeatureCollection">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="Feature" type="tns:Feature" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Feature">
+    <xs:attribute name="Name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ChannelCollection">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="Channel" type="tns:Channel" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Channel">
+    <xs:attribute name="Name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="RegionCollection">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="Region" type="tns:Region" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Region">
+    <xs:attribute name="Name" type="xs:string" />
+  </xs:complexType>
+</xs:schema>

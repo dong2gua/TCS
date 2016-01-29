@@ -20,6 +20,7 @@
         public const string OrModuleName = "Or";
         public const string XorModuleName = "Xor";
         public const string BrightContrastModuleName = "Bright Contrast";
+        public const string TransformModuleName = "Transform";
 
         public const string ContourCateName = "Contour Category";
         public const string ChannelModuleName = "Channel";

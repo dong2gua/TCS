@@ -1,0 +1,125 @@
+﻿<!--
+      *********    请勿修改此文件     *********
+      此文件由设计工具再生成。更改
+      此文件可能会导致错误。
+-->
+<SampleData:StatisticModel xmlns:SampleData="clr-namespace:Expression.Blend.SampleData.test4SampleDataSource">
+	<SampleData:StatisticModel.ComponentContainer>
+		<SampleData:ComponentContainer>
+			<SampleData:ComponentContainer.ComponentRecordCollection>
+				<SampleData:ComponentRecord Name="AAA">
+					<SampleData:ComponentRecord.StatisticRecordContainer>
+						<SampleData:StatisticRecord Name="S1">
+							<SampleData:StatisticRecord.ComponentContainer>
+								<SampleData:ComponentContainer>
+									<SampleData:ComponentContainer.ComponentCollection>
+										<SampleData:Component Name="AAA"/>
+										<SampleData:Component Name="BBB"/>
+									</SampleData:ComponentContainer.ComponentCollection>
+								</SampleData:ComponentContainer>
+							</SampleData:StatisticRecord.ComponentContainer>
+							<SampleData:StatisticRecord.StatisticMethodContainer>
+								<SampleData:StatisticMethod Name="ADD"/>
+								<SampleData:StatisticMethod Name="SUM"/>
+							</SampleData:StatisticRecord.StatisticMethodContainer>
+							<SampleData:StatisticRecord.FeatureContainer>
+								<SampleData:Feature Name="Feature1"/>
+								<SampleData:Feature Name="Feature2"/>
+							</SampleData:StatisticRecord.FeatureContainer>
+							<SampleData:StatisticRecord.ChannelContainer>
+								<SampleData:Channel Name="Channel1"/>
+								<SampleData:Channel Name="Channel2"/>
+							</SampleData:StatisticRecord.ChannelContainer>
+							<SampleData:StatisticRecord.RegionContainer>
+								<SampleData:Region Name="R1"/>
+								<SampleData:Region Name="R2"/>
+							</SampleData:StatisticRecord.RegionContainer>
+						</SampleData:StatisticRecord>
+						<SampleData:StatisticRecord Name="S2">
+							<SampleData:StatisticRecord.ComponentContainer>
+								<SampleData:ComponentContainer>
+									<SampleData:ComponentContainer.ComponentCollection>
+										<SampleData:Component Name="AAA"/>
+										<SampleData:Component Name="BBB"/>
+									</SampleData:ComponentContainer.ComponentCollection>
+								</SampleData:ComponentContainer>
+							</SampleData:StatisticRecord.ComponentContainer>
+							<SampleData:StatisticRecord.StatisticMethodContainer>
+								<SampleData:StatisticMethod Name="ADD"/>
+								<SampleData:StatisticMethod Name="SUM"/>
+							</SampleData:StatisticRecord.StatisticMethodContainer>
+							<SampleData:StatisticRecord.FeatureContainer>
+								<SampleData:Feature Name="Feature1"/>
+								<SampleData:Feature Name="Feature2"/>
+							</SampleData:StatisticRecord.FeatureContainer>
+							<SampleData:StatisticRecord.ChannelContainer>
+								<SampleData:Channel Name="Channel1"/>
+								<SampleData:Channel Name="Channel2"/>
+							</SampleData:StatisticRecord.ChannelContainer>
+							<SampleData:StatisticRecord.RegionContainer>
+								<SampleData:Region Name="R1"/>
+								<SampleData:Region Name="R2"/>
+							</SampleData:StatisticRecord.RegionContainer>
+						</SampleData:StatisticRecord>
+					</SampleData:ComponentRecord.StatisticRecordContainer>
+				</SampleData:ComponentRecord>
+				<SampleData:ComponentRecord Name="BBB">
+					<SampleData:ComponentRecord.StatisticRecordContainer>
+						<SampleData:StatisticRecord Name="S1">
+							<SampleData:StatisticRecord.ComponentContainer>
+								<SampleData:ComponentContainer>
+									<SampleData:ComponentContainer.ComponentCollection>
+										<SampleData:Component Name="AAA"/>
+										<SampleData:Component Name="BBB"/>
+									</SampleData:ComponentContainer.ComponentCollection>
+								</SampleData:ComponentContainer>
+							</SampleData:StatisticRecord.ComponentContainer>
+							<SampleData:StatisticRecord.StatisticMethodContainer>
+								<SampleData:StatisticMethod Name="ADD"/>
+								<SampleData:StatisticMethod Name="SUM"/>
+							</SampleData:StatisticRecord.StatisticMethodContainer>
+							<SampleData:StatisticRecord.FeatureContainer>
+								<SampleData:Feature Name="Feature1"/>
+								<SampleData:Feature Name="Feature2"/>
+							</SampleData:StatisticRecord.FeatureContainer>
+							<SampleData:StatisticRecord.ChannelContainer>
+								<SampleData:Channel Name="Channel1"/>
+								<SampleData:Channel Name="Channel2"/>
+							</SampleData:StatisticRecord.ChannelContainer>
+							<SampleData:StatisticRecord.RegionContainer>
+								<SampleData:Region Name="R1"/>
+								<SampleData:Region Name="R2"/>
+							</SampleData:StatisticRecord.RegionContainer>
+						</SampleData:StatisticRecord>
+						<SampleData:StatisticRecord Name="S2">
+							<SampleData:StatisticRecord.ComponentContainer>
+								<SampleData:ComponentContainer>
+									<SampleData:ComponentContainer.ComponentCollection>
+										<SampleData:Component Name="AAA"/>
+										<SampleData:Component Name="BBB"/>
+									</SampleData:ComponentContainer.ComponentCollection>
+								</SampleData:ComponentContainer>
+							</SampleData:StatisticRecord.ComponentContainer>
+							<SampleData:StatisticRecord.StatisticMethodContainer>
+								<SampleData:StatisticMethod Name="ADD"/>
+								<SampleData:StatisticMethod Name="SUM"/>
+							</SampleData:StatisticRecord.StatisticMethodContainer>
+							<SampleData:StatisticRecord.FeatureContainer>
+								<SampleData:Feature Name="Feature1"/>
+								<SampleData:Feature Name="Feature2"/>
+							</SampleData:StatisticRecord.FeatureContainer>
+							<SampleData:StatisticRecord.ChannelContainer>
+								<SampleData:Channel Name="Channel1"/>
+								<SampleData:Channel Name="Channel2"/>
+							</SampleData:StatisticRecord.ChannelContainer>
+							<SampleData:StatisticRecord.RegionContainer>
+								<SampleData:Region Name="R1"/>
+								<SampleData:Region Name="R2"/>
+							</SampleData:StatisticRecord.RegionContainer>
+						</SampleData:StatisticRecord>
+					</SampleData:ComponentRecord.StatisticRecordContainer>
+				</SampleData:ComponentRecord>
+			</SampleData:ComponentContainer.ComponentRecordCollection>
+		</SampleData:ComponentContainer>
+	</SampleData:StatisticModel.ComponentContainer>
+</SampleData:StatisticModel>

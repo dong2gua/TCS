@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using ComponentDataService;
 using ComponentDataService.Types;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;

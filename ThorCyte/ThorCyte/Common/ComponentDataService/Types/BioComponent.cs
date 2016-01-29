@@ -56,8 +56,6 @@ namespace ComponentDataService.Types
 
         #region Properties
 
-        public bool HasRuned { get; private set; }
-
         public int ChannelCount
         {
             get { return Channels.Count; }
@@ -81,6 +79,11 @@ namespace ComponentDataService.Types
             get { return _scanId; }
         }
 
+        public string Name
+        {
+            get { return _componentName; }
+        }
+
         #endregion
 
         public BioComponent(IExperiment experiment, string name) : this(experiment, name, 1)
@@ -101,31 +104,15 @@ namespace ComponentDataService.Types
 
         internal void Update(IList<Feature> features)
         {
-            int idIndex = CheckIdFeature(features);
-            Feature first = features.FirstOrDefault();
-            if (first == null) return;
-            first.Index = 1;
-            _features.Clear();
-            _features.AddRange(features);
-            ScanInfo info = _experiment.GetScanInfo(ScanId);
-            IList<Channel> physicalChannels = info.ChannelList;
-            IList<VirtualChannel> virtualChannels = info.VirtualChannelList;
             _channels.Clear();
-            _channels.AddRange(physicalChannels.OrderBy(chn => chn.ChannelId));
-            _channels.AddRange(virtualChannels.OrderBy(chn => chn.ChannelId));
-            int n = _features.Count;
-            
-            for (int i = 1; i < n; i++)
-            {
-                Feature prev = _features[i - 1];
-                Feature cur = _features[i];
-                cur.Index = prev.IsPerChannel ? prev.Index + ChannelCount : prev.Index + 1;
-            }
-            Feature last = _features.LastOrDefault();
-            FeatureCount = last != null ? (last.IsPerChannel ? last.Index + ChannelCount : last.Index + 1) : 0;
-            features.Insert(idIndex, new Feature(FeatureType.Id));
+            _channels.AddRange(ResortChannels());
+            _features.Clear();
+            ResortFeatures(features);
+            _features.AddRange(features);
         }
 
+
+       
         internal List<Blob> GetTileBlobs(int wellId, int tileId, BlobType type)
         {
             int key = GetBlobKey(wellId, tileId);
@@ -175,20 +162,14 @@ namespace ComponentDataService.Types
 
         internal void SaveTileBlobs(string baseFolder)
         {
-            string folder = Path.Combine(baseFolder, _componentName);
-           
-            if (Directory.Exists(folder) == false)
-                Directory.CreateDirectory(folder);
-            WriteBlobsXml(folder);
-            WriteBlobsBinary(folder);
+            string contourXml = Path.Combine(baseFolder, ComponentDataManager.ContourXmlFolder);
+            WriteBlobsXml(contourXml);
+            WriteBlobsBinary(baseFolder);
         }
 
         internal void SaveEvents(string baseFolder)
         {
-            string folder = Path.Combine(baseFolder, _componentName);
-            if (Directory.Exists(folder) == false)
-                Directory.CreateDirectory(folder);
-            WriteEventsBinary(folder);
+            WriteEventsBinary(baseFolder);
         }
 
         internal void SaveToEvtXml(string baseFolder)
@@ -247,6 +228,7 @@ namespace ComponentDataService.Types
             int key = GetBlobKey(wellId, tileId);
             List<Blob> contours = _contourBlobs[key];
             var evs = new List<BioEvent>(contours.Count);
+            var dataBlobs = new List<Blob>(contours.Count);
             if (_eventsDict.ContainsKey(wellId) == false)
             {
                 _eventsDict[wellId] = new List<BioEvent>();
@@ -261,17 +243,16 @@ namespace ComponentDataService.Types
                     if (dataBlob != null)
                     {
                         dataBlob.Id = id;
+                        dataBlobs.Add(dataBlob);
                         id++;
                         BioEvent ev = CreateEvent(contour, dataBlob, define, imageDict, wellId, tileId);
                         if (ev != null)
                             evs.Add(ev);
                     }
                 }
-                
-
             }
             stored.AddRange(evs);
-            HasRuned = true;
+            _dataBlobs[key] = dataBlobs;
             return evs;
         }
 
@@ -283,16 +264,46 @@ namespace ComponentDataService.Types
         {
             ExperimentInfo info = _experiment.GetExperimentInfo();
             SoftwareVersion = new Version(info.SoftwareVersion);
-            string basePath = Path.Combine(info.AnalysisPath, ComponentDataManager.DataStoredFolder);
-            if (Directory.Exists(basePath) == false)
-                Directory.CreateDirectory(basePath);
-            _basePath = basePath;
-            _contourXmlPath = Path.Combine(_basePath, _componentName, "contours");
-            if (Directory.Exists(_contourXmlPath) == false)
-                Directory.CreateDirectory(_contourXmlPath);
+            _basePath = Path.Combine(info.AnalysisPath, ComponentDataManager.DataStoredFolder);
+            _contourXmlPath = Path.Combine(_basePath, _componentName, ComponentDataManager.ContourXmlFolder);
             ParseEvtXml();
         }
 
+        private void ResortFeatures()
+        {
+            ResortFeatures(_features);
+        }
+
+        private IEnumerable<Channel> ResortChannels()
+        {
+            ScanInfo info = _experiment.GetScanInfo(ScanId);
+            IList<Channel> physicalChannels = info.ChannelList;
+            IList<VirtualChannel> virtualChannels = info.VirtualChannelList;
+            var channels = new List<Channel>(physicalChannels.Count + virtualChannels.Count);
+            channels.AddRange(physicalChannels.OrderBy(chn => chn.ChannelId));
+            channels.AddRange(virtualChannels.OrderBy(chn => chn.ChannelId));
+            return channels;
+        }
+
+        private void ResortFeatures(IList<Feature> features)
+        {
+            int idIndex = CheckIdFeature(features);
+            features.RemoveAt(idIndex);
+            Feature first = features.FirstOrDefault();
+            if (first == null) return;
+            first.Index = 1;
+            int n = features.Count;
+            for (int i = 1; i < n; i++)
+            {
+                Feature prev = features[i - 1];
+                Feature cur = features[i];
+                cur.Index = prev.IsPerChannel ? prev.Index + ChannelCount : prev.Index + 1;
+            }
+            Feature last = features.LastOrDefault();
+            FeatureCount = last != null ? (last.IsPerChannel ? last.Index + ChannelCount : last.Index + 1) : 0;
+            var idFeature = new Feature(FeatureType.Id);
+            features.Insert(idIndex, idFeature);
+        }
         private void ParseEvtXml()
         {
             XmlElement root = GetRootOfEvtXml();
@@ -306,6 +317,7 @@ namespace ComponentDataService.Types
             _features.AddRange(ReadFeatureInfoFromXml(featuresNode));
             var wellsNode = compNode.SelectSingleNode("descendant::wells") as XmlElement;
             ReadEventsCountFromXml(wellsNode);
+            ResortFeatures();
         }
 
         private int GetBlobKey(int wellId, int tileId)
@@ -396,6 +408,7 @@ namespace ComponentDataService.Types
 
         private XmlElement GetRootOfEvtXml()
         {
+            if (Directory.Exists(_basePath) == false) return null;
             string[] files = Directory.GetFiles(_basePath, "*.evt.xml");
             string file = files.FirstOrDefault();
             if (string.IsNullOrEmpty(file))
@@ -507,10 +520,7 @@ namespace ComponentDataService.Types
 
         private void WriteBlobsXml(string folder)
         {
-            string destDirName = Path.Combine(folder, "contours");
-            if (Directory.Exists(destDirName) == false)
-                Directory.CreateDirectory(destDirName);
-            WriteBlobsFile(destDirName, WriteBlobsXml);
+            WriteBlobsFile(folder, WriteBlobsXml);
         }
 
         private void WriteBlobsXml(string filepath, int wellId, int tileId, BlobType type)
@@ -788,7 +798,6 @@ namespace ComponentDataService.Types
             Feature idFeature = features.FirstOrDefault(f => f.FeatureType == FeatureType.Id);
             if (idFeature == null) throw new ArgumentException("Must contain id in feature list");
             int index = features.IndexOf(idFeature);
-            features.Remove(idFeature);
             return index;
         }
         public BioEvent CreateEvent(Blob blobOrg, Blob blobData,

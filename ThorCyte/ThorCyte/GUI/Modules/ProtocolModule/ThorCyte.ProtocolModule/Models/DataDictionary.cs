@@ -24,6 +24,7 @@ namespace ThorCyte.ProtocolModule.Models
             {GlobalConst.OrModuleName,ModuleType.SmtOrModule},
             {GlobalConst.XorModuleName,ModuleType.SmtXorModule},
             {GlobalConst.BrightContrastModuleName,ModuleType.SmtBrightContrastModule},
+            {GlobalConst.TransformModuleName,ModuleType.SmtTransformModule},
 
             {GlobalConst.ContourCateName,ModuleType.SmtContourCategory},
             {GlobalConst.ChannelModuleName,ModuleType.SmtChannelModule},

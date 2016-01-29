@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Media;
 using System.Xml;
@@ -25,7 +23,6 @@ using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.Utils;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
-using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.GraphicModule.ViewModels
 {
@@ -494,6 +491,10 @@ namespace ThorCyte.GraphicModule.ViewModels
                 if (vm.Id == region.GraphicId)
                 {
                     var graphic = dic[vm.Id].Item1.RegionPanel.GetGraphic(string.Format("R{0}", region.Id));
+                    if (graphic == null)
+                    {
+                        continue;
+                    }
                     RegionHelper.UpdateRegionLocation(region, graphic, dic[vm.Id].Item1.RegionPanel, vm);
                     list.Add(region);
                 }
@@ -1114,10 +1115,7 @@ namespace ThorCyte.GraphicModule.ViewModels
 
             foreach (var graphicTuple in graphicDic)
             {
-                XElement graphic = null;
-                XElement xAxis = null;
-                XElement yAxis = null;
-                XElement numerator = null;
+                XElement graphic;
                 var vm = graphicTuple.Value.Item2;
                 IList<XAttribute> attributeList = new List<XAttribute>
                     {
@@ -1145,13 +1143,13 @@ namespace ThorCyte.GraphicModule.ViewModels
                         new XAttribute("max", vm.XAxis.MaxRange),
                         new XAttribute("log", vm.XAxis.IsLogScale)
                     };
-                xAxis = new XElement("xaxis", attributeList);
+                var xAxis = new XElement("xaxis", attributeList);
                 attributeList = new List<XAttribute>
                     {
                         new XAttribute("feature", vm.XAxis.SelectedNumeratorFeature.Name),
                         new XAttribute("channel", vm.XAxis.SelectedNumeratorChannel!= null ? vm.XAxis.SelectedNumeratorChannel.ChannelName: string.Empty),
                     };
-                numerator = new XElement("numerator", attributeList);
+                var numerator = new XElement("numerator", attributeList);
                 xAxis.Add(numerator);
                 graphic.Add(xAxis);
                 attributeList = new List<XAttribute>
@@ -1164,7 +1162,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     };
                 if ((graphicTuple.Value.Item2 as ScattergramVm) != null)
                 {
-                    yAxis = new XElement("yaxis", attributeList);
+                    var yAxis = new XElement("yaxis", attributeList);
                     attributeList = new List<XAttribute>
                     {
                         new XAttribute("feature", vm.YAxis.SelectedNumeratorFeature.Name),
@@ -1189,15 +1187,14 @@ namespace ThorCyte.GraphicModule.ViewModels
             var xscale = regionCanvas.ActualWidth / ConstantHelper.LowBinCount;
             var yscale = regionCanvas.ActualHeight / ConstantHelper.LowBinCount;
 
-            XElement region;
-            IList<XAttribute> attributeList ;
-
             foreach (var visual in regionCanvas.VisualList)
             {
                 var g = visual as GraphicsBase;
                 if (g == null)
                     continue;
 
+                XElement region;
+                IList<XAttribute> attributeList;
                 switch(g.GraphicType)
                 {
                     case RegionType.Rectangle:

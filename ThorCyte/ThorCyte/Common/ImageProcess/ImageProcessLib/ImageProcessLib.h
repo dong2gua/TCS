@@ -77,3 +77,6 @@ IPP_LIB_API int fnipp_lib_Or_16uC1I(const unsigned short* srcBuffer, int width, 
 IPP_LIB_API int fnipp_lib_Xor_16uC1(const unsigned short* srcBuffer1, const unsigned short* srcBuffer2, int width, 
 								    int height, unsigned short* dstBuffer);
 IPP_LIB_API int fnipp_lib_Xor_16uC1I(const unsigned short* srcBuffer, int width, int height, unsigned short* srcDstBuffer);
+
+IPP_LIB_API int fn_ipp_lib_rotateShift_16u(const unsigned short* srcBuffer, int width, int height, int channels, double angle,
+										   int shiftX, int shiftY, unsigned short* dstBuffer);
