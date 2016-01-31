@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -46,6 +45,7 @@ namespace ThorCyte.CarrierModule.Canvases
         public static readonly DependencyProperty OuterWidthProperty;
         public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
+        public static readonly DependencyProperty CarrierDescriptionProperty;
         public static readonly DependencyProperty IsSelectAllVisibleProperty;
         private Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
 
@@ -75,7 +75,6 @@ namespace ThorCyte.CarrierModule.Canvases
             _tools = new Tool[(int)ToolType.Max];
             _tools[(int)ToolType.Pointer] = new ToolPointer();
             _tools[(int)ToolType.Select] = new ToolSelect();
-            _tools[(int)ToolType.Drag] = new ToolDrag();
 
             Loaded += DrawingCanvas_Loaded;
             MouseDown += DrawingCanvas_MouseDown;
@@ -102,7 +101,7 @@ namespace ThorCyte.CarrierModule.Canvases
         static SlideCanvas()
         {
             // Tool
-            var metaData = new PropertyMetadata(ToolType.Pointer);
+            var metaData = new PropertyMetadata(ToolType.Select);
 
             ToolProperty = DependencyProperty.Register(
                 "Tool", typeof(ToolType), typeof(SlideCanvas),
@@ -121,6 +120,11 @@ namespace ThorCyte.CarrierModule.Canvases
 
             metaData = new PropertyMetadata(false);
             IsSelectAllVisibleProperty = DependencyProperty.Register("IsSelectAllVisible", typeof(bool), typeof(SlideCanvas), metaData);
+
+            metaData = new PropertyMetadata("");
+            CarrierDescriptionProperty = DependencyProperty.Register(
+                 "CarrierDescription", typeof(string), typeof(SlideCanvas),
+                 metaData);
 
         }
 
@@ -328,6 +332,12 @@ namespace ThorCyte.CarrierModule.Canvases
             set { SetValue(MousePositionProperty, value); }
         }
 
+        public string CarrierDescription
+        {
+            get { return (string)GetValue(CarrierDescriptionProperty); }
+            set { SetValue(CarrierDescriptionProperty, value); }
+        }
+
         public bool IsSelectAllVisible
         {
             get { return (bool)GetValue(IsSelectAllVisibleProperty); }
@@ -486,6 +496,8 @@ namespace ThorCyte.CarrierModule.Canvases
         private void InitSlide()
         {
             HelperFunctions.DeleteAll(this);
+
+            CarrierDescription = SlideMod.Description;
 
             Width = SlideMod.Size.Width / 100 * ActualScale;
             Height = SlideMod.Size.Height / 100 * ActualScale;
@@ -755,7 +767,7 @@ namespace ThorCyte.CarrierModule.Canvases
 
         public void SetDefault()
         {
-            Tool = ToolType.Pointer;
+            Tool = ToolType.Select;
             Cursor = HelperFunctions.DefaultCursor;
         }
 
@@ -891,7 +903,13 @@ namespace ThorCyte.CarrierModule.Canvases
                 eventArgs.AddRange(_slideMod.ActiveRegions.Select(region => region.RegionId));
                 EventAggregator.GetEvent<RegionsSelected>().Publish(eventArgs);
 
-                if (GetBypassMode().Contains(CurrentScanInfo.Mode)) return;
+                if (GetBypassMode().Contains(CurrentScanInfo.Mode))
+                {
+                    MessageHelper.SendStreamingStatus(true);
+                    return;
+                }
+
+                MessageHelper.SendStreamingStatus(false);
 
                 switch (CarrierModule.Mode)
                 {

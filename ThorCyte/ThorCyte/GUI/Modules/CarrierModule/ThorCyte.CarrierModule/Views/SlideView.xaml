@@ -5,30 +5,10 @@
         xmlns:tools="clr-namespace:ThorCyte.CarrierModule.Tools"
         x:Class="ThorCyte.CarrierModule.Views.SlideView"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-
-    <UserControl.Resources>
-        <tools:ToolTypeConverter x:Key="convToolType"/>
-        <tools:BoolToVisibilityConverter x:Key="convVisible"/>
-    </UserControl.Resources>
     <StackPanel>
-        <Grid>
-            <StackPanel Orientation="Horizontal">
-                <ToggleButton x:Name="buttonToolPointer" ToolTip="Select Area" Tag="Pointer"
-				IsChecked="{Binding Tool, ConverterParameter=Pointer, Converter={StaticResource convToolType}, ElementName=slideCanvas, Mode=OneWay}">
-                    <Image Source="../Images/PointerHS.png"/>
-                </ToggleButton>
-
-                <Button x:Name="buttonSelectAll" ToolTip="Select All" Click="buttonSelectAll_Click" Visibility="{Binding ElementName=slideCanvas, Path=IsSelectAllVisible, Converter={StaticResource convVisible}}">
-                    <Image Source="../Images/select_all.png"/>
-                </Button>
-
-                <ToggleButton x:Name="buttonToolSelect" ToolTip="Select Scan Area" Tag="Select"
-				IsChecked="{Binding Tool, ConverterParameter=Select, Converter={StaticResource convToolType}, ElementName=slideCanvas, Mode=OneWay}">
-                    <Image Source="../Images/select_rect.png"/>
-                </ToggleButton>
-            </StackPanel>
+        <Grid Background="DimGray">
+            <TextBlock Text="{Binding CarrierDescription, ElementName=slideCanvas}" Foreground="WhiteSmoke" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
-
 
         <Grid x:Name="CanvGrid" Background="DimGray">
             <canvases:SlideCanvas x:Name="slideCanvas" HorizontalAlignment="Center" Focusable="True" VerticalAlignment="Center" Margin="20" 

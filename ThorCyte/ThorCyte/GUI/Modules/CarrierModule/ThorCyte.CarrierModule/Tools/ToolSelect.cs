@@ -13,11 +13,11 @@ namespace ThorCyte.CarrierModule.Tools
         {
             var point = drawingCanvas.ClientToWorld(e.GetPosition(drawingCanvas));
             HelperFunctions.UnselectAll(drawingCanvas);
-            drawingCanvas.Cursor = HelperFunctions.CrossCursor;
+            drawingCanvas.Cursor = HelperFunctions.DefaultCursor;
 
             var r = new GraphicsSelectionRectangle(
                     point.X, point.Y,
-                    point.X + 1, point.Y + 1,
+                    point.X, point.Y,
                     drawingCanvas.ActualScale)
             {
                 Clip =
@@ -44,7 +44,7 @@ namespace ThorCyte.CarrierModule.Tools
 
             if (e.LeftButton == MouseButtonState.Released)
             {
-                drawingCanvas.Cursor = HelperFunctions.CrossCursor;
+                drawingCanvas.Cursor = HelperFunctions.DefaultCursor;
             }
 
             if (!drawingCanvas.IsMouseCaptured)
@@ -65,10 +65,9 @@ namespace ThorCyte.CarrierModule.Tools
         {
             if (!drawingCanvas.IsMouseCaptured)
             {
-                drawingCanvas.Cursor = HelperFunctions.CrossCursor;
+                drawingCanvas.Cursor = HelperFunctions.DefaultCursor;
                 return;
             }
-
 
             var r = (GraphicsSelectionRectangle)drawingCanvas[drawingCanvas.Count - 1];
             r.Normalize();
@@ -83,7 +82,7 @@ namespace ThorCyte.CarrierModule.Tools
 
             drawingCanvas.SetActiveRegions();
             drawingCanvas.ReleaseMouseCapture();
-            drawingCanvas.Tool = ToolType.Pointer;
+            drawingCanvas.Tool = ToolType.Select;
             drawingCanvas.Cursor = HelperFunctions.DefaultCursor;
         }
 
@@ -92,22 +91,22 @@ namespace ThorCyte.CarrierModule.Tools
         /// </summary>
         public override void SetCursor(SlideCanvas drawingCanvas)
         {
-            drawingCanvas.Cursor = HelperFunctions.CrossCursor;
+            drawingCanvas.Cursor = HelperFunctions.DefaultCursor;
         }
 
         public override void OnMouseDown(PlateCanvas drawingCanvas, MouseButtonEventArgs e)
         {
             var point = drawingCanvas.ClientToWorld(e.GetPosition(drawingCanvas));
             PlateHelperFunctions.UnselectAll(drawingCanvas);
-            drawingCanvas.Cursor = PlateHelperFunctions.CrossCursor;
+            drawingCanvas.Cursor = PlateHelperFunctions.DefaultCursor;
 
             var r = new GraphicsSelectionRectangle(
                     point.X, point.Y,
-                    point.X + 1, point.Y + 1,
+                    point.X, point.Y,
                     drawingCanvas.ActualScale)
             {
                 Clip =
-                    new RectangleGeometry(new Rect(0, 0, drawingCanvas.ActualWidth, drawingCanvas.ActualHeight))
+                    new RectangleGeometry(new Rect(0, 0, drawingCanvas.ActualWidth, drawingCanvas.ActualHeight)),
             };
 
             drawingCanvas.GraphicsList.Add(r);
@@ -130,7 +129,7 @@ namespace ThorCyte.CarrierModule.Tools
 
             if (e.LeftButton == MouseButtonState.Released)
             {
-                drawingCanvas.Cursor = PlateHelperFunctions.CrossCursor;
+                drawingCanvas.Cursor = PlateHelperFunctions.DefaultCursor;
             }
 
             if (!drawingCanvas.IsMouseCaptured)
@@ -147,7 +146,7 @@ namespace ThorCyte.CarrierModule.Tools
         {
             if (!drawingCanvas.IsMouseCaptured)
             {
-                drawingCanvas.Cursor = PlateHelperFunctions.CrossCursor;
+                drawingCanvas.Cursor = PlateHelperFunctions.DefaultCursor;
                 return;
             }
 
@@ -165,13 +164,13 @@ namespace ThorCyte.CarrierModule.Tools
 
             drawingCanvas.SetActiveRegions();
             drawingCanvas.ReleaseMouseCapture();
-            drawingCanvas.Tool = ToolType.Pointer;
+            drawingCanvas.Tool = ToolType.Select;
             drawingCanvas.Cursor = PlateHelperFunctions.DefaultCursor;
         }
 
         public override void SetCursor(PlateCanvas drawingCanvas)
         {
-            drawingCanvas.Cursor = PlateHelperFunctions.CrossCursor;
+            drawingCanvas.Cursor = PlateHelperFunctions.DefaultCursor;
         }
     }
 }

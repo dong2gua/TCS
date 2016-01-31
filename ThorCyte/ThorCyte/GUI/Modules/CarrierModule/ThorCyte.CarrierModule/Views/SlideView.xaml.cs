@@ -1,8 +1,4 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Input;
-using ThorCyte.CarrierModule.Carrier;
-using ThorCyte.CarrierModule.Tools;
+﻿using ThorCyte.CarrierModule.Carrier;
 
 namespace ThorCyte.CarrierModule.Views
 {
@@ -25,30 +21,6 @@ namespace ThorCyte.CarrierModule.Views
         public SlideView()
         {
             InitializeComponent();
-            buttonToolSelect.PreviewMouseDown += ToolButton_PreviewMouseDown;
-            buttonToolPointer.PreviewMouseDown += ToolButton_PreviewMouseDown;
-        }
-
-        void ToolButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            slideCanvas.Tool = (ToolType)Enum.Parse(typeof(ToolType),
-                ((System.Windows.Controls.Primitives.ButtonBase)sender).Tag.ToString());
-            e.Handled = true;
-        }
-
-        void buttonSelectAll_Click(object sender, RoutedEventArgs args)
-        {
-            slideCanvas.SelectAllGraphics();
-        }
-
-        void buttonZoomIn_Click(object sender, RoutedEventArgs args)
-        {
-            slideCanvas.ZoomIn();
-        }
-
-        void buttonZoomOut_Click(object sender, RoutedEventArgs args)
-        {
-            slideCanvas.ZoomOut();
         }
 
         public void UpdateScanArea()

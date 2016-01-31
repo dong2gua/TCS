@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Diagnostics;
+using System.Windows.Input;
 using ThorCyte.CarrierModule.Canvases;
 using ThorCyte.CarrierModule.Graphics;
 

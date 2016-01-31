@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
@@ -9,10 +10,16 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
     public class TransformModVm : ModuleBase
     {
+        public bool IsVaild;
         public override bool Executable
         {
-            get { return true; }
+            get { return IsVaild; }
         }
+
+        public override string CaptionString { get
+        {
+            return string.Format("X{0}, Y{1}, Deg{2}", _transX, _transY, _rotateDeg);
+        } }
 
         private int _transX;
         public int TransX
@@ -25,6 +32,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     return;
                 }
                 SetProperty(ref _transX, value);
+                OnPropertyChanged("CaptionString");
             }
         }
 
@@ -39,6 +47,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     return;
                 }
                 SetProperty(ref _transY, value);
+                OnPropertyChanged("CaptionString");
             }
         }
 
@@ -53,10 +62,17 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     return;
                 }
                 SetProperty(ref _rotateDeg, value);
+                OnPropertyChanged("CaptionString");
             }
         }
 
         private ImageData _img1;
+
+
+        public TransformModVm()
+        {
+            IsVaild = true;
+        }
 
         public override void OnExecute()
         {
@@ -64,7 +80,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 _img1 = GetInPort(0).Image;
 
-                var processedImg = _img1.Invert(Macro.ImageMaxBits);
+                var processedImg = _img1.Transform(_transX, _transY, _rotateDeg);
 
                 _img1.Dispose();
 
@@ -90,6 +106,31 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             OutputPort.ParentModule = this;
             InputPorts[0].DataType = PortDataType.GrayImage;
             InputPorts[0].ParentModule = this;
+        }
+
+        public override void OnSerialize(XmlWriter writer)
+        {
+            writer.WriteAttributeString("trans_x", TransX.ToString());
+            writer.WriteAttributeString("trans_y", TransY.ToString());
+            writer.WriteAttributeString("rotate", RotateDeg.ToString());
+        }
+
+        public override void OnDeserialize(XmlReader reader)
+        {
+            if (reader["trans_x"] != null)
+            {
+                TransX = XmlConvert.ToInt32(reader["trans_x"]);
+            }
+
+            if (reader["trans_y"] != null)
+            {
+                TransY = XmlConvert.ToInt32(reader["trans_y"]);
+            }
+
+            if (reader["rotate"] != null)
+            {
+                RotateDeg = XmlConvert.ToInt32(reader["rotate"]);
+            }
         }
     }
 }

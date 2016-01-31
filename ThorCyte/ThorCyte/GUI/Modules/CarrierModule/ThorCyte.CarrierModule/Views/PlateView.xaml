@@ -3,30 +3,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:canvases="clr-namespace:ThorCyte.CarrierModule.Canvases"
-             xmlns:tools="clr-namespace:ThorCyte.CarrierModule.Tools"
              x:Class="ThorCyte.CarrierModule.Views.PlateView"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <tools:ToolTypeConverter x:Key="convToolType"/>
-        <tools:BoolToVisibilityConverter x:Key="convVisible"/>
-    </UserControl.Resources>
     <StackPanel>
-        <Grid>
-            <StackPanel Orientation="Horizontal">
-                <ToggleButton x:Name="buttonToolPointer" ToolTip="Select Area" Tag="Pointer"
-				IsChecked="{Binding Tool, ConverterParameter=Pointer, Converter={StaticResource convToolType}, ElementName=plateCanvas, Mode=OneWay}">
-                    <Image Source="../Images/PointerHS.png"/>
-                </ToggleButton>
-
-                <Button x:Name="buttonSelectAll" ToolTip="Select All" Click="ButtonSelectAll_OnClick" Visibility="{Binding ElementName=plateCanvas, Path=IsSelectAllVisible, Converter={StaticResource convVisible}}">
-                    <Image Source="../Images/select_all.png"/>
-                </Button>
-
-                <ToggleButton x:Name="buttonToolSelect" ToolTip="Select Scan Area" Tag="Select"
-				IsChecked="{Binding Tool, ConverterParameter=Select, Converter={StaticResource convToolType}, ElementName=plateCanvas, Mode=OneWay}">
-                    <Image Source="../Images/select_rect.png"/>
-                </ToggleButton>
-            </StackPanel>
+        <Grid Background="DimGray">
+            <TextBlock Text="{Binding CarrierDescription, ElementName=plateCanvas}" Foreground="WhiteSmoke" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
         <Grid x:Name="CanvGrid">
             <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" 

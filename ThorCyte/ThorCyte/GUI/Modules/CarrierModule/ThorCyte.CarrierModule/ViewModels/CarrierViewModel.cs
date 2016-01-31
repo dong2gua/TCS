@@ -4,6 +4,7 @@ using Microsoft.Practices.ServiceLocation;
 using Prism.Events;
 using Prism.Mvvm;
 using ThorCyte.CarrierModule.Carrier;
+using ThorCyte.CarrierModule.Common;
 using ThorCyte.CarrierModule.Views;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
@@ -57,13 +58,12 @@ namespace ThorCyte.CarrierModule.ViewModels
             set { SetProperty(ref _tileview, value); }
         }
 
-        private bool _isTileVisible;
+        public bool _isTileVisible;
         public bool IsTileVisible
         {
             get { return _isTileVisible; }
             set { SetProperty(ref _isTileVisible, value); }
         }
-
         #endregion
 
         public CarrierViewModel()
@@ -76,6 +76,14 @@ namespace ThorCyte.CarrierModule.ViewModels
             
             var loadEvt = EventAggregator.GetEvent<ExperimentLoadedEvent>();
             loadEvt.Subscribe(RequestLoadModule);
+            
+            MessageHelper.SetStreaming += SetStreaming;
+        }
+
+        private void SetStreaming(bool isStreaming)
+        {
+            if (isStreaming)
+                IsTileVisible = true;
         }
 
         /// <summary>

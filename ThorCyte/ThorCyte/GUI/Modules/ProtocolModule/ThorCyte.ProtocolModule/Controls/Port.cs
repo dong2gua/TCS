@@ -144,10 +144,10 @@ namespace ThorCyte.ProtocolModule.Controls
             if (e.ChangedButton == MouseButton.Left)
             {
                 //Drawing line only PortType is OutPort 
-                if (PortType != PortType.OutPort)
-                {
-                    return;
-                }
+                //if (PortType != PortType.OutPort)
+                //{
+                //    return;
+                //}
                 CaptureMouse();
 
                 if (ParentModule != null)

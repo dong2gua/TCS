@@ -24,8 +24,8 @@
 		<module name="Or" reference="ThorCyte.ProtocolModule.ViewModels.Modules.OrModVm" />
 		<module name="Xor" reference="ThorCyte.ProtocolModule.ViewModels.Modules.XorModVm" />
 		<module name="BrightContrast" disp-name="Bright Contrast" reference="ThorCyte.ProtocolModule.ViewModels.Modules.BrightContrastModVm" />
-    <module name="Transform"  />
-  </category>
+        <module name="Transform" reference="ThorCyte.ProtocolModule.ViewModels.Modules.TransformModVm" />
+    </category>
 	<category name="Contour">
 		<module name="Channel" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ChannelModVm" />
 		<module name="Threshold" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ThresholdModVm" />

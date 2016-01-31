@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -17,11 +18,11 @@ namespace ThorCyte.ProtocolModule.ViewModels
     public class MarcoEditorViewModel : BindableBase
     {
         #region Properties
-        public ICommand StartMacroCommand { get; private set; }
-        public ICommand SaveMacroCommand { get; private set; }
-        public ICommand StopMacroCommand { get; private set; }
+        public List<int> SelectModuleOrder = new List<int>(); 
 
-        readonly List<ChannelModVm> _channelModuleList = new List<ChannelModVm>();
+        public ICommand SaveMacroCommand { get; private set; }
+        public ICommand MacroCommnad { get; private set; }
+        public ICommand AlignCommnad { get; private set; }
 
         private static MarcoEditorViewModel _mainWindowWm = new MarcoEditorViewModel();
 
@@ -84,6 +85,19 @@ namespace ThorCyte.ProtocolModule.ViewModels
             set { SetProperty(ref _isRuning, value); }
         }
 
+        private string _imgSource;
+        public string ImgSource
+        {
+            get { return _imgSource; }
+            set { SetProperty(ref _imgSource, value); }
+        }
+
+        private string _tipStr;
+        public string TipStr
+        {
+            get { return _tipStr; }
+            set { SetProperty(ref _tipStr, value); }
+        }
 
         #endregion
 
@@ -94,19 +108,77 @@ namespace ThorCyte.ProtocolModule.ViewModels
             MessageHelper.SetMessage += SetMessage;
             MessageHelper.SetProgress += SetProgress;
             MessageHelper.SetRuning += SetRuning;
-            StartMacroCommand = new DelegateCommand(Macro.Run);
+            MacroCommnad = new DelegateCommand(SetMacroCommand);
             SaveMacroCommand = new DelegateCommand(Macro.Save);
-            StopMacroCommand = new DelegateCommand(Macro.Stop);
+
+            AlignCommnad = new DelegateCommand<string>(SetModulesAlign);
+
             _pannelVm = new PannelViewModel();
 
             RegionCount = 10;
             TileCount = 10;
+
+            _imgSource = IsRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
+            _tipStr = IsRuning ? "Stop Run" : "Start Run";
         }
 
+        private void SetModulesAlign(string alnType)
+        {
+            try
+            {
+                int vx;
+                int vy;
+
+                if (SelectModuleOrder.Count == 0) return;
+
+                if (PannelVm.Modules.Any(md => md.IsSelected))
+                {
+                    var module = PannelVm.Modules.FirstOrDefault(md => md.Id == SelectModuleOrder[0]);
+                    if (module == null) return;
+                    vx = module.X;
+                    vy = module.Y;
+                }
+                else
+                {
+                    return;
+                }
+                
+                foreach (var m in PannelVm.Modules.Where(md => md.IsSelected))
+                {
+                    switch (alnType)
+                    {
+                        case "H":
+                            m.Y = vy;
+                            break;
+
+                        case "V":
+                            m.X = vx;
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error occurred in SetModulesAlign" + ex.Message);
+            }
+        }
 
         #endregion
 
         #region Methods
+
+        private void SetMacroCommand()
+        {
+            if (IsRuning)
+            {
+                Macro.Stop();
+            }
+            else
+            {
+                Macro.Run();
+            }
+        }
+
         /// <summary>
         /// Called when the user has started to drag out a connector, thus creating a new _connection.
         /// </summary>
@@ -115,20 +187,23 @@ namespace ThorCyte.ProtocolModule.ViewModels
             // Create a new connection to add to the view-model.
 
             var connection = new ConnectorModel();
-            if (draggedOutPort.PortType == PortType.OutPort)
+
+            if (draggedOutPort.PortType == PortType.InPort && draggedOutPort.AttachedConnections.Count > 0)
+            {
+                //1 connetion at most
+                connection = draggedOutPort.AttachedConnections[0];
+                PannelVm.Connections.Remove(connection);
+                connection.DestPortHotspot = curDragPoint;
+                PannelVm.Connections.Add(connection);
+            }
+            else if (draggedOutPort.PortType == PortType.OutPort)
             {
                 // The user is dragging out a source connector (an output) and will connect it to a destination connector (an input).
                 connection.SourcePort = draggedOutPort;
                 connection.DestPortHotspot = curDragPoint;
+                PannelVm.Connections.Add(connection);
+            }
 
-            }
-            else
-            {
-                // The user is dragging out a destination connector (an input) and will connect it to a source connector (an output).
-                connection.DestPort = draggedOutPort;
-                connection.SourcePortHotspot = curDragPoint;
-            }
-            PannelVm.Connections.Add(connection);
             // Add the new connection to the view-model.
             return connection;
         }
@@ -191,44 +266,64 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// </summary>
         public void ConnectionDragCompleted(ConnectorModel newConnection, PortModel portDraggedOut, PortModel portDraggedOver)
         {
+            if (portDraggedOut.PortType == PortType.InPort) portDraggedOut = newConnection.SourcePort;
+            
             if (!IsConnectable(portDraggedOut, portDraggedOver))
             {
                 // The connection was unsuccessful. Maybe the user dragged it out and dropped it in empty space.
                 PannelVm.Connections.Remove(newConnection);
-                if (portDraggedOut != null) portDraggedOut.AttachedConnections.Remove(newConnection);
-                if (portDraggedOver != null) portDraggedOver.AttachedConnections.Remove(newConnection);
+                newConnection.SourcePort = null;
+                newConnection.DestPort = null;
                 return;
             }
 
             // Only allow connections from output connector to input connector (ie each connector must have a different Type).
             // Also only allocation from one node to another, never one node back to the same node.
-            bool connectionOk = portDraggedOut.ParentModule != portDraggedOver.ParentModule &&
-                                portDraggedOut.PortType != portDraggedOver.PortType;
+            bool connectionOk = IsConnectionOK(newConnection, portDraggedOut, portDraggedOver);
 
             if (!connectionOk)
             {
                 // Connections between connectors that have the same Type,eg input -> input or output -> output, are not allowed,
                 // Remove the connection.
                 PannelVm.Connections.Remove(newConnection);
+                newConnection.SourcePort = null;
+                newConnection.DestPort = null;
                 return;
             }
 
             // The user has dragged the connection on top of another valid connector.Remove any existing connection between the same two connectors.
-            var existingConnection = FindConnection(portDraggedOut, portDraggedOver);
+            var existingConnection = FindConnection(newConnection, portDraggedOut, portDraggedOver);
+
             if (existingConnection != null)
             {
-                PannelVm.Connections.Remove(existingConnection);
+                return;
             }
 
             // Finalize the connection by attaching it to the connector that the user dragged the mouse over.
-            if (newConnection.DestPort == null)
+            newConnection.DestPort = portDraggedOver;
+
+        }
+
+        private bool IsConnectionOK(ConnectorModel newConnection, PortModel portDraggedOut, PortModel portDraggedOver)
+        {
+            var res = true;
+
+            if (newConnection.SourcePort == null) return false;
+
+            switch (portDraggedOut.PortType)
             {
-                newConnection.DestPort = portDraggedOver;
+                case PortType.InPort:
+                    res = newConnection.SourcePort.ParentModule != portDraggedOver.ParentModule && newConnection.SourcePort.PortType != portDraggedOver.PortType;
+                    break;
+                case PortType.OutPort:
+                    res = portDraggedOut.ParentModule != portDraggedOver.ParentModule && portDraggedOut.PortType != portDraggedOver.PortType;
+                    break;
+                case PortType.None:
+                    res = false;
+                    break;
             }
-            else
-            {
-                newConnection.SourcePort = portDraggedOver;
-            }
+
+            return res;
         }
 
         /// <summary>
@@ -257,35 +352,40 @@ namespace ThorCyte.ProtocolModule.ViewModels
             PannelVm.Connections.RemoveRange(moduleVm.AttachedConnections);
             foreach (var c in moduleVm.AttachedConnections)
             {
-                c.DestPort.AttachedConnections.Remove(c);
-                c.SourcePort.AttachedConnections.Remove(c);
+                c.DestPort = null;
+                c.SourcePort = null;
             }
             // Remove the moduleVm from the PannelVm.
             PannelVm.Modules.Remove(moduleVm);
-
         }
 
 
         public ModuleBase GetSelectedModule()
         {
-            ModuleBase moduleVmVm = null;
-            int count = 0;
+            ModuleBase module = null;
+            var count = 0;
             for (var i = PannelVm.Modules.Count - 1; i >= 0; i--)
             {
                 if (PannelVm.Modules[i].IsSelected)
                 {
                     count++;
-                    moduleVmVm = PannelVm.Modules[i];
+                    module = PannelVm.Modules[i];
                 }
             }
 
-            return 1 == count ? moduleVmVm : null;
+            if (count == 1)
+            {
+                SelectModuleOrder.Clear();
+                SelectModuleOrder.Add(module.Id);
+            }
+
+            return 1 == count ? module : null;
         }
 
         /// <summary>
         /// Retrieve a connection between the two connectors.Returns null if there is no connection between the connectors.
         /// </summary>
-        public ConnectorModel FindConnection(PortModel port1, PortModel port2)
+        public ConnectorModel FindConnection(ConnectorModel newConnection, PortModel port1, PortModel port2)
         {
             Trace.Assert(port1.PortType != port2.PortType);
 
@@ -295,14 +395,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
             // Now we can just iterate attached connections of the source and see if it each one is attached to the destination connector.
             return sourcePort.AttachedConnections.FirstOrDefault(connection => connection.DestPort == destPort);
-        }
-
-        public void ReAnalysisImage()
-        {
-            foreach (ChannelModVm ch in _channelModuleList)
-            {
-                ch.Execute();
-            }
         }
 
         private void SetMessage(string msg)
@@ -333,8 +425,9 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private void SetRuning(bool isRuning)
         {
             IsRuning = isRuning;
+            ImgSource = isRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
+            TipStr = isRuning ? "Stop Run" : "Start Run";
         }
-
 
         #endregion
     }

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
 using Prism.Events;
@@ -14,6 +15,7 @@ using ThorCyte.ProtocolModule.Controls;
 using ThorCyte.ProtocolModule.Events;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.ViewModels;
+using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.Views
 {
@@ -162,8 +164,8 @@ namespace ThorCyte.ProtocolModule.Views
                 {
                     return true;
                 }
-                parent = VisualTreeHelper.GetParent(parent);
 
+                parent = VisualTreeHelper.GetParent(parent);
                 if (parent.GetType() == parentType)
                 {
                     return true;
@@ -172,21 +174,41 @@ namespace ThorCyte.ProtocolModule.Views
             return false;
         }
 
+
         private void OnMouseLeftUp(object sender, MouseButtonEventArgs e)
         {
             var isModule = IsChildInTree((DependencyObject)e.OriginalSource, typeof(Module));
 
             if (isModule)
             {
+                var ctrl_module = FindParentModule((DependencyObject) e.OriginalSource);
+                if (ctrl_module != null)
+                {
+                    var module = ctrl_module.Content as ModuleBase;
+                    if(module != null)
+                        ViewModel.SelectModuleOrder.Add(module.Id);
+                }
+
                 var vm = ViewModel.GetSelectedModule();
                 ViewModel.PannelVm.SelectedModuleViewModel = vm;
             }
         }
 
-        private void Refresh_Click(object sender, RoutedEventArgs e)
+        private Module FindParentModule(DependencyObject obj)
         {
-            ViewModel.ReAnalysisImage();
+            while (true)
+            {
+                //which module it is?
+                var parent = VisualTreeHelper.GetParent(obj);
+
+                if (parent == null) return null;
+
+                if (parent.GetType() == typeof(Module)) return parent as Module;
+
+                obj = parent;
+            }
         }
+
 
         private void PannelKeyDown(object sender, KeyEventArgs e)
         {

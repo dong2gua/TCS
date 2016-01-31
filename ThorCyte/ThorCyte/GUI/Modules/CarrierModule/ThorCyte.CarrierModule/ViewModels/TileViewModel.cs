@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
@@ -13,17 +14,20 @@ using ThorCyte.CarrierModule.Events;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
+using Point = System.Windows.Point;
+using System.Windows.Media;
 
 namespace ThorCyte.CarrierModule.ViewModels
 {
-    public class TileItem
+    public class TileItem : INotifyPropertyChanged
     {
         public int Left { get; set; }
         public int Top { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-
         public int FieldId { get; set; }
+        public Brush BkColor { get; set; }
+        public Brush FtColor { get; set; }
 
         public TileItem()
         {
@@ -32,6 +36,27 @@ namespace ThorCyte.CarrierModule.ViewModels
             Width = 0;
             Height = 0;
             FieldId = 0;
+
+            BkColor = Brushes.DimGray;
+            FtColor = Brushes.WhiteSmoke;
+        }
+
+        public void SetSelected()
+        {
+            BkColor = Brushes.Pink;
+            FtColor = Brushes.DimGray;
+
+            OnPropertyChanged(new PropertyChangedEventArgs("BkColor"));
+            OnPropertyChanged(new PropertyChangedEventArgs("FtColor"));
+        }
+
+        public void SetUnselected()
+        {
+            BkColor = Brushes.DimGray;
+            FtColor = Brushes.WhiteSmoke;
+
+            OnPropertyChanged(new PropertyChangedEventArgs("BkColor"));
+            OnPropertyChanged(new PropertyChangedEventArgs("FtColor"));
         }
 
         public Rect TileRect
@@ -49,6 +74,11 @@ namespace ThorCyte.CarrierModule.ViewModels
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            if (PropertyChanged != null) PropertyChanged(this, e);
+        }
     }
 
     public class TileViewModel : BindableBase
@@ -155,6 +185,7 @@ namespace ThorCyte.CarrierModule.ViewModels
 
             //Define button infomations to show on UI
             _tilesShowInCanvas = new ObservableCollection<TileItem>();
+            
         }
 
         private void ShowRegionEventHandler(string moduleName)
@@ -179,6 +210,20 @@ namespace ThorCyte.CarrierModule.ViewModels
             RegionID = string.Empty;
         }
 
+        private void ShowSelectTile(TileItem t)
+        {
+            foreach (var tile in _tilesShowInCanvas)
+            {
+                if (tile.Equals(t))
+                {
+                    tile.SetSelected();
+                }
+                else
+                {
+                    tile.SetUnselected();
+                }
+            }
+        }
 
         /// <summary>
         /// Response the Tile Button Click 
@@ -188,6 +233,7 @@ namespace ThorCyte.CarrierModule.ViewModels
         {
             var tItem = oItem as TileItem;
             if (tItem == null) return;
+            ShowSelectTile(tItem);
 
             EventAggregator.GetEvent<SelectRegionTileEvent>().Publish(new RegionTile()
             {

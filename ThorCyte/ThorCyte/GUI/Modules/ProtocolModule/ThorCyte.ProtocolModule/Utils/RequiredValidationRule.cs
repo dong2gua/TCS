@@ -21,9 +21,16 @@ namespace ThorCyte.ProtocolModule.Utils
         {
 
             //determine if this is a Integer
-            int val;
-            return !int.TryParse(value.ToString(),out val) ? new ValidationResult(false, "Please input a number!") : new ValidationResult(true, null);
+            return IsInteger(value.ToString())
+                ? new ValidationResult(true, null)
+                : new ValidationResult(false, "Please input an integer!");
         }
+
+        public bool IsInteger(string value)
+        {
+            var r = new Regex(@"^-?[0-9]\d*$");
+            return r.IsMatch(value);
+        }  
 
     }
 }

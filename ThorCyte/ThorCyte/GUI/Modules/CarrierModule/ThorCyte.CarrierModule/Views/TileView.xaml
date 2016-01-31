@@ -19,7 +19,7 @@
         </ItemsControl.ItemContainerStyle>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <Button Width="{Binding Width}" Height="{Binding Height}" Content="{Binding FieldId}" Command="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type ItemsControl}},Path=DataContext.CmdTileTrigger}" CommandParameter="{Binding}"/>
+                <Button Width="{Binding Width}" Height="{Binding Height}" Content="{Binding FieldId}" Command="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type ItemsControl}},Path=DataContext.CmdTileTrigger}" CommandParameter="{Binding}" Background="{Binding BkColor}" Foreground="{Binding FtColor}"/>
             </DataTemplate>
         </ItemsControl.ItemTemplate>
     </ItemsControl>

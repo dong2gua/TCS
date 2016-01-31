@@ -1,6 +1,8 @@
-﻿using System.Windows;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using ThorCyte.CarrierModule.Common;
+using Brushes = System.Windows.Media.Brushes;
+using Pen = System.Windows.Media.Pen;
+using Point = System.Windows.Point;
 
 namespace ThorCyte.CarrierModule.Graphics
 {
@@ -47,11 +49,13 @@ namespace ThorCyte.CarrierModule.Graphics
             var dashStyle = new DashStyle();
             dashStyle.Dashes.Add(4);
 
-            var dashedPen = new Pen(Brushes.Black, ActualLineWidth) {DashStyle = dashStyle};
+            //var dashedPen = new Pen(Brushes.CornflowerBlue, 2) {DashStyle = dashStyle};
+            var dashedPen = new Pen(Brushes.Pink, ActualLineWidth);
+            var bsh = new SolidColorBrush(Color.FromArgb(50,255,192,203));
 
 
             DrawFunction.DrawRectangle(drawingContext,
-                null,
+                bsh,
                 dashedPen,
                 Rectangle);
         }

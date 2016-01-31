@@ -29,6 +29,7 @@
 
             <Style TargetType="{x:Type control:Port}" >
                 <Setter Property="Hotspot" Value="{Binding HotSpot, Mode=OneWayToSource}"/>
+                <Setter Property="Cursor" Value="Cross"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type control:Port}">
@@ -37,9 +38,6 @@
                                 <Trigger Property="Background" Value="LightGray">
                                     <Setter TargetName="port" Property="Stroke" Value="LightGray"/>
                                     <Setter TargetName="port" Property="Visibility" Value="Collapsed"/>
-                                </Trigger>
-                                <Trigger Property="PortType" Value="OutPort">
-                                    <Setter TargetName="port" Property="Cursor" Value="Cross"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -155,11 +153,10 @@
             <ToggleButton Margin="1"  Click="ToolboxClick" ToolTip="Tool Box">
                 <Image Source="../Resource/Images/toolbox.png"/>
             </ToggleButton>
-            <Button  Margin="1" Command="{Binding StartMacroCommand}" ToolTip="Start Run">
-                <Image Source="../Resource/Images/play.png" />
-            </Button>
-            <Button  Margin="1" Command="{Binding StopMacroCommand}" ToolTip="Stop Run">
-                <Image Source="../Resource/Images/stop.png" />
+            <Button  Margin="1" Content="HA" Command="{Binding AlignCommnad}" CommandParameter="H" ToolTip="Horizontal Align Modules" />
+            <Button  Margin="1" Content="VA" Command="{Binding AlignCommnad}" CommandParameter="V" ToolTip="Vertical Align Modules" />
+            <Button  Margin="1" Command="{Binding MacroCommnad}" ToolTip="{Binding TipStr}">
+                <Image Source="{Binding ImgSource}"/>
             </Button>
         </StackPanel>
 

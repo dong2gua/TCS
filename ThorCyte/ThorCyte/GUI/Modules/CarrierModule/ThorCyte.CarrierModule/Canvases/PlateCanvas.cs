@@ -52,14 +52,15 @@ namespace ThorCyte.CarrierModule.Canvases
 
         private const double PlateMargin = 20;  //in pixel
         private bool _bLeftCtl;
-        private Tool[] _tools;
+        private readonly Tool[] _tools;
 
         public static readonly DependencyProperty ToolProperty;
         public static readonly DependencyProperty OuterWidthProperty;
         public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
         public static readonly DependencyProperty IsSelectAllVisibleProperty;
-        private Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
+        public static readonly DependencyProperty CarrierDescriptionProperty;
+        private readonly Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
 
 
         #endregion
@@ -75,6 +76,12 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             get { return (string)GetValue(MousePositionProperty); }
             set { SetValue(MousePositionProperty, value); }
+        }
+
+        public string CarrierDescription
+        {
+            get { return (string)GetValue(CarrierDescriptionProperty); }
+            set { SetValue(CarrierDescriptionProperty, value); }
         }
 
         private IEventAggregator _eventAggregator;
@@ -220,7 +227,7 @@ namespace ThorCyte.CarrierModule.Canvases
         static PlateCanvas()
         {
             // Tool
-            var metaData = new PropertyMetadata(ToolType.Pointer);
+            var metaData = new PropertyMetadata(ToolType.Select);
 
             ToolProperty = DependencyProperty.Register(
                 "Tool", typeof(ToolType), typeof(PlateCanvas),
@@ -239,6 +246,11 @@ namespace ThorCyte.CarrierModule.Canvases
 
             metaData = new PropertyMetadata(false);
             IsSelectAllVisibleProperty = DependencyProperty.Register("IsSelectAllVisible", typeof(bool), typeof(PlateCanvas), metaData);
+
+            metaData = new PropertyMetadata("");
+            CarrierDescriptionProperty = DependencyProperty.Register(
+                 "CarrierDescription", typeof(string), typeof(PlateCanvas),
+                 metaData);
         }
 
 
@@ -254,7 +266,6 @@ namespace ThorCyte.CarrierModule.Canvases
             _tools = new Tool[(int)ToolType.Max];
             _tools[(int)ToolType.Pointer] = new ToolPointer();
             _tools[(int)ToolType.Select] = new ToolSelect();
-            _tools[(int)ToolType.Drag] = new ToolDrag();
 
             Loaded += DrawingCanvas_Loaded;
             MouseDown += DrawingCanvas_MouseDown;
@@ -275,7 +286,6 @@ namespace ThorCyte.CarrierModule.Canvases
 
             _regionListDic = new Dictionary<DisplayMode,List<ScanRegion>>();
             ShowRegionEventHandler("ReviewModule");
-
         }
 
 
@@ -341,6 +351,8 @@ namespace ThorCyte.CarrierModule.Canvases
         private void InitPlate()
         {
             PlateHelperFunctions.DeleteAll(this);
+
+            CarrierDescription = ((MicroplateDef)_plate.CarrierDef).Description;
 
             SetPlateTrim();
 
@@ -537,7 +549,13 @@ namespace ThorCyte.CarrierModule.Canvases
                     eventArgs.AddRange(_plate.ActiveRegions.Select(region => region.RegionId));
                     EventAggregator.GetEvent<RegionsSelected>().Publish(eventArgs);
 
-                    if (GetBypassMode().Contains(CurrentScanInfo.Mode)) return;
+                    if (GetBypassMode().Contains(CurrentScanInfo.Mode))
+                    {
+                        MessageHelper.SendStreamingStatus(true);
+                        return;
+                    }
+
+                    MessageHelper.SendStreamingStatus(false);
 
                     switch (CarrierModule.Mode)
                     {

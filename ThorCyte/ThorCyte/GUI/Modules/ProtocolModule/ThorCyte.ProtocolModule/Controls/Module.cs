@@ -7,8 +7,6 @@ using ThorCyte.ProtocolModule.Events;
 
 namespace ThorCyte.ProtocolModule.Controls
 {
-
-    
     /// <summary>
     /// This is a UI element that represents a PannelVm/flow-chart _module.
     /// </summary>
@@ -193,29 +191,25 @@ namespace ThorCyte.ProtocolModule.Controls
                 // This means that the rectangle is being added to or removed from the existing selection.
                 // Don't do anything yet, we will act on this later in the MouseUp event handler.
                 _isLeftMouseAndControlDown = true;
+                IsSelected = !IsSelected;
             }
             else
             {
                 // Control key is not held down.
                 _isLeftMouseAndControlDown = false;
-
-                if (ParentPannelView.SelectedModules.Count == 0)
-                {
-                    // Nothing already selected, select the item.
-                    IsSelected = true;
-                }
-                else if (ParentPannelView.SelectedModules.Contains(this) ||
-                         ParentPannelView.SelectedModules.Contains(DataContext))
-                {
-                    // Item is already selected, do nothing.
-                    // We will act on this in the MouseUp if there was no drag operation.
-                }
-                else
+                if (ParentPannelView.SelectedModules.Count != 0)
                 {
                     // Item is not selected.Deselect all, and select the item.
                     ParentPannelView.SelectedModules.Clear();
-                    IsSelected = true;
                 }
+
+                if (ParentPannelView.SelectedModules.Contains(this) ||
+                    ParentPannelView.SelectedModules.Contains(DataContext))
+                {
+                    return;
+                }
+
+                IsSelected = true;
             }
         }
 
@@ -226,22 +220,19 @@ namespace ThorCyte.ProtocolModule.Controls
         /// </summary>
         internal void RightMouseDownSelectionLogic()
         {
-            if (ParentPannelView.SelectedModules.Count == 0)
+            if (ParentPannelView.SelectedModules.Contains(this) ||
+                ParentPannelView.SelectedModules.Contains(DataContext))
             {
-                // Nothing already selected, select the item.
-                IsSelected = true;
+                return;
             }
-            else if (ParentPannelView.SelectedModules.Contains(this) ||
-                     ParentPannelView.SelectedModules.Contains(DataContext))
+
+            if (ParentPannelView.SelectedModules.Count != 0)
             {
-                // Item is already selected, do nothing.
-            }
-            else
-            {
-                // Item is not selected. Deselect all, and select the item.
+                // Item is not selected.Deselect all, and select the item.
                 ParentPannelView.SelectedModules.Clear();
-                IsSelected = true;
             }
+
+            IsSelected = true;
         }
 
         /// <summary>
@@ -254,27 +245,27 @@ namespace ThorCyte.ProtocolModule.Controls
             if (_isDragging)
             {
                 // Raise the event to notify that dragging is in progress.
-                Point curMousePoint = e.GetPosition(ParentPannelView);
+                var curMousePoint = e.GetPosition(ParentPannelView);
                 object item = this;
                 if (DataContext != null)
                 {
                     item = DataContext;
                 }
 
-                Vector offset = curMousePoint - _lastMousePoint;
+                var offset = curMousePoint - _lastMousePoint;
                 if (offset.X != 0.0 || offset.Y != 0.0)
                 {
                     _lastMousePoint = curMousePoint;
-                    RaiseEvent(new ModuleDraggingEventArgs(ModuleDraggingEvent, this, new object[] { item }, offset.X, offset.Y));
+                    RaiseEvent(new ModuleDraggingEventArgs(ModuleDraggingEvent, this, new[] { item }, offset.X, offset.Y));
                 }
             }
             else if (_isLeftMouseDown && ParentPannelView.EnableNodeDragging)
             {
                 // The user is left-dragging the _module, but don't initiate the drag operation until 
                 // the mouse cursor has moved more than the threshold distance.
-                Point curMousePoint = e.GetPosition(ParentPannelView);
+                var curMousePoint = e.GetPosition(ParentPannelView);
                 var dragDelta = curMousePoint - _lastMousePoint;
-                double dragDistance = Math.Abs(dragDelta.Length);
+                var dragDistance = Math.Abs(dragDelta.Length);
                 if (dragDistance > DragThreshold)
                 {
                     // When the mouse has been dragged more than the threshold value commence dragging the _module.
@@ -364,9 +355,6 @@ namespace ThorCyte.ProtocolModule.Controls
             var nodeItem = (Module)o;
             nodeItem.BringToFront();
         }
-
-
-
         #endregion
     }
 }

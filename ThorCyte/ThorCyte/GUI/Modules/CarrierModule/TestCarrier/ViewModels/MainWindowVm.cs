@@ -21,6 +21,7 @@ namespace TestCarrier.ViewModels
         public ICommand MacroStartCommand { get; set; }
         public ICommand MacroFinishCommand { get; set; }
         public ICommand ModeCommand { get; set; }
+        private IData _dataMgr;
         private IExperiment _experiment;
         private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
@@ -94,10 +95,21 @@ namespace TestCarrier.ViewModels
             };
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             CaptionString = openFileDialog1.FileName;
-            _experiment = new ThorCyteExperiment();
+            if (openFileDialog1.FileName.ToUpper().EndsWith("RUN.XML"))
+            {
+                _experiment = new ThorCyteExperiment();
+                _dataMgr = new ThorCyteData();
+            }
+            else
+            {
+                _experiment = new ThorImageExperiment();
+                _dataMgr = new ThorImageData();
+            }
             _experiment.Load(openFileDialog1.FileName);
+            _dataMgr.SetExperimentInfo(_experiment);
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             container.RegisterInstance(_experiment);
+            container.RegisterInstance(_dataMgr);
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(Scanid);
         }
     }

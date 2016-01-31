@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
@@ -176,5 +177,27 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
             return pOut;
         }
+
+
+        public override void OnSerialize(XmlWriter writer)
+        {
+            writer.WriteAttributeString("bright", Bright.ToString());
+            writer.WriteAttributeString("contrast", Contrast.ToString("F"));
+        }
+
+        public override void OnDeserialize(XmlReader reader)
+        {
+            if (reader["bright"] != null)
+            {
+                Bright = XmlConvert.ToInt32(reader["bright"]);
+            }
+
+            if (reader["contrast"] != null)
+            {
+                Contrast = XmlConvert.ToDouble(reader["contrast"]);
+            }
+
+        }
+
     }
 }

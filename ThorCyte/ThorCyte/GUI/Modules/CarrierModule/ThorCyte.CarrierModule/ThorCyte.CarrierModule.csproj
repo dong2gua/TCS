@@ -95,6 +95,7 @@
     <Compile Include="Common\Converter.cs" />
     <Compile Include="Common\DisplayMode.cs" />
     <Compile Include="Common\DrawFunction.cs" />
+    <Compile Include="Common\MessageHelper.cs" />
     <Compile Include="Common\WaitCursor.cs" />
     <Compile Include="Events\RegionsSelected.cs" />
     <Compile Include="Graphics\GraphicsBase.cs" />
