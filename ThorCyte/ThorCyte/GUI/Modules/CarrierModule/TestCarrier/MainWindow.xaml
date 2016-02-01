@@ -4,7 +4,7 @@
         xmlns:regions="http://prismlibrary.com/"
         xmlns:inf="clr-namespace:ThorCyte.Infrastructure.Commom;assembly=ThorCyte.Infrastructure"
         x:Class="TestCarrier.MainWindow"
-        Title="MainWindow" Width="500" Height="600">
+        Title="MainWindow" Width="500" Height="600" Style ="{StaticResource {x:Type Window}}">
     <Window.Resources>
     </Window.Resources>
     <Grid>

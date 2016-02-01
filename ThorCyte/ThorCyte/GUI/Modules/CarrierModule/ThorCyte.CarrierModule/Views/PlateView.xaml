@@ -5,25 +5,24 @@
              xmlns:canvases="clr-namespace:ThorCyte.CarrierModule.Canvases"
              x:Class="ThorCyte.CarrierModule.Views.PlateView"
              mc:Ignorable="d">
-    <StackPanel>
-        <Grid Background="DimGray">
-            <TextBlock Text="{Binding CarrierDescription, ElementName=plateCanvas}" Foreground="WhiteSmoke" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Grid>
-        <Grid x:Name="CanvGrid">
-            <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" 
+    <Expander Header="{Binding CarrierDescription, ElementName=plateCanvas}" IsExpanded="True">
+        <StackPanel>
+            <Grid x:Name="CanvGrid">
+                <canvases:PlateCanvas x:Name="plateCanvas" Background="White" Focusable="True" 
                                   OuterHeight="{Binding ElementName=CanvGrid,Path=ActualHeight}"
                                   OuterWidth="{Binding ElementName=CanvGrid,Path=ActualWidth}"/>
-        </Grid>
-        <Grid>
-            <StatusBar>
-                <StatusBarItem>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Position:  "/>
-                        <TextBlock Width="89" Text="{Binding MousePosition, ElementName=plateCanvas, Mode=TwoWay}"/>
-                    </StackPanel>
-                </StatusBarItem>
-            </StatusBar>
-        </Grid>
-    </StackPanel>
+            </Grid>
+            <Grid>
+                <StatusBar>
+                    <StatusBarItem>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Position:  "/>
+                            <TextBlock Width="89" Text="{Binding MousePosition, ElementName=plateCanvas, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </StatusBarItem>
+                </StatusBar>
+            </Grid>
+        </StackPanel>
+    </Expander>
 </UserControl>
 

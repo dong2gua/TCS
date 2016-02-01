@@ -46,9 +46,9 @@ namespace ThorCyte.CarrierModule.Canvases
         public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
         public static readonly DependencyProperty CarrierDescriptionProperty;
-        public static readonly DependencyProperty IsSelectAllVisibleProperty;
-        private Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
+        public static readonly DependencyProperty CarrierDescriptionFontSizeProperty;
 
+        private readonly Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
 
         private readonly Tool[] _tools;                   // Array of tools
 
@@ -73,7 +73,6 @@ namespace ThorCyte.CarrierModule.Canvases
             _regionGraphicHashtable = new Hashtable();
             // create array of drawing tools
             _tools = new Tool[(int)ToolType.Max];
-            _tools[(int)ToolType.Pointer] = new ToolPointer();
             _tools[(int)ToolType.Select] = new ToolSelect();
 
             Loaded += DrawingCanvas_Loaded;
@@ -118,17 +117,17 @@ namespace ThorCyte.CarrierModule.Canvases
             metaData = new PropertyMetadata(100.0D, OuterSizeChanged);
             OuterHeightProperty = DependencyProperty.Register("OuterHeight", typeof(double), typeof(SlideCanvas), metaData);
 
-            metaData = new PropertyMetadata(false);
-            IsSelectAllVisibleProperty = DependencyProperty.Register("IsSelectAllVisible", typeof(bool), typeof(SlideCanvas), metaData);
 
             metaData = new PropertyMetadata("");
             CarrierDescriptionProperty = DependencyProperty.Register(
                  "CarrierDescription", typeof(string), typeof(SlideCanvas),
                  metaData);
 
+            metaData = new PropertyMetadata(16.0);
+            CarrierDescriptionFontSizeProperty = DependencyProperty.Register(
+                 "CarrierDescriptionFontSize", typeof(double), typeof(SlideCanvas),
+                 metaData);
         }
-
-
 
         #endregion Constructor
 
@@ -338,13 +337,10 @@ namespace ThorCyte.CarrierModule.Canvases
             set { SetValue(CarrierDescriptionProperty, value); }
         }
 
-        public bool IsSelectAllVisible
+        public double CarrierDescriptionFontSize
         {
-            get { return (bool)GetValue(IsSelectAllVisibleProperty); }
-            set
-            {
-                SetValue(IsSelectAllVisibleProperty, value);
-            }
+            get { return (double)GetValue(CarrierDescriptionFontSizeProperty); }
+            set { SetValue(CarrierDescriptionFontSizeProperty, value); }
         }
 
         #endregion Properties
@@ -520,11 +516,9 @@ namespace ThorCyte.CarrierModule.Canvases
                 {
                     case "ReviewModule":
                         SwitchSelections(DisplayMode.Review);
-                        IsSelectAllVisible = false;
                         break;
                     case "AnalysisModule":
                         SwitchSelections(DisplayMode.Analysis);
-                        IsSelectAllVisible = true;
                         break;
                 }
 
@@ -597,6 +591,20 @@ namespace ThorCyte.CarrierModule.Canvases
                 return;
             }
 
+            const double ftMaxScale = 0.5;
+            double ftsize;
+            if (ActualScale > ftMaxScale)
+            {
+                const double tempscale = ftMaxScale;
+                ftsize = 50 * tempscale;
+            }
+            else
+            {
+                ftsize = 50 * ActualScale;
+            }
+            CarrierDescriptionFontSize = ftsize;
+
+
             var index = 0;
             foreach (CarrierRoom room in SlideMod.Rooms)
             {
@@ -645,36 +653,6 @@ namespace ThorCyte.CarrierModule.Canvases
                         }
                 }
                 index++;
-            }
-        }
-
-        private void DrawGrid(DrawingContext dc)
-        {
-            var rcWidth = 10 * ActualScale;
-            var pt0 = new Point();
-            var pt1 = new Point();
-
-            var pen1 = new Pen(Brushes.Black, 0.5);
-
-            var pen2 = new Pen(Brushes.Black, 0.2);
-            Pen pen;
-
-            for (var i = 1; i < Width / (10 * ActualScale); i++)
-            {
-                pt0.X = pt1.X = i * rcWidth;
-                pt0.Y = 0;
-                pt1.Y = Height;
-                pen = i % 5 == 0 ? pen1 : pen2;
-                DrawFunction.DrawLine(dc, pen, pt0, pt1);
-            }
-
-            for (var i = 1; i < Height / (10 * ActualScale); i++)
-            {
-                pt0.X = 0;
-                pt1.X = Width;
-                pt0.Y = pt1.Y = i * rcWidth;
-                pen = i % 5 == 0 ? pen1 : pen2;
-                DrawFunction.DrawLine(dc, pen, pt0, pt1);
             }
         }
 

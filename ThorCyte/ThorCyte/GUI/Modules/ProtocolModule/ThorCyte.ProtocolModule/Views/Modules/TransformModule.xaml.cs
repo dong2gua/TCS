@@ -15,5 +15,9 @@ namespace ThorCyte.ProtocolModule.Views.Modules
             InitializeComponent();
         }
 
+        private void TbTransX_OnError(object sender, ValidationErrorEventArgs e)
+        {
+
+        }
     }
 }

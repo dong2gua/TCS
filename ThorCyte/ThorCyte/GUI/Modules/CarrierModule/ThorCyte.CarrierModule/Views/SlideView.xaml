@@ -2,30 +2,26 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:canvases="clr-namespace:ThorCyte.CarrierModule.Canvases"
-        xmlns:tools="clr-namespace:ThorCyte.CarrierModule.Tools"
         x:Class="ThorCyte.CarrierModule.Views.SlideView"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-    <StackPanel>
-        <Grid Background="DimGray">
-            <TextBlock Text="{Binding CarrierDescription, ElementName=slideCanvas}" Foreground="WhiteSmoke" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Grid>
-
-        <Grid x:Name="CanvGrid" Background="DimGray">
-            <canvases:SlideCanvas x:Name="slideCanvas" HorizontalAlignment="Center" Focusable="True" VerticalAlignment="Center" Margin="20" 
+    <Expander Header="{Binding CarrierDescription, ElementName=slideCanvas}" IsExpanded="True">
+        <StackPanel>
+            <Grid x:Name="CanvGrid" Background="DimGray">
+                <canvases:SlideCanvas x:Name="slideCanvas" HorizontalAlignment="Center" Focusable="True" VerticalAlignment="Center" Margin="20" 
                                   OuterHeight="{Binding ElementName=CanvGrid,Path=ActualHeight}"
                                   OuterWidth="{Binding ElementName=CanvGrid,Path=ActualWidth}"/>
-        </Grid>
-        
-        <Grid>
-            <StatusBar DockPanel.Dock="Bottom" Height="24">
-                <StatusBarItem>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Position:  "/>
-                        <TextBlock Width="89" Text="{Binding MousePosition, ElementName=slideCanvas, Mode=TwoWay}"/>
-                    </StackPanel>
-                </StatusBarItem>
-            </StatusBar>
-        </Grid>
-    </StackPanel>
+            </Grid>
+            <Grid>
+                <StatusBar DockPanel.Dock="Bottom" Height="24">
+                    <StatusBarItem>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Position:  "/>
+                            <TextBlock Width="89" Text="{Binding MousePosition, ElementName=slideCanvas, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </StatusBarItem>
+                </StatusBar>
+            </Grid>
+        </StackPanel>
+    </Expander>
 </UserControl>
 

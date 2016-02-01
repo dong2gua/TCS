@@ -7,9 +7,7 @@ namespace ThorCyte.CarrierModule.Tools
     public enum ToolType
     {
         None,
-        Pointer,
         Select,
-        Drag,
         Max
     };
 

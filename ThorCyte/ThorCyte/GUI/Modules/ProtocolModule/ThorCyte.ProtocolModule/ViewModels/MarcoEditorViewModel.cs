@@ -147,11 +147,11 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 {
                     switch (alnType)
                     {
-                        case "H":
+                        case "V":
                             m.Y = vy;
                             break;
 
-                        case "V":
+                        case "H":
                             m.X = vx;
                             break;
                     }

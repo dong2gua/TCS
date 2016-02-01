@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Xml;
@@ -146,7 +147,8 @@ namespace ThorCyte.Infrastructure.Interfaces
                 }
                 else if (child.Name.Equals("CreationTime", StringComparison.OrdinalIgnoreCase))
                 {
-                    _experimentInfo.Date = child.InnerText;
+                    string original = child.InnerText;
+                    _experimentInfo.Date = ParseTimeString(original);
                 }
                 else if (child.Name.Equals("Annotation", StringComparison.OrdinalIgnoreCase))
                 {
@@ -159,6 +161,19 @@ namespace ThorCyte.Infrastructure.Interfaces
 
             }
 
+        }
+
+        private string ParseTimeString(string original)
+        {
+            const string separator = "[a-zA-Z]";
+            Match match = Regex.Match(original.TrimStart(), separator);
+            string time = string.Empty;
+            if (match.Success)
+            {
+                int index = match.Index;
+                time = original.Substring(0, index);
+            }
+            return time;
         }
 
         private string GetActiveRunNum()

@@ -153,8 +153,12 @@
             <ToggleButton Margin="1"  Click="ToolboxClick" ToolTip="Tool Box">
                 <Image Source="../Resource/Images/toolbox.png"/>
             </ToggleButton>
-            <Button  Margin="1" Content="HA" Command="{Binding AlignCommnad}" CommandParameter="H" ToolTip="Horizontal Align Modules" />
-            <Button  Margin="1" Content="VA" Command="{Binding AlignCommnad}" CommandParameter="V" ToolTip="Vertical Align Modules" />
+            <Button  Margin="1" Command="{Binding AlignCommnad}" CommandParameter="V" ToolTip="Horizontal Align Modules">
+                <Image Source="../Resource/Images/Vertical align Top.png"/>
+            </Button>
+            <Button  Margin="1" Command="{Binding AlignCommnad}" CommandParameter="H" ToolTip="Vertical Align Modules">
+                <Image Source="../Resource/Images/Horizontal Align Left.png"/>
+            </Button>
             <Button  Margin="1" Command="{Binding MacroCommnad}" ToolTip="{Binding TipStr}">
                 <Image Source="{Binding ImgSource}"/>
             </Button>

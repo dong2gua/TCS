@@ -35,7 +35,7 @@ namespace ThorCyte.CarrierModule.Graphics
 
         static GraphicsPolyLine()
         {
-            var stream = new MemoryStream(Properties.Resources.PolyHandle);
+            var stream = new MemoryStream();
 
             HandleCursor = new Cursor(stream);
         }

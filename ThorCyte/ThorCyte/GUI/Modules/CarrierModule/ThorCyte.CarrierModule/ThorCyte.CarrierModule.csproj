@@ -99,7 +99,6 @@
     <Compile Include="Common\WaitCursor.cs" />
     <Compile Include="Events\RegionsSelected.cs" />
     <Compile Include="Graphics\GraphicsBase.cs" />
-    <Compile Include="Graphics\GraphicsCross.cs" />
     <Compile Include="Graphics\GraphicsEllipse.cs" />
     <Compile Include="Graphics\GraphicsPolygon.cs" />
     <Compile Include="Graphics\GraphicsPolyLine.cs" />
@@ -120,10 +119,7 @@
     </Compile>
     <Compile Include="Tools\BoolToVisibilityConverter.cs" />
     <Compile Include="Tools\Definitions.cs" />
-    <Compile Include="Tools\GraphicSelectRectangle.cs" />
     <Compile Include="Tools\Tool.cs" />
-    <Compile Include="Tools\ToolDrag.cs" />
-    <Compile Include="Tools\ToolPointer.cs" />
     <Compile Include="Tools\ToolSelect.cs" />
     <Compile Include="Tools\ToolTypeConverter.cs" />
     <Compile Include="ViewModels\CarrierViewModel.cs" />
@@ -143,16 +139,6 @@
     <Compile Include="Views\TileView.xaml.cs">
       <DependentUpon>TileView.xaml</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\CyteCross.cur" />
-    <Resource Include="Images\Ellipse.CUR" />
-    <Resource Include="Images\fit.png" />
-    <Resource Include="Images\PointerHS.png" />
-    <Resource Include="Images\select_all.png" />
-    <Resource Include="Images\select_rect.png" />
-    <Resource Include="Images\zoom_down.png" />
-    <Resource Include="Images\zoom_up.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -179,16 +165,13 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Drag.cur" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Drag.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Images\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

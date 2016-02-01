@@ -60,6 +60,8 @@ namespace ThorCyte.CarrierModule.Canvases
         public static readonly DependencyProperty MousePositionProperty;
         public static readonly DependencyProperty IsSelectAllVisibleProperty;
         public static readonly DependencyProperty CarrierDescriptionProperty;
+        public static readonly DependencyProperty CarrierDescriptionFontSizeProperty;
+
         private readonly Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
 
 
@@ -83,6 +85,13 @@ namespace ThorCyte.CarrierModule.Canvases
             get { return (string)GetValue(CarrierDescriptionProperty); }
             set { SetValue(CarrierDescriptionProperty, value); }
         }
+
+        public double CarrierDescriptionFontSize
+        {
+            get { return (double)GetValue(CarrierDescriptionFontSizeProperty); }
+            set { SetValue(CarrierDescriptionFontSizeProperty, value); }
+        }
+
 
         private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
@@ -251,6 +260,13 @@ namespace ThorCyte.CarrierModule.Canvases
             CarrierDescriptionProperty = DependencyProperty.Register(
                  "CarrierDescription", typeof(string), typeof(PlateCanvas),
                  metaData);
+
+            metaData = new PropertyMetadata(16.0);
+            CarrierDescriptionFontSizeProperty = DependencyProperty.Register(
+                 "CarrierDescriptionFontSize", typeof(double), typeof(PlateCanvas),
+                 metaData);
+
+
         }
 
 
@@ -264,7 +280,6 @@ namespace ThorCyte.CarrierModule.Canvases
             _regionGraphicHashtable = new Hashtable();
 
             _tools = new Tool[(int)ToolType.Max];
-            _tools[(int)ToolType.Pointer] = new ToolPointer();
             _tools[(int)ToolType.Select] = new ToolSelect();
 
             Loaded += DrawingCanvas_Loaded;
@@ -736,6 +751,8 @@ namespace ThorCyte.CarrierModule.Canvases
                 return;
             }
 
+            var ftsize = 16.0;
+
             foreach (var rectRoom in _roomRectList)
             {
                 DrawFunction.DrawRectangle(dc, Brushes.DarkGray, new Pen(Brushes.WhiteSmoke, LineWidth), rectRoom.Value);
@@ -762,7 +779,6 @@ namespace ThorCyte.CarrierModule.Canvases
                 {
                     var str = rectRoom.Key.Replace("A", string.Empty);
 
-                    double ftsize;
                     if (ActualScale > ftMaxScale)
                     {
                         const double tempscale = ftMaxScale;
@@ -786,6 +802,7 @@ namespace ThorCyte.CarrierModule.Canvases
                                 ? new Point(rectRoom.Value.X + rectRoom.Value.Width / 5, rectRoom.Value.Y - 60 * ActualScale)
                                 : new Point(rectRoom.Value.X + rectRoom.Value.Width / 4, rectRoom.Value.Y - 60 * ActualScale));
                     }
+
                 }
 
 
@@ -808,6 +825,7 @@ namespace ThorCyte.CarrierModule.Canvases
                 }
             }
 
+            CarrierDescriptionFontSize = ftsize;
         }
 
         protected override void OnKeyDown(KeyEventArgs e)

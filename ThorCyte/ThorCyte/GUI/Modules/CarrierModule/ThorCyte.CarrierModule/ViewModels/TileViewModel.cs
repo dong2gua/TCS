@@ -43,7 +43,7 @@ namespace ThorCyte.CarrierModule.ViewModels
 
         public void SetSelected()
         {
-            BkColor = Brushes.Pink;
+            BkColor = Brushes.HotPink;
             FtColor = Brushes.DimGray;
 
             OnPropertyChanged(new PropertyChangedEventArgs("BkColor"));
@@ -52,6 +52,7 @@ namespace ThorCyte.CarrierModule.ViewModels
 
         public void SetUnselected()
         {
+            if (Equals(BkColor, Brushes.DimGray) && Equals(FtColor, Brushes.WhiteSmoke)) return;
             BkColor = Brushes.DimGray;
             FtColor = Brushes.WhiteSmoke;
 

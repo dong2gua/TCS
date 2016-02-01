@@ -216,25 +216,14 @@
     <Resource Include="Resource\Images\play.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resource\Images\batch.png" />
-    <Resource Include="Resource\Images\collapse.png" />
-    <Resource Include="Resource\Images\expand.png" />
-    <Resource Include="Resource\Images\initialize.png" />
-    <Resource Include="Resource\Images\label.png" />
-    <Resource Include="Resource\Images\label_bak.png" />
-    <Resource Include="Resource\Images\output.png" />
-    <Resource Include="Resource\Images\output_bak.png" />
-    <Resource Include="Resource\Images\refresh.png" />
-    <Resource Include="Resource\Images\repetitive.png" />
-    <Resource Include="Resource\Images\repetitive_bak.png" />
-    <Resource Include="Resource\Images\time.png" />
     <Resource Include="Resource\Images\toolbox.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resource\Images\pause.png" />
+    <Resource Include="Resource\Images\stop.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resource\Images\stop.png" />
+    <Resource Include="Resource\Images\Horizontal Align Left.png" />
+    <Resource Include="Resource\Images\Vertical align Top.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

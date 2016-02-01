@@ -50,8 +50,8 @@ namespace ThorCyte.CarrierModule.Graphics
             dashStyle.Dashes.Add(4);
 
             //var dashedPen = new Pen(Brushes.CornflowerBlue, 2) {DashStyle = dashStyle};
-            var dashedPen = new Pen(Brushes.Pink, ActualLineWidth);
-            var bsh = new SolidColorBrush(Color.FromArgb(50,255,192,203));
+            var dashedPen = new Pen(Brushes.HotPink, ActualLineWidth);
+            var bsh = new SolidColorBrush(Color.FromArgb(50,255,105,180));
 
 
             DrawFunction.DrawRectangle(drawingContext,
