@@ -71,18 +71,7 @@ namespace ThorCyte.CarrierModule.Carrier
                     break;
             }
         }
-
-        //Marked my zhwang 20151201 parent class does not need to konw object type. Implement by child class.
-        //public CarrierType Type
-        //{
-        //    get
-        //    {
-        //        if (this is MicroplateDef)
-        //            return CarrierType.Microplate;
-        //        else
-        //            return CarrierType.Slide;
-        //    }
-        //}
+        
         public abstract CarrierType Type { get; }
 
         /// <summary>

@@ -191,7 +191,6 @@ namespace ThorCyte.CarrierModule.ViewModels
 
         private void ShowRegionEventHandler(string moduleName)
         {
-            object theView;
             switch (moduleName)
             {
                 case "ReviewModule":

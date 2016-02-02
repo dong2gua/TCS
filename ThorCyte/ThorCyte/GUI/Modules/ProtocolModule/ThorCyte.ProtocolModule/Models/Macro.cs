@@ -210,14 +210,13 @@ namespace ThorCyte.ProtocolModule.Models
             try
             {
                 var expinfo = _exp.GetExperimentInfo();
-                AnalysisPath = expinfo.AnalysisPath;                
+                AnalysisPath = expinfo.AnalysisPath;
                 Save();
             }
             catch (Exception ex)
             {
                 MessageHelper.PostMessage("Error occourd in Macro.Save: " + ex.Message);
             }
-
         }
 
         /// <summary>
@@ -283,7 +282,6 @@ namespace ThorCyte.ProtocolModule.Models
                     module.Id = Modules[Modules.Count - 1].Id + 1;
                 }
 
-                //module.Id = Modules.Count - 1;
                 module.ScanNo = CurrentScanId;
                 Modules.Add(module);
                 return module;
@@ -411,10 +409,8 @@ namespace ThorCyte.ProtocolModule.Models
                         //find all channel module 
                         foreach (var mod in Modules.Where(m => m is ChannelModVm))
                         {
-                            Debug.WriteLine("Current Process - Region: {0}; Tile: {1}; Channel: {2};",
-                                            CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel);
-                            MessageHelper.PostMessage(string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};", CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
                             mod.Execute();
+                            MessageHelper.PostMessage(string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};", CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
                         }
                         //wait all channel executed here
                         ClearImagesDic();
@@ -432,8 +428,7 @@ namespace ThorCyte.ProtocolModule.Models
             }
             catch (Exception ex)
             {
-                //MessageHelper.PostMessage("Errorr occourred in Analyze Image: " + ex.Message);
-                MessageBox.Show("Errorr occourred in Analyze Image: " + ex.Message);
+                MessageBox.Show("Errorr occourred in Analyze Image: " + ex.Message,"ThorCyte",MessageBoxButton.OK,MessageBoxImage.Error);
             }
             finally
             {

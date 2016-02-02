@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Windows.Input;
 using System.Xml;
 using ImageProcess;
-using Prism.Commands;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Views.Modules;
@@ -11,9 +9,7 @@ using ThorCyte.ProtocolModule.Views.Modules;
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
     public class TransformModVm : ModuleBase
-    {
-        public ICommand ValidErrorXCmd { get; private set; } 
-        
+    {        
         public bool IsVaild;
         public override bool Executable
         {
@@ -74,15 +70,8 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
 
         public TransformModVm()
-        {
-            ValidErrorXCmd = new DelegateCommand(ValidErrorX);
-            
+        {            
             IsVaild = true;
-        }
-
-        private void ValidErrorX()
-        {
-            Debug.WriteLine("Calling ValidErrorX...");
         }
 
         public override void OnExecute()

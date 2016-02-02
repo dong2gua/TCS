@@ -15,8 +15,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
     public sealed class PannelViewModel : BindableBase
     {
         #region Properties and Fields
-
-
         private List<TreeViewItemModel> _listModuleInfos = new List<TreeViewItemModel>
         {
             new TreeViewItemModel { Name = GlobalConst.SingleNodeStr,Items = new List<TreeViewItemModel>()},

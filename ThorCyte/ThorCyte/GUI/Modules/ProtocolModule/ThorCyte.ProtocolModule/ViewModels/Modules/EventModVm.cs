@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Xml;
 using ComponentDataService.Types;
 using Prism.Mvvm;
-using ThorCyte.Infrastructure.Commom;
+using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.Views.Modules;
@@ -250,6 +249,18 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         private bool[] GetChCorr()
         {
+            if (Macro.CurrentScanInfo == null) throw new CyteException("EventModule:GetChCorr","Macro.CurrentScanInfo is null.");
+
+            foreach (var channel in from channel in Macro.CurrentScanInfo.ChannelList let chc = ChannelCollection.FirstOrDefault(ch => ch.ChannelName == channel.ChannelName) where chc == null select channel)
+            {
+                ChannelCollection.Add(new ChannelsCorrection(false,channel.ChannelName));
+            }
+
+            foreach (var channel in from channel in Macro.CurrentScanInfo.VirtualChannelList let chc = ChannelCollection.FirstOrDefault(ch => ch.ChannelName == channel.ChannelName) where chc == null select channel)
+            {
+                ChannelCollection.Add(new ChannelsCorrection(false, channel.ChannelName));
+            }
+            
             return ChannelCollection.Select(chc => chc.IsChecked).ToArray();
         }
 
@@ -263,7 +274,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             InputPorts[0].ParentModule = this;
             OutputPort.DataType = PortDataType.Event;
             OutputPort.ParentModule = this;
-
 
             if (Macro.CurrentScanInfo == null) return;
 

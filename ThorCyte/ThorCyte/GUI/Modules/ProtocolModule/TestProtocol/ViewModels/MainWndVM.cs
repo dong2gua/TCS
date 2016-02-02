@@ -11,7 +11,7 @@ using ThorCyte.Infrastructure.Interfaces;
 
 namespace TestProtocol.ViewModels
 {
-    public class MainWndVm:BindableBase
+    public class MainWndVm : BindableBase
     {
         public ICommand LoadExpCommand { get; private set; }
         public ICommand SaveCommand { get; private set; }
@@ -27,7 +27,7 @@ namespace TestProtocol.ViewModels
 
         public MainWndVm()
         {
-            LoadExpCommand = new DelegateCommand(LoadExp);
+            LoadExpCommand = new DelegateCommand(OpenExperiment);
             SaveCommand = new DelegateCommand(Save);
             CaptionString = "Protocol Test View";
         }
@@ -35,12 +35,12 @@ namespace TestProtocol.ViewModels
 
         private IExperiment _experiment;
         private IData _dataMgr;
-        //private IComponentDataService _componentDataService;
 
         private static IEventAggregator _eventAggregator;
         public static IEventAggregator EventAggregator
         {
-            get {
+            get
+            {
                 return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
             }
         }
@@ -50,32 +50,37 @@ namespace TestProtocol.ViewModels
             EventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(Scanid);
         }
 
-        private void LoadExp()
+        private void OpenExperiment()
         {
-            var openFileDialog1 = new OpenFileDialog
+            var dlg = new OpenFileDialog { Filter = "Experiment files (*.xml, *.oct)|*.xml; *.oct|All files (*.*)|*.*" };
+            if (dlg.ShowDialog() == DialogResult.OK)
             {
-                Filter = @"XML files (*.XML)|*.xml|All files (*.*)|*.*",
-                FilterIndex = 1,
-                RestoreDirectory = false
-            };
-            if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
-            CaptionString = openFileDialog1.FileName;
-            _experiment = new ThorCyteExperiment();
-            if (openFileDialog1.FileName.ToUpper().EndsWith("RUN.XML"))
-            {
-                _dataMgr = new ThorCyteData();
+                var fileName = dlg.FileName;
+                var path = dlg.FileName;
+                if (fileName.Contains("Run.xml"))
+                {
+                    _experiment = new ThorCyteExperiment();
+                    _dataMgr = new ThorCyteData();
+                    path = path.Replace("Run.xml", string.Empty);
+                }
+                else if (fileName.Contains("Experiment.xml"))
+                {
+                    _experiment = new ThorImageExperiment();
+                    _dataMgr = new ThorImageData();
+                    path = path.Replace("Experiment.xml", string.Empty);
+                }
+                if (_experiment != null)
+                {
+                    _experiment.Load(fileName);
+                    _experiment.SetAnalysisPath(path+@"Analysis\Temp");
+                    _dataMgr.SetExperimentInfo(_experiment);
+                    var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
+                    container.RegisterInstance(_experiment);
+                    container.RegisterInstance(_dataMgr);
+                    ComponentDataManager.Instance.Load(_experiment);
+                    EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(1);
+                }
             }
-            else
-            {
-                _dataMgr = new ThorImageData();
-            }
-            _experiment.Load(openFileDialog1.FileName);
-            _dataMgr.SetExperimentInfo(_experiment);
-            ComponentDataManager.Instance.Load(_experiment);
-            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
-            container.RegisterInstance(_experiment);
-            container.RegisterInstance(_dataMgr);
-            EventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(Scanid);
         }
 
 

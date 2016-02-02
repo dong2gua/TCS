@@ -363,7 +363,6 @@ namespace ThorCyte.ProtocolModule.Controls
         {
             if (e.NewValue == e.OldValue) return;
             if (OnSelectionChanged != null) OnSelectionChanged(d, e);
-            //Debug.WriteLine("Select {0} = {1}", ((ModuleBase)((Module)d).Content).Name, e.NewValue);
         }
 
         #endregion

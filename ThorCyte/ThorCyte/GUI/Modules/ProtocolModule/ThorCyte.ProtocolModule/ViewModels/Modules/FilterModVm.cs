@@ -116,7 +116,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             {
                 Filters.Add(name);
             }
-            Debug.WriteLine("1");
         }
 
         public void GetKSizes(string seleft)

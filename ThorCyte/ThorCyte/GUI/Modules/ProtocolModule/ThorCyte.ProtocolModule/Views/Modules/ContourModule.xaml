@@ -24,7 +24,7 @@
                     <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" Margin="2" Content="Component name :"/>
+                <Label Grid.Column="0" Margin="2" Content="Component:"/>
                 <TextBox x:Name="TxtConponent"  Grid.Column="1" Margin="2" Text="{Binding ComponentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             <GroupBox Header="Min area">

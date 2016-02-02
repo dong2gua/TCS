@@ -26,11 +26,10 @@ using CaptureMode = ThorCyte.Infrastructure.Types.CaptureMode;
 
 namespace ThorCyte.CarrierModule.Canvases
 {
-    class SlideCanvas : Canvas
+    public class SlideCanvas : Canvas
     {
         #region Static Members
         private const double Tolerance = 0.00000001;
-        private static readonly double[] ScaleTable = { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0, 10.0, 12.0 };
         private int _currentRegionId = -1;
         private int _lastRegionId = -1;
         #endregion
@@ -80,7 +79,6 @@ namespace ThorCyte.CarrierModule.Canvases
             MouseMove += DrawingCanvas_MouseMove;
             MouseUp += DrawingCanvas_MouseUp;
             MouseLeave += DrawingCanvas_MouseLeave;
-            MouseWheel += DrawingCanvas_MouseWheel;
 
 
             var drwidth = (int)(_slideWidth * 0.5 * 0.01f);
@@ -445,20 +443,6 @@ namespace ThorCyte.CarrierModule.Canvases
             MousePosition = "0, 0";
         }
 
-        private void DrawingCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (!Keyboard.IsKeyDown(Key.LeftCtrl)) return;
-            if (e.Delta > 0)
-            {
-                ZoomIn();
-
-            }
-            else
-            {
-                ZoomOut();
-            }
-        }
-
         #endregion
 
         #region Other Event Handlers
@@ -503,8 +487,6 @@ namespace ThorCyte.CarrierModule.Canvases
             UpdateRoomRects();
             InvalidateVisual();
         }
-
-
 
         private void ShowRegionEventHandler(string moduleName)
         {
@@ -721,31 +703,6 @@ namespace ThorCyte.CarrierModule.Canvases
             HelperFunctions.DeleteSelection(this);
         }
 
-        public void ZoomIn()
-        {
-            foreach (var t in ScaleTable.Where(t => ActualScale < t))
-            {
-                ActualScale = t;
-
-                //adjust scroll position,always put current point at center
-
-                break;
-            }
-        }
-
-        public void ZoomOut()
-        {
-            foreach (var t in ScaleTable.Reverse().Where(t => ActualScale > t))
-            {
-                ActualScale = t;
-                break;
-            }
-        }
-
-        public void MovePostion(double x, double y)
-        { }
-
-
         public void SetDefault()
         {
             Tool = ToolType.Select;
@@ -911,77 +868,6 @@ namespace ThorCyte.CarrierModule.Canvases
                 }
             }
         }
-
-        /// <summary>
-        /// Move the showing area center to p
-        /// </summary>
-        /// <param name="p">Actual position of the plate center</param>
-        public void MoveTo(Point p)
-        {
-            var scr = Parent as ScrollViewer;
-            if (scr == null) return;
-            double offsetX, offsetY;
-
-
-            if (double.IsNaN(p.X))
-            {
-                offsetX = 0.0;
-            }
-            else
-            {
-                offsetX = scr.ScrollableWidth * (1.0 - p.X / _slideWidth);
-            }
-
-
-            if (double.IsNaN(p.Y))
-            {
-                offsetY = 0.0;
-            }
-            else
-            {
-                offsetY = scr.ScrollableHeight * (p.Y / _slideHeight);
-            }
-            scr.ScrollToHorizontalOffset(offsetX);
-            scr.ScrollToVerticalOffset(offsetY);
-        }
-
-        /// <summary>
-        /// Get current showing area center point
-        /// </summary>
-        /// <returns></returns>
-        public Point GetCurrentP()
-        {
-            var scr = Parent as ScrollViewer;
-            if (scr == null) return new Point(0, 0);
-
-            return new Point()
-            {
-                X = (1.0 - scr.HorizontalOffset / scr.ScrollableWidth) * _slideWidth,
-                Y = scr.VerticalOffset / scr.ScrollableHeight * _slideHeight
-            };
-
-        }
-
-        /// <summary>
-        /// Drag this canvas 
-        /// </summary>
-        /// <param name="dx"></param>
-        /// <param name="dy"></param>
-        public void Drag(double dx, double dy)
-        {
-            var cp = GetCurrentP();
-
-            if (cp.X < 0 || cp.Y < 0) return;
-
-            var destp = new Point()
-            {
-                X = cp.X - dx,
-                Y = cp.Y - dy
-            };
-
-            MoveTo(destp);
-        }
-
         #endregion
     }
 }

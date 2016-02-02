@@ -13,7 +13,6 @@ namespace ThorCyte.CarrierModule.Carrier
     public class Microplate : Carrier
     {
         #region Fileds
-        private int _threshold = 3;
         public ScanPathType ScanPath = ScanPathType.Serpentine;
         private RegionShape _scanAreaShape = RegionShape.Rectangle;
         private bool _isRectangleShape;

@@ -114,6 +114,15 @@ namespace ThorCyte.ProtocolModule.ViewModels
             set { SetProperty(ref _tipStr, value); }
         }
 
+        private bool _isAlignEnable;
+        public bool IsAlignEnable
+        {
+            get { return _isAlignEnable; }
+            set { SetProperty(ref _isAlignEnable, value); }
+        }
+
+
+
         #endregion
 
         #region Contructors
@@ -139,8 +148,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
             _imgSource = IsRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
             _tipStr = IsRuning ? "Stop Run" : "Start Run";
-
-
+            _isAlignEnable = !IsRuning;
         }
 
         private void ExpLoaded(int obj)
@@ -168,8 +176,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 SelectModuleOrder.Remove(mb.Id);
             }
 
-            if (SelectModuleOrder.Count > 0)
-                PannelVm.SelectedModuleViewModel = PannelVm.Modules.FirstOrDefault(md => md.Id == SelectModuleOrder[0]);
+            PannelVm.SelectedModuleViewModel = SelectModuleOrder.Count == 1 ? PannelVm.Modules.FirstOrDefault(md => md.Id == SelectModuleOrder[0]) : null;
         }
 
         private void SetModulesAlign(string alnType)
@@ -201,7 +208,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Error occurred in SetModulesAlign" + ex.Message);
+                MessageBox.Show("Error occurred in SetModulesAlign" + ex.Message, "ThorCyte", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -462,6 +470,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             IsRuning = isRuning;
             ImgSource = isRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
             TipStr = isRuning ? "Stop Run" : "Start Run";
+            IsAlignEnable = !isRuning;
         }
 
         #endregion

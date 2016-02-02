@@ -25,7 +25,6 @@ namespace ThorCyte.CarrierModule.Canvases
     {
         #region Fileds
         private const double Tolerance = 0.00000001;
-        private static readonly double[] ScaleTable = { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0, 10.0, 12.0 };
         private Microplate _plate;
         private readonly VisualCollection _graphicsList;
         private readonly Hashtable _regionGraphicHashtable;
@@ -51,7 +50,6 @@ namespace ThorCyte.CarrierModule.Canvases
 
 
         private const double PlateMargin = 20;  //in pixel
-        private bool _bLeftCtl;
         private readonly Tool[] _tools;
 
         public static readonly DependencyProperty ToolProperty;
@@ -59,7 +57,6 @@ namespace ThorCyte.CarrierModule.Canvases
         public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
         public static readonly DependencyProperty CarrierDescriptionProperty;
-        public static readonly DependencyProperty CarrierDescriptionFontSizeProperty;
 
         private readonly Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
 
@@ -83,12 +80,6 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             get { return (string)GetValue(CarrierDescriptionProperty); }
             set { SetValue(CarrierDescriptionProperty, value); }
-        }
-
-        public double CarrierDescriptionFontSize
-        {
-            get { return (double)GetValue(CarrierDescriptionFontSizeProperty); }
-            set { SetValue(CarrierDescriptionFontSizeProperty, value); }
         }
 
 
@@ -248,13 +239,6 @@ namespace ThorCyte.CarrierModule.Canvases
             CarrierDescriptionProperty = DependencyProperty.Register(
                  "CarrierDescription", typeof(string), typeof(PlateCanvas),
                  metaData);
-
-            metaData = new PropertyMetadata(16.0);
-            CarrierDescriptionFontSizeProperty = DependencyProperty.Register(
-                 "CarrierDescriptionFontSize", typeof(double), typeof(PlateCanvas),
-                 metaData);
-
-
         }
 
 
@@ -275,7 +259,6 @@ namespace ThorCyte.CarrierModule.Canvases
             MouseMove += DrawingCanvas_MouseMove;
             MouseUp += DrawingCanvas_MouseUp;
             MouseLeave += DrawingCanvas_MouseLeave;
-            MouseWheel += DrawingCanvas_MouseWheel;
 
             var drwidth = (int)(_plateWidth * 0.25 * 0.01f);
             var drHeight = (int)(_plateHeight * 0.25 * 0.01f);
@@ -740,8 +723,6 @@ namespace ThorCyte.CarrierModule.Canvases
                 return;
             }
 
-            var ftsize = 16.0;
-
             foreach (var rectRoom in _roomRectList)
             {
                 DrawFunction.DrawRectangle(dc, Brushes.DarkGray, new Pen(Brushes.WhiteSmoke, LineWidth), rectRoom.Value);
@@ -768,6 +749,7 @@ namespace ThorCyte.CarrierModule.Canvases
                 {
                     var str = rectRoom.Key.Replace("A", string.Empty);
 
+                    var ftsize = 16.0;
                     if (ActualScale > ftMaxScale)
                     {
                         const double tempscale = ftMaxScale;
@@ -813,33 +795,13 @@ namespace ThorCyte.CarrierModule.Canvases
 
                 }
             }
-
-            CarrierDescriptionFontSize = ftsize;
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            if (e.Key == Key.LeftCtrl)
-            {
-                _bLeftCtl = true;
-            }
-        }
-
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            base.OnKeyUp(e);
-            if (e.Key == Key.LeftCtrl)
-            {
-                _bLeftCtl = false;
-            }
         }
 
         protected override int VisualChildrenCount
         {
             get
             {
-                int n = _graphicsList.Count;
+                var n = _graphicsList.Count;
                 return n;
             }
         }
@@ -847,39 +809,6 @@ namespace ThorCyte.CarrierModule.Canvases
         protected override Visual GetVisualChild(int index)
         {
             return _graphicsList[index];
-        }
-
-
-        public void ZoomIn()
-        {
-            foreach (var t in ScaleTable.Where(t => ActualScale < t))
-            {
-                ActualScale = t;
-                break;
-            }
-        }
-
-        public void ZoomOut()
-        {
-            foreach (var t in ScaleTable.Reverse().Where(t => ActualScale > t))
-            {
-                ActualScale = t;
-                break;
-            }
-        }
-
-        private void DrawingCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (!Keyboard.IsKeyDown(Key.LeftCtrl)) return;
-            if (e.Delta > 0)
-            {
-                ZoomIn();
-
-            }
-            else
-            {
-                ZoomOut();
-            }
         }
 
         private void DrawingCanvas_MouseLeave(object sender, MouseEventArgs e)
@@ -945,7 +874,7 @@ namespace ThorCyte.CarrierModule.Canvases
                 case MouseButton.Left:
                     if (e.ClickCount == 2)
                     {
-                        //HandleDoubleClick(e);        // special case for GraphicsText
+                        //HandleDoubleClick(e);  
                     }
                     else
                     {
@@ -968,77 +897,6 @@ namespace ThorCyte.CarrierModule.Canvases
                 o.RefreshDrawing();
             }
         }
-
-
-        /// <summary>
-        /// Move the showing area center to p
-        /// </summary>
-        /// <param name="p">Actual position of the plate center</param>
-        public void MoveTo(Point p)
-        {
-            var scr = Parent as ScrollViewer;
-            if (scr == null) return;
-            double offsetX, offsetY;
-
-
-            if (double.IsNaN(p.X))
-            {
-                offsetX = 0.0;
-            }
-            else
-            {
-                offsetX = scr.ScrollableWidth * (1.0 - p.X / _plateWidth);
-            }
-
-
-            if (double.IsNaN(p.Y))
-            {
-                offsetY = 0.0;
-            }
-            else
-            {
-                offsetY = scr.ScrollableHeight * (p.Y / _plateHeight);
-            }
-
-            scr.ScrollToHorizontalOffset(offsetX);
-            scr.ScrollToVerticalOffset(offsetY);
-        }
-
-        /// <summary>
-        /// Get current showing area center point
-        /// </summary>
-        /// <returns></returns>
-        public Point GetCurrentP()
-        {
-            var scr = Parent as ScrollViewer;
-            if (scr == null) return new Point(0, 0);
-
-            return new Point()
-            {
-                X = (1.0 - scr.HorizontalOffset / scr.ScrollableWidth) * _plateWidth,
-                Y = scr.VerticalOffset / scr.ScrollableHeight * _plateHeight
-            };
-
-        }
-
-        /// <summary>
-        /// Drag this canvas 
-        /// </summary>
-        /// <param name="dx"></param>
-        /// <param name="dy"></param>
-        public void Drag(double dx, double dy)
-        {
-            var cp = GetCurrentP();
-
-            var destp = new Point()
-            {
-                X = cp.X - dx,
-                Y = cp.Y - dy
-            };
-
-            MoveTo(destp);
-        }
-
         #endregion
 
     }

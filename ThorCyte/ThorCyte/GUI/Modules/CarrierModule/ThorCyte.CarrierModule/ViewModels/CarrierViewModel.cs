@@ -66,6 +66,9 @@ namespace ThorCyte.CarrierModule.ViewModels
         }
         #endregion
 
+
+        #region Methods
+
         public CarrierViewModel()
         {
             CarrierDefMgr.Initialize(@"..\..\..\..\..\..\XML");
@@ -161,6 +164,9 @@ namespace ThorCyte.CarrierModule.ViewModels
                 CreateCarrier(_currentCarrierType);
             }
         }
+
+        #endregion
+
 
     }
 }

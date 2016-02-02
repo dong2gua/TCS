@@ -107,7 +107,6 @@
     <Compile Include="Events\ModuleDragEventArgs.cs" />
     <Compile Include="Events\ModuleDraggingEventArgs.cs" />
     <Compile Include="Events\ModuleDragStartedEventArgs.cs" />
-    <Compile Include="Models\CombinationPortInfo.cs" />
     <Compile Include="Models\ConnectorModel.cs" />
     <Compile Include="Models\DataDictionary.cs" />
     <Compile Include="Models\Enums.cs" />

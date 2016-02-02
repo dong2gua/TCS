@@ -1,8 +1,4 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Input;
-using ThorCyte.CarrierModule.Carrier;
-using ThorCyte.CarrierModule.Tools;
+﻿using ThorCyte.CarrierModule.Carrier;
 
 namespace ThorCyte.CarrierModule.Views
 {
