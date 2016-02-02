@@ -386,20 +386,21 @@ namespace ImageProcess.DataType
                    
                     
             }
+            int pixelCount = pixels.Count;
             int index;
             pixels.Sort();
             //Array.Sort(pixels);
-            int lowIndex = (Area * lowPct + 50) / 100;
-            int highIndex = (Area * highPct + 50) / 100;
+            int lowIndex = (pixelCount * lowPct + 50) / 100;
+            int highIndex = (pixelCount * highPct + 50) / 100;
 
             if (highIndex < lowIndex)
                 highIndex = lowIndex;
 
-            if (highIndex >= Area)
-                highIndex = Area - 1;
+            if (highIndex >= pixelCount)
+                highIndex = pixelCount - 1;
 
-            if (lowIndex >= Area)
-                lowIndex = Area - 1;
+            if (lowIndex >= pixelCount)
+                lowIndex = pixelCount - 1;
 
             int total = 0;
             for (index = lowIndex; index <= highIndex; index++)

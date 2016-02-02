@@ -102,8 +102,12 @@ namespace ThorCyte.GraphicModule.Models
                 {
                     return;
                 }
-                _isNormalize = value;
                 IsRangeEnabled = !value;
+                IsLogScaleEnabled = !value;
+                if (value)
+                {
+                    IsLogScale = false;
+                }
                 if (!value)
                 {
                     MinRange = OldMinRange;
@@ -179,22 +183,6 @@ namespace ThorCyte.GraphicModule.Models
                     return;
                 }
                 SetProperty(ref _label, value);
-            }
-        }
-
-
-        private bool _isSelected;
-
-        public bool IsSelected
-        {
-            get { return _isSelected; }
-            set
-            {
-                if (_isSelected == value)
-                {
-                    return;
-                }
-                SetProperty(ref _isSelected, value);
             }
         }
 
@@ -383,6 +371,21 @@ namespace ThorCyte.GraphicModule.Models
                     return;
                 }
                 SetProperty(ref _isRangeEnabled, value);
+            }
+        }
+
+        private bool _isLogScaleEnabled = true;
+
+        public bool IsLogScaleEnabled
+        {
+            get { return _isLogScaleEnabled; }
+            set
+            {
+                if (_isLogScaleEnabled == value)
+                {
+                    return;
+                }
+                SetProperty(ref _isLogScaleEnabled, value);
             }
         }
 
@@ -633,7 +636,7 @@ namespace ThorCyte.GraphicModule.Models
             {
                 _minRange = 0;
                 _maxRange = GetFetureDefaultMax(SelectedNumeratorFeature.FeatureType, isLogScale);
-                MinValue = _isLogScale ? Math.Pow(10, 0) : 0;
+                MinValue = _isLogScale ? Math.Pow(10, _minRange) : _minRange;
                 MaxValue = _isLogScale ? Math.Pow(10, _maxRange) : _maxRange;
                 OnPropertyChanged("MinRange");
                 OnPropertyChanged("MaxRange");

@@ -1,11 +1,11 @@
-﻿using System.Windows;
+﻿using System.Windows.Controls;
 
 namespace ThorCyte.ImageViewerModule.View
 {
     /// <summary>
     /// Interaction logic for SetVirtualChannelWindow.xaml
     /// </summary>
-    public partial class SetVirtualChannelWindow : Window
+    public partial class SetVirtualChannelWindow : CustomWindow
     {
         public SetVirtualChannelWindow()
         {

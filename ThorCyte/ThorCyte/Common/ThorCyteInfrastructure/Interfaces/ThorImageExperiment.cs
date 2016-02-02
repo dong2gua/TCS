@@ -37,7 +37,8 @@ namespace ThorCyte.Infrastructure.Interfaces
             _experimentInfo.InstrumentType = "ThorImage";
             _experimentInfo.IntensityBits = 14;
             _currentScanInfo.DataPath = Path.GetDirectoryName(experimentPath);
-            _experimentInfo.AnalysisPath = _currentScanInfo.DataPath + "\\Analysis";
+            _experimentInfo.ExperimentPath = _currentScanInfo.DataPath;
+            //_experimentInfo.AnalysisPath = _currentScanInfo.DataPath + "\\Analysis";
             _currentScanInfo.ScanId = 1;
             _currentScanInfo.ResolutionUnit = ResUnit.Micron;
             _currentScanInfo.ScanPathMode = ScanPathType.Serpentine;
@@ -88,6 +89,11 @@ namespace ThorCyte.Infrastructure.Interfaces
         public int GetCurrentScanId()
         {
             return 1;
+        }
+
+        public void SetAnalysisPath(string path)
+        {
+            _experimentInfo.AnalysisPath = path;
         }
 
         private void ProcessElement(XmlReader reader)

@@ -209,6 +209,8 @@ namespace ThorCyte.ProtocolModule.Models
         {
             try
             {
+                var expinfo = _exp.GetExperimentInfo();
+                AnalysisPath = expinfo.AnalysisPath;                
                 Save();
             }
             catch (Exception ex)
@@ -465,6 +467,12 @@ namespace ThorCyte.ProtocolModule.Models
             ClearImagesDic();
             foreach (var channel in CurrentScanInfo.ChannelList)
             {
+                CurrentImages.Add(channel.ChannelName, GetData(channel));
+            }
+
+            foreach (var channel in CurrentScanInfo.VirtualChannelList)
+            {
+
                 CurrentImages.Add(channel.ChannelName, GetData(channel));
             }
         }

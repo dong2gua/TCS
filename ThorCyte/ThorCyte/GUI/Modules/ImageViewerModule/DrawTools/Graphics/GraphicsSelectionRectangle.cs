@@ -20,11 +20,12 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
 
-            var dashStyle = new DashStyle();
-            dashStyle.Dashes.Add(4);
-            var dashedPen = new Pen(Brushes.White, GraphicsLineWidth) { DashStyle = dashStyle };
+            //var dashStyle = new DashStyle();
+            //dashStyle.Dashes.Add(4);
+            //var dashedPen = new Pen(Brushes.White, GraphicsLineWidth) { DashStyle = dashStyle };
 
-            drawingContext.DrawRectangle(null, dashedPen, ConvertToDisplayRect(Rectangle));
+            //drawingContext.DrawRectangle(null, dashedPen, ConvertToDisplayRect(Rectangle));
+            drawingContext.DrawRectangle(new SolidColorBrush(Color.FromArgb(128,173,216,230)), new Pen(new SolidColorBrush(Colors.Blue), 1), ConvertToDisplayRect(Rectangle));
         }
         public override bool Contains(Point point)
         {

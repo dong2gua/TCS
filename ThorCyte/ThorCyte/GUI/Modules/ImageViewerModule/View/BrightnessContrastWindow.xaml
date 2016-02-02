@@ -1,12 +1,13 @@
-﻿<Window x:Class="ThorCyte.ImageViewerModule.View.BrightnessContrastWindow"
+﻿<ctrl:CustomWindow x:Class="ThorCyte.ImageViewerModule.View.BrightnessContrastWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ThorCyte.ImageViewerModule.View"
         xmlns:control="clr-namespace:ThorCyte.ImageViewerModule.Control"
+        xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         mc:Ignorable="d"
-        Title="BrightnessContrastWindow" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow" Style="{StaticResource {x:Type Window}}">
+        Title="BrightnessContrastWindow" Height="300" Width="400" ResizeMode="NoResize"  WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -48,4 +49,4 @@
             <Button Grid.Row="1" Grid.Column="3" Height="20" Width="60" Content="Reset" Command="{Binding ResetBrightnessCommand}"/>
         </Grid>
     </Grid>
-</Window>
+</ctrl:CustomWindow>

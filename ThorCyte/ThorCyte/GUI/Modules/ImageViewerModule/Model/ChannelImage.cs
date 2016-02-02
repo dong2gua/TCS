@@ -20,7 +20,7 @@ namespace ThorCyte.ImageViewerModule.Model
         public Channel ChannelInfo { get; set; }
         public string ChannelName { get; set; }
         private Tuple<ImageSource, Int32Rect> _image;
-        public Tuple< ImageSource,Int32Rect> Image
+        public Tuple<ImageSource, Int32Rect> Image
         {
             get { return _image; }
             set { SetProperty<Tuple<ImageSource, Int32Rect>>(ref _image, value, "Image"); }
@@ -32,6 +32,8 @@ namespace ThorCyte.ImageViewerModule.Model
             set { SetProperty<BitmapSource>(ref _thumbnail, value, "Thumbnail"); }
         }
         public ImageData ImageData { get; set; }
+        public Int32Rect DataRect { get; set; }
+        public double DataScale { get; set; }
         public ImageData ThumbnailImageData { get; set; }
         public int Brightness { get; set; }
         public double Contrast { get; set; }

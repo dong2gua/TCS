@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ThorCyte.ProtocolModule.Events;
+using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.Controls
 {
@@ -52,7 +53,7 @@ namespace ThorCyte.ProtocolModule.Controls
 
         private void Module_Loaded(object sender, RoutedEventArgs e)
         {
-            if(Resize != null) Resize(X + ActualWidth, Y + ActualHeight);
+            if (Resize != null) Resize(X + ActualWidth, Y + ActualHeight);
         }
 
         public delegate void ResizeHandler(double width, double height);
@@ -65,7 +66,7 @@ namespace ThorCyte.ProtocolModule.Controls
         static Module()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(Module), new FrameworkPropertyMetadata(typeof(Module)));
-
+            IsSelectedProperty.OverrideMetadata(typeof(Module), new FrameworkPropertyMetadata(SelectionChanged));
         }
 
         #endregion
@@ -146,7 +147,6 @@ namespace ThorCyte.ProtocolModule.Controls
             {
                 return;
             }
-
             int maxZ = ParentPannelView.FindMaxZIndex();
             ZIndex = maxZ + 1;
         }
@@ -355,6 +355,17 @@ namespace ThorCyte.ProtocolModule.Controls
             var nodeItem = (Module)o;
             nodeItem.BringToFront();
         }
+
+        public delegate void SelectModuleHandler(object sender, DependencyPropertyChangedEventArgs e);
+        public static event SelectModuleHandler OnSelectionChanged;
+
+        private static void SelectionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue == e.OldValue) return;
+            if (OnSelectionChanged != null) OnSelectionChanged(d, e);
+            //Debug.WriteLine("Select {0} = {1}", ((ModuleBase)((Module)d).Content).Name, e.NewValue);
+        }
+
         #endregion
     }
 }

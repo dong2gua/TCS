@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ThorCyte.ImageViewerModule.View"
              xmlns:drawtools="clr-namespace:ThorCyte.ImageViewerModule.DrawTools"
+             xmlns:control="clr-namespace:ThorCyte.ImageViewerModule.Control"
+             xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
@@ -92,6 +94,7 @@
                         </Style.Triggers>
 
         </Style>
+        <converter:VisibilityConverter x:Key="VisibilityC"/>
     </UserControl.Resources>
     <Border Margin="1" x:Name="viewportBorder" BorderThickness="2"  BorderBrush="Black">
         <Grid Background="Transparent">
@@ -100,11 +103,12 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
+            <control:GifImage Source="../Resources/loading.gif" Width="50" Visibility="{Binding IsLoading, Converter={StaticResource VisibilityC}}" Panel.ZIndex="1"/>
             <drawtools:DrawingCanvas x:Name="drawCanvas"  DisplayImage="{Binding CurrentChannelImage.Image}" ActualScale="{Binding Scale}" ImageSize="{Binding ImageSize}"/>
             <Rectangle Grid.Row="1" Height="1" Fill="{Binding Path=BorderBrush,ElementName=viewportBorder}" />
-            <Button Grid.Row="2" Height="20" Width="20" VerticalAlignment="Top" HorizontalAlignment="Right" Command="{Binding ExpandListCommand}" Panel.ZIndex="1" Style="{StaticResource ExpandButtonStyle}"/>
+            <Button Grid.Row="2" Height="22" Width="20" VerticalAlignment="Top" HorizontalAlignment="Right" Command="{Binding ExpandListCommand}" Panel.ZIndex="1" Style="{StaticResource ExpandButtonStyle}"/>
             
-            <ListView Grid.Row="2" x:Name="listView" ItemsSource="{Binding ChannelImages}" SelectedItem="{Binding CurrentChannelImage}"  ItemContainerStyle="{StaticResource ChannelListStyle}" >
+            <ListView Grid.Row="2"  ItemsSource="{Binding ChannelImages}" SelectedItem="{Binding CurrentChannelImage}"  ItemContainerStyle="{StaticResource ChannelListStyle}" >
                 <ListView.ContextMenu>
                     <ContextMenu  >
                         <MenuItem Header="Edit"  Command="{Binding  ListViewEditCommand}"

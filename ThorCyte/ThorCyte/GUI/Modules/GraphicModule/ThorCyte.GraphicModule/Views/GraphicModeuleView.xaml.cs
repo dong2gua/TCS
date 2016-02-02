@@ -5,7 +5,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Microsoft.Practices.ServiceLocation;
-using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.ViewModels;
 using ThorCyte.Infrastructure.Interfaces;
@@ -23,23 +22,24 @@ namespace ThorCyte.GraphicModule.Views
 
         private GraphicPanelView _panel;
 
+        private GraphicManagerVm _graphicManagerVm;
+
         #endregion
 
         #region Constructor
 
         public GraphicModeuleView()
         {
-            GraphicManagerVm graphicManagerVm;
             InitializeComponent();
-            DataContext = graphicManagerVm = new GraphicManagerVm();
+            DataContext = _graphicManagerVm = new GraphicManagerVm();
             var experiment = ServiceLocator.Current.GetInstance<IExperiment>();
-            GraphicModule.RegisterGaphicManager(graphicManagerVm);
+            GraphicModule.RegisterGaphicManager(_graphicManagerVm);
             if (experiment != null)
             {
                 var scaid = experiment.GetCurrentScanId();
                 if (scaid > 0)
                 {
-                    graphicManagerVm.LoadXml(scaid);
+                    _graphicManagerVm.LoadXml(scaid);
                 }
             }
 
@@ -91,6 +91,7 @@ namespace ThorCyte.GraphicModule.Views
                     containervm.IsEdit = false;
                 }
             }
+            e.Handled = true;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)

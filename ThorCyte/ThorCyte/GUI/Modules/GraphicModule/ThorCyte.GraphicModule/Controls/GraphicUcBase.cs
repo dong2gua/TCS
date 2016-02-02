@@ -59,7 +59,7 @@ namespace ThorCyte.GraphicModule.Controls
             DataSeriesArray = new XyDataSeries<double, double>[RenderableSeriesCount];
             Loaded += OnLoad;
             RegionPanel.PreviewMouseLeftButtonUp += OnCanvasLeftUp;
-            RegionPanel.SizeChanged += OnSizeChanged;
+            SizeChanged += OnSizeChanged;
         }
 
         #endregion
@@ -143,10 +143,15 @@ namespace ThorCyte.GraphicModule.Controls
                 AxisAlignment = AxisAlignment.Bottom,
                 AutoRange = AutoRange.Never,
                 GrowBy = new DoubleRange(0.1, 0.1),
+
+                VisibleRange = new DoubleRange(0,100),
+
                 DrawMinorTicks = true,
                 DrawMinorGridLines = false,
                 DrawMajorGridLines = false,
-                DrawMajorBands = false
+                DrawMajorBands = false,
+                TextFormatting = "#.#E+0",
+                ScientificNotation = ScientificNotation.LogarithmicBase
             };
         }
 

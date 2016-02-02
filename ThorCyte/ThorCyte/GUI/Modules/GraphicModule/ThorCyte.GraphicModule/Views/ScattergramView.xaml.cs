@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
@@ -60,8 +61,8 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     PointMarker = new EllipsePointMarker
                     {
-                        Width = 1,
-                        Height = 1,
+                        Width =3,
+                        Height = 3,
                         Stroke = ((SolidColorBrush)ConstantHelper.BrushTable[i]).Color,
                         Fill = ((SolidColorBrush)ConstantHelper.BrushTable[i]).Color
                     }
@@ -74,8 +75,8 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     PointMarker = new EllipsePointMarker
                     {
-                        Width = 1,
-                        Height = 1,
+                        Width = 3,
+                        Height = 3,
                         Stroke = ConstantHelper.TemperatureColors[i],
                         Fill = ConstantHelper.TemperatureColors[i]
                     }
@@ -94,7 +95,10 @@ namespace ThorCyte.GraphicModule.Views
                 DrawMinorTicks = true,
                 DrawMinorGridLines = false,
                 DrawMajorGridLines = false,
-                DrawMajorBands = false
+                DrawMajorBands = false,
+                TextFormatting = "#.#E+0",
+                ScientificNotation = ScientificNotation.LogarithmicBase,
+                VisibleRange = new DoubleRange(0,100)
             };
         }
 
@@ -150,30 +154,27 @@ namespace ThorCyte.GraphicModule.Views
 
         public override sealed void SetAxis()
         {
-            SciChart.XAxis = GraphicVm.XAxis.IsLogScale ? XLogAxis : XAxis;
-            SciChart.YAxis = GraphicVm.YAxis.IsLogScale ? _yLogAxis : YAxis;
-
+            if (!GraphicVm.XAxis.IsLogScale)
+            {
+                SciChart.XAxis = XAxis;
+                SciChart.XAxis.TextFormatting = GraphicVm.XAxis.MaxValue >= Math.Pow(10, 6) ? ConstantHelper.AxisMaxTextFormat : string.Empty;
+            }
+            else
+            {
+                SciChart.XAxis = XLogAxis;
+            }
+            if (!GraphicVm.YAxis.IsLogScale)
+            {
+                SciChart.YAxis = YAxis;
+                SciChart.YAxis.TextFormatting = GraphicVm.YAxis.MaxValue >= Math.Pow(10, 6) ? ConstantHelper.AxisMaxTextFormat : string.Empty;
+            }
+            else
+            {
+                SciChart.YAxis = _yLogAxis;
+            }
             SciChart.XAxis.VisibleRange = new DoubleRange(GraphicVm.XAxis.MinValue, GraphicVm.XAxis.MaxValue);
             SciChart.YAxis.VisibleRange = new DoubleRange(GraphicVm.YAxis.MinValue, GraphicVm.YAxis.MaxValue);
-            SciChart.XAxis.TextFormatting = GraphicVm.XAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : string.Empty;
-            SciChart.YAxis.TextFormatting = GraphicVm.YAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : string.Empty;
         }
-
-        //private void DrawPlot()
-        //{
-        //    SciChart.XAxis.VisibleRange = new DoubleRange(112130.0, 114630.0);
-        //    SciChart.YAxis.VisibleRange = new DoubleRange(10780.0, 11700.0);
-        //    var xList = new List<double> { 112167.0, 113268.0, 113760.0, 112681.0, 112669.0, 113610.0, 113459.0, 113450.0, 114406.0, 112674.0, 114100.0, 113934.0, 112324.0, 113168.0, 112166.0 };
-        //    var yList = new List<double> { 10950.0, 10826.0, 10843.0, 11105.0, 11131.0, 11066.0, 11130.0, 11136.0, 11113.0, 11275.0, 11228.0, 11277.0, 11440.0, 11440.0, 11591.0 };
-
-
-        //    //SciChart.XAxis.VisibleRange = new DoubleRange(0, 20);
-        //    //SciChart.YAxis.VisibleRange = new DoubleRange(0, 20);
-        //    //var xList = new List<double> { 10, 15 };
-        //    //var yList = new List<double> { 18, 12 };
-        //    DataSeriesArray[0].Append(xList, yList);
-        //    SciChart.RenderableSeries[0].DataSeries = DataSeriesArray[0];
-        //}
 
         private void DrawPlot()
         {
@@ -244,25 +245,24 @@ namespace ThorCyte.GraphicModule.Views
             if (IsLoading)
             {
                 GraphicVm = (GraphicVmBase)DataContext;
-                GraphicVm.ViewDispatcher = Dispatcher;
                 Id = GraphicVm.Id;
 
-                if (!double.IsNaN(((Scattergram)RegionPanel).QuadrantCenterPoint.X) &&
-                    !double.IsNaN(((Scattergram)RegionPanel).QuadrantCenterPoint.Y))
+                if (!double.IsNaN(((ScattergramVm)GraphicVm).QuadrantCenterPoint.X) &&
+                    !double.IsNaN((((ScattergramVm)GraphicVm).QuadrantCenterPoint.Y)))
                 {
                     ((Scattergram)RegionPanel).QuadrantCenterPoint = ((ScattergramVm)GraphicVm).QuadrantCenterPoint;
                 }
 
                 SetAxis();
-
                 SetBindings();
-
                 //SciChart.AnnotationUnderlaySurface.Background = ((ScattergramVm)GraphicVm).IsWhiteBackground ? Brushes.White : Brushes.Black;
 
                 SciChart.AdornerLayerCanvas.Children.Add(RegionPanel);
+                GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
+                GraphicVm.UpdateEvents();
             }
+
             
-            GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
             IsLoading = false;
         }
 
@@ -270,6 +270,10 @@ namespace ThorCyte.GraphicModule.Views
         public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             base.OnSizeChanged(sender, e);
+            if (GraphicVm == null)
+            {
+                return;
+            }
             if (((ScattergramVm)GraphicVm).IsMapChecked)
             {
                 GraphicVm.UpdateEvents();

@@ -514,6 +514,7 @@ namespace ThorCyte.ProtocolModule.Controls
             binding = new CommandBinding { Command = CancelConnectionDraggingCommand };
             binding.Executed += CancelConnectionDragging_Executed;
             CommandManager.RegisterClassCommandBinding(typeof(PannelView), binding);
+
         }
 
         #endregion

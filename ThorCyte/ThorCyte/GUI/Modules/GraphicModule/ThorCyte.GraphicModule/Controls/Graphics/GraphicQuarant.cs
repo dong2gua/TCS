@@ -66,24 +66,22 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
         {
             if (!IsShow || EventPoints == null)
                 return;
-            
-            var brush = new SolidColorBrush(ObjectColor);
-            var count = EventPoints.Count;
-            var percentValue = (count == 0) ? 0 : (int)(FirstQuadrantPercent * 100.0 / count + 0.5);
-            var fontSize = DefaultTitleFontSize;
-            var text = DrawHelper.GetFormatText(percentValue + "%", fontSize, brush);
+
+            var brush = new SolidColorBrush(Colors.White);
+            var percentValue = (EventPoints.Count == 0) ? 0 : (int)(FirstQuadrantPercent * 100.0 / EventPoints.Count + 0.5);
+            var text = DrawHelper.GetFormatText(percentValue + "%", DefaultTitleFontSize, brush);
             dc.DrawText(text, new Point(ClientRect.BottomRight.X - text.Width, ClientRect.Y));
 
-            percentValue = (count == 0) ? 0 : (int)(SecondQuadrantPercent * 100.0 / count + 0.5);
-            text = DrawHelper.GetFormatText(percentValue + "%", fontSize, brush);
+            percentValue = (EventPoints.Count == 0) ? 0 : (int)(SecondQuadrantPercent * 100.0 / EventPoints.Count + 0.5);
+            text = DrawHelper.GetFormatText(percentValue + "%", DefaultTitleFontSize, brush);
             dc.DrawText(text, ClientRect.TopLeft);
 
-            percentValue = (count == 0) ? 0 : (int)(ThirdQuadrantPercent * 100.0 / count + 0.5);
-            text = DrawHelper.GetFormatText(percentValue + "%", fontSize, brush);
+            percentValue = (EventPoints.Count == 0) ? 0 : (int)(ThirdQuadrantPercent * 100.0 / EventPoints.Count + 0.5);
+            text = DrawHelper.GetFormatText(percentValue + "%", DefaultTitleFontSize, brush);
             dc.DrawText(text, new Point(ClientRect.BottomLeft.X, ClientRect.BottomLeft.Y - text.Height));
 
-            percentValue = (count == 0) ? 0 : (int)(FourthQuadrantPercent * 100.0 / count + 0.5);
-            text = DrawHelper.GetFormatText(percentValue + "%", fontSize, brush);
+            percentValue = (EventPoints.Count == 0) ? 0 : (int)(FourthQuadrantPercent * 100.0 / EventPoints.Count + 0.5);
+            text = DrawHelper.GetFormatText(percentValue + "%", DefaultTitleFontSize, brush);
             dc.DrawText(text, new Point(ClientRect.BottomRight.X - text.Width, ClientRect.BottomLeft.Y - text.Height));
 
         }

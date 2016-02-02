@@ -4,9 +4,14 @@
         xmlns:s="http://schemas.abtsoftware.co.uk/scichart"
         xmlns:controls="clr-namespace:ThorCyte.GraphicModule.Controls"
         MinHeight="300" MinWidth="300"
-        SnapsToDevicePixels="True" RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode= "NearestNeighbor">
+        SnapsToDevicePixels="True" >
+    <controls:GraphicUcBase.Resources>
+        <Style x:Key="GridLinesPanelStyle"  TargetType="s:GridLinesPanel">
+            <Setter Property="Background" Value="#595959"/>
+        </Style>
+    </controls:GraphicUcBase.Resources>
 
         <!--  Create the chart surface  -->
-    <s:SciChartSurface Name="SciChart" s:ThemeManager.Theme="BrightSpark" ChartTitle="{Binding Title}" Padding="8,8,15,8"/>
+    <s:SciChartSurface Name="SciChart"  Background="#595959" GridLinesPanelStyle="{StaticResource GridLinesPanelStyle}"  FontSize="16" ChartTitle="{Binding Title}" Padding="0,0,15,0"/>
 </controls:GraphicUcBase>
    

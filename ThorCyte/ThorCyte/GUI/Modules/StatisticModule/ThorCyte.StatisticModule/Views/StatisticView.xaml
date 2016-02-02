@@ -11,8 +11,8 @@
             mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="800"  
              Background="#00000000" >
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="bool2VisibilityConverter"/>
         <!-- Focus Visual -->
-
         <Style x:Key="ButtonFocusVisual">
             <Setter Property="Control.Template">
                 <Setter.Value>
@@ -165,7 +165,7 @@
         							HorizontalScrollBarVisibility="Hidden"
         							VerticalScrollBarVisibility="Hidden"
         							Focusable="false" Foreground="{x:Null}" Background="{TemplateBinding Background}">
-                                    <Border CornerRadius="4" Background="{StaticResource DefaultedBorderBrush}" Padding="4" Margin="0,4,0,4">
+                                    <Border CornerRadius="4" Background="{StaticResource DefaultedBorderBrush}" Padding="4" Margin="0">
                                         <GridViewHeaderRowPresenter Margin="2,0"
         									Columns="{Binding TemplatedParent.View.Columns, RelativeSource={RelativeSource TemplatedParent}}"
         									ColumnHeaderContainerStyle="{Binding TemplatedParent.View.ColumnHeaderContainerStyle, RelativeSource={RelativeSource TemplatedParent}}"
@@ -291,8 +291,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListView}">
-                            <ScrollViewer Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}" >
-                                <ItemsPresenter />
+                            <ScrollViewer Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}" Margin="0" >
+                                <ItemsPresenter Margin="0" />
                             </ScrollViewer>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsGrouping" Value="true">
@@ -377,20 +377,22 @@
             </Button>
         </StackPanel>
         <Border CornerRadius="3" Grid.Row="1"/>
-        <Grid >
+        <Grid Height="600" VerticalAlignment="Bottom" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="50*"/>
                 <RowDefinition Height="50*"/>
             </Grid.RowDefinitions>
-            <ListView BorderThickness="0" Grid.Column="0" Grid.Row="0"
+            <ListView BorderThickness="0" Grid.Column="0" Grid.Row="1"
 				ItemsSource="{Binding DataCollection}" vm:ListViewBindingBehavior.ColumnsCollection="{Binding GridViewColumns}"
 				AlternationCount="2"
+                Visibility="{Binding IsWellStatisticShow, Converter={StaticResource bool2VisibilityConverter}}"
 				IsSynchronizedWithCurrentItem="True" AutomationProperties.AutomationId="PositionSummaryGrid" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}"  >
             </ListView>
             <ListView BorderThickness="0" Grid.Column="0" Grid.Row="1"
 				ItemsSource="{Binding RegionStatisticDataSource}" 
 				AlternationCount="2"
-				IsSynchronizedWithCurrentItem="True" AutomationProperties.AutomationId="PositionSummaryGrid" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="{x:Null}">
+                Visibility="{Binding IsRegionStatisticShow, Converter={StaticResource bool2VisibilityConverter}}"
+				IsSynchronizedWithCurrentItem="True" AutomationProperties.AutomationId="PositionSummaryGrid" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}"  >
                 <ListView.View>
                     <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Current positions" >
                         <GridViewColumn Header="Region" 
@@ -403,13 +405,13 @@
 							DisplayMemberBinding="{Binding Parameter}"
 							Width="100" />
                         <GridViewColumn Header="Mean"  
-							DisplayMemberBinding="{Binding MeanValue}"
+							DisplayMemberBinding="{Binding MeanValue, StringFormat='{}{0:f4}'}"
 							Width="85" />
                         <GridViewColumn Header="Median"  
-							DisplayMemberBinding="{Binding MedianValue}"
+							DisplayMemberBinding="{Binding MedianValue, StringFormat='{}{0:f4}'}"
 							Width="85" />
                         <GridViewColumn Header="CV%"  
-							DisplayMemberBinding="{Binding CVValue}"
+							DisplayMemberBinding="{Binding CVValue, StringFormat='{}{0:f4}'}"
 							Width="75" />
                         <!--<GridViewColumn Header="FWHM%"
 							DisplayMemberBinding="{Binding FWHMValue}"  Width="96" />-->

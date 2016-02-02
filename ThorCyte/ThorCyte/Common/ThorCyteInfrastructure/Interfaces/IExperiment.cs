@@ -14,6 +14,7 @@ namespace ThorCyte.Infrastructure.Interfaces
         public string SoftwareVersion { set; get; }
         public string Notes { set; get; }
         public int IntensityBits { set; get; }
+        public string ExperimentPath { set; get; }
         public string AnalysisPath { set; get; }
     }
 
@@ -80,5 +81,7 @@ namespace ThorCyte.Infrastructure.Interfaces
         BitmapSource GetCameraView();
 
         int GetCurrentScanId();
+
+        void SetAnalysisPath(string path);
     }
 }

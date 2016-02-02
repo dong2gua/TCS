@@ -1,4 +1,4 @@
-﻿<Window x:Class="ThorCyte.ImageViewerModule.View.SetVirtualChannelWindow"
+﻿<ctrl:CustomWindow x:Class="ThorCyte.ImageViewerModule.View.SetVirtualChannelWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,9 +7,10 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:type="clr-namespace:ThorCyte.Infrastructure.Types;assembly=ThorCyte.Infrastructure"
         xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
+        xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         mc:Ignorable="d"
         x:Name="Self"
-        Title="Set Virtual Channel" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow" Style="{StaticResource {x:Type Window}}">
+        Title="Set Virtual Channel" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <ObjectDataProvider x:Key="OperatorEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -64,4 +65,4 @@
         </StackPanel>
 
     </Grid>
-</Window>
+</ctrl:CustomWindow>

@@ -64,7 +64,7 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
             var brush = new SolidColorBrush(ObjectColor);
             var center = new Point((Rectangle.Left + Rectangle.Right) / 2, (Rectangle.Top + Rectangle.Bottom) / 2);
             var formatText = new FormattedText(Name, new CultureInfo("en-US"), FlowDirection.LeftToRight,
-                new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal), FontSize, brush);
+                new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal), FontSize, new SolidColorBrush(Colors.White));
             center.X -= formatText.Width / 2;
             center.Y -= formatText.Height / 2;
             DrawHelper.DrawRectangle(dc, _fillObjectBrush, new Pen(brush, ActualLineWidth), Rectangle);

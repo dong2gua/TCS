@@ -65,12 +65,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             ChannelList = new List<ComputeColorItem>();
             foreach (var o in channels)
             {
-                var item = new ComputeColorItem() { IsSelected = false, Channel = o, Color = Colors.Red };
+                var item = new ComputeColorItem() { IsSelected = false, Channel = o, Color = Colors.Gray };
                 ChannelList.Add(item);
             }
             foreach (var o in virtualChannels)
             {
-                var item = new ComputeColorItem() { IsSelected = false, Channel = o, Color = Colors.Red };
+                var item = new ComputeColorItem() { IsSelected = false, Channel = o, Color = Colors.Gray };
                 ChannelList.Add(item);
             }
         }

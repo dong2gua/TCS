@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using ROIService.Region;
 using ThorCyte.GraphicModule.Controls.Graphics;
 using ThorCyte.GraphicModule.Controls.RegionTools;
@@ -205,17 +206,17 @@ namespace ThorCyte.GraphicModule.Controls
             var centerX = (OriginalPoint.X + EndXPoint.X) / 2;
             var centerY = (OriginalPoint.Y + EndYPoint.Y) / 2;
             var horline = new GraphicsLine(new Point(centerX, OriginalPoint.Y),
-                new Point(centerX, EndYPoint.Y), 2.0, ObjectColor, 1.0, LineType.Horizon);
+                new Point(centerX, EndYPoint.Y), 2.0, Colors.White, 1.0, LineType.Horizon);
             var verline = new GraphicsLine(new Point(OriginalPoint.X, centerY),
-                new Point(EndXPoint.X, centerY), 2.0, ObjectColor, 1.0, LineType.Vertical);
+                new Point(EndXPoint.X, centerY), 2.0, Colors.White, 1.0, LineType.Vertical);
 
             if (!double.IsNaN(QuadrantCenterPoint.X) && !double.IsNaN(QuadrantCenterPoint.Y))
             {
-                var x = (ConstantHelper.DefaultOriginalX + QuadrantCenterPoint.X) * XScale;
+                var x = QuadrantCenterPoint.X * XScale;
                 horline.Start = new Point(x, OriginalPoint.Y);
                 horline.End = new Point(x, EndYPoint.Y);
 
-                var y = (ConstantHelper.DefaultY + QuadrantCenterPoint.Y) * XScale;
+                var y = QuadrantCenterPoint.Y * YScale;
                 verline.Start = new Point(OriginalPoint.X, y);
                 verline.End = new Point(EndXPoint.X, y);
             }
@@ -224,6 +225,11 @@ namespace ThorCyte.GraphicModule.Controls
                 _graphicQuarant.QuadrantLine = new RegionToolLine(horline, verline, this);
             }
             _graphicQuarant.IsShow = IsShowQuadrant;
+        }
+
+        public Point GetQuadrantPoint()
+        {
+            return new Point(_graphicQuarant.QuadrantLine.HorizonLine.Start.X, _graphicQuarant.QuadrantLine.VerticalLine.Start.Y);
         }
 
         #endregion

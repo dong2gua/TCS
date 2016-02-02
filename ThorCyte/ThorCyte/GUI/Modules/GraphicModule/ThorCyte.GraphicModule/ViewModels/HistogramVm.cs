@@ -229,7 +229,7 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         public HistogramVm()
         {
-            GraphType = GraphStyle.BarChart;
+           
             IsDrawEllipseEnabled = false;
             IsDrawPolygonEnabled = false;
             IsYAxisEnabled = false;
@@ -348,8 +348,8 @@ namespace ThorCyte.GraphicModule.ViewModels
         public override void InitGraphParams(string id)
         {
             Id = id;
-            IsNormalizexy = true;
             IsInitialized = true;
+            GraphType = GraphStyle.BarChart;
             Init();
             XAxis.IsInitialized = false;
             YAxis.IsInitialized = false;

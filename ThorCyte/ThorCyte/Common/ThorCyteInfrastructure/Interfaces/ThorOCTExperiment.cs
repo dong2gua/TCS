@@ -40,5 +40,9 @@ namespace ThorCyte.Infrastructure.Interfaces
         {
             throw new NotImplementedException();
         }
+        public void SetAnalysisPath(string path)
+        {
+            
+        }
     }
 }

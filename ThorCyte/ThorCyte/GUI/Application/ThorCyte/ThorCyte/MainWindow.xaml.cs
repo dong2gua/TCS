@@ -8,7 +8,7 @@ namespace ThorCyte
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : NoGdiWindow
     {
         private IEventAggregator _eventAggregator;
         public MainWindow(IEventAggregator eventAggregator)

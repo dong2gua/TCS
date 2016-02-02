@@ -30,7 +30,6 @@ namespace ThorCyte.GraphicModule.ViewModels
         public static string DefaultGate;
         protected double XScale;
         protected double YScale;
-        protected string LabelTitle = string.Empty;
         protected RegionColorIndex DefaultEventColorIndex = RegionColorIndex.Black;
         protected RegionColorIndex DefaultBackgroundIndex = RegionColorIndex.White;
 
@@ -77,18 +76,11 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        private AxisModel _xAxis = new AxisModel(AxesEnum.XAxis) { IsSelected = true };
+        private AxisModel _xAxis = new AxisModel(AxesEnum.XAxis) ;
 
         public AxisModel XAxis
         {
-            get
-            {
-                if (_xAxis.IsSelected)
-                {
-                    SelectedAxis = _xAxis;
-                }
-                return _xAxis;
-            }
+            get { return _xAxis;}
             set
             {
                 if (_xAxis == value)
@@ -103,14 +95,7 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         public AxisModel YAxis
         {
-            get
-            {
-                if (_yAxis.IsSelected)
-                {
-                    SelectedAxis = _yAxis;
-                }
-                return _yAxis;
-            }
+            get  { return _yAxis;}
             set
             {
                 if (_yAxis == value)
@@ -133,6 +118,22 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _selectedAxis, value);
+            }
+        }
+
+        private bool _isXSelected;
+
+        public bool IsXSelected
+        {
+            get { return _isXSelected; }
+            set
+            {
+                if (_isXSelected == value)
+                {
+                    return;
+                }
+                SetProperty(ref _isXSelected, value);
+                SelectedAxis = value ? _xAxis : _yAxis;
             }
         }
 
@@ -239,18 +240,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        private string _componentName;
-
-        public string ComponentName
-        {
-            get { return _componentName; }
-            set
-            {
-                Title = value;
-                SetProperty(ref _componentName, value);
-            }
-        }
-
         private static ToolType _regionToolType;
 
         public static ToolType RegionToolType
@@ -314,6 +303,21 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _isNormalizexy, value);
+            }
+        }
+
+        private bool _isNormalizeXyEnabled;
+
+        public bool IsNormalizeXyEnabeld
+        {
+            get { return _isNormalizeXyEnabled; }
+            set
+            {
+                if (_isNormalizeXyEnabled == value)
+                {
+                    return;
+                }
+                SetProperty(ref _isNormalizeXyEnabled, value);
             }
         }
 
@@ -431,13 +435,13 @@ namespace ThorCyte.GraphicModule.ViewModels
             },
             new ColorRegionModel
             {
-                RegionColor = Colors.Green,
-                RegionColorString = "Green"
+                RegionColor = Colors.LawnGreen,
+                RegionColorString = "LawnGreen"
             },
             new ColorRegionModel
             {
-                RegionColor = Colors.Blue,
-                RegionColorString = "Blue"
+                RegionColor = Colors.Orange,
+                RegionColorString = "Orange"
             },
             new ColorRegionModel
             {
@@ -474,6 +478,7 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         protected GraphicVmBase()
         {
+            IsXSelected = true;
             _operatorList.AddRange(Enum.GetValues(typeof(OperationType)));
         }
 
@@ -547,8 +552,8 @@ namespace ThorCyte.GraphicModule.ViewModels
         public virtual void Init()
         {
             DefaultGate = OperationType.None.ToString();
-
-            UpdateComponentList();
+            var components = ComponentDataManager.Instance.GetComponentNames();
+            UpdateComponentList(components);
             if (_componentList.Count == 0)
             {
                 return;
@@ -563,14 +568,10 @@ namespace ThorCyte.GraphicModule.ViewModels
             _selectedOperator = _operatorList[0];
         }
 
-        public void UpdateComponentList()
+        public void UpdateComponentList(IList<string> components)
         {
             _componentList.Clear();
-            var components = ComponentDataManager.Instance.GetComponentNames();
-            foreach (var component in components)
-            {
-                _componentList.Add(component);
-            }
+            _componentList.AddRange(components);
         }
 
         public virtual void UpdateFeatures()

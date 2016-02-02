@@ -58,7 +58,6 @@ namespace ThorCyte.CarrierModule.Canvases
         public static readonly DependencyProperty OuterWidthProperty;
         public static readonly DependencyProperty OuterHeightProperty;
         public static readonly DependencyProperty MousePositionProperty;
-        public static readonly DependencyProperty IsSelectAllVisibleProperty;
         public static readonly DependencyProperty CarrierDescriptionProperty;
         public static readonly DependencyProperty CarrierDescriptionFontSizeProperty;
 
@@ -144,14 +143,6 @@ namespace ThorCyte.CarrierModule.Canvases
             }
         }
 
-        public bool IsSelectAllVisible
-        {
-            get { return (bool)GetValue(IsSelectAllVisibleProperty); }
-            set
-            {
-                    SetValue(IsSelectAllVisibleProperty, value);
-            }
-        }
 
         public Microplate Plate
         {
@@ -252,9 +243,6 @@ namespace ThorCyte.CarrierModule.Canvases
             MousePositionProperty = DependencyProperty.Register(
                  "MousePosition", typeof(string), typeof(PlateCanvas),
                  metaData);
-
-            metaData = new PropertyMetadata(false);
-            IsSelectAllVisibleProperty = DependencyProperty.Register("IsSelectAllVisible", typeof(bool), typeof(PlateCanvas), metaData);
 
             metaData = new PropertyMetadata("");
             CarrierDescriptionProperty = DependencyProperty.Register(
@@ -467,18 +455,16 @@ namespace ThorCyte.CarrierModule.Canvases
                 {
                     case "ReviewModule":
                         SwitchSelections(DisplayMode.Review);
-                        IsSelectAllVisible = false;
                         break;
                     case "AnalysisModule":
                         SwitchSelections(DisplayMode.Analysis);
-                        IsSelectAllVisible = true;
                         break;
                 }
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show("Error Occurred in PlateCanvas ShowRegionEventHandler " + ex.Message);
             }
         }
 
@@ -532,7 +518,9 @@ namespace ThorCyte.CarrierModule.Canvases
             foreach (var region in _regionListDic[mode])
             {
                 var gph = (GraphicsBase)_regionGraphicHashtable[region];
-                gph.IsSelected = true;                                
+
+                if (gph == null) continue;
+                gph.IsSelected = true;
                 _plate.AddActiveRegion(region);
             }
         }
@@ -603,6 +591,7 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             _graphicsList.Clear();
             _regionGraphicHashtable.Clear();
+            _regionListDic.Clear();
             var scale = ActualScale / 100.0;
             foreach (var rgn in _plate.TotalRegions)
             {

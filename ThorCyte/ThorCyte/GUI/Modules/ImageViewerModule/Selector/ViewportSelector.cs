@@ -29,9 +29,12 @@ namespace ThorCyte.ImageViewerModule.Selector
     }
     public class ViewportDisplayType
     {
+        public ViewportDisplayType()
+        {
+            Viewports = new List<ViewportView>();
+        }
         public int Type { get; set; }
         public List<ViewportView> Viewports { get; set; }
-        public ViewportView CurrentViewport { get; set; }
         public bool IsSingleWindow { get { return Type == 1; } }
     }
 }

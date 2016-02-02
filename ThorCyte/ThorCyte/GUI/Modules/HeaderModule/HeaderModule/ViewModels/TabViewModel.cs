@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using ThorCyte.HeaderModule.Views;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 
@@ -79,6 +80,29 @@ namespace ThorCyte.HeaderModule.ViewModels
                     _data.SetExperimentInfo(_experiment);
                     _unityContainer.RegisterInstance<IExperiment>(_experiment);
                     _unityContainer.RegisterInstance<IData>(_data);
+                    ExperimentInfo info = _experiment.GetExperimentInfo();
+                    string path = info.ExperimentPath + "\\Analysis";
+                    string AnalysisPath;
+                    var di = new DirectoryInfo(path);
+                    if (di.Exists)
+                    {
+                        AnalysisViewModel analysisViewModel = new AnalysisViewModel(info.ExperimentPath, false);
+                        AnalysisView w = new AnalysisView(analysisViewModel);
+                        if (w.ShowDialog() != true)
+                        {
+                            AnalysisPath = path + "\\Temp";
+                        }
+                        else
+                        {
+                            AnalysisPath = analysisViewModel.SaveAnalysisPath;
+                        }
+                    }
+                    else
+                    {
+                        di.Create();
+                        AnalysisPath = path + "\\Temp";
+                    }
+                    _experiment.SetAnalysisPath(AnalysisPath);
                     ComponentDataManager.Instance.Load(_experiment);
                     IsLoaded = true;
                     SelectTab("ReviewModule");
@@ -96,36 +120,15 @@ namespace ThorCyte.HeaderModule.ViewModels
         {
             if (_experiment == null)
                 return;
+            ExperimentInfo experimentInfo = _experiment.GetExperimentInfo();
+            string path = experimentInfo.ExperimentPath + "\\Analysis";
+            AnalysisViewModel analysisViewModel = new AnalysisViewModel(experimentInfo.ExperimentPath, true);
+            AnalysisView w = new AnalysisView(analysisViewModel);
+            if (w.ShowDialog() != true) return;
 
-            MessageBoxResult result = MessageBox.Show("Are you sure replace analysis result?", "Save analysis result", MessageBoxButton.YesNo, MessageBoxImage.Question,MessageBoxResult.No);
-            switch (result)
-            {
-                case MessageBoxResult.Yes:
-                    var di = new DirectoryInfo(_experiment.GetExperimentInfo().AnalysisPath);
-                    if (!di.Exists)
-                    {
-                        di.Create();
-                    }
-                    else
-                    {
-                        foreach (FileInfo file in di.GetFiles())
-                        {
-                            file.Delete();
-                        }
-                        foreach (DirectoryInfo dir in di.GetDirectories())
-                        {
-                            dir.Delete(true);
-                        }
-                    }
-                    ComponentDataManager.Instance.Save(_experiment.GetExperimentInfo().AnalysisPath);
-                    _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0);
-                    break;
-                case MessageBoxResult.No:
-                case MessageBoxResult.Cancel:
-                    break;
-            }
-
-            
+            experimentInfo.AnalysisPath = analysisViewModel.SaveAnalysisPath;
+            ComponentDataManager.Instance.Save(_experiment.GetExperimentInfo().AnalysisPath);
+            _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0); 
         }  
     }
 }

@@ -4,14 +4,15 @@ namespace ThorCyte.GraphicModule.Helper
 {
     public static class ConstantHelper
     {
+
         public static readonly Brush[] BrushTable =
         {
-           Brushes.Red,Brushes.Green,Brushes.Blue,Brushes.Yellow,Brushes.Magenta,Brushes.Cyan,Brushes.Black,Brushes.White
+           Brushes.Red,Brushes.LawnGreen,Brushes.Orange,Brushes.Yellow,Brushes.Magenta,Brushes.Cyan,Brushes.Black,Brushes.White
         };
 
         public static readonly Color[] ColorTable = 
 		{
-			Colors.Red, Colors.Green, Colors.Blue, Colors.Yellow, Colors.Magenta, Colors.Cyan, Colors.Black
+			Colors.Red, Colors.LawnGreen, Colors.Orange, Colors.Yellow, Colors.Magenta, Colors.Cyan, Colors.Black
 		};
 
         public static readonly Color[] TemperatureColors = 
@@ -21,21 +22,9 @@ namespace ThorCyte.GraphicModule.Helper
 
         public const int ColorCount = 6;
 
-        public const int DefaultOriginalX = 45;
-
-        public const int DefaultOriginalY = 220;
-
-        public const int DefaultEndX = 245;
-
-        public const int DefaultY = 20;
-
         public const int HighResolution = 200;
 
         public const int LowBinCount = 200;
-
-        public const int HighBinCount = 500;
-
-        public const int LowResolution = 50;
 
         public const int DefaultHistogramYScale = 10;
 

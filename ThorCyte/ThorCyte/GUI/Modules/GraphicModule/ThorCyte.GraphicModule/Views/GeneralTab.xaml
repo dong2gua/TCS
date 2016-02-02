@@ -17,7 +17,7 @@
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             <Label Content="Title :" Grid.Column="0" Margin="2"/>
-            <TextBox x:Name="TitleTb" Grid.Column="1" Margin="2" VerticalAlignment="Center" Text="{Binding Title}"/>
+            <TextBox x:Name="TitleTb" Grid.Column="1" Margin="2" VerticalAlignment="Center" Text="{Binding LabelTitle}"/>
         </Grid>
 
         <StackPanel>
@@ -55,7 +55,7 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <CheckBox x:Name="QuadrantChk" Grid.Row="0" Grid.Column="0" Margin="2" Content="Quadrant statistics" IsChecked="{Binding IsShowQuadrant}"/>
-            <CheckBox Grid.Row="0" Grid.Column="1" Margin="2" Content="NormalizeXY" IsChecked="{Binding IsNormalizexy}"/>
+            <CheckBox Grid.Row="0" Grid.Column="1" Margin="2" Content="NormalizeXY" IsEnabled="{Binding IsNormalizeXyEnabeld}" IsChecked="{Binding IsNormalizexy}"/>
             <CheckBox x:Name="MapChk" Grid.Row="1" Grid.Column="0" Margin="2" Content="2-Parameter Histogram" IsChecked="{Binding IsMapChecked}"/>
         </Grid>
 

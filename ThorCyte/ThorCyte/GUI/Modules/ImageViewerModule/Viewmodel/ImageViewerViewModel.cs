@@ -21,6 +21,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Xml.Linq;
 using System.IO;
+using System.Threading.Tasks;
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ImageViewerViewModel : BindableBase
@@ -146,6 +147,12 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             get { return _mousePointStatus; }
             set { SetProperty<string>(ref _mousePointStatus, value, "MousePointStatus");  }
         }
+        private Cursor _cursor=Cursors.Arrow;
+        public Cursor Cursor
+        {
+            get { return _cursor; }
+            set { SetProperty<Cursor>(ref _cursor, value, "Cursor"); }
+        }
 
         private Dictionary<ViewportView, ViewportViewModel> _viewportDic = new Dictionary<ViewportView, ViewportViewModel>();
         private ProfileViewModel profileViewModel;
@@ -210,56 +217,125 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         public void OnViewportTypeChange(int type)
         {
             if (ViewportType.Type == type) return;
+            ImageViewEnable = false;
+            Cursor = Cursors.Wait;
+            ViewportType = new ViewportDisplayType { Type = type };
+            Task task;
+            int currentIndex = Viewports.IndexOf(_currentViewport);
             switch (type)
             {
                 case 1:
-                    _viewportDic[_viewports[0]].IsShown = true;
-                    _viewportDic[_viewports[1]].IsShown = false;
-                    _viewportDic[_viewports[2]].IsShown = false;
-                    _viewportDic[_viewports[3]].IsShown = false;
+                    task = new Task(() => {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            _viewportDic[_viewports[i]].IsShown = _viewports[i] == _currentViewport;
+                        }
+                    });
+                    ViewportType.Viewports.Add(_currentViewport);
                     break;
                 case 2:
-                    _viewportDic[_viewports[0]].IsShown = true;
-                    _viewportDic[_viewports[1]].IsShown = true;
-                    _viewportDic[_viewports[2]].IsShown = false;
-                    _viewportDic[_viewports[3]].IsShown = false;
+
+                    if (currentIndex == 0 || currentIndex == 1)
+                    {
+                        task = new Task(() => {
+                            _viewportDic[_viewports[0]].IsShown = true;
+                            _viewportDic[_viewports[1]].IsShown = true;
+                            _viewportDic[_viewports[2]].IsShown = false;
+                            _viewportDic[_viewports[3]].IsShown = false;
+                        });
+                        ViewportType.Viewports.Add(_viewports[0]);
+                        ViewportType.Viewports.Add(_viewports[1]);
+                    }
+                    else
+                    {
+                        task = new Task(() => {
+                            _viewportDic[_viewports[0]].IsShown = false;
+                            _viewportDic[_viewports[1]].IsShown = false;
+                            _viewportDic[_viewports[2]].IsShown = true;
+                            _viewportDic[_viewports[3]].IsShown = true;
+                        });
+                        ViewportType.Viewports.Add(_viewports[2]);
+                        ViewportType.Viewports.Add(_viewports[3]);
+                    }
                     break;
                 case 3:
-                    _viewportDic[_viewports[0]].IsShown = true;
-                    _viewportDic[_viewports[1]].IsShown = true;
-                    _viewportDic[_viewports[2]].IsShown = false;
-                    _viewportDic[_viewports[3]].IsShown = false;
+                    if (currentIndex == 0 || currentIndex == 2)
+                    {
+                        task = new Task(() => {
+                            _viewportDic[_viewports[0]].IsShown = true;
+                            _viewportDic[_viewports[1]].IsShown = false;
+                            _viewportDic[_viewports[2]].IsShown = true;
+                            _viewportDic[_viewports[3]].IsShown = false;
+                        });
+                        ViewportType.Viewports.Add(_viewports[0]);
+                        ViewportType.Viewports.Add(_viewports[2]);
+                    }
+                    else
+                    {
+                        task = new Task(() => {
+                            _viewportDic[_viewports[0]].IsShown = false;
+                            _viewportDic[_viewports[1]].IsShown = true;
+                            _viewportDic[_viewports[2]].IsShown = false;
+                            _viewportDic[_viewports[3]].IsShown = true;
+                        });
+                        ViewportType.Viewports.Add(_viewports[1]);
+                        ViewportType.Viewports.Add(_viewports[3]);
+                    }
                     break;
                 case 4:
-                    _viewportDic[_viewports[0]].IsShown = true;
-                    _viewportDic[_viewports[1]].IsShown = true;
-                    _viewportDic[_viewports[2]].IsShown = true;
-                    _viewportDic[_viewports[3]].IsShown = true;
+                    task = new Task(() => {
+                        _viewportDic[_viewports[0]].IsShown = true;
+                        _viewportDic[_viewports[1]].IsShown = true;
+                        _viewportDic[_viewports[2]].IsShown = true;
+                        _viewportDic[_viewports[3]].IsShown = true;
+                    });
+                    ViewportType.Viewports = _viewports;
                     break;
                 default:
                     return;
             }
-            ViewportType = new ViewportDisplayType { Type = type, Viewports = _viewports,CurrentViewport= _viewports[0] }; 
+            task.ContinueWith(t =>
+            {
+                ImageViewEnable = true;
+                Cursor = Cursors.Arrow;
+            });
+            task.Start();
         }
         public void OnMaximizeViewport()
         {
+            ImageViewEnable = false;
+            Cursor = Cursors.Wait;
+            Task task;
             if (ViewportType.Type == 1)
             {
-                _viewportDic[_viewports[0]].IsShown = true;
-                _viewportDic[_viewports[1]].IsShown = true;
-                _viewportDic[_viewports[2]].IsShown = true;
-                _viewportDic[_viewports[3]].IsShown = true;
-                ViewportType = new ViewportDisplayType { Type = 4, Viewports = _viewports, CurrentViewport = _currentViewport };
+                _viewportDic[_currentViewport].FixToLastScaleEvent += _viewportDic[_currentViewport].FixToLastScale;
+                ViewportType = new ViewportDisplayType { Type = 4, Viewports = _viewports };
+                task = new Task(() =>
+                {
+                    _viewportDic[_viewports[0]].IsShown = true;
+                    _viewportDic[_viewports[1]].IsShown = true;
+                    _viewportDic[_viewports[2]].IsShown = true;
+                    _viewportDic[_viewports[3]].IsShown = true;
+                });
             }
             else
             {
-                for(int i=0;i<4;i++)
+                ViewportType = new ViewportDisplayType { Type = 1};
+                task = new Task(() =>
                 {
-                    if (_viewports[i] != _currentViewport)
-                        _viewportDic[_viewports[i]].IsShown = false;
-                }
-                ViewportType = new ViewportDisplayType { Type = 1, Viewports = _viewports, CurrentViewport = _currentViewport };
+                    for (int i = 0; i < 4; i++)
+                    {
+                        _viewportDic[_viewports[i]].IsShown = _viewports[i] == _currentViewport;
+                    }
+                    ViewportType.Viewports.Add(_currentViewport);
+                });
             }
+            task.ContinueWith(t =>
+            {
+                ImageViewEnable = true;
+                Cursor = Cursors.Arrow;
+            });
+            task.Start();
         }
         
         private void OnSelectRegionTile(RegionTile regionTile)
@@ -305,26 +381,35 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             foreach (var o in _viewports)
             {
                 o.viewportBorder.BorderBrush = Brushes.Black;
-                o.listView.Visibility = Visibility.Visible;
                 o.drawCanvas.Tool = ToolType.Pointer;
                 _viewportDic[o].Clear();
             }
             LoadChannels();
-            ViewportType = new ViewportDisplayType { Type = 1, Viewports = _viewports, CurrentViewport = _viewports[0] };
             CurrentViewport = Viewports.FirstOrDefault();
             CurrentViewport.viewportBorder.BorderBrush = Brushes.White;
             _viewportDic[CurrentViewport].IsShown = true;
-        }
+            ViewportType = new ViewportDisplayType { Type = 1 };
+            ViewportType.Viewports.Add(_currentViewport);
+   }
         private void OnDisplay()
         {
-            CurrentViewport.listView.Visibility = Visibility.Visible;
-            _viewportDic[CurrentViewport].Initialization(_data, _scanInfo,_experimentInfo, _scanId, _regionId, _tileId);
+            ImageViewEnable = false;
+            Cursor = Cursors.Wait;
+            Task task = new Task(() => {
+                _viewportDic[CurrentViewport].Initialization(_data, _scanInfo, _experimentInfo, _scanId, _regionId, _tileId);
+            });
+            task.ContinueWith(t =>
+            {
+                ImageViewEnable = true;
+                Cursor = Cursors.Arrow;
+            });
+            task.Start();
             IsDragger = true;
             IsProfile = false;
             IsRuler = false;
             updateDrawTool();
             CurrentViewport.drawCanvas.SetPixelSize(_scanInfo.XPixcelSize, _scanInfo.YPixcelSize);
-            ImageViewEnable = true;
+
         }
         private void OnDrawRegion(string arg)
         {
@@ -422,7 +507,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown) return;
                 profileWindow = new ProfileWindow();
                 profileWindow.DataContext = profileViewModel;
-                profileWindow.Topmost = true;
                 profileWindow.Owner = Application.Current.MainWindow;
                 profileViewModel.Initialization(_viewportDic[CurrentViewport].CurrentChannelImage);
                 profileWindow.Show();
@@ -456,7 +540,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             updateDrawTool();
             brightnessContrastWindow = new BrightnessContrastWindow();
             brightnessContrastWindow.DataContext = this;
-            brightnessContrastWindow.Topmost = true;
             brightnessContrastWindow.Owner = Application.Current.MainWindow;
             brightnessContrastWindow.HistogramPanel.SetData(_viewportDic[CurrentViewport].CurrentChannelImage.ThumbnailImageData);
             _brightness = _viewportDic[CurrentViewport].CurrentChannelImage.Brightness;

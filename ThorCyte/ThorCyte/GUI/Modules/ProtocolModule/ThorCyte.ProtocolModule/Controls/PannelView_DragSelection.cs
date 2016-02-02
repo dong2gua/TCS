@@ -15,9 +15,9 @@ namespace ThorCyte.ProtocolModule.Controls
         #region Properties and Fields
 
         /// <summary>
-        /// Set to 'true' when the control key and the left mouse button is currently held down.
+        /// Set to 'true' when the left mouse button is currently held down.
         /// </summary>
-        private bool _isControlAndLeftMouseButtonDown;
+        private bool _isLeftMouseButtonDown;
 
         /// <summary>
         /// Set to 'true' when the user is dragging out the selection rectangle.
@@ -60,15 +60,17 @@ namespace ThorCyte.ProtocolModule.Controls
         {
             base.OnMouseDown(e);
             Focus();
-            if (e.ChangedButton == MouseButton.Left && (Keyboard.Modifiers & ModifierKeys.Control) != 0)
+
+            if (e.ChangedButton == MouseButton.Left)
             {
                 //  Clear selection immediately when starting drag selection.
-                SelectedModules.Clear();
-                _isControlAndLeftMouseButtonDown = true;
+                //SelectedModules.Clear();
+                _isLeftMouseButtonDown = true;
                 _origMouseDownPoint = e.GetPosition(this);
                 CaptureMouse();
-                e.Handled = true;
+                //e.Handled = true;
             }
+
         }
 
         /// <summary>
@@ -86,14 +88,16 @@ namespace ThorCyte.ProtocolModule.Controls
                 {
                     // Drag selection has ended, apply the 'selection rectangle'.
                     _isDraggingSelectionRect = false;
-                    ApplyDragSelectionRect();
+                    _dragSelectionCanvas.Visibility = Visibility.Collapsed;
+
+                    //ApplyDragSelectionRect();
                     e.Handled = true;
                     wasDragSelectionApplied = true;
                 }
 
-                if (_isControlAndLeftMouseButtonDown)
+                if (_isLeftMouseButtonDown)
                 {
-                    _isControlAndLeftMouseButtonDown = false;
+                    _isLeftMouseButtonDown = false;
                     ReleaseMouseCapture();
                     e.Handled = true;
                 }
@@ -116,21 +120,25 @@ namespace ThorCyte.ProtocolModule.Controls
             if (_isDraggingSelectionRect)
             {
                 // Drag selection is in progress.
-                Point curMouseDownPoint = e.GetPosition(this);
+                var curMouseDownPoint = e.GetPosition(this);
                 UpdateDragSelectionRect(_origMouseDownPoint, curMouseDownPoint);
+                ApplyDragSelectionRect();
                 e.Handled = true;
             }
-            else if (_isControlAndLeftMouseButtonDown)
+            else if (_isLeftMouseButtonDown)
             {
                 // The user is left-dragging the mouse,but don't initiate drag selection until
                 // they have dragged past the threshold value.
-                Point curMouseDownPoint = e.GetPosition(this);
+                var curMouseDownPoint = e.GetPosition(this);
                 var dragDelta = curMouseDownPoint - _origMouseDownPoint;
-                double dragDistance = Math.Abs(dragDelta.Length);
+                var dragDistance = Math.Abs(dragDelta.Length);
                 if (dragDistance > DragThreshold)
                 {
                     // When the mouse has been dragged more than the threshold value commence drag selection.
                     _isDraggingSelectionRect = true;
+                    // Clear the current selection.
+                    _moduleItemsControl.SelectedItems.Clear();
+
                     InitDragSelectionRect(_origMouseDownPoint, curMouseDownPoint);
                 }
                 e.Handled = true;
@@ -187,30 +195,33 @@ namespace ThorCyte.ProtocolModule.Controls
         /// </summary>
         private void ApplyDragSelectionRect()
         {
-            _dragSelectionCanvas.Visibility = Visibility.Collapsed;
-            double x = Canvas.GetLeft(_dragSelectionBorder);
-            double y = Canvas.GetTop(_dragSelectionBorder);
-            double width = _dragSelectionBorder.Width;
-            double height = _dragSelectionBorder.Height;
+            var x = Canvas.GetLeft(_dragSelectionBorder);
+            var y = Canvas.GetTop(_dragSelectionBorder);
+            var width = _dragSelectionBorder.Width;
+            var height = _dragSelectionBorder.Height;
             var dragRect = new Rect(x, y, width, height);
 
             // Inflate the drag selection-rectangle by 1/10 of its size to  make sure the intended item is selected.
-            dragRect.Inflate(width / 10, height / 10);
+            //dragRect.Inflate(width / 10, height / 10);
 
-            // Clear the current selection.
-            _moduleItemsControl.SelectedItems.Clear();
 
             // Find and select all the list box items.
-            for (int nodeIndex = 0; nodeIndex < Modules.Count; ++nodeIndex)
+            for (var nodeIndex = 0; nodeIndex < Modules.Count; ++nodeIndex)
             {
                 var nodeItem = (Module)_moduleItemsControl.ItemContainerGenerator.ContainerFromIndex(nodeIndex);
                 var transformToAncestor = nodeItem.TransformToAncestor(this);
-                Point itemPt1 = transformToAncestor.Transform(new Point(0, 0));
-                Point itemPt2 = transformToAncestor.Transform(new Point(nodeItem.ActualWidth, nodeItem.ActualHeight));
+                var itemPt1 = transformToAncestor.Transform(new Point(0, 0));
+                var itemPt2 = transformToAncestor.Transform(new Point(nodeItem.ActualWidth, nodeItem.ActualHeight));
                 var itemRect = new Rect(itemPt1, itemPt2);
-                if (dragRect.Contains(itemRect))
+                if (dragRect.IntersectsWith(itemRect))
                 {
-                    nodeItem.IsSelected = true;
+                    if(!nodeItem.IsSelected)                    
+                        nodeItem.IsSelected = true;
+                }
+                else
+                {
+                    if (nodeItem.IsSelected)
+                        nodeItem.IsSelected = false;
                 }
             }
         }

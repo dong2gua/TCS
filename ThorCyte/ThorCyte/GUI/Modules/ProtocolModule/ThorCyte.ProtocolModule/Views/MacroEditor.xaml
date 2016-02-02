@@ -172,8 +172,12 @@
                 <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"/>
+            </Grid.RowDefinitions>
+            
 
-            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding StatusMessage}" FontSize="16" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
             <Grid Grid.Column="4" Margin="0,5,10,5" Visibility="{Binding IsRuning, Converter={StaticResource BoolVisibleCvt}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

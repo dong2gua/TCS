@@ -24,7 +24,7 @@ namespace ThorCyte.CarrierModule.Graphics
         protected const double HandleSize = 12.0;
 
         // external rectangle
-        static readonly SolidColorBrush SlBrush = new SolidColorBrush(Colors.HotPink);
+        static readonly SolidColorBrush SlBrush = new SolidColorBrush(Colors.LightBlue);
         public int RoomId;
 
         #endregion Class Members
@@ -80,7 +80,7 @@ namespace ThorCyte.CarrierModule.Graphics
 
         public Color FillObjectColor
         {
-            get { return Colors.HotPink; }
+            get { return Colors.LightBlue; }
         }
 
         public Color ObjectColor

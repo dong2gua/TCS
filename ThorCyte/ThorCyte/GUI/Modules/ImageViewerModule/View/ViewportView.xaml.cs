@@ -12,12 +12,5 @@ namespace ThorCyte.ImageViewerModule.View
         {
             InitializeComponent();
         }
-        private void ExpandList_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.listView.Visibility == Visibility.Collapsed)
-                this.listView.Visibility = Visibility.Visible;
-            else
-                this.listView.Visibility = Visibility.Collapsed;
-        }
     }
 }

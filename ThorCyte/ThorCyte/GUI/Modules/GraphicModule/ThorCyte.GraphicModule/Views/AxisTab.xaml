@@ -10,6 +10,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <converts:IsEnabledConvert x:Key="EnabledCvt"/>
+            <converts:AxisSelectedConvert x:Key="AxisSelectedCvt"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -21,8 +22,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="3*"/>
                     </Grid.ColumnDefinitions>
-                    <RadioButton x:Name="XCheckBox" Grid.Column="0" Content="X" IsChecked="{Binding XAxis.IsSelected}"/>
-                    <RadioButton x:Name="YCheckBox" Grid.Column="1"  Content="Y" IsEnabled="{Binding IsYAxisEnabled}" IsChecked="{Binding YAxis.IsSelected}"/>
+                    <RadioButton x:Name="XCheckBox" Grid.Column="0"  Content="X" IsChecked="{Binding IsXSelected,Converter={StaticResource AxisSelectedCvt},ConverterParameter=X}"/>
+                    <RadioButton x:Name="YCheckBox" Grid.Column="1"  Content="Y" IsEnabled="{Binding IsYAxisEnabled}" IsChecked="{Binding IsXSelected,Converter={StaticResource AxisSelectedCvt},ConverterParameter=Y}"/>
                 </Grid>
             </GroupBox>
             
@@ -135,7 +136,7 @@
             </Grid.ColumnDefinitions>
 
             <!--<CheckBox x:Name="GridCb" Grid.Column="0" Margin="2" Content="Grid" IsChecked="{Binding SelectedAxis.IsShowGrid}"/>-->
-            <CheckBox Content="Log scale" Grid.Column="0" Margin="2" IsChecked="{Binding SelectedAxis.IsLogScale}"/>
+            <CheckBox Content="Log scale" Grid.Column="0" Margin="2" IsEnabled="{Binding SelectedAxis.IsLogScaleEnabled}" IsChecked="{Binding SelectedAxis.IsLogScale}"/>
             <CheckBox x:Name="ChkNormalize" Grid.Column="1" Margin="2" Content="Normalize to active wells" IsChecked="{Binding SelectedAxis.IsNormalize}"/>
             <!--<Grid Grid.Column="1">
                 <Grid.ColumnDefinitions>

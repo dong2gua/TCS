@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using ComponentDataService;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
@@ -9,6 +10,7 @@ using ROIService;
 using ROIService.Region;
 using ThorCyte.GraphicModule.Controls;
 using ThorCyte.GraphicModule.Events;
+using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.Infrastructure;
 using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.Utils;
@@ -32,6 +34,8 @@ namespace ThorCyte.GraphicModule.ViewModels
         private bool _isHistogramProperVisible;
 
         private bool _isDeleteEnabled;
+
+        private bool _isNewGraphicEnabled;
 
         private bool _isPropertyEnabled;
 
@@ -71,7 +75,14 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     return;
                 }
-                SetProperty(ref _name, value);
+                if (GraphicModule.GraphicManagerVmInstance.IsValidateName(this, value))
+                {
+                    SetProperty(ref _name, value);
+                }
+                else
+                {
+                    UIHelper.OnCheckTabNameFailed(value);
+                }
             }
         }
 
@@ -98,6 +109,19 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _isDeleteEnabled, value);
+            }
+        }
+
+        public bool IsNewGraphicEnabled
+        {
+            get { return _isNewGraphicEnabled; }
+            set
+            {
+                if (_isNewGraphicEnabled == value)
+                {
+                    return;
+                }
+                SetProperty(ref _isNewGraphicEnabled, value);
             }
         }
 
@@ -200,6 +224,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             _graphicVmList = new ImpObservableCollection<GraphicVmBase>();
             _name = name;
             _cancelEditCommand = new DelegateCommand(() => IsEdit = false);
+            var components = ComponentDataManager.Instance.GetComponentNames();
+            IsNewGraphicEnabled = components != null && components.Count > 0;
         }
 
         #endregion
@@ -255,6 +281,12 @@ namespace ThorCyte.GraphicModule.ViewModels
             _graphicDictionary.Remove(_selectedGraphic.Id);
             ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<RegionUpdateEvent>().Publish(new RegionUpdateArgs(_selectedGraphic.Id, regionList, RegionUpdateType.Delete));
             _graphicVmList.Remove(_selectedGraphic);
+            if (_graphicVmList.Count == 0)
+            {
+                IsShowProperty = false;
+                IsDeleteEnabled = false;
+                IsPropertyEnabled = false;
+            }
         }
 
         public void UpdateImage()
@@ -268,7 +300,7 @@ namespace ThorCyte.GraphicModule.ViewModels
         public GraphicVmBase CreateScattergram()
         {
             var id = _idManager.GetId().ToString(CultureInfo.InvariantCulture);
-            var vm = new ScattergramVm();
+            var vm = new ScattergramVm{IsNormalizeXyEnabeld = true};
             vm.InitGraphParams(id);
             _graphicVmList.Add(vm);
             if (_graphicVmList.Count == 1)
@@ -281,7 +313,7 @@ namespace ThorCyte.GraphicModule.ViewModels
         public GraphicVmBase CreateHistogram()
         {
             var id = _idManager.GetId().ToString(CultureInfo.InvariantCulture);
-            var vm = new HistogramVm();
+            var vm = new HistogramVm { IsNormalizeXyEnabeld = true };
             vm.InitGraphParams(id);
             _graphicVmList.Add(vm);
             if (_graphicVmList.Count == 1)

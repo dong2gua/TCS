@@ -135,16 +135,19 @@ namespace ROIService
         public void SetRegion(MaskRegion region)
         {
             string id = string.Format("R{0}", region.Id);
+            int count = _roiDictionary.Count;
             _roiDictionary[id] = region;
             //region.Calculate();
             _regionEventsDictionary[id] = EmptyBioEvents;
-            var no = int.Parse(id.TrimStart('R')) - 1;
-            if (no < _bitmap.Count)
-                _bitmap[no] = 1;
-            else
+            int no = int.Parse(id.TrimStart('R')) - 1;
+            if (count < no + 1)
             {
-                _bitmap.Add(0x01);
+                int len = (no + 1) - count;
+                var added = new int[len];
+                _bitmap.AddRange(added);
             }
+            _bitmap[no] = 1;
+            
         }
         
        
@@ -635,13 +638,13 @@ namespace ROIService
             {
                 return RegionColorIndex.Red;
             }
-            if (color == Colors.Green)
+            if (color == Colors.LawnGreen)
             {
-                return RegionColorIndex.Green;
+                return RegionColorIndex.LawnGreen;
             }
-            if (color == Colors.Blue)
+            if (color == Colors.Orange)
             {
-                return RegionColorIndex.Blue;
+                return RegionColorIndex.Orange;
             }
             if (color == Colors.Yellow)
             {

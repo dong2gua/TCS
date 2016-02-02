@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -24,7 +25,8 @@ namespace ThorCyte.GraphicModule.Views
 
         #region Constructor
 
-        public HistogramView() : base(8, new Histogram {Background = Brushes.Transparent})
+        public HistogramView()
+            : base(8, new Histogram { Background = Brushes.Transparent })
         {
             InitializeComponent();
             Init();
@@ -73,14 +75,6 @@ namespace ThorCyte.GraphicModule.Views
 
         private void ClearRenderableSeries()
         {
-            var count = SciChart.RenderableSeries.Count;
-            if (count > RenderableSeriesCount)
-            {
-                for (var index = 0; index < (count - RenderableSeriesCount); index++)
-                {
-                    SciChart.RenderableSeries.RemoveAt(RenderableSeriesCount);
-                }
-            }
             if (GraphicVm.GraphType == GraphStyle.Outline)
             {
                 for (var i = 0; i < RenderableSeriesCount - 1; i++)
@@ -94,7 +88,7 @@ namespace ThorCyte.GraphicModule.Views
             }
             else
             {
-                SciChart.RenderableSeries[7].DataSeries = null;
+                SciChart.RenderableSeries[RenderableSeriesCount - 1].DataSeries = null;
             }
         }
 
@@ -112,19 +106,26 @@ namespace ThorCyte.GraphicModule.Views
 
         public override void SetAxis()
         {
-            SciChart.XAxis = GraphicVm.XAxis.IsLogScale ? XLogAxis : XAxis;
+            if (!GraphicVm.XAxis.IsLogScale)
+            {
+                SciChart.XAxis = XAxis;
+                SciChart.XAxis.TextFormatting = GraphicVm.XAxis.MaxValue >= Math.Pow(10, 6) ? ConstantHelper.AxisMaxTextFormat : string.Empty;
+            }
+            else
+            {
+                SciChart.XAxis = XLogAxis;
+            }
 
             SciChart.XAxis.VisibleRange = new DoubleRange(GraphicVm.XAxis.MinValue, GraphicVm.XAxis.MaxValue);
-            SciChart.XAxis.TextFormatting = GraphicVm.XAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : string.Empty;
-            SciChart.YAxis.TextFormatting = GraphicVm.YAxis.MaxValue > 1000 ? ConstantHelper.AxisMaxTextFormat : string.Empty;
-            YAxis.VisibleRange = new DoubleRange(GraphicVm.YAxis.MinValue, GraphicVm.YAxis.MaxValue);
+            SciChart.YAxis.VisibleRange = new DoubleRange(GraphicVm.YAxis.MinValue, GraphicVm.YAxis.MaxValue);
+            SciChart.YAxis.TextFormatting = GraphicVm.YAxis.MaxValue > Math.Pow(10, 6) ? ConstantHelper.AxisMaxTextFormat : string.Empty;
         }
 
         private void DrawGraph()
         {
             var xscale = GraphicVm.Width / (GraphicVm.XAxis.MaxRange - GraphicVm.XAxis.MinRange);
             var outlineSeries = new XyDataSeries<double, double>();
-
+            var isValid = false;
             for (var index = 0; index < GraphicVm.Width; index++)
             {
                 var x = GraphicVm.XAxis.IsLogScale ? GraphicVm.XAxis.GetActualValue(index) : index / xscale + GraphicVm.XAxis.MinRange;
@@ -132,7 +133,7 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     int acc = 0;
                     double from = 0;
-
+                    
                     for (int c = 0; c < ConstantHelper.ColorCount; c++)
                     {
                         acc += ((HistogramVm)GraphicVm).ColorDataList[c][index];
@@ -140,6 +141,14 @@ namespace ThorCyte.GraphicModule.Views
                         from = acc;
                     }
                     DataSeriesArray[0].Append(x, ((HistogramVm)GraphicVm).HistoryDataList[index] - acc);
+                    for (var i = 0; i < DataSeriesArray.Length; i++)
+                    {
+                        if (DataSeriesArray[i].YMax.CompareTo(0.0) > 0)
+                        {
+                            isValid = true;
+                            break;
+                        }
+                    }
                 }
                 else
                 {
@@ -152,13 +161,13 @@ namespace ThorCyte.GraphicModule.Views
             {
                 if (GraphicVm.GraphType == GraphStyle.Outline)
                 {
-                    SciChart.RenderableSeries[7].DataSeries = outlineSeries;
+                    SciChart.RenderableSeries[RenderableSeriesCount - 1].DataSeries = outlineSeries;
                 }
                 else
                 {
-                    for (var i = 0; i < 7; i++)
+                    for (var i = 0; i < RenderableSeriesCount - 1; i++)
                     {
-                        SciChart.RenderableSeries[i].DataSeries = DataSeriesArray[i];
+                        SciChart.RenderableSeries[i].DataSeries = isValid ? DataSeriesArray[i]:null;
                     }
                 }
             }
@@ -196,21 +205,26 @@ namespace ThorCyte.GraphicModule.Views
             {
 
                 GraphicVm = (GraphicVmBase)DataContext;
-                GraphicVm.ViewDispatcher = Dispatcher;
                 Id = GraphicVm.Id;
                 SetAxis();
 
                 SetBindings();
 
                 SciChart.AdornerLayerCanvas.Children.Add(RegionPanel);
-             }
-            GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
+                GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
+                GraphicVm.UpdateEvents();
+            }
+
             IsLoading = false;
         }
 
         public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             base.OnSizeChanged(sender, e);
+            if (GraphicVm == null)
+            {
+                return;
+            }
             GraphicVm.UpdateEvents();
             e.Handled = true;
         }

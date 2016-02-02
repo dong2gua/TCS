@@ -10,14 +10,14 @@
              xmlns:drawtool="clr-namespace:ThorCyte.ImageViewerModule.DrawTools"
              xmlns:selector="clr-namespace:ThorCyte.ImageViewerModule.Selector"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800" Cursor="{Binding Cursor}">
     <UserControl.Resources>
         <converter:BoolToStringConverter x:Key="BoolToStringC"/>
         <selector:ViewportSelector x:Key="ViewportSelector">
             <selector:ViewportSelector.OneViewportDataTemplate>
                 <DataTemplate>
                     <Grid>
-                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding CurrentViewport}"/>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
                     </Grid>
                 </DataTemplate>
             </selector:ViewportSelector.OneViewportDataTemplate>
@@ -150,7 +150,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>        
-        <TextBlock Margin="10,0" FontSize="16" Grid.Row="1"  VerticalAlignment="Center" Height="25" Text="{Binding MousePointStatus}"/>
+        <TextBlock Margin="10,0" Grid.Row="1"  VerticalAlignment="Center" Height="25" Text="{Binding MousePointStatus}"/>
         <StackPanel Margin="0,5" Orientation="Vertical" Grid.Row="0" Grid.Column="1">
             <Button Margin="1" Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle" ToolTip="Rectangle">
                 <Image Source="..\resources\Rectangle.png"/>
@@ -185,10 +185,11 @@
             <Button Margin="1" Command="{Binding BrightnessContrastCommand}" ToolTip="Brightness and Contrast">
                 <Image Source="..\resources\Brightness.png"/>
             </Button>
-            <control:SplitButton Margin="1" x:Name="splitButton" ToolTip="Select Viewport"  Command="{Binding MaximizeViewportCommand}" Orientation="Vertical">
-                <Image Source="{Binding ViewportType.IsSingleWindow,Converter={StaticResource BoolToStringC},ConverterParameter='..\\resources\\ToSingle.png|..\\resources\\MultiWindow.png'}"/>
+            <control:SplitButton Margin="1" x:Name="splitButton" Mode="Dropdown" ToolTip="Select Viewport"  Command="{Binding MaximizeViewportCommand}" Orientation="Vertical">
+                <!--<Image Source="{Binding ViewportType.IsSingleWindow,Converter={StaticResource BoolToStringC},ConverterParameter='..\\resources\\ToSingle.png|..\\resources\\MultiWindow.png'}"/>-->
+                <Image Source="..\resources\MultiWindow.png"/>
                 <control:SplitButton.DropDownContent >
-                    <control:SelectViewportCanvas x:Name="selectViewportCanvas" Background="Gray" />
+                    <control:SelectViewportList x:Name="selectViewportCanvas"  />
                 </control:SplitButton.DropDownContent>
             </control:SplitButton>
         </StackPanel>

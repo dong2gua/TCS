@@ -30,6 +30,22 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         #region Properties and Fields
 
+        private string _labelTitle;
+
+        public string LabelTitle
+        {
+            get { return _labelTitle; }
+            set
+            {
+                if (_labelTitle == value)
+                {
+                    return;
+                }
+                SetProperty(ref _labelTitle, value);
+                SetTitle();
+            }
+        }
+
         public int ZIndex
         {
             get { return _zIndex; }
@@ -78,6 +94,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     }
                 }
                 SetProperty(ref _isMapChecked, value);
+                SetTitle();
                 UpdateEvents();
             }
         }
@@ -94,6 +111,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _isDensity, value);
+                SetTitle();
                 if (_isExpression == value)
                 {
                     IsExpression = !value;
@@ -129,6 +147,7 @@ namespace ThorCyte.GraphicModule.ViewModels
 
                 IsZScaleChannelEnabled = _isExpression && _selecedZScaleFeature != null &&
                                          _selecedZScaleFeature.IsPerChannel;
+                SetTitle();
                 if (_isExpression)
                 {
                     UpdateEvents();
@@ -191,6 +210,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     SelecedZScaleChannel = null;
                 }
                 CalcZIndex();
+                SetTitle();
                 UpdateEvents();
             }
         }
@@ -208,6 +228,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 }
                 SetProperty(ref _selecedZScaleChannel, value);
                 CalcZIndex();
+                SetTitle();
                 UpdateEvents();
             }
         }
@@ -289,6 +310,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             IsYAxisEnabled = true;
             BinCount = ConstantHelper.LowBinCount;
             GraphType = GraphStyle.DotPlot;
+            QuadrantCenterPoint = new Point(double.NaN,double.NaN);
         }
 
         #endregion
@@ -421,7 +443,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 }
                 else
                 {
-                    Title = ComponentName;
+                    Title = SelectedComponent;
                 }
             }
             else
@@ -533,6 +555,16 @@ namespace ThorCyte.GraphicModule.ViewModels
         {
             ZScaleMin = DefaultZScaleMin;
             ZScaleMax = DefaultZScaleMax;
+        }
+
+        public void CheckNormalizeXyEnabled()
+        {
+            IsNormalizeXyEnabeld = XAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos ||
+                                   YAxis.SelectedNumeratorFeature.FeatureType == FeatureType.YPos;
+            if (!IsNormalizeXyEnabeld)
+            {
+                IsNormalizexy = false;
+            }
         }
 
         #endregion

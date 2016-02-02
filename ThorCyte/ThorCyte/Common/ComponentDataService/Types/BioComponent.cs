@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -235,6 +236,7 @@ namespace ComponentDataService.Types
             }
             List<BioEvent> stored = _eventsDict[wellId];
             int id = stored.Count + 1;//1 base
+           
             foreach (Blob contour in contours)
             {
                 if (contour.TouchesEdge(define.DataExpand, _imageWidth, _imageHeight)==false)
@@ -245,7 +247,9 @@ namespace ComponentDataService.Types
                         dataBlob.Id = id;
                         dataBlobs.Add(dataBlob);
                         id++;
+                        
                         BioEvent ev = CreateEvent(contour, dataBlob, define, imageDict, wellId, tileId);
+                      
                         if (ev != null)
                             evs.Add(ev);
                     }
@@ -839,7 +843,7 @@ namespace ComponentDataService.Types
                     if (correctBk)
                     {
                         bkgnd = bkBlob.ComputeDynamicBackground(image, define.BackgroundLowBoundPercent,
-                            define.BackgroundLowBoundPercent, rejectPercent);
+                            define.BackgroundHighBoundPercent, rejectPercent);
 
 
                         Feature fb = GetFeature(FeatureType.Background);

@@ -46,29 +46,6 @@ namespace ThorCyte.GraphicModule.Views
             {
                 return;
             }
-
-            var containerVm = (GraphicContainerVm)DataContext;
-            foreach (var graphivm in containerVm.GraphicVmList)
-            {
-                var scattervm = graphivm as ScattergramVm;
-                if (scattervm != null)
-                {
-                    var graphic = new ScattergramView {DataContext = scattervm};
-                    containerVm.GraphicDictionary.Add(scattervm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(graphic, scattervm));
-                    GraphicViewList.Items.Add(graphic);
-                }
-                else
-                {
-                    var graphic = new HistogramView{ DataContext = graphivm };
-                    containerVm.GraphicDictionary.Add(graphivm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(graphic, graphivm));
-                    GraphicViewList.Items.Add(graphic);
-                }
-            }
-            if (GraphicViewList.Items.Count > 0)
-            {
-                GraphicViewList.SelectedIndex = 0;
-                containerVm.SelectedGraphic = containerVm.GraphicVmList[0];
-            }
             UpdateGridLayout();
             _isLoaded = true;
         }
@@ -88,7 +65,7 @@ namespace ThorCyte.GraphicModule.Views
             {
                 _uniformgrid.Columns = 1;
             }
-            else if (GraphicViewList.ActualWidth > 640 && GraphicViewList.ActualWidth <= 960 )
+            else if (GraphicViewList.ActualWidth > 640 && GraphicViewList.ActualWidth <= 960)
             {
                 _uniformgrid.Columns = 2;
             }
@@ -134,10 +111,34 @@ namespace ThorCyte.GraphicModule.Views
                 return;
             }
             GraphicViewList.Items.Clear();
-            foreach (var vm in newDataContext.GraphicDictionary)
+
+            foreach (var graphivm in newDataContext.GraphicVmList)
             {
-                GraphicViewList.Items.Add(vm.Value.Item1);
+                var scattervm = graphivm as ScattergramVm;
+                if (scattervm != null)
+                {
+                    if (newDataContext.GraphicDictionary.ContainsKey(scattervm.Id))
+                    {
+                        var graphic = newDataContext.GraphicDictionary[scattervm.Id].Item1 as ScattergramView;
+                        if (!GraphicViewList.Items.Contains(graphic))
+                        {
+                            GraphicViewList.Items.Add(graphic);
+                        }
+                    }
+                }
+                else
+                {
+                    if (newDataContext.GraphicDictionary.ContainsKey(graphivm.Id))
+                    {
+                        var graphic = newDataContext.GraphicDictionary[graphivm.Id].Item1 as HistogramView;
+                        if (graphic != null && !GraphicViewList.Items.Contains(graphic))
+                        {
+                            GraphicViewList.Items.Add(graphic);
+                        }
+                    }
+                }
             }
+
             var index = -1;
             if (newDataContext.SelectedGraphic != null)
             {
@@ -161,7 +162,8 @@ namespace ThorCyte.GraphicModule.Views
             {
                 DataContext = vm
             };
-            containerVm.GraphicDictionary.Add(vm.Id,new Tuple<GraphicUcBase, GraphicVmBase>(scattergram,vm));
+            vm.ViewDispatcher = Dispatcher;
+            containerVm.GraphicDictionary.Add(vm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(scattergram, vm));
             GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
             GraphicViewList.Items.Add(scattergram);
             if (containerVm.GraphicVmList.Count == 1)
@@ -184,7 +186,7 @@ namespace ThorCyte.GraphicModule.Views
             {
                 DataContext = vm
             };
-            
+            vm.ViewDispatcher = Dispatcher;
             containerVm.GraphicDictionary.Add(vm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(histogram, vm));
             GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
             GraphicViewList.Items.Add(histogram);
@@ -204,7 +206,7 @@ namespace ThorCyte.GraphicModule.Views
             {
                 return;
             }
-            
+            containerVm.SelectedGraphic = null;
             containerVm.SelectedGraphic = (GraphicVmBase)((GraphicUcBase)GraphicViewList.SelectedItem).DataContext;
         }
 

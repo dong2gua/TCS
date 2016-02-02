@@ -44,9 +44,13 @@ namespace ThorCyte.ProtocolModule.Views
         }
         public CreateModuleHandler CreateModule;
 
-        private IEventAggregator EventAggregator
+        private IEventAggregator _eventAggregator;
+        public IEventAggregator EventAggregator
         {
-            get { return ServiceLocator.Current.GetInstance<IEventAggregator>(); }
+            get
+            {
+                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
         }
         #endregion
 
@@ -58,7 +62,6 @@ namespace ThorCyte.ProtocolModule.Views
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             SerTb.Text = DefaultKeyword;
             DataContext = MarcoEditorViewModel.Instance;
-
             ExpLoaded(0);
         }
         #endregion
@@ -175,21 +178,13 @@ namespace ThorCyte.ProtocolModule.Views
 
         private void OnMouseLeftUp(object sender, MouseButtonEventArgs e)
         {
-            var isModule = IsChildInTree((DependencyObject)e.OriginalSource, typeof(Module));
+            //var isModule = IsChildInTree((DependencyObject)e.OriginalSource, typeof(Module));
 
-            if (isModule)
-            {
-                var ctrl_module = FindParentModule((DependencyObject) e.OriginalSource);
-                if (ctrl_module != null)
-                {
-                    var module = ctrl_module.Content as ModuleBase;
-                    if(module != null)
-                        ViewModel.SelectModuleOrder.Add(module.Id);
-                }
-
-                var vm = ViewModel.GetSelectedModule();
-                ViewModel.PannelVm.SelectedModuleViewModel = vm;
-            }
+            //if (isModule)
+            //{
+            //    var vm = ViewModel.GetSelectedModule();
+            //    ViewModel.PannelVm.SelectedModuleViewModel = vm;
+            //}
         }
 
         private Module FindParentModule(DependencyObject obj)

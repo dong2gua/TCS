@@ -5,20 +5,161 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converts="clr-namespace:ThorCyte.GraphicModule.Converts"
              xmlns:views="clr-namespace:ThorCyte.GraphicModule.Views"
+             RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode= "NearestNeighbor"
              mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300" x:Name="GraphicModuleView">
     <UserControl.Resources>
         <converts:VisibilityConverter x:Key="VisibleCvt"/>
+        <SolidColorBrush x:Key="SelectedTabItemBrush" Color="White"/>
+        <Style x:Key="ItemStyle" TargetType="{x:Type TabItem}">
+            <Setter Property="FocusVisualStyle" Value="{DynamicResource TabItemFocusVisual}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="Padding" Value="6,1,6,1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource TabControlNormalBorderBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonNormalBackground}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabItem}">
+                        <Grid x:Name="Container">
+                            <Grid x:Name="Grid" SnapsToDevicePixels="true" Margin="0,0,-12,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Border x:Name="Bd"
+									    Grid.Column="0"
+									    CornerRadius="3,0,0,0"
+									    BorderBrush="{TemplateBinding BorderBrush}"
+									    BorderThickness="0"
+									    Background="{TemplateBinding Background}"
+									    Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter x:Name="Content" Margin="6,1,6,1" ContentSource="Header"
+										    HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+										    RecognizesAccessKey="True"
+										    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+										    VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                                </Border>
+                                <Path x:Name="RoundedCorner"
+                                          Grid.Column="1"
+                                          Grid.Row="0"
+                                          Width="23"
+                                          Stretch="Fill"
+                                          Data="{DynamicResource TabItemRoundedCorner}"
+                                          Fill="{TemplateBinding Background}" />
+                                <Path x:Name="CornerLayer"
+                                          Grid.Column="1"
+                                          Grid.Row="0"
+                                          Width="23"
+                                          Data="F1 M 1,23.7499L 1,1.00003L 22.2605,1.00003"/>
+                            </Grid>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TabItemHotBackground}"/>
+                                <Setter Property="Fill"  TargetName="RoundedCorner" Value="{DynamicResource TabItemHotBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter Property="Panel.ZIndex" Value="1"/>
+                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TabItemSelectedBackground}"/>
+                                <Setter Property="Fill"  TargetName="RoundedCorner" Value="{DynamicResource TabItemSelectedBackground}"/>
+                                <Setter Property="Stroke" TargetName="RoundedCorner" Value="{StaticResource SelectedTabItemBrush}"/>
+                                <Setter Property="StrokeThickness" TargetName="RoundedCorner" Value="1"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource SelectedTabItemBrush}"/>
+                                <Setter Property="BorderThickness" TargetName="Bd" Value="1,1,0,0"/>
+                                <Setter Property="Margin" TargetName="Grid" Value="0,0,-12,0"/>
+                                <Setter Property="StrokeThickness" TargetName="CornerLayer" Value="1"/>
+                                <Setter Property="Stroke" TargetName="CornerLayer" Value="{DynamicResource TabItemSelectedBackground}"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="false"/>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TabItemHotBorderBrush}"/>
+                                <Setter Property="Fill"  TargetName="RoundedCorner" Value="{DynamicResource TabItemHotBorderBrush}"/>
+                            </MultiTrigger>
+                            <Trigger Property="TabStripPlacement" Value="Bottom">
+                                <Setter Property="Style" TargetName="RoundedCorner" Value="{DynamicResource BottomStyle}"/>
+                                <Setter Property="Style" TargetName="Bd" Value="{DynamicResource BottomStyle}"/>
+                                <Setter Property="Style" TargetName="Content" Value="{DynamicResource BottomStyle}"/>
+                            </Trigger>
+                            <Trigger Property="TabStripPlacement" Value="Left">
+                                <Setter Property="Grid.Row" TargetName="Bd" Value="0"/>
+                                <Setter Property="Grid.Column" TargetName="Bd" Value="0"/>
+                                <Setter Property="Grid.Row" TargetName="RoundedCorner" Value="1"/>
+                                <Setter Property="Grid.Column" TargetName="RoundedCorner" Value="0"/>
+                                <Setter Property="Style" TargetName="RoundedCorner" Value="{DynamicResource RoundedCornerLeftStyle}"/>
+                                <Setter Property="Style" TargetName="Bd" Value="{DynamicResource LeftStyle}"/>
+                                <Setter Property="Style" TargetName="Content" Value="{DynamicResource DefaultStyle}"/>
+                                <Setter Property="Margin" TargetName="Grid" Value="0,1,0,-16"/>
+                                <Setter Property="CornerRadius" TargetName="Bd" Value="0 3 0 0"/>
+                                <Setter Property="Margin" TargetName="RoundedCorner" Value="0 4 0 0"/>
+                            </Trigger>
+                            <Trigger Property="TabStripPlacement" Value="Right">
+                                <Setter Property="Grid.Row" TargetName="Bd" Value="0"/>
+                                <Setter Property="Grid.Column" TargetName="Bd" Value="1"/>
+                                <Setter Property="Grid.Row" TargetName="RoundedCorner" Value="1"/>
+                                <Setter Property="Grid.Column" TargetName="RoundedCorner" Value="1"/>
+                                <Setter Property="Style" TargetName="RoundedCorner" Value="{DynamicResource RightStyle}"/>
+                                <Setter Property="Style" TargetName="Bd" Value="{DynamicResource RightStyle}"/>
+                                <Setter Property="Style" TargetName="Content" Value="{DynamicResource DefaultStyle}"/>
+                                <Setter Property="Margin" TargetName="Grid" Value="0,1,0,-12"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="TabStripPlacement" Value="Top"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Margin"  Value="0,0,0,-1"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="TabStripPlacement" Value="Bottom"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Margin" Value="0,-1,0,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="TabStripPlacement" Value="Left"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Margin" Value="0,0,-1,0"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="true"/>
+                                    <Condition Property="TabStripPlacement" Value="Right"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Margin" Value="-1,0,0,0"/>
+                            </MultiTrigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TabItemDisabledBackground}"/>
+                                <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TabItemDisabledBorderBrush}"/>
+                                <Setter Property="Fill" TargetName="RoundedCorner" Value="{DynamicResource TabItemDisabledBackground}"></Setter>
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Margin="0,5,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
-
-        <TabControl x:Name="GraphicTabControl" Grid.Column="0" Margin="0,5,0,0" ItemsSource="{Binding GraphicContainerVms}" 
-                    TabStripPlacement="Bottom"  SelectedItem="{Binding SelectedContainer}" SelectionChanged="OnSelectedChanged">
-                <TabControl.ItemTemplate>
+            <TabControl x:Name="GraphicTabControl" Grid.Column="0"  ItemsSource="{Binding GraphicContainerVms}"
+                    TabStripPlacement="Bottom"  SelectedItem="{Binding SelectedContainer}" SelectionChanged="OnSelectedChanged"
+                    ItemContainerStyle="{StaticResource ItemStyle}" BorderBrush="{StaticResource SelectedTabItemBrush}" BorderThickness="1">
+            <TabControl.ItemTemplate>
                 <DataTemplate>
                     <Grid MinWidth="30" Height="20">
                         <TextBlock Text="{Binding Name}" Visibility="{Binding IsEdit,Converter={StaticResource VisibleCvt},ConverterParameter=false}" MouseLeftButtonDown="OnClickName"/>
@@ -31,7 +172,6 @@
                     </Grid>
                 </DataTemplate>
             </TabControl.ItemTemplate>
-
             <TabControl.ContentTemplate>
                 <DataTemplate>
                     <views:GraphicPanelView DataContext="{Binding DataContext.SelectedContainer, RelativeSource={RelativeSource FindAncestor,AncestorType=TabControl}}" Margin="5" Loaded="OnLoaded"/>
@@ -44,13 +184,13 @@
                 <Image Source="../Resource/Images/AddTab.png"/>
             </Button>
             <StackPanel Orientation="Vertical" DataContext="{Binding SelectedContainer}" IsEnabled="{Binding ElementName=GraphicModuleView,Path=DataContext.IsControlEnabled}">
-                <Button Command="{Binding Path=DataContext.DeleteTabCmd,ElementName=GraphicModuleView}" ToolTip="Delete tab">
+                <Button Command="{Binding Path=DataContext.DeleteTabCmd,ElementName=GraphicModuleView}" IsEnabled="{Binding ElementName=GraphicModuleView,Path=DataContext.IsDeleteTabEnabled}" ToolTip="Delete tab">
                     <Image Source="../Resource/Images/DeleteTab.png"/>
                 </Button>
-                <Button Click="OnAddScattergram" ToolTip="New Scattergram">
+                <Button Click="OnAddScattergram" IsEnabled="{Binding IsNewGraphicEnabled}" ToolTip="New Scattergram">
                     <Image Source="../Resource/Images/NewScattergram.png"/>
                 </Button>
-                <Button Click="OnAddHistogram" ToolTip="New Histogram">
+                <Button Click="OnAddHistogram" IsEnabled="{Binding IsNewGraphicEnabled}" ToolTip="New Histogram">
                     <Image Source="../Resource/Images/NewHistogram.png"/>
                 </Button>
                 <Button IsEnabled="{Binding IsDeleteEnabled}" Click="OnDeleteGraphic" ToolTip="Delete">

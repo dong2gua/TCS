@@ -815,9 +815,15 @@ namespace ThorCyte.Infrastructure.Interfaces
             Clear();
             BasePath = Path.GetDirectoryName(experimentPath);
             _firstScanInfo.DataPath = BasePath;
-            _experimentInfo.AnalysisPath = BasePath + "\\Analysis";
+            _experimentInfo.ExperimentPath = BasePath;
+            //_experimentInfo.AnalysisPath = BasePath + "\\Analysis";
             if (!Directory.Exists(BasePath))
                 throw new DirectoryNotFoundException(string.Format("{0} not found!", BasePath));
+        }
+
+        public void SetAnalysisPath(string path)
+        {
+            _experimentInfo.AnalysisPath = path;
         }
         #endregion
 

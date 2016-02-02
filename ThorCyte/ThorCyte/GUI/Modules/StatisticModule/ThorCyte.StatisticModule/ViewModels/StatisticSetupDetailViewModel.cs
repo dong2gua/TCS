@@ -56,6 +56,7 @@ namespace ThorCyte.Statistic.ViewModels
                 if (!isUserDefineRunFeatureName)
                 {
                     _RunFeatureName = (SelectedComponent == null ? "" : SelectedComponent.Name)
+                        + (SelectedStatisticMethod == null ? "" : " " + SelectedStatisticMethod.Name)
                         + (SelectedFeature == null ? "" : " " + SelectedFeature.Name)
                         + (SelectedChannel == null ? "" : " " + SelectedChannel.Name)
                         + (SelectedRegion == null ? "" : " " + SelectedRegion.Name);
@@ -107,7 +108,13 @@ namespace ThorCyte.Statistic.ViewModels
             {
                 if (SelectedComponent != null)
                 {
-                    return Enum.GetNames(typeof(EnumStatistic)).Select(x => new StatisticMethod(){Name = x}).ToList();
+                    return Enum.GetNames(typeof(EnumStatistic)).Select(x =>
+                            new StatisticMethod()
+                            {
+                                Name = x,
+                                MethodType = (EnumStatistic)Enum.Parse(typeof(EnumStatistic), x),
+                                Method = StatisticMethod.GetStatisticMethod((EnumStatistic)Enum.Parse(typeof(EnumStatistic), x))
+                            }).ToList();
                 }
                 else
                 {

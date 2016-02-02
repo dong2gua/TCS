@@ -9,7 +9,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
     {
         public GraphicsScaler()
         {
-            GraphicsObjectColor = Colors.Red;
+            GraphicsObjectColor = Colors.Black;
         }
         public Point Point;
         public double XPixelSize { get; set; }
@@ -48,6 +48,8 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 
             var start = new Point(Point.X , Point.Y);
             var end = new Point(Point.X  + displayLength, Point.Y );
+            drawingContext.DrawRoundedRectangle(new SolidColorBrush(Color.FromArgb(100, 255, 255, 255)), null, new Rect(start.X-3,start.Y-20,displayLength+6,25), 2, 2);
+
             drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), start, end);
             drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth),new Point( start.X,start.Y-5), start);
             drawingContext.DrawLine(new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), new Point(end.X, end.Y - 5 ), end);

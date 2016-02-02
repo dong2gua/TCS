@@ -1,18 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
 using Prism.Events;
 using ThorCyte.Infrastructure.Events;
 
@@ -30,17 +16,34 @@ namespace MosicaModule.Views
             InitializeComponent();
             _isSelectChanged = false;
             _eventAggregator = eventAggregator;
-            _eventAggregator.GetEvent<MacroFinishEvent>().Subscribe(SwithView, ThreadOption.UIThread, true);
+            _eventAggregator.GetEvent<MacroFinishEvent>().Subscribe(EndRun, ThreadOption.UIThread, true);
+            _eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExperimentLoaded);
+            _eventAggregator.GetEvent<MacroRunEvent>().Subscribe(StartRun, ThreadOption.UIThread, true);
         }
 
-        private void SwithView(int obj)
+        private void StartRun(int obj)
         {
+            SetTabStatus(false);
+        }
+
+        private void ExperimentLoaded(int obj)
+        {
+            if (TabControl.SelectedIndex != 0)
+            {
+                TabControl.SelectedIndex = 0;
+            }
+        }
+
+        private void EndRun(int obj)
+        {
+            SetTabStatus(true);
             TabControl.SelectedIndex = 2;
         }
 
         private void OnSelectTabChanged(object sender, SelectionChangedEventArgs e)
         {
             TabControl tabControl = sender as TabControl;
+
             if (tabControl.SelectedIndex == 0)
             {
                 if (_isSelectChanged)
@@ -59,6 +62,17 @@ namespace MosicaModule.Views
                 }
                 
             }
+        }
+
+        private void SetTabStatus(bool bEnable)
+        {
+            foreach (var item in TabControl.Items)
+            {
+                TabItem tabItem = item as TabItem;
+                if (tabItem.Header.ToString() != "Protocol")
+                    tabItem.IsEnabled = bEnable;
+            }
+
         }
     }
 }

@@ -25,11 +25,16 @@ namespace ThorCyte.Statistic.ViewModels
         {
             SetupPopup = new InteractionRequest<StatisticDataNotification>();
             ExperimentAdapter = experiment;
+            IsWellStatisticShow = false;
+            IsRegionStatisticShow = false;
         }
 
         public InteractionRequest<StatisticDataNotification> SetupPopup { get; private set; }
 
         public RunFeature CurrentRunFeature { get; set; }
+
+        public bool IsWellStatisticShow { get; set; }
+        public bool IsRegionStatisticShow { get; set; }
 
         public ICommand SetupStatisticCommand
         {
@@ -51,6 +56,10 @@ namespace ThorCyte.Statistic.ViewModels
                 //statisticNotify.SelectedStatisticRecord = sr;
                 #endregion  
                 return new DelegateCommand(() => {
+                    IsWellStatisticShow = false;
+                    IsRegionStatisticShow = false;
+                    OnPropertyChanged(() => IsWellStatisticShow);
+                    OnPropertyChanged(() => IsRegionStatisticShow);
                     var sm = new StatisticModel();
                     //Get Component
                     var components = ComponentDataManager.Instance.GetComponentNames();
@@ -58,7 +67,7 @@ namespace ThorCyte.Statistic.ViewModels
                     var wellComponent = new Component { Name = "Well" };
                     sm.ComponentContainer.Add(wellComponent);
                     sm.ComponentContainer.Reverse();
-                    var statisticNotify = new StatisticDataNotification(sm) { Title = "StepUp", Content = "None", SelectedComponent=wellComponent, SelectedRunFeature=null };
+                    var statisticNotify = new StatisticDataNotification(sm) { Title = "Setup", Content = "None", SelectedComponent=wellComponent, SelectedRunFeature=null };
                     SetupPopup.Raise(statisticNotify,
                  (result) => {
                      CurrentRunFeature = result.SelectedRunFeature;
@@ -79,33 +88,102 @@ namespace ThorCyte.Statistic.ViewModels
                     columns.Add(new DataGridColumns { DisplayColumnName = "Label", BindingPropertyName = "Label", Width = 65 });
                     columns.Add(new DataGridColumns { DisplayColumnName = "Row", BindingPropertyName = "Row", Width = 65 });
                     columns.Add(new DataGridColumns { DisplayColumnName = "Col", BindingPropertyName = "Col", Width = 65 });
+                    //to do: add column dynamic
                     columns.Add(new DataGridColumns { DisplayColumnName = CurrentRunFeature.Name ?? "Value", BindingPropertyName = "Value", Width = CurrentRunFeature.Name.Length*6 });
+                    IsWellStatisticShow = true;
+                    IsRegionStatisticShow = false;
+                    OnPropertyChanged(() => IsWellStatisticShow);
+                    OnPropertyChanged(() => IsRegionStatisticShow);
                     OnPropertyChanged(() => DataCollection);
                 }
                 return columns;
             }
         }
 
+        private int GetDataIndex(Feature pFeature, Channel pChannel)
+        {
+            if (pFeature.IsPerChannel && pChannel != null)
+            {
+                return pFeature.FeatureIndex + pChannel.Index; 
+            }
+            else
+                return pFeature.FeatureIndex;
+        }
+
+        //to do: get featurelist and channellist in advance, the method can be optimized.
+        private int GetDataIndex(string pComponentName, string pFeature, string pChannel)
+        {
+            var featureList = ComponentDataManager.Instance.GetFeatures(pComponentName)
+                .Select(x => new Feature() { Name = x.Name, IsPerChannel = x.IsPerChannel, FeatureIndex = x.Index }).ToList();
+            var feature = featureList.Find(x => x.Name == pFeature);
+
+            Channel channel = null;
+            if (pChannel != "")
+            {
+                var channelList = ComponentDataManager.Instance.GetChannels(pComponentName)
+                    .Select(x => new Channel() { Name = x.ChannelName }).ToList();
+                for (int i = 0; i < channelList.Count; i++)
+                {
+                    channelList[i].Index = i + 1;
+                }
+                channel = channelList.Find(x => x.Name == pChannel);
+            }
+
+            if (feature != null && channel != null && feature.IsPerChannel)
+            {
+                return feature.FeatureIndex + channel.Index;
+            }
+            else if (feature != null)
+                return feature.FeatureIndex;
+            else
+                return 0;
+        }
+
+
         public ObservableCollection<ExpandoObject> DataCollection
         {
             get
             {
-                if (WellStatisticDataSource != null)
+                try
                 {
-                    var GridViewRowCollection = new ObservableCollection<ExpandoObject>(WellStatisticDataSource.Select(x =>
+                    int scanid = ExperimentAdapter.GetCurrentScanId();
+                    var WellList = ExperimentAdapter.GetScanInfo(scanid).ScanWellList;
+                    var num = new List<int>();
+                    for (int i = 0; i < WellList.Count; i++)
                     {
+                        num.Add(i);
+                    }
+                    //to do: get statistic list
+                    if (CurrentRunFeature == null || !CurrentRunFeature.IsValid())
+                        return null;
+
+                    string ComponentName = CurrentRunFeature.ComponentContainer[0].Name;
+                    StatisticMethod StatisticMethod = CurrentRunFeature.StatisticMethodContainer[0];
+                    Feature CurrentFeature = CurrentRunFeature.FeatureContainer[0];
+
+                    var GridViewRowCollection = new ObservableCollection<ExpandoObject>(num.Select(x =>
+                    {
+                        //to do: get specific region? where is the API
+                        var aEvent = ComponentDataManager.Instance.GetEvents(ComponentName, x + 1);
                         var item = new ExpandoObject() as IDictionary<string, object>;
-                        item.Add("Index", x.Index.ToString());
-                        item.Add("Well", x.Well);
-                        item.Add("Label", x.Label);
-                        item.Add("Row", x.Row);
-                        item.Add("Col", x.Col);
-                        item.Add("Value", x.Value);
-                        return (ExpandoObject)item;
+                        var statisticmthd = StatisticMethod.MethodType;
+                        item.Add("Index", (x + 1).ToString());
+                        item.Add("Well",
+                            Convert.ToChar((x/12 + 1) + 64).ToString() + (x%12 == 0 ? 1 : x%12 + 1).ToString());
+                        item.Add("Label", "");
+                        item.Add("Row", (x/12 + 1).ToString());
+                        item.Add("Col", (x%12 == 0 ? 1 : x%12 + 1).ToString());
+                        //to do: add value dynamic
+                        item.Add("Value", string.Format("{0:f4}", StatisticMethod.Method(
+                            aEvent.Select(y =>
+                                y[
+                                    GetDataIndex(CurrentFeature,
+                                        CurrentRunFeature.HasChannel() ? CurrentRunFeature.ChannelContainer[0] : null)]))));
+                        return (ExpandoObject) item;
                     }));
                     return GridViewRowCollection;
                 }
-                else
+                catch (Exception)
                 {
                     return null;
                 }
@@ -116,39 +194,6 @@ namespace ThorCyte.Statistic.ViewModels
         
         public ICommand WellStatisticCommand { get {
             return new DelegateCommand(() => {
-                int scanid = ExperimentAdapter.GetCurrentScanId();
-                var WellList = ExperimentAdapter.GetScanInfo(scanid).ScanWellList;
-                var num = new List<int>();
-                for (int i = 0; i < WellList.Count; i++)
-                {
-                    num.Add(i);
-                }
-                if (CurrentRunFeature.ComponentContainer.FirstOrDefault() == null)
-                    return;
-                if (CurrentRunFeature.FeatureContainer.FirstOrDefault() == null)
-                    return;
-                int ChannelIndex = 0;
-                if (CurrentRunFeature.ChannelContainer.FirstOrDefault() == null)
-                    ChannelIndex = 0;
-                else if (CurrentRunFeature.FeatureContainer[0].IsPerChannel)
-                    ChannelIndex = CurrentRunFeature.ChannelContainer[0].Index;
-                else
-                    ChannelIndex = 0;
-
-                WellStatisticDataSource = num.Select(x =>
-                {
-                    var aEvent = ComponentDataManager.Instance.GetEvents(CurrentRunFeature.ComponentContainer.FirstOrDefault().Name, x + 1);
-                    return new WellStatisticEntry()
-                    {
-                        Index = (x+1).ToString(),
-                        Col = (x % 12 == 0 ? 1 : x % 12 + 1).ToString(),
-                        Row = (x / 12 + 1).ToString(),
-                        Well = Convert.ToChar((x / 12 + 1) + 64).ToString() + (x % 12 == 0 ? 1 : x % 12 + 1).ToString(),
-                        Label = "",
-                        Value = aEvent.Average(y => y[CurrentRunFeature.FeatureContainer[0].FeatureIndex + ChannelIndex])
-                    };
-                }).ToList();
-                //OnPropertyChanged(() => WellStatisticDataSource);
                 OnPropertyChanged(() => GridViewColumns);
             }, () => CurrentRunFeature != null);
         } }
@@ -156,41 +201,86 @@ namespace ThorCyte.Statistic.ViewModels
         public List<RegionStatisticEntry> RegionStatisticDataSource { get; set; }
         public ICommand RegionStatisticCommand { get {
             return new DelegateCommand(() => {
-                //var testregions =
-                //ComponentDataManager.Instance.GetComponentNames()
-                //    .SelectMany(x => ROIManager.Instance.GetRegionIdList(x))
-                //    .Distinct()
-                //    .Select(x => ROIManager.Instance.GetRegion(x));
+                IsWellStatisticShow = false;
+                IsRegionStatisticShow = true;
+                OnPropertyChanged(() => IsWellStatisticShow);
+                OnPropertyChanged(() => IsRegionStatisticShow);
                 var regionstatisticlist =   
                 ComponentDataManager.Instance.GetComponentNames()
-                    .SelectMany(x => ROIManager.Instance.GetRegionIdList(x))
+                    .SelectMany(x => ROIManager.Instance.GetRegionIdList(x).Select(i => new {ComponentName = x, RegionName=i}))//get region list
                     .Distinct()
-                    .Select(x => new {Name = x, MR = ROIManager.Instance.GetRegion(x)})
+                    .Select(x => new {ComponentName=x.ComponentName, RegionName = x.RegionName, MarkRegion = ROIManager.Instance.GetRegion(x.RegionName)})//get mark region
                     .SelectMany(x =>
                         {
-                            var aevent = ROIManager.Instance.GetEvents(x.Name);
+                            var aevent = ROIManager.Instance.GetEvents(x.RegionName);
                             if (aevent == null || aevent.Count == 0)
-                                return null;
+                            {
+                                return new List<RegionStatisticEntry>{ 
+                                new RegionStatisticEntry() 
+                                {  
+                                    RegionName = x.RegionName,
+                                    Label = "", 
+                                    Parameter =  (x.MarkRegion.ChannelNumeratorX == null ?"":(x.MarkRegion.ChannelNumeratorX + " ")) + x.MarkRegion.FeatureTypeNumeratorX,
+                                    MeanValue = 0,
+                                    MedianValue = 0,
+                                    CVValue = 0
+                                },
+                                new RegionStatisticEntry() 
+                                {  
+                                    RegionName = x.RegionName,
+                                    Label = "", 
+                                    Parameter =  (x.MarkRegion.ChannelNumeratorY == null ?"":(x.MarkRegion.ChannelNumeratorY + " ")) + x.MarkRegion.FeatureTypeNumeratorY,
+                                    MeanValue = 0,
+                                    MedianValue = 0,
+                                    CVValue = 0
+                                }
+                                };
+                            }   
                             else
                             {
-                                return new List<RegionStatisticEntry>{
+                                var tData = ROIManager.Instance.GetEvents(x.RegionName);
+                                return new List<RegionStatisticEntry>{      
                                     new RegionStatisticEntry()
                                     {
-                                        RegionName = x.Name,
+                                        RegionName = x.RegionName,
                                         Label = "",
-                                        Parameter = (x.MR.ChannelNumeratorX == null ?"":(x.MR.ChannelNumeratorX + " ")) + x.MR.FeatureTypeNumeratorX,
-                                        MeanValue = ROIManager.Instance.GetEvents(x.Name).Average(y => y[5]),
-                                        MedianValue = ROIManager.Instance.GetEvents(x.Name)[ROIManager.Instance.GetEvents(x.Name).Count / 2][5],
-                                        CVValue = ROIManager.Instance.GetEvents(x.Name).Average(y => y[6])
+                                        Parameter = (x.MarkRegion.ChannelNumeratorX == null ?"":(x.MarkRegion.ChannelNumeratorX + " ")) + x.MarkRegion.FeatureTypeNumeratorX,
+                                        MeanValue =  StatisticMethod.GetStatisticMethod(EnumStatistic.Mean)(
+                                            tData.Select( y =>
+                                                y[GetDataIndex(x.ComponentName, 
+                                                               Enum.GetName(typeof(ComponentDataService.Types.FeatureType), x.MarkRegion.FeatureTypeNumeratorX), 
+                                                               x.MarkRegion.ChannelNumeratorX)])),
+                                        MedianValue = StatisticMethod.GetStatisticMethod(EnumStatistic.Median)(
+                                            tData.Select( y =>
+                                                y[GetDataIndex(x.ComponentName, 
+                                                               Enum.GetName(typeof(ComponentDataService.Types.FeatureType), x.MarkRegion.FeatureTypeNumeratorX), 
+                                                               x.MarkRegion.ChannelNumeratorX)])),
+                                        CVValue = StatisticMethod.GetStatisticMethod(EnumStatistic.CV)(
+                                            tData.Select( y =>
+                                                y[GetDataIndex(x.ComponentName, 
+                                                               Enum.GetName(typeof(ComponentDataService.Types.FeatureType), x.MarkRegion.FeatureTypeNumeratorX), 
+                                                               x.MarkRegion.ChannelNumeratorX)])),
                                    },
                                     new RegionStatisticEntry()
                                     {
-                                        RegionName = x.Name,
+                                        RegionName = x.RegionName,
                                         Label = "",
-                                        Parameter = (x.MR.ChannelNumeratorY == null ?"":(x.MR.ChannelNumeratorY + " ")) + x.MR.FeatureTypeNumeratorY,
-                                        MeanValue = ROIManager.Instance.GetEvents(x.Name).Average(y => y[5]),
-                                        MedianValue = ROIManager.Instance.GetEvents(x.Name)[ROIManager.Instance.GetEvents(x.Name).Count / 2][5],
-                                        CVValue = ROIManager.Instance.GetEvents(x.Name).Average(y => y[6])
+                                        Parameter = (x.MarkRegion.ChannelNumeratorY == null ?"":(x.MarkRegion.ChannelNumeratorY + " ")) + x.MarkRegion.FeatureTypeNumeratorY,
+                                        MeanValue = StatisticMethod.GetStatisticMethod(EnumStatistic.Mean)(
+                                            tData.Select( y =>
+                                                y[GetDataIndex(x.ComponentName, 
+                                                               Enum.GetName(typeof(ComponentDataService.Types.FeatureType), x.MarkRegion.FeatureTypeNumeratorY), 
+                                                               x.MarkRegion.ChannelNumeratorY)])),
+                                        MedianValue = StatisticMethod.GetStatisticMethod(EnumStatistic.Median)(
+                                            tData.Select( y =>
+                                                y[GetDataIndex(x.ComponentName, 
+                                                               Enum.GetName(typeof(ComponentDataService.Types.FeatureType), x.MarkRegion.FeatureTypeNumeratorY), 
+                                                               x.MarkRegion.ChannelNumeratorY)])),
+                                        CVValue = StatisticMethod.GetStatisticMethod(EnumStatistic.CV)(
+                                            tData.Select( y =>
+                                                y[GetDataIndex(x.ComponentName, 
+                                                               Enum.GetName(typeof(ComponentDataService.Types.FeatureType), x.MarkRegion.FeatureTypeNumeratorY), 
+                                                               x.MarkRegion.ChannelNumeratorY)])),
                                    },
                                 };
                             }

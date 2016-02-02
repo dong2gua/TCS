@@ -47,6 +47,9 @@
     <Reference Include="Abt.Controls.SciChart.Wpf">
       <HintPath>..\..\..\..\Tools\Abt.Controls.SciChart.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="ComponentDataService">
+      <HintPath>..\..\..\..\Bin\ComponentDataService.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -61,6 +64,10 @@
     </Reference>
     <Reference Include="Prism.Wpf">
       <HintPath>..\..\..\..\Tools\Prism\Prism.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="ROIService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Bin\ROIService.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -85,7 +92,6 @@
   <ItemGroup>
     <Compile Include="Controls\ComColor.cs" />
     <Compile Include="Controls\GraphicDataTemplateSelector.cs" />
-    <Compile Include="Controls\Graphics\GraphicGrid.cs" />
     <Compile Include="Controls\Graphics\GraphicLine.cs" />
     <Compile Include="Controls\Graphics\GraphicQuarant.cs" />
     <Compile Include="Controls\Graphics\GraphicsBase.cs" />
@@ -106,6 +112,7 @@
     <Compile Include="Controls\RegionTools\RegionToolRectangle.cs" />
     <Compile Include="Controls\RegionTools\RegionToolRectangleBase.cs" />
     <Compile Include="Controls\Scattergram.cs" />
+    <Compile Include="Converts\AxisSelectedConvert.cs" />
     <Compile Include="Converts\BkgConvert.cs" />
     <Compile Include="Converts\ColorBrushConvert.cs" />
     <Compile Include="Converts\ColorTypeConvert.cs" />
@@ -119,6 +126,7 @@
     <Compile Include="Converts\VisibilityConverter.cs" />
     <Compile Include="Events\EventArgs.cs" />
     <Compile Include="Events\Events.cs" />
+    <Compile Include="Helper\UIHelper.cs" />
     <Compile Include="ViewModels\GraphicManagerVm.cs" />
     <Compile Include="GraphicModule.cs" />
     <Compile Include="Helper\ConstantHelper.cs" />
@@ -273,16 +281,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Common\ComponentDataService\ComponentDataService.csproj">
-      <Project>{e664e623-fcec-44ea-baa1-75d7a6e4ae09}</Project>
-      <Name>ComponentDataService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Common\ROIService\ROIService\ROIService.csproj">
-      <Project>{122bb5d4-69a6-4351-929f-76eebfa456a1}</Project>
-      <Name>ROIService</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

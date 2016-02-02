@@ -66,6 +66,11 @@
     <Compile Include="Commom\RawDataReader.cs" />
     <Compile Include="Controls\DoubleClickCollapseGridSplitterBehavior.cs" />
     <Compile Include="Controls\DockPanelSplitter.cs" />
+    <Compile Include="Controls\MouseBehaviours.cs" />
+    <Compile Include="Controls\NoGdiWindow\CustomWindow.cs" />
+    <Compile Include="Controls\NoGdiWindow\DelegateCommand.cs" />
+    <Compile Include="Controls\NoGdiWindow\NoGdiWindow.cs" />
+    <Compile Include="Controls\NoGdiWindow\PropertyChanged.cs" />
     <Compile Include="Events\ExperimentLoadedEvent.cs" />
     <Compile Include="Events\EventType.cs" />
     <Compile Include="Events\FrameChangedEvent.cs" />

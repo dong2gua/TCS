@@ -525,7 +525,7 @@ namespace ThorCyte.CarrierModule.Canvases
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show("Error Occurred in SlideCanvas ShowRegionEventHandler " + ex.Message);
             }
 
         }
@@ -579,6 +579,9 @@ namespace ThorCyte.CarrierModule.Canvases
             foreach (var region in _regionListDic[mode])
             {
                 var gph = (GraphicsBase)_regionGraphicHashtable[region];
+
+                if (gph == null) continue;
+
                 gph.IsSelected = true;
                 _slideMod.AddActiveRegion(region);
             }
@@ -800,6 +803,7 @@ namespace ThorCyte.CarrierModule.Canvases
         {
             _graphicsList.Clear();
             _regionGraphicHashtable.Clear();
+            _regionListDic.Clear();
             var scale = ActualScale / 100;
             foreach (var rgn in _slideMod.TotalRegions)
             {

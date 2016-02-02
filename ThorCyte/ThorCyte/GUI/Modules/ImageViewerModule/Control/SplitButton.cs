@@ -10,6 +10,8 @@ namespace ThorCyte.ImageViewerModule.Control
         public static readonly DependencyProperty DropDownContentProperty = DependencyProperty.Register("DropDownContent", typeof(object), typeof(SplitButton), new PropertyMetadata(null, OnDropDownContentChanged));
         public static readonly DependencyProperty IsOpenProperty = DependencyProperty.Register("IsOpen", typeof(bool), typeof(SplitButton), new PropertyMetadata(false, OnIsOpenChanged));
         public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register("Orientation", typeof(Orientation), typeof(SplitButton), new PropertyMetadata(Orientation.Horizontal));
+        public static readonly DependencyProperty ModeProperty = DependencyProperty.Register("Mode", typeof(SplitButtonMode), typeof(SplitButton), new FrameworkPropertyMetadata(SplitButtonMode.Split));
+
         public object DropDownContent
         {
             get { return (object)GetValue(DropDownContentProperty); }
@@ -25,6 +27,12 @@ namespace ThorCyte.ImageViewerModule.Control
             get { return (Orientation)GetValue(OrientationProperty); }
             set { SetValue(OrientationProperty, value); }
         }
+        public SplitButtonMode Mode
+        {
+            get { return (SplitButtonMode)GetValue(ModeProperty); }
+            set { SetValue(ModeProperty, value); }
+        }
+
         private Popup dropDownPopup;
         private ButtonBase dropDownButton;
         public SplitButton()
@@ -42,6 +50,18 @@ namespace ThorCyte.ImageViewerModule.Control
             if (dropDownButton == null) return;
             dropDownButton.Click += Dropdown_Click;
             dropDownPopup.PlacementTarget = dropDownButton;
+        }
+        protected override void OnClick()
+        {
+            switch (Mode)
+            {
+                case SplitButtonMode.Dropdown:
+                    OnDropdown();
+                    break;
+                default:
+                    base.OnClick();
+                    break;
+            }
         }
         private static void OnDropDownContentChanged(DependencyObject property, DependencyPropertyChangedEventArgs args)
         {
@@ -63,11 +83,20 @@ namespace ThorCyte.ImageViewerModule.Control
         }
         private void Dropdown_Click(object sender, RoutedEventArgs e)
         {
-            IsOpen = true;
-            dropDownPopup.Focus();
+            OnDropdown();
             e.Handled = true;
         }
+        private void OnDropdown()
+        {
+            IsOpen = true;
+            dropDownPopup.Focus();
+        }
     }
+    public enum SplitButtonMode
+    {
+        Split, Dropdown, Button
+    }
+
 }
 
 

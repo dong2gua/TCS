@@ -4,11 +4,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
+using ThorCyte.Infrastructure.Events;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
+using ThorCyte.ProtocolModule.Controls;
 
 namespace ThorCyte.ProtocolModule.ViewModels
 {
@@ -18,18 +22,29 @@ namespace ThorCyte.ProtocolModule.ViewModels
     public class MarcoEditorViewModel : BindableBase
     {
         #region Properties
-        public List<int> SelectModuleOrder = new List<int>(); 
+        public List<int> SelectModuleOrder = new List<int>();
 
         public ICommand SaveMacroCommand { get; private set; }
         public ICommand MacroCommnad { get; private set; }
         public ICommand AlignCommnad { get; private set; }
 
-        private static MarcoEditorViewModel _mainWindowWm = new MarcoEditorViewModel();
+
+        private static readonly MarcoEditorViewModel _mainWindowWm = new MarcoEditorViewModel();
 
         public static MarcoEditorViewModel Instance
         {
             get { return _mainWindowWm; }
         }
+
+        private IEventAggregator _eventAggregator;
+        public IEventAggregator EventAggregator
+        {
+            get
+            {
+                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
+        }
+
 
         /// <summary>
         /// This is the PannelVm that is displayed in the window.
@@ -108,6 +123,10 @@ namespace ThorCyte.ProtocolModule.ViewModels
             MessageHelper.SetMessage += SetMessage;
             MessageHelper.SetProgress += SetProgress;
             MessageHelper.SetRuning += SetRuning;
+            Module.OnSelectionChanged += ModuleOnOnSelectionChanged;
+            EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
+
+
             MacroCommnad = new DelegateCommand(SetMacroCommand);
             SaveMacroCommand = new DelegateCommand(Macro.Save);
 
@@ -120,29 +139,51 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
             _imgSource = IsRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
             _tipStr = IsRuning ? "Stop Run" : "Start Run";
+
+
+        }
+
+        private void ExpLoaded(int obj)
+        {
+            SelectModuleOrder.Clear();
+        }
+
+        private void ModuleOnOnSelectionChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var module = sender as Module;
+
+            if (module == null) return;
+
+            var mb = module.Content as ModuleBase;
+
+            if (mb == null) return;
+
+            //SelectModuleIndex.
+            if ((bool) e.NewValue)
+            {
+                SelectModuleOrder.Add(mb.Id);
+            }
+            else
+            {
+                SelectModuleOrder.Remove(mb.Id);
+            }
+
+            if (SelectModuleOrder.Count > 0)
+                PannelVm.SelectedModuleViewModel = PannelVm.Modules.FirstOrDefault(md => md.Id == SelectModuleOrder[0]);
         }
 
         private void SetModulesAlign(string alnType)
         {
             try
             {
-                int vx;
-                int vy;
+                if (!PannelVm.Modules.Any(md => md.IsSelected)) return;
+                var module = SelectModuleOrder.Count > 0 ?
+                    PannelVm.Modules.FirstOrDefault(md => md.Id == SelectModuleOrder[0]) : PannelVm.Modules.FirstOrDefault(md => md.IsSelected);
 
-                if (SelectModuleOrder.Count == 0) return;
+                if (module == null) return;
+                var vx = module.X;
+                var vy = module.Y;
 
-                if (PannelVm.Modules.Any(md => md.IsSelected))
-                {
-                    var module = PannelVm.Modules.FirstOrDefault(md => md.Id == SelectModuleOrder[0]);
-                    if (module == null) return;
-                    vx = module.X;
-                    vy = module.Y;
-                }
-                else
-                {
-                    return;
-                }
-                
                 foreach (var m in PannelVm.Modules.Where(md => md.IsSelected))
                 {
                     switch (alnType)
@@ -156,6 +197,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                             break;
                     }
                 }
+                SelectModuleOrder.Clear();
             }
             catch (Exception ex)
             {
@@ -267,7 +309,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public void ConnectionDragCompleted(ConnectorModel newConnection, PortModel portDraggedOut, PortModel portDraggedOver)
         {
             if (portDraggedOut.PortType == PortType.InPort) portDraggedOut = newConnection.SourcePort;
-            
+
             if (!IsConnectable(portDraggedOut, portDraggedOver))
             {
                 // The connection was unsuccessful. Maybe the user dragged it out and dropped it in empty space.
@@ -372,13 +414,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     module = PannelVm.Modules[i];
                 }
             }
-
-            if (count == 1)
-            {
-                SelectModuleOrder.Clear();
-                SelectModuleOrder.Add(module.Id);
-            }
-
             return 1 == count ? module : null;
         }
 
@@ -431,4 +466,5 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         #endregion
     }
+
 }
