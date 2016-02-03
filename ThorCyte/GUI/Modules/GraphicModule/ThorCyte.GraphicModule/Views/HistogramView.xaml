@@ -1,0 +1,18 @@
+﻿<controls:GraphicUcBase x:Class="ThorCyte.GraphicModule.Views.HistogramView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:s="http://schemas.abtsoftware.co.uk/scichart"
+             xmlns:controls="clr-namespace:ThorCyte.GraphicModule.Controls"
+             MinHeight="300" MinWidth="300"
+             mc:Ignorable="d" >
+    <controls:GraphicUcBase.Resources>
+        <Style x:Key="GridLinesPanelStyle"  TargetType="s:GridLinesPanel">
+            <Setter Property="Background" Value="#595959"/>
+        </Style>
+    </controls:GraphicUcBase.Resources>
+
+    <!--  Create the chart surface  -->
+    <s:SciChartSurface Name="SciChart" FontSize="16" Background="#595959" GridLinesPanelStyle="{StaticResource GridLinesPanelStyle}" ChartTitle="{Binding Title}" Padding="0,0,15,0"/>
+</controls:GraphicUcBase>

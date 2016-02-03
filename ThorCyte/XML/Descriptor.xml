@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<descriptor version="7.0.0.7">
+  <slides unit="mm">
+    <slide id="00000000-0000-0000-0000-000000000001" name="Standard Slide" owner="CompuCyte" thickness="0.12" width="75" length="25" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0.0" robot="no" hidden="no">
+      <description>Standard Slide</description>
+      <margin right="11.5" top="29" />
+      <height base-to-well="1.2" />
+      <rooms>
+        <room no="1" shape="rectangle" x="0" y="0" w="75" h="25" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000002" name="4 Slide Carrier" owner="CompuCyte" thickness="0.12" width="115.00" length="70.00" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0.0" robot="yes" hidden="no">
+      <description>4 Slide Carrier</description>
+      <margin right="6" top="8" />
+      <height base-to-well="1.15" />
+      <rooms>
+        <room no="1" shape="rectangle" x="7" y="5" w="20" h="60" />
+        <room no="2" shape="rectangle" x="34" y="5" w="20" h="60" />
+        <room no="3" shape="rectangle" x="61" y="5" w="20" h="60" />
+        <room no="4" shape="rectangle" x="88" y="5" w="20" h="60" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000003" name="3 Petri Dish Holder" owner="CompuCyte" thickness="0.41" width="105.40" length="80.00" available-focus-methods="Bottom Only;Bottom Top" default-focus-method="Bottom Top" retraction-offset="2.0" robot="no" hidden="no">
+      <description>Petri Dish</description>
+      <margin right="7" top="0" />
+      <height base-to-well="1.2" />
+      <rooms>
+        <room no="1" shape="circle" x="82" y="52" w="12" h="12" />
+        <room no="2" shape="circle" x="48" y="14" w="12" h="12" />
+        <room no="3" shape="circle" x="14" y="52" w="12" h="12" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000005" name="Clatch Slide" owner="CompuCyte" thickness="0.8" width="75" length="25" available-focus-methods="Bottom Top" default-focus-method="Bottom Top" retraction-offset="0" robot="no" hidden="no">
+      <description>Clatch Slide</description>
+      <margin right="11.5" top="33" />
+      <height base-to-well="1.03" />
+      <rooms>
+        <room no="1" shape="rectangle" x="8.542" y="2.272" w="26.226" h="2.141" />
+        <room no="2" shape="rectangle" x="38.905" y="2.272" w="26.226" h="2.141" />
+        <room no="3" shape="rectangle" x="8.542" y="5.543" w="26.226" h="2.141" />
+        <room no="4" shape="rectangle" x="38.905" y="5.543" w="26.226" h="2.141" />
+        <room no="5" shape="rectangle" x="8.542" y="9.155" w="26.226" h="2.141" />
+        <room no="6" shape="rectangle" x="38.905" y="9.155" w="26.226" h="2.141" />
+        <room no="7" shape="rectangle" x="8.542" y="12.562" w="26.226" h="2.141" />
+        <room no="8" shape="rectangle" x="38.905" y="12.562" w="26.226" h="2.141" />
+        <room no="9" shape="rectangle" x="8.542" y="16.036" w="26.226" h="2.141" />
+        <room no="10" shape="rectangle" x="38.905" y="16.036" w="26.226" h="2.141" />
+        <room no="11" shape="rectangle" x="8.542" y="19.577" w="26.226" h="2.141" />
+        <room no="12" shape="rectangle" x="38.905" y="19.577" w="26.226" h="2.141" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000006" name="4 Slide Carrier - Expanded" owner="CompuCyte" thickness="0.12" width="115" length="70" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0" robot="yes" hidden="yes">
+      <description>4 Slide Carrier - Full Slide</description>
+      <margin right="6" top="8" />
+      <height base-to-well="1.15" />
+      <rooms>
+        <room no="1" shape="rectangle" x="6" y="3" w="22.2" h="65.3" />
+        <room no="2" shape="rectangle" x="33.3" y="3" w="22.2" h="65.3" />
+        <room no="3" shape="rectangle" x="60.5" y="3" w="22.2" h="65.3" />
+        <room no="4" shape="rectangle" x="87.7" y="3" w="22.2" h="65.3" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000007" name="Lab-Tek 2 Chamber Coverslip" owner="CompuCyte" thickness="0.1" width="46" length="16" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0" robot="no" hidden="no">
+      <description>Lab-Tek 2 Chamber Coverslip</description>
+      <margin right="28" top="34.5" />
+      <height base-to-well="1.287" />
+      <rooms>
+        <room no="2" shape="rectangle" x="0" y="0" w="21" h="16" />
+        <room no="1" shape="rectangle" x="25" y="0" w="21" h="16" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000011" name="Lab-Tek 2 Chamber Coverslip--60x" owner="CompuCyte" thickness="0.1" width="40" length="10" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0" robot="no" hidden="no">
+      <description>Lab-Tek 2 Chamber Coverslip--60x</description>
+      <margin right="28" top="34.5" />
+      <height base-to-well="1.287" />
+      <rooms>
+        <room no="2" shape="rectangle" x="0" y="0" w="18" h="10" />
+        <room no="1" shape="rectangle" x="22" y="0" w="18" h="10" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000008" name="Lab-Tek 8 Chamber Coverslip" owner="CompuCyte" thickness="0.112" width="52" length="23" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0" robot="no" hidden="no">
+      <description>Lab-Tek 8 Chamber Coverslip</description>
+      <margin right="25.508" top="31.042" />
+      <height base-to-well="1.268" />
+      <rooms>
+        <room no="1" shape="rectangle" x="39.5" y="2" w="10.5" h="8.45" />
+        <room no="2" shape="rectangle" x="27" y="2" w="10.5" h="8.45" />
+        <room no="3" shape="rectangle" x="14.5" y="2" w="10.5" h="8.45" />
+        <room no="4" shape="rectangle" x="2" y="2" w="10.5" h="8.45" />
+        <room no="5" shape="rectangle" x="39.5" y="12.45" w="10.5" h="8.45" />
+        <room no="6" shape="rectangle" x="27" y="12.45" w="10.5" h="8.45" />
+        <room no="7" shape="rectangle" x="14.5" y="12.45" w="10.5" h="8.45" />
+        <room no="8" shape="rectangle" x="2" y="12.45" w="10.5" h="8.45" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000020" name="Tokai 4 Chamber Slide" owner="CompuCyte" thickness="0.08" width="53" length="21" available-focus-methods="Bottom Top;Bottom Only" default-focus-method="Bottom Only" retraction-offset="3" robot="no" hidden="no" released="yes">
+      <description>
+      </description>
+      <margin right="36" top="35" />
+      <height base-to-well="2.75" />
+      <rooms>
+        <room no="1" shape="rectangle" x="3.5" y="0.25" w="8" h="19.75" />
+        <room no="2" shape="rectangle" x="15.667" y="0.25" w="8" h="19.75" />
+        <room no="3" shape="rectangle" x="27.833" y="0.25" w="8" h="19.75" />
+        <room no="4" shape="rectangle" x="40" y="0.25" w="8" h="19.75" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000021" name="Tokai Standard 35mm Petri" owner="CompuCyte" thickness="0.45" width="127.76" length="85.48" available-focus-methods="Bottom Top;Bottom Only" default-focus-method="Bottom Only" retraction-offset="0" robot="no" hidden="no" released="yes">
+      <description>
+      </description>
+      <margin right="0" top="0" />
+      <height base-to-well="3.375" />
+      <rooms>
+        <room no="1" shape="circle" x="48.75" y="31.25" w="27.5" h="27.5" />
+      </rooms>
+    </slide>
+    <slide id="00000000-0000-0000-0000-000000000022" name="Tokai Standard 50mm Petri" owner="CompuCyte" thickness="0.45" width="127.76" length="85.48" available-focus-methods="Bottom Top;Bottom Only" default-focus-method="Bottom Only" retraction-offset="0" robot="no" hidden="no" released="yes">
+      <description>
+      </description>
+      <margin right="0" top="0" />
+      <height base-to-well="3.375" />
+      <rooms>
+        <room no="1" shape="circle" x="48.75" y="31.25" w="27.5" h="27.5" />
+      </rooms>
+    </slide>
+    <slide id="afe52907-2dce-4a02-91fe-2aad401f42d8" name="MatTek Petri Dish" owner="Custom" thickness="0.222" width="105.4" length="80" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="2" robot="no" hidden="no" released="yes">
+      <description>MatTek Petri Dish</description>
+      <margin right="7" top="0" />
+      <height base-to-well="0.9" />
+      <rooms>
+        <room no="1" shape="circle" x="84.5" y="54.5" w="12" h="12" />
+        <room no="2" shape="circle" x="50.5" y="16.5" w="12" h="12" />
+        <room no="3" shape="circle" x="16.5" y="54.5" w="12" h="12" />
+      </rooms>
+    </slide>
+    <slide id="af602ab8-fd06-4d01-acbe-ceff6333aeaf" name="MatTek 12 Well Glass Bottom Plate" owner="CompuCyte" thickness="0.11" width="113" length="85.48" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0" robot="yes" hidden="no" released="yes">
+      <description>MatTek part no. P12G-1.5-14-F</description>
+      <margin right="7.51" top="1.681" />
+      <height base-to-well="0.65" />
+      <rooms>
+        <room no="1" shape="circle" x="88.55" y="8.99" w="14.1" h="14.1" />
+        <room no="2" shape="circle" x="62.5" y="8.99" w="14.1" h="14.1" />
+        <room no="3" shape="circle" x="36.45" y="8.99" w="14.1" h="14.1" />
+        <room no="4" shape="circle" x="10.4" y="8.99" w="14.1" h="14.1" />
+        <room no="5" shape="circle" x="88.55" y="35.03" w="14.1" h="14.1" />
+        <room no="6" shape="circle" x="62.5" y="35.03" w="14.1" h="14.1" />
+        <room no="7" shape="circle" x="36.45" y="35.03" w="14.1" h="14.1" />
+        <room no="8" shape="circle" x="10.4" y="35.03" w="14.1" h="14.1" />
+        <room no="9" shape="circle" x="88.55" y="61.07" w="14.1" h="14.1" />
+        <room no="10" shape="circle" x="62.5" y="61.07" w="14.1" h="14.1" />
+        <room no="11" shape="circle" x="36.45" y="61.07" w="14.1" h="14.1" />
+        <room no="12" shape="circle" x="10.4" y="61.07" w="14.1" h="14.1" />
+      </rooms>
+    </slide>
+    <slide id="843a3071-4486-478f-a94f-17fa66aacd00" name="MatTek 24 Well FF" owner="Custom" thickness="0.15" width="127.76" length="85.48" available-focus-methods="Bottom Only;Bottom Top" default-focus-method="Bottom Only" retraction-offset="0" robot="yes" hidden="no" released="yes">
+      <description>24 Well Mat Tek Plate Freeform</description>
+      <margin right="2" top="1" />
+      <height base-to-well="0.95" />
+      <rooms>
+        <room no="1" shape="circle" x="105.5" y="7.5" w="13" h="13" />
+        <room no="2" shape="circle" x="86.2" y="7.5" w="13" h="13" />
+        <room no="3" shape="circle" x="66.9" y="7.5" w="13" h="13" />
+        <room no="4" shape="circle" x="47.6" y="7.5" w="13" h="13" />
+        <room no="5" shape="circle" x="28.3" y="7.5" w="13" h="13" />
+        <room no="6" shape="circle" x="9" y="7.5" w="13" h="13" />
+        <room no="7" shape="circle" x="105.5" y="26.5" w="13" h="13" />
+        <room no="8" shape="circle" x="86.2" y="26.5" w="13" h="13" />
+        <room no="9" shape="circle" x="66.9" y="26.5" w="13" h="13" />
+        <room no="10" shape="circle" x="47.6" y="26.5" w="13" h="13" />
+        <room no="11" shape="circle" x="28.3" y="26.5" w="13" h="13" />
+        <room no="12" shape="circle" x="9" y="26.5" w="13" h="13" />
+        <room no="13" shape="circle" x="105.5" y="45.5" w="13" h="13" />
+        <room no="14" shape="circle" x="86.2" y="45.5" w="13" h="13" />
+        <room no="15" shape="circle" x="66.9" y="45.5" w="13" h="13" />
+        <room no="16" shape="circle" x="47.6" y="45.5" w="13" h="13" />
+        <room no="17" shape="circle" x="28.3" y="45.5" w="13" h="13" />
+        <room no="18" shape="circle" x="9" y="45.5" w="13" h="13" />
+        <room no="19" shape="circle" x="105.5" y="64.5" w="13" h="13" />
+        <room no="20" shape="circle" x="86.2" y="64.5" w="13" h="13" />
+        <room no="21" shape="circle" x="66.9" y="64.5" w="13" h="13" />
+        <room no="22" shape="circle" x="47.6" y="64.5" w="13" h="13" />
+        <room no="23" shape="circle" x="28.3" y="64.5" w="13" h="13" />
+        <room no="24" shape="circle" x="9" y="64.5" w="13" h="13" />
+      </rooms>
+    </slide>
+    <slide id="6991b3f0-f118-473e-8dae-3937d5000b46" name="Copy of Clatch Slide" owner="Custom" thickness="0.66" width="75" length="25" available-focus-methods="Bottom Top" default-focus-method="Bottom Top" retraction-offset="0" robot="no" hidden="no" released="yes">
+      <description>Clatch Slide</description>
+      <margin right="11.5" top="32.2" />
+      <height base-to-well="1.081" />
+      <rooms>
+        <room no="1" shape="rectangle" x="8.542" y="2.272" w="26.226" h="2.141" />
+        <room no="2" shape="rectangle" x="38.905" y="2.272" w="26.226" h="2.141" />
+        <room no="3" shape="rectangle" x="8.542" y="5.543" w="26.226" h="2.141" />
+        <room no="4" shape="rectangle" x="38.905" y="5.543" w="26.226" h="2.141" />
+        <room no="5" shape="rectangle" x="8.542" y="9.155" w="26.226" h="2.141" />
+        <room no="6" shape="rectangle" x="38.905" y="9.155" w="26.226" h="2.141" />
+        <room no="7" shape="rectangle" x="8.542" y="12.562" w="26.226" h="2.141" />
+        <room no="8" shape="rectangle" x="38.905" y="12.562" w="26.226" h="2.141" />
+        <room no="9" shape="rectangle" x="8.542" y="16.036" w="26.226" h="2.141" />
+        <room no="10" shape="rectangle" x="38.905" y="16.036" w="26.226" h="2.141" />
+        <room no="11" shape="rectangle" x="8.542" y="19.577" w="26.226" h="2.141" />
+        <room no="12" shape="rectangle" x="38.905" y="19.577" w="26.226" h="2.141" />
+      </rooms>
+    </slide>
+    <slide id="7d762e8a-fed7-40c9-b171-440b8a20d2da" name="4 Slide Carrier Through Slide" owner="Custom" thickness="0.764" width="115" length="70" available-focus-methods="Bottom Top" default-focus-method="Bottom Top" retraction-offset="0" robot="yes" hidden="no" released="yes">
+      <description>4 Slide Carrier</description>
+      <margin right="6" top="8" />
+      <height base-to-well="0.973" />
+      <rooms>
+        <room no="1" shape="rectangle" x="7" y="5" w="20" h="60" />
+        <room no="2" shape="rectangle" x="34" y="5" w="20" h="60" />
+        <room no="3" shape="rectangle" x="61" y="5" w="20" h="60" />
+        <room no="4" shape="rectangle" x="88" y="5" w="20" h="60" />
+      </rooms>
+    </slide>
+	</slides>
+  <microplates unit="mm" width="85.48" length="127.76">
+    <microplate id="00000000-0000-0000-0001-000000000001" name="96 Well Plastic Plate" owner="CompuCyte" thickness="0.53" available-focus-methods="Bottom Only;Bottom Top" default-focus-method="Bottom Top" retraction-offset="0.0" robot="yes" hidden="no" rows="8" columns="12" wellsize="6.55" interval="9.0" well-shape="circle">
+      <description>96 Well Plastic Plate</description>
+      <margin left="14.38" top="11.24" />
+      <height base-to-well="2.6" />
+    </microplate>
+    <microplate id="00000000-0000-0000-0001-000000000003" name="96 Well Glass Skirtless Plate" owner="CompuCyte" thickness="0.12" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0.0" robot="yes" hidden="no" rows="8" columns="12" wellsize="6.55" interval="9.0" well-shape="circle">
+      <description>96 Well Glass Skirtless Plate</description>
+      <margin left="14.38" top="11.24" />
+      <height base-to-well="0.3" />
+    </microplate>
+    <microplate id="00000000-0000-0000-0001-000000000004" name="96 Well Glass Skirted Plate" owner="CompuCyte" thickness="0.12" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0.0" robot="yes" hidden="no" rows="8" columns="12" wellsize="6.55" interval="9.0" well-shape="circle">
+      <description>96 Well Glass Skirted Plate</description>
+      <margin left="14.38" top="11.24" />
+      <height base-to-well="3.3" />
+    </microplate>
+    <microplate id="00000000-0000-0000-0001-000000000005" name="48 Well Falcon Plate" owner="CompuCyte" thickness="0.81" available-focus-methods="Bottom Only;Bottom Top" default-focus-method="Bottom Top" retraction-offset="0.0" robot="yes" hidden="no" rows="6" columns="8" wellsize="6.0" interval="13.0" well-shape="circle">
+      <description>48 Well Falcon Plate</description>
+      <margin left="14.38" top="11.24" />
+      <height base-to-well="1.0" />
+    </microplate>
+    <microplate id="00000000-0000-0000-0001-000000000006" name="24 Well Falcon Plate" owner="CompuCyte" thickness="0.685" available-focus-methods="Bottom Only;Bottom Top" default-focus-method="Bottom Top" retraction-offset="0.0" robot="yes" hidden="no" rows="4" columns="6" wellsize="13.0" interval="19.0" well-shape="circle">
+      <description>24 Well Falcon Plate</description>
+      <margin left="17.0" top="16.5" />
+      <height base-to-well="1.0" />
+    </microplate>
+    <microplate id="00000000-0000-0000-0001-000000000007" name="12 Well Falcon Plate" owner="CompuCyte" thickness="0.902" available-focus-methods="Bottom Only;Bottom Top" default-focus-method="Bottom Top" retraction-offset="0.0" robot="yes" hidden="no" rows="3" columns="4" wellsize="18.0" interval="26.0" well-shape="circle">
+      <description>12 Well Falcon Plate</description>
+      <margin left="24.0" top="20.0" />
+      <height base-to-well="0.9" />
+    </microplate>
+    <microplate id="00000000-0000-0000-0001-000000000008" name="6 Well Falcon Plate" owner="CompuCyte" thickness="0.901" available-focus-methods="Bottom Only;Bottom Top" default-focus-method="Bottom Top" retraction-offset="0.0" robot="yes" hidden="no" rows="2" columns="3" wellsize="28.0" interval="39.0" well-shape="circle">
+      <description>6 Well Falcon Plate</description>
+      <margin left="22.0" top="22.0" />
+      <height base-to-well="1.0" />
+    </microplate>
+    <microplate id="00000000-0000-0000-0001-000000000009" name="384 Well Whatman Plate" owner="CompuCyte" thickness="0.12" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0.0" robot="yes" hidden="no" rows="16" columns="24" wellsize="2.30" interval="4.5" well-shape="square">
+      <description>384 Well Whatman Plate</description>
+      <margin left="12.0" top="8.22" />
+      <height base-to-well="1.5" />
+    </microplate>
+    <microplate id="00000000-0000-0000-0001-00000000000a" name="384 Well Greiner Plate" owner="CompuCyte" thickness="0.12" available-focus-methods="Bottom Only" default-focus-method="Bottom Only" retraction-offset="0.0" robot="yes" hidden="no" rows="16" columns="24" wellsize="3.32" interval="4.5" well-shape="square">
+      <description>384 Well Greiner Plate</description>
+      <margin left="12.0" top="9.06" />
+      <height base-to-well="2.6" />
+    </microplate>
+  </microplates>
+</descriptor>

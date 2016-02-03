@@ -1,0 +1,238 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B51A6970-C76F-4F18-85DE-7A292CED8973}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ThorCyte.ProtocolModule</RootNamespace>
+    <AssemblyName>ThorCyte.ProtocolModule</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ComponentDataService">
+      <HintPath>..\..\..\..\Bin\ComponentDataService.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageProcess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Bin\ImageProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="Prism">
+      <HintPath>..\..\..\..\Tools\Prism\Prism.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Unity.Wpf">
+      <HintPath>..\..\..\..\Tools\Prism\Prism.Unity.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Wpf">
+      <HintPath>..\..\..\..\Tools\Prism\Prism.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Tools\Prism\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ThorCyte.Infrastructure">
+      <HintPath>..\..\..\..\Bin\ThorCyte.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xceed.Wpf.Toolkit, Version=2.5.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Tools\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\Arrow.cs" />
+    <Compile Include="Controls\Module.cs" />
+    <Compile Include="Controls\ModuleItemsControl.cs" />
+    <Compile Include="Controls\PannelView.cs" />
+    <Compile Include="Controls\PannelView_ConnectionDragging.cs" />
+    <Compile Include="Controls\PannelView_DragSelection.cs" />
+    <Compile Include="Controls\PannelView_NodeDragging.cs" />
+    <Compile Include="Controls\Port.cs" />
+    <Compile Include="Converts\AreaTypeConvert.cs" />
+    <Compile Include="Converts\BoolReverseConverter.cs" />
+    <Compile Include="Converts\BoolToVisibilityConverter .cs" />
+    <Compile Include="Converts\ChannelNameConvert.cs" />
+    <Compile Include="Converts\PhantomPatternConvert.cs" />
+    <Compile Include="Converts\ThresholdMethodConvert.cs" />
+    <Compile Include="Events\ConnectionDragEvents.cs" />
+    <Compile Include="Events\ConnectorDragEvents.cs" />
+    <Compile Include="Events\ModuleDragCompletedEventArgs.cs" />
+    <Compile Include="Events\ModuleDragEventArgs.cs" />
+    <Compile Include="Events\ModuleDraggingEventArgs.cs" />
+    <Compile Include="Events\ModuleDragStartedEventArgs.cs" />
+    <Compile Include="Models\ConnectorModel.cs" />
+    <Compile Include="Models\DataDictionary.cs" />
+    <Compile Include="Models\Enums.cs" />
+    <Compile Include="Models\Macro.cs" />
+    <Compile Include="Models\ModuleInfo.cs" />
+    <Compile Include="Models\PortModel.cs" />
+    <Compile Include="Models\TreeViewItemModel.cs" />
+    <Compile Include="ProtocolModule.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\CollectionItemsChangedEventArgs.cs" />
+    <Compile Include="Utils\GlobalConst.cs" />
+    <Compile Include="Utils\ImpObservableCollection.cs" />
+    <Compile Include="Utils\MessageHelper.cs" />
+    <Compile Include="Utils\RequiredValidationRule.cs" />
+    <Compile Include="Utils\VisualUtils.cs" />
+    <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
+    <Compile Include="ViewModels\Modules\AddModVm.cs" />
+    <Compile Include="ViewModels\Modules\AndModVm.cs" />
+    <Compile Include="ViewModels\Modules\BrightContrastModVm.cs" />
+    <Compile Include="ViewModels\Modules\InvertModVm.cs" />
+    <Compile Include="ViewModels\Modules\OrModVm.cs" />
+    <Compile Include="ViewModels\Modules\OverlapParentChild2ModVm.cs" />
+    <Compile Include="ViewModels\Modules\OverlapParentChildModVm.cs" />
+    <Compile Include="ViewModels\Modules\ChannelModVm.cs" />
+    <Compile Include="ViewModels\Modules\ContourModVm.cs" />
+    <Compile Include="ViewModels\Modules\EventModVm.cs" />
+    <Compile Include="ViewModels\Modules\FilterModVm.cs" />
+    <Compile Include="ViewModels\Modules\ModuleBase.cs" />
+    <Compile Include="ViewModels\Modules\PhantomModVm.cs" />
+    <Compile Include="ViewModels\Modules\SubtractModVm.cs" />
+    <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
+    <Compile Include="ViewModels\Modules\TransformModVm.cs" />
+    <Compile Include="ViewModels\Modules\XorModVm.cs" />
+    <Compile Include="ViewModels\PannelViewModel.cs" />
+    <Compile Include="Views\Modules\BrightContrastModule.xaml.cs">
+      <DependentUpon>BrightContrastModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\ChannelModule.xaml.cs">
+      <DependentUpon>ChannelModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MacroEditor.xaml.cs">
+      <DependentUpon>MacroEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\ContourModule.xaml.cs">
+      <DependentUpon>ContourModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\EventModule.xaml.cs">
+      <DependentUpon>EventModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\FilterModule.xaml.cs">
+      <DependentUpon>FilterModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\PhantomModule.xaml.cs">
+      <DependentUpon>PhantomModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\ThresholdModule.xaml.cs">
+      <DependentUpon>ThresholdModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modules\TransformModule.xaml.cs">
+      <DependentUpon>TransformModule.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Modules\BrightContrastModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\ChannelModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MacroEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\ContourModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\EventModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\FilterModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\PhantomModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\ThresholdModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Modules\TransformModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\play.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\toolbox.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\Horizontal Align Left.png" />
+    <Resource Include="Resource\Images\Vertical align Top.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y $(TargetPath) $(ProjectDir)..\..\..\..\Bin\DirectoryModules\</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

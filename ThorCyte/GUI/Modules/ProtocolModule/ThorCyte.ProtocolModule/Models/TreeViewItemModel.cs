@@ -1,0 +1,26 @@
+﻿using System.Collections.Generic;
+using Prism.Mvvm;
+
+namespace ThorCyte.ProtocolModule.Models
+{
+    public class TreeViewItemModel : BindableBase
+    {
+        #region Properties and Fields
+
+        public string Name { get; set; }
+
+        public ModuleType ItemType { get; set; }
+
+        public List<TreeViewItemModel> Items { get; set; }
+
+        private bool _isSelected;
+
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set { SetProperty(ref _isSelected, value); }
+        }
+
+        #endregion
+    }
+}

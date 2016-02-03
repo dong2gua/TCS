@@ -1,0 +1,296 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4C84061B-38B7-41F4-B7E6-F92A516E4B21}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ThorCyte.GraphicModule</RootNamespace>
+    <AssemblyName>ThorCyte.GraphicModule</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Abt.Controls.SciChart.Wpf">
+      <HintPath>..\..\..\..\Tools\Abt.Controls.SciChart.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="ComponentDataService">
+      <HintPath>..\..\..\..\Bin\ComponentDataService.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
+      <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism">
+      <HintPath>..\..\..\..\Tools\Prism\Prism.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Wpf">
+      <HintPath>..\..\..\..\Tools\Prism\Prism.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="ROIService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Bin\ROIService.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="ThorCyte.Infrastructure">
+      <HintPath>..\..\..\..\Bin\ThorCyte.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Xceed.Wpf.Toolkit">
+      <HintPath>..\..\..\..\Tools\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\ComColor.cs" />
+    <Compile Include="Controls\GraphicDataTemplateSelector.cs" />
+    <Compile Include="Controls\Graphics\GraphicLine.cs" />
+    <Compile Include="Controls\Graphics\GraphicQuarant.cs" />
+    <Compile Include="Controls\Graphics\GraphicsBase.cs" />
+    <Compile Include="Controls\Graphics\GraphicsEllipse.cs" />
+    <Compile Include="Controls\Graphics\GraphicsPolygon.cs" />
+    <Compile Include="Controls\Graphics\GraphicsPolyLine.cs" />
+    <Compile Include="Controls\Graphics\GraphicsRectangle.cs" />
+    <Compile Include="Controls\Graphics\GraphicsRectangleBase.cs" />
+    <Compile Include="Controls\GraphicUcBase.cs" />
+    <Compile Include="Controls\Histogram.cs" />
+    <Compile Include="Controls\RegionCanvas.cs" />
+    <Compile Include="Controls\RegionTools\RegionTool.cs" />
+    <Compile Include="Controls\RegionTools\RegionToolEllipse.cs" />
+    <Compile Include="Controls\RegionTools\RegionToolLine.cs" />
+    <Compile Include="Controls\RegionTools\RegionToolObject.cs" />
+    <Compile Include="Controls\RegionTools\RegionToolPointer.cs" />
+    <Compile Include="Controls\RegionTools\RegionToolPolygon.cs" />
+    <Compile Include="Controls\RegionTools\RegionToolRectangle.cs" />
+    <Compile Include="Controls\RegionTools\RegionToolRectangleBase.cs" />
+    <Compile Include="Controls\Scattergram.cs" />
+    <Compile Include="Converts\AxisSelectedConvert.cs" />
+    <Compile Include="Converts\BkgConvert.cs" />
+    <Compile Include="Converts\ColorBrushConvert.cs" />
+    <Compile Include="Converts\ColorTypeConvert.cs" />
+    <Compile Include="Converts\GraphTypeConvert.cs" />
+    <Compile Include="Converts\InverseBooleanConverter.cs" />
+    <Compile Include="Converts\IsEnabledConvert.cs" />
+    <Compile Include="Converts\RegionColorConvert.cs" />
+    <Compile Include="Converts\ResolutionConvert.cs" />
+    <Compile Include="Converts\SelectedColorConvert.cs" />
+    <Compile Include="Converts\ToolTypeConverter.cs" />
+    <Compile Include="Converts\VisibilityConverter.cs" />
+    <Compile Include="Events\EventArgs.cs" />
+    <Compile Include="Events\Events.cs" />
+    <Compile Include="Helper\UIHelper.cs" />
+    <Compile Include="ViewModels\GraphicManagerVm.cs" />
+    <Compile Include="GraphicModule.cs" />
+    <Compile Include="Helper\ConstantHelper.cs" />
+    <Compile Include="Helper\DrawHelper.cs" />
+    <Compile Include="Helper\RegionHelper.cs" />
+    <Compile Include="Helper\RegionSnapHelper.cs" />
+    <Compile Include="Helper\VisualHelper.cs" />
+    <Compile Include="Infrastructure\CollectionItemsChangedEventArgs.cs" />
+    <Compile Include="Infrastructure\ImpObservableCollection.cs" />
+    <Compile Include="Models\AxisModel.cs" />
+    <Compile Include="Models\ColorInfo.cs" />
+    <Compile Include="Models\ColorRegionModel.cs" />
+    <Compile Include="Models\IdManager.cs" />
+    <Compile Include="Models\Line.cs" />
+    <Compile Include="Models\OverlayInfo.cs" />
+    <Compile Include="Models\OverLayModel.cs" />
+    <Compile Include="Models\PointD.cs" />
+    <Compile Include="Models\Vector.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Utils\Enums.cs" />
+    <Compile Include="ViewModels\GraphicContainerVm.cs" />
+    <Compile Include="ViewModels\GraphicVmBase.cs" />
+    <Compile Include="ViewModels\HistogramVm.cs" />
+    <Compile Include="ViewModels\ScattergramVm.cs" />
+    <Compile Include="Views\AxisTab.xaml.cs">
+      <DependentUpon>AxisTab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventTypeTab.xaml.cs">
+      <DependentUpon>EventTypeTab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GeneralTab.xaml.cs">
+      <DependentUpon>GeneralTab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GraphicModeuleView.xaml.cs">
+      <DependentUpon>GraphicModeuleView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GraphicPanelView.xaml.cs">
+      <DependentUpon>GraphicPanelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HistogramGeneralTab.xaml.cs">
+      <DependentUpon>HistogramGeneralTab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HistogramPropertyWnd.xaml.cs">
+      <DependentUpon>HistogramPropertyWnd.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HistogramView.xaml.cs">
+      <DependentUpon>HistogramView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NewOverlayWnd.xaml.cs">
+      <DependentUpon>NewOverlayWnd.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverLaysTab.xaml.cs">
+      <DependentUpon>OverLaysTab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RegionTool.xaml.cs">
+      <DependentUpon>RegionTool.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ScattergramPropertyWnd.xaml.cs">
+      <DependentUpon>ScattergramPropertyWnd.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ScattergramView.xaml.cs">
+      <DependentUpon>ScattergramView.xaml</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\AddTab.png" />
+    <Resource Include="Resource\Images\colorpicker.png" />
+    <Resource Include="Resource\Images\DeleteTab.png" />
+    <Resource Include="Resource\Images\ellipse.png" />
+    <Resource Include="Resource\Images\NewHistogram.png" />
+    <Resource Include="Resource\Images\NewScattergram.png" />
+    <Resource Include="Resource\Images\polygon.png" />
+    <Resource Include="Resource\Images\properties.png" />
+    <Resource Include="Resource\Images\rectangle.png" />
+    <Resource Include="Resource\Images\remove.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Resource\Styles\ColorPickerStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\AxisTab.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventTypeTab.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GeneralTab.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GraphicModeuleView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GraphicPanelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\HistogramGeneralTab.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\HistogramPropertyWnd.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\HistogramView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\NewOverlayWnd.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\OverLaysTab.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\RegionTool.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ScattergramPropertyWnd.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ScattergramView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y $(TargetPath) $(ProjectDir)..\..\..\..\Bin\DirectoryModules\</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

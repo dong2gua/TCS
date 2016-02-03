@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="ThorCyte.ProtocolModule.Views.Modules.PhantomModule"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:cvt ="clr-namespace:ThorCyte.ProtocolModule.Converts"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <cvt:PhantomPatternConvert x:Key="PatternCvt" />
+    </UserControl.Resources>
+    <Expander Header="Phantom" IsExpanded="True">
+        <StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Margin="2" Content="Name :"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Margin="2" Text="{Binding PhantomName}"/>
+
+                <Label Grid.Row="1" Grid.Column="0" Margin="2" Content="Color :"/>
+                <ComboBox Grid.Row="1" Grid.Column="1" Margin="2"/>
+            </Grid>
+
+            <GroupBox Header="Pattern">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <RadioButton Grid.Column="0" Margin="2" Content="Lattice" IsChecked="{Binding Pattern,Converter={StaticResource PatternCvt},ConverterParameter=lattice}"/>
+                    <RadioButton Grid.Column="1" Margin="2" Content="Random" IsChecked="{Binding Pattern,Converter={StaticResource PatternCvt},ConverterParameter=random}"/>
+                </Grid>
+            </GroupBox>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Content="Radius"/>
+                <Grid Grid.Row="0" Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <xctk:IntegerUpDown Grid.Column="0" Margin="2" Height="20" Value="{Binding Radius}" Minimum="1" Maximum="5000"/>
+                    <Label Grid.Column="1" Margin="2" Content="um"/>
+                </Grid>
+
+
+                <Label Grid.Row="1" Grid.Column="0" Content="Minimum distance&#x000A;between centers"/>
+                <Grid Grid.Row="1" Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <xctk:IntegerUpDown Grid.Column="0" Margin="2" Height="20" Value="{Binding Distance}" Minimum="1" Maximum="5000"/>
+                    <Label Grid.Column="1" Margin="2" Content="um"/>
+                </Grid>
+
+
+
+                <Label Grid.Row="2" Grid.Column="0" Content="Count per field"/>
+                <Grid Grid.Row="2" Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <xctk:IntegerUpDown Grid.Column="0" Margin="2" Height="20" Value="{Binding Count}" Minimum="1" Maximum="5000"/>
+                    <Label Grid.Column="1" Margin="2" Content="um"/>
+                </Grid>
+            </Grid>
+        </StackPanel>
+    </Expander>
+</UserControl>

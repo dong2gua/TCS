@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="ThorCyte.GraphicModule.Views.RegionTool"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converts="clr-namespace:ThorCyte.GraphicModule.Converts"
+             xmlns:viewModels="clr-namespace:ThorCyte.GraphicModule.ViewModels"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <converts:ToolTypeConverter x:Key="ToolTypeCvt"/>
+        <viewModels:ScattergramVm x:Key="GraphicVm"/>
+        <converts:ColorBrushConvert x:Key="BrushCvt"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibleCvt"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
+            <ToggleButton BorderThickness="0" Width="26" Height="26" Margin="5,2" ToolTip="Draw rectangle" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=rectangle}">
+                <Image Source="../Resource/Images/rectangle.png"/>
+            </ToggleButton>
+
+            <ToggleButton BorderThickness="0" Width="26" Height="26" Margin="5,2" ToolTip="Draw ellipse" Visibility="{Binding IsDrawEllipseEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=ellipse}">
+                <Image Source="../Resource/Images/ellipse.png"/>
+            </ToggleButton>
+
+            <ToggleButton BorderThickness="0" Width="26" Height="26" Margin="5,2" ToolTip="Draw polygon" Visibility="{Binding IsDrawPolygonEnabled,Converter={StaticResource BoolToVisibleCvt}}" IsChecked="{Binding Source={StaticResource GraphicVm}, Path=RegionToolType,Converter={StaticResource ToolTypeCvt},ConverterParameter=polygon}">
+                <Image Source="../Resource/Images/polygon.png"/>
+            </ToggleButton>
+        </StackPanel>
+
+
+        <Label Grid.Row="1" Grid.Column="0" Content="Color Region" Margin="2" IsEnabled="{Binding IsColorListEnabled}"/>
+
+        <ComboBox x:Name="ColorRegionCb" Grid.Row="1" Grid.Column="1" Margin="2" ItemsSource="{Binding Source={StaticResource GraphicVm}, Path=ColorRegionList}" SelectedItem="{Binding SelectedRegionColor}" IsEnabled="{Binding IsColorListEnabled}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width="{Binding ElementName=ColorRegionCb,Path=ActualWidth}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Rectangle Grid.Column="0" Margin="2" Fill="{Binding RegionColor,Converter={StaticResource BrushCvt}}" Stroke="Black"/>
+                        <Label Grid.Column="1" Margin="2" Content="{Binding RegionColorString}"/>
+                    </Grid>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </Grid>
+</UserControl>

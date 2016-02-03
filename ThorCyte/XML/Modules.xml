@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<categories>
+	<category name="Output">
+		<modules>
+			<module name="GlobalImage" disp-name="Processed Image"/>
+			<module name="ImageView" disp-name="Image View"/>
+		</modules>
+	</category>
+	<category name="Filter">
+		<module name="Filter" reference="ThorCyte.ProtocolModule.ViewModels.Modules.FilterModVm"/>
+		<module name="Erode"/>
+		<module name="Dilate"/>
+		<module name="Open"/>
+		<module name="Close"/>
+		<module name="Watershed"/>
+		<module name="SeededWatershed" disp-name="Seeded Watershed" />
+		<module name="Mask"/>
+	</category>
+	<category name="Operation">
+		<module name="Add" reference="ThorCyte.ProtocolModule.ViewModels.Modules.AddModVm" />
+		<module name="Subtract" reference="ThorCyte.ProtocolModule.ViewModels.Modules.SubtractModVm" />
+		<module name="Invert" reference="ThorCyte.ProtocolModule.ViewModels.Modules.InvertModVm" />
+		<module name="And" reference="ThorCyte.ProtocolModule.ViewModels.Modules.AndModVm" />
+		<module name="Or" reference="ThorCyte.ProtocolModule.ViewModels.Modules.OrModVm" />
+		<module name="Xor" reference="ThorCyte.ProtocolModule.ViewModels.Modules.XorModVm" />
+		<module name="BrightContrast" disp-name="Bright Contrast" reference="ThorCyte.ProtocolModule.ViewModels.Modules.BrightContrastModVm" />
+        <module name="Transform" reference="ThorCyte.ProtocolModule.ViewModels.Modules.TransformModVm" />
+    </category>
+	<category name="Contour">
+		<module name="Channel" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ChannelModVm" />
+		<module name="Threshold" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ThresholdModVm" />
+		<module name="Contour" reference="ThorCyte.ProtocolModule.ViewModels.Modules.ContourModVm" />
+	</category>
+	<category name="Event">
+		<module name="Event" reference="ThorCyte.ProtocolModule.ViewModels.Modules.EventModVm" />
+		<module name="Phantom" reference="ThorCyte.ProtocolModule.ViewModels.Modules.PhantomModVm" />
+		<module name="ScanAreaEvent" disp-name="Scan Area Event" />
+		<module name="OverlapParentChild" disp-name="Association" reference="ThorCyte.ProtocolModule.ViewModels.Modules.OverlapParentChildModVm" />
+		<module name="OverlapParentChild2" disp-name="Association 2" reference="ThorCyte.ProtocolModule.ViewModels.Modules.OverlapParentChild2ModVm" />
+		<module name="MultiScalParentChild" disp-name="Multi-Scale Association"  />
+		<module name="ArrayAlignment" disp-name="Array Alignment" />
+	</category>
+	<category name="Experimental" test="true">
+		<module name="Comet" disp-name="Comet" />
+		<module name="ImageRead" disp-name="Image Read" />
+		<module name="Ratio" disp-name="Ratio" />
+		<module name="ForegroundArea" disp-name="Foreground Pixels" />
+		<module name="Pixel"  />
+	</category>
+  <category name ="Advanced Image Analysis" test="true">    
+      <module name ="MedianFilter" disp-name="Median Filter" test="true"  />
+      <module name ="EOHFilterModule" disp-name="EOH Filter" test="true"   />
+      <module name ="GaussianSmoothing" disp-name="Gaussian Smoothing" test="true"   />
+      <module name ="TopHatFilter" disp-name="TopHat Filter" test="true"   />
+      <module name ="AdaptiveThreshold" disp-name="Adaptive Thresholding" test="true"   />
+      <module name ="ContrastEnhancement" disp-name="Contrast Enhancement" test="true"  />
+      <module name ="ConnectedComponentAnalysis" disp-name="Conn Comp Analysis" test="true" />
+      <module name ="DetectLocalMaxima" disp-name="Detect Local Maxima" test="true"  />
+      <module name ="DistanceTransform" disp-name="Distance Transform" test="true"  />
+      <module name ="LocalMaximumCluster" disp-name="Local Maximum Clustering" test="true" />
+      <module name ="MultiScaleLoG" disp-name="Multi-Scale LoG" test="true"   />
+      <module name ="DistConstMultiScaleLoG" disp-name="Dis Con Multi-Scale LoG" test="true" />
+      <module name ="NuclearSegmentation" disp-name="Full Nuclear Segmentation" test="true"  />
+      <module name ="NuclearSegmentationWithBin" disp-name="Full Nuclear Segmentation with Binary Input" test="true"  />
+      <module name ="OtsuThreshold" disp-name="Otsu Threshold" test="true" />
+      <module name ="SeededWatershed2" disp-name="Seeded Watershed2" test="true"/>
+      <module name ="RemoveAndMergeSmallFragments" disp-name="Merge Small Fragments" test="true"   />
+      <module name ="ResizeImage" disp-name="Resize Image" test="true"   />
+      <module name ="SplitOverlappingObjects" disp-name="Split Overlapping Objects" test="true"   />
+      <module name ="SubtractRidges" disp-name="Subtract Ridges" test="true"  />
+      <module name ="DisplayContoursOnBinary" disp-name="Extract Contours" test="true"   />
+      <module name ="AdaptiveThresholdWithBinaryInput" disp-name="Adapt Binarization Refinement" test="true" />
+      <module name ="BinaryToGray" disp-name="Binary To Gray" test="true"  />
+      <module name ="MinMax" disp-name="Min Max" test="true"  />
+      <module name ="InvertImage" disp-name="Invert Image" test="true" />
+      <module name ="SubtractBackground" disp-name="Subtract Background" test="true"   />
+      <module name ="RegionConstDistTransform" disp-name="Region Const Dist Transform" test="true"   />
+      <module name ="ShrinkObjectToPoint" disp-name="Shrink Object To A Point" test="true" />
+      <module name ="Gradient" disp-name="Gradient" test="true"   />
+      <module name ="FillForegroundHoles" disp-name="Fill Holes" test="true"  />
+      <module name ="SplitMultiNucCells" disp-name="Split Multi-Nuc Cells" test="true" />
+      <module name ="SegmentationRefinement" disp-name="Segmentation Refinement" test="true" />
+      <module name ="RidgeEnhancement" disp-name="Ridge Enhancement" test="true" />
+      <module name ="MultiLevelOtsuThresh" disp-name="Multi-Level Otsu" test="true"  />
+      <module name ="MeregeCellsSharingNuc" disp-name="Merge Cells Sharing Nuc" test="true"  />      
+      <module name ="ImageDebanding" disp-name="Image Debanding" test="true" />
+      <module name ="ImageDebanding2" disp-name="Image Debanding2" test="true"  />
+      <module name ="ImageTranspose" disp-name="Image Transpose" test="true"   />
+      <module name ="CannyEdgeDetection" disp-name="Canny Edge Detection" test="true"  />
+      <module name ="AnisotropicDiffusion" disp-name="Anisotropic Diffusion" test="true"  />
+      <module name ="BinaryThinning" disp-name="Binary Thinning" test="true"  />
+      <module name ="GrayScaleMathematicalMorphology" disp-name="GrayScale Math Morph" test="true" />
+      <module name="NewAdd"  />
+      <module name="NewSubtract"/>
+      <module name="NewMask" />
+      <module name="NewTransform" />
+      <module name="WienerDeconvolutionDeconv" disp-name="Wiener Deconvolution" />
+  </category>
+  <category name ="Custom Modules" test="true">
+    <module name="DetectPlatelet" disp-name="Detect Platelets" test="true"/>
+    <module name ="DetectCometsFromHeads" disp-name="Detect Comets from Heads" test="true"/>
+  </category>
+</categories>

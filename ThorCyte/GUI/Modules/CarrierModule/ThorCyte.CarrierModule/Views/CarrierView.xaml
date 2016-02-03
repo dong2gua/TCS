@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="ThorCyte.CarrierModule.Views.CarrierView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:tools ="clr-namespace:ThorCyte.CarrierModule.Tools"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300" x:Name="Uct">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <tools:BoolToVisibilityConverter  x:Key="BoolVisibleCvt"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+        <StackPanel>
+        <Grid Width="{Binding ElementName=Uct,Path=ActualWidth}">
+            <ContentControl Content="{Binding ShowingView}"/>
+        </Grid>
+        <Expander IsExpanded="{Binding IsTileVisible}" Header="Tile View">
+            <ScrollViewer  Width="{Binding ElementName=Uct,Path=ActualWidth}" 
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <ContentControl Content="{Binding ShowingTile}" BorderThickness="3"/>
+            </ScrollViewer>
+        </Expander>
+    </StackPanel>
+</UserControl>

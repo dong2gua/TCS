@@ -1,0 +1,144 @@
+﻿<UserControl x:Class="ThorCyte.ImageViewerModule.View.ImageViewerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:view="clr-namespace:ThorCyte.ImageViewerModule.View"
+             xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
+             xmlns:xct="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:control="clr-namespace:ThorCyte.ImageViewerModule.Control"
+             xmlns:drawtool="clr-namespace:ThorCyte.ImageViewerModule.DrawTools"
+             xmlns:selector="clr-namespace:ThorCyte.ImageViewerModule.Selector"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800" Cursor="{Binding Cursor}">
+    <UserControl.Resources>
+        <converter:BoolToStringConverter x:Key="BoolToStringC"/>
+        <selector:ViewportSelector x:Key="ViewportSelector">
+            <selector:ViewportSelector.OneViewportDataTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                    </Grid>
+                </DataTemplate>
+            </selector:ViewportSelector.OneViewportDataTemplate>
+            <selector:ViewportSelector.HorizontalViewportDataTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                        <ContentControl Grid.Row="0" Grid.Column="1" Content="{Binding Viewports[1]}"/>
+                    </Grid>
+                </DataTemplate>
+            </selector:ViewportSelector.HorizontalViewportDataTemplate>
+            <selector:ViewportSelector.VerticalViewportDataTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                        <ContentControl Grid.Row="1" Grid.Column="0" Content="{Binding Viewports[1]}"/>
+                    </Grid>
+                </DataTemplate>
+            </selector:ViewportSelector.VerticalViewportDataTemplate>
+            <selector:ViewportSelector.AllViewportDataTemplate>
+                <DataTemplate>
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding Viewports[0]}"/>
+                        <ContentControl Grid.Row="0" Grid.Column="1" Content="{Binding Viewports[1]}"/>
+                        <ContentControl Grid.Row="1" Grid.Column="0" Content="{Binding Viewports[2]}"/>
+                        <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding Viewports[3]}"/>
+                    </Grid>
+                </DataTemplate>
+            </selector:ViewportSelector.AllViewportDataTemplate>
+        </selector:ViewportSelector>
+    </UserControl.Resources>
+    <Grid IsEnabled="{Binding ImageViewEnable}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>        
+        <TextBlock Margin="10,0" Grid.Row="1"  VerticalAlignment="Center" Height="25" Text="{Binding MousePointStatus}"/>
+        <StackPanel Margin="0,5" Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+            <Button Margin="1" Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle" ToolTip="Rectangle">
+                <Image Source="..\resources\Rectangle.png"/>
+            </Button>
+            <Button Margin="1" Command="{Binding DrawRegionCommand}" CommandParameter="Ellipse" ToolTip="Ellipse">
+                <Image Source="..\resources\ellipse.png"/>
+            </Button>
+            <Button Margin="1" Command="{Binding ZoomCommand}" CommandParameter="true" ToolTip="Zoom In">
+                <Image Source="..\resources\ZoomIn.png"/>
+            </Button>
+            <Button Margin="1" Command="{Binding ZoomCommand}" CommandParameter="false" ToolTip="Zoom Out">
+                <Image Source="..\resources\ZoomOut.png"/>
+            </Button>
+            <ToggleButton Margin="1"  IsChecked="{Binding IsDragger}" Command="{Binding DraggerCommand}" ToolTip="Drag">
+                <Image Source="..\resources\Drag.png"/>
+            </ToggleButton>
+            <ToggleButton Margin="1"  IsChecked="{Binding IsProfile}" Command="{Binding ProfileCommand}" ToolTip="Profile">
+                <Image Source="..\resources\Profile.png"/>
+            </ToggleButton>
+            <ToggleButton Margin="1"  IsChecked="{Binding IsRuler}" Command="{Binding RulerCommand}" ToolTip="Ruler">
+                <Image Source="..\resources\Ruler.png"/>
+            </ToggleButton>
+            <ToggleButton Margin="1"  IsChecked="{Binding IsAspectRatio}" Command="{Binding AspectRatioCommand}" ToolTip="Aspect Ratio">
+                <Image Source="..\resources\Ratio.png"/>
+            </ToggleButton>
+            <Button Margin="1" Command="{Binding VirtualChannelCommand}" ToolTip="Add Virtual Channel">
+                <Image Source="..\resources\VirtualChannel.png"/>
+            </Button>
+            <Button Margin="1" Command="{Binding ComputeColorCommand}" ToolTip="Add Compute Color">
+                <Image Source="..\resources\ComputeColor.png"/>
+            </Button>
+            <Button Margin="1" Command="{Binding BrightnessContrastCommand}" ToolTip="Brightness and Contrast">
+                <Image Source="..\resources\Brightness.png"/>
+            </Button>
+            <Button Margin="1" x:Name="btViewportLayout" Click="Button_Click" ToolTip="Viewport Layout" >
+                <Grid>
+                    <Image x:Name="imgViewportLayout"/>
+                    <Path Data="M0,4L4,0 4,4z" Fill="Black" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                </Grid>
+            </Button>
+            <Popup x:Name="popup" StaysOpen="False" PlacementTarget="{Binding ElementName=btViewportLayout}" >
+                <ListView x:Name="lvViewport" SelectedIndex="{Binding ViewportType.Type, Mode=OneWay}" SelectionChanged="ListView_SelectionChanged" >
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.Items>
+                        <ListViewItem>
+                            <Image Source="..\resources\ViewOne.png"/>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <Image Source="..\resources\ViewH.png"/>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <Image Source="..\resources\ViewV.png"/>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <Image Source="..\resources\ViewAll.png"/>
+                        </ListViewItem>
+                    </ListView.Items>
+                </ListView>
+            </Popup>
+        </StackPanel>
+        <ContentControl Grid.Row="0"  Content="{Binding ViewportType}"  ContentTemplateSelector="{StaticResource ViewportSelector}"/>
+    </Grid>
+</UserControl>

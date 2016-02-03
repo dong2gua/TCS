@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5C322343-B7C4-4E2F-ACE1-6FBC65EBE307}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ThorCyte.Infrastructure</RootNamespace>
+    <AssemblyName>ThorCyte.Infrastructure</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FreeImageNET">
+      <HintPath>..\..\Tools\FreeImageNET.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageProcess">
+      <HintPath>..\..\Bin\ImageProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Prism">
+      <HintPath>..\..\Tools\Prism\Prism.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xceed.Wpf.Toolkit">
+      <HintPath>..\..\Tools\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commom\CyteConvert.cs" />
+    <Compile Include="Commom\RawDataReader.cs" />
+    <Compile Include="Controls\DoubleClickCollapseGridSplitterBehavior.cs" />
+    <Compile Include="Controls\DockPanelSplitter.cs" />
+    <Compile Include="Controls\MouseBehaviours.cs" />
+    <Compile Include="Controls\NoGdiWindow\CustomWindow.cs" />
+    <Compile Include="Controls\NoGdiWindow\DelegateCommand.cs" />
+    <Compile Include="Controls\NoGdiWindow\NoGdiWindow.cs" />
+    <Compile Include="Controls\NoGdiWindow\PropertyChanged.cs" />
+    <Compile Include="Events\ExperimentLoadedEvent.cs" />
+    <Compile Include="Events\EventType.cs" />
+    <Compile Include="Events\FrameChangedEvent.cs" />
+    <Compile Include="Events\InitRegionEvent.cs" />
+    <Compile Include="Events\MacroFinishEvent.cs" />
+    <Compile Include="Events\MacroRunEvent.cs" />
+    <Compile Include="Events\MacroStartEvnet.cs" />
+    <Compile Include="Events\RemoveRegionsEvent.cs" />
+    <Compile Include="Events\SaveAnalysisResultEvent.cs" />
+    <Compile Include="Events\SelectRegions.cs" />
+    <Compile Include="Events\SelectRegionTileEvent.cs" />
+    <Compile Include="Events\SelectWells.cs" />
+    <Compile Include="Events\ShowRegionEvent.cs" />
+    <Compile Include="Exceptions\CyteException.cs" />
+    <Compile Include="Interfaces\IData.cs" />
+    <Compile Include="Interfaces\IExperiment.cs" />
+    <Compile Include="Commom\RegionNames.cs" />
+    <Compile Include="Interfaces\ThorCyteData.cs" />
+    <Compile Include="Interfaces\ThorCyteExperiment.cs" />
+    <Compile Include="Interfaces\ThorImageData.cs" />
+    <Compile Include="Interfaces\ThorImageExperiment.cs" />
+    <Compile Include="Interfaces\ThorOCTData.cs" />
+    <Compile Include="Interfaces\ThorOCTExperiment.cs" />
+    <Compile Include="Themes\ColorToSolidColorBrushConverter.cs" />
+    <Compile Include="Themes\Dark\LeftMarginMultiplierConverter.cs" />
+    <Compile Include="Themes\Dark\TreeViewItemExtensions.cs" />
+    <Compile Include="Themes\InverseBoolConverter.cs" />
+    <Compile Include="Types\Common.cs" />
+    <Compile Include="Types\ComputeColor.cs" />
+    <Compile Include="Types\Channel.cs" />
+    <Compile Include="Types\Well.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Logging\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Themes\Dark\Styles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Dark\WpfTookitStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y $(TargetPath) $(ProjectDir)..\..\Bin\</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

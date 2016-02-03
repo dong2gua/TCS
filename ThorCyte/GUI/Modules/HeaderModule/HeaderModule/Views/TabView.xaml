@@ -1,0 +1,80 @@
+﻿<UserControl x:Class="ThorCyte.HeaderModule.Views.TabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="102">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibleCvt"/>
+        <Style TargetType="{x:Type ToggleButton}">
+            <Setter Property="BorderThickness" Value="0"></Setter>
+            <Setter Property="Background" Value="#3D3D3D"></Setter>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border  
+						BorderBrush="{TemplateBinding BorderBrush}" 
+						Background="{TemplateBinding Background}" 
+                        BorderThickness="{TemplateBinding BorderThickness}"
+						SnapsToDevicePixels="true"
+						CornerRadius="5,0,0,5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                          Margin="0" 
+                                          RecognizesAccessKey="True" 
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsChecked" Value="false"/>
+                                    <Condition Property="IsMouseOver" Value="true"/>
+                                </MultiTrigger.Conditions>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter Property="Background" Value="#FFFFFF"/>
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <DockPanel>
+        <!--<Grid Height="40" DockPanel.Dock="Top" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <Image Width="28" Height="28" Source="../Icons/Thorlabs.png" ></Image>
+        </Grid>-->
+        <!--<Menu Margin="2,0,0,0" DockPanel.Dock="Top"  >
+            <MenuItem Header="File" Width="102" Height="30" >
+                    <MenuItem Header="Open..." Command="{Binding OpenCommand}"/>
+                    <MenuItem Header="Save Analysis Result" Command="{Binding SaveCommand}"/>
+                </MenuItem>
+         </Menu>-->
+        
+        <StackPanel IsEnabled="{Binding IsLoaded}" DockPanel.Dock="Bottom" Margin="2,0,-1,0">
+            <RadioButton GroupName="tab" Margin="2,1,0,0" Height="80" Width="96" FontSize="20" Command="{Binding TabCommand}" CommandParameter="ReviewModule" Style="{StaticResource {x:Type ToggleButton}}" IsChecked="{Binding IsLoaded, Mode=OneWay}">
+                <StackPanel>
+                    <Image Margin="0,4,0,0" Source="../Icons/Review.png" Width="48" Height="48"></Image>
+                    <Label Margin="0,-4,0,0"  FontSize="16" Foreground="#AAAAAA">Review</Label>
+                </StackPanel>
+            </RadioButton>
+            <RadioButton GroupName="tab" Margin="2,1,0,0" Height="80" Width="96" FontSize="20" Command="{Binding TabCommand}" CommandParameter="AnalysisModule" Style="{StaticResource {x:Type ToggleButton}}" >
+                <StackPanel>
+                    <Image Margin="0,4,0,0" Source="../Icons/Analytics.png" Width="48" Height="48"></Image>
+                    <Label  FontSize="16" Foreground="#AAAAAA">Analysis</Label>
+                </StackPanel>
+            </RadioButton>
+
+        </StackPanel>
+    </DockPanel>
+</UserControl>

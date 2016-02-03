@@ -1,0 +1,109 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:control="clr-namespace:ThorCyte.ProtocolModule.Controls">
+    <!--<SolidColorBrush x:Key="selectionBorderColor" Color="Blue"/>
+    <SolidColorBrush x:Key="selectionBorderBackgroundColor" Color="Blue" Opacity="0.25"/>-->
+
+    <!-- Default style and control-template for 'NodeItem'. -->
+    <Style TargetType="{x:Type control:Module}">
+        <Setter Property="ParentPannelView" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type control:PannelView}}, Path=.}"/>
+        <Setter Property="Canvas.Left" Value="{Binding X, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
+        <Setter Property="Canvas.Top" Value="{Binding Y, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
+        <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:Module}">
+                    <Grid>
+                        <Border x:Name="selectionBorder" Background="{TemplateBinding Background}" BorderBrush="DarkGray" BorderThickness="2"
+                                 Margin="{TemplateBinding Margin}" Padding="{TemplateBinding Padding}" CornerRadius="3">
+                            <ContentPresenter/>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="selectionBorder" Property="BorderBrush" Value="Red"/>
+                            <Setter TargetName="selectionBorder" Property="BorderThickness" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter TargetName="selectionBorder" Property="Background" Value="LightGray"/>
+                            <Setter TargetName="selectionBorder" Property="BorderThickness" Value="1"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Default style and control-template for 'ConnectorItem'. -->
+    <Style TargetType="{x:Type control:Port}">
+        <Setter Property="ParentPannelView" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type control:PannelView}}, Path=.}"/>
+        <Setter Property="ParentModule" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type control:Module}}, Path=.}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:Port}">
+                    <!-- Application-defined connector content is presented here. -->
+                    <ContentPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style x:Key="noScrollViewerListBoxStyle" TargetType="ListBox">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Canvas IsItemsHost="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Default style and visual template for 'NetworkView'. -->
+    <Style TargetType="{x:Type control:PannelView}">
+        <!-- The visual template. -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:PannelView}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}">
+                        <Grid>
+                            <control:ModuleItemsControl
+                                x:Name="PART_NodeItemsControl"
+                                ItemsSource="{TemplateBinding Modules}"
+                                SelectionMode="Extended"
+                                Style="{StaticResource noScrollViewerListBoxStyle}"
+                                ItemTemplate="{TemplateBinding NodeItemTemplate}"
+                                ItemTemplateSelector="{TemplateBinding NodeItemTemplateSelector}"
+                                ItemContainerStyle="{TemplateBinding NodeItemContainerStyle}"/>
+
+                            <!-- Control that presents the connections between nodes. -->
+                            <ItemsControl
+                                x:Name="PART_ConnectionItemsControl"
+                                ItemsSource="{TemplateBinding Connections}"
+                                ItemTemplate="{TemplateBinding ConnectionItemTemplate}"
+                                ItemTemplateSelector="{TemplateBinding ConnectionItemTemplateSelector}"
+                                ItemContainerStyle="{TemplateBinding ConnectionItemContainerStyle}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+
+                            <Canvas x:Name="PART_DragSelectionCanvas" Visibility="Collapsed">
+                                <Border x:Name="PART_DragSelectionBorder" BorderBrush="Blue" BorderThickness="1" Background="LightBlue" CornerRadius="0" Opacity="0.5"/>
+                            </Canvas>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+
+</ResourceDictionary>
