@@ -19,11 +19,9 @@ namespace ThorCyte.ImageViewerModule.Converter
                 return null;
             }
         }
-
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             throw new NotImplementedException();
         }
-
     }
 }

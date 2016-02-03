@@ -88,7 +88,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
 
             drawingCanvas.CaptureMouse();
         }
-
         public override void OnMouseMove(DrawingCanvas drawingCanvas, MouseEventArgs e, Point position)
         {            
             var point = position;
@@ -134,7 +133,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
                 drawingCanvas[drawingCanvas.Count - 1].MoveHandleTo(position, 5);
             }
         }
-
         public override void OnMouseUp(DrawingCanvas drawingCanvas, MouseButtonEventArgs e, Point position)
         {
             if (!drawingCanvas.IsMouseCaptured)
@@ -169,7 +167,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Tools
             drawingCanvas.Cursor = Cursors.Arrow;
             _selectMode = SelectionMode.None;
         }
-
         public override void SetCursor(DrawingCanvas drawingCanvas)
         {
             drawingCanvas.Cursor = Cursors.Arrow;

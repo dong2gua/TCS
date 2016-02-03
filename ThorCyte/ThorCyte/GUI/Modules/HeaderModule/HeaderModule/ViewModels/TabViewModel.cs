@@ -76,7 +76,11 @@ namespace ThorCyte.HeaderModule.ViewModels
                 }
                 if (_experiment != null)
                 {
-                    _experiment.Load(fileName);
+                    if (!_experiment.Load(fileName))
+                    {
+                        MessageBox.Show("Experiment file has error or not support. Please check it!", "Error Load experiment", MessageBoxButton.OK);
+                        return;
+                    }
                     _data.SetExperimentInfo(_experiment);
                     _unityContainer.RegisterInstance<IExperiment>(_experiment);
                     _unityContainer.RegisterInstance<IData>(_data);
@@ -120,13 +124,11 @@ namespace ThorCyte.HeaderModule.ViewModels
         {
             if (_experiment == null)
                 return;
-            ExperimentInfo experimentInfo = _experiment.GetExperimentInfo();
-            string path = experimentInfo.ExperimentPath + "\\Analysis";
-            AnalysisViewModel analysisViewModel = new AnalysisViewModel(experimentInfo.ExperimentPath, true);
+            string path = _experiment.GetExperimentInfo().ExperimentPath;
+            AnalysisViewModel analysisViewModel = new AnalysisViewModel(path, true);
             AnalysisView w = new AnalysisView(analysisViewModel);
             if (w.ShowDialog() != true) return;
-
-            experimentInfo.AnalysisPath = analysisViewModel.SaveAnalysisPath;
+            _experiment.SetAnalysisPath(analysisViewModel.SaveAnalysisPath);
             ComponentDataManager.Instance.Save(_experiment.GetExperimentInfo().AnalysisPath);
             _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0); 
         }  

@@ -6,9 +6,9 @@ namespace ThorCyte.Infrastructure.Interfaces
 {
     public class ThorOCTExperiment : IExperiment
     {
-        public void Load(string experimentPath)
+        public bool Load(string experimentPath)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public ExperimentInfo GetExperimentInfo()

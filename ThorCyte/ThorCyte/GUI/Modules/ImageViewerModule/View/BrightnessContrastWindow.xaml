@@ -7,7 +7,7 @@
         xmlns:control="clr-namespace:ThorCyte.ImageViewerModule.Control"
         xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         mc:Ignorable="d"
-        Title="BrightnessContrastWindow" Height="300" Width="400" ResizeMode="NoResize"  WindowStartupLocation="CenterOwner">
+        Title="BrightnessContrastWindow" Height="300" Width="400" ResizeMode="NoResize"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -32,6 +32,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -40,13 +41,14 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label  Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Content="Brightness"/>
-            <Slider Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Maximum="{Binding MaxBrightness}" Minimum="{Binding MinBrightness}" Value="{Binding Brightness}"/>
+            <Slider Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Maximum="{Binding MaxBrightness}" Minimum="{Binding MinBrightness}" Value="{Binding SliderBrightness}"/>
             <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding Brightness}" Height="20" Width="60" />
             <Label  Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Content="Contrast"/>
             <Slider Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Maximum="3100" Minimum="-1000" Value="{Binding SliderContrast}"/>
             <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Contrast, StringFormat={}{0:f2}}" Height="20" Width="60" />
             <Button Grid.Row="0" Grid.Column="3" Height="20" Width="60" Content="AutoGrey" Command="{Binding AutoGreyCommand}"/>
             <Button Grid.Row="1" Grid.Column="3" Height="20" Width="60" Content="Reset" Command="{Binding ResetBrightnessCommand}"/>
+            <Button Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Height="20" Width="100" HorizontalAlignment="Right" Margin="8,0" Content="Apply To Channel" Command="{Binding ApplyBCToChannelCommand}"/>
         </Grid>
     </Grid>
 </ctrl:CustomWindow>

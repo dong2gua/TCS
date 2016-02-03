@@ -7,12 +7,12 @@ namespace ThorCyte.GraphicModule.Helper
 
         public static readonly Brush[] BrushTable =
         {
-           Brushes.Red,Brushes.LawnGreen,Brushes.Orange,Brushes.Yellow,Brushes.Magenta,Brushes.Cyan,Brushes.Black,Brushes.White
+           Brushes.Red,Brushes.LawnGreen,Brushes.Orange,Brushes.Yellow,Brushes.Magenta,Brushes.Cyan,Brushes.White,Brushes.Black
         };
 
         public static readonly Color[] ColorTable = 
 		{
-			Colors.Red, Colors.LawnGreen, Colors.Orange, Colors.Yellow, Colors.Magenta, Colors.Cyan, Colors.Black
+			Colors.Red, Colors.LawnGreen, Colors.Orange, Colors.Yellow, Colors.Magenta, Colors.Cyan, Colors.White
 		};
 
         public static readonly Color[] TemperatureColors = 

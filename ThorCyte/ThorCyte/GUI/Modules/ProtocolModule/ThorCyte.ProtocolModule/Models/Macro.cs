@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -27,14 +26,13 @@ namespace ThorCyte.ProtocolModule.Models
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             EventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(Save);
 
+
             _imageanalyzed += ImageAnalyzed;
             _isAborting = false;
             Connections = new ImpObservableCollection<ConnectorModel>();
             Modules = new ImpObservableCollection<ModuleBase>();
             CurrentImages = new Dictionary<string, ImageData>();
         }
-
-
         #endregion
 
         #region Fields and Properties
@@ -551,6 +549,7 @@ namespace ThorCyte.ProtocolModule.Models
             }
             return result;
         }
+
 
         ~Macro()
         {

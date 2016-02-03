@@ -21,10 +21,6 @@ msbuild %~dp0\ThorCyte\Common\ComponentDataService\ComponentDataService.sln >> %
 @ echo -- Start to Build ROIService.sln ... 
 msbuild %~dp0\ThorCyte\Common\ROIService\ROIService.sln >> %~dp0\BulidLog.txt || echo !!! Build ROIService.sln FAILED! Please check the BuildLog.txt! 
 
-::ThorCyte
-@ echo -- Start to Build ThorCyte.sln ... 
-msbuild %~dp0\ThorCyte\GUI\Application\ThorCyte\ThorCyte.sln  >  %~dp0\BulidLog.txt || echo !!! Build ThorCyte.sln FAILED! Please check the BuildLog.txt!
-
 ::ExperimentDetail
 @ echo -- Start to Build ExperimentDetailModule.sln ... 
 msbuild %~dp0\ThorCyte\GUI\Modules\ExperimentDetailModule\ExperimentDetailModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ExperimentDetailModule.sln FAILED! Please check the BuildLog.txt! 
@@ -48,6 +44,14 @@ msbuild %~dp0\ThorCyte\GUI\Modules\CarrierModule\CarrierModule.sln >> %~dp0\Buli
 ::Graphics
 @ echo -- Start to Build ThorCyte.GraphicModule.sln ... 
 msbuild %~dp0\ThorCyte\GUI\Modules\GraphicModule\ThorCyte.GraphicModule.sln >> %~dp0\BulidLog.txt || echo !!! Build ThorCyte.GraphicModule.sln FAILED! Please check the BuildLog.txt! 
+
+::Graphics
+@ echo -- Start to Build ThorCyte.StatisticModule.sln ... 
+msbuild %~dp0\ThorCyte\GUI\Modules\StatisticModule\StatisticModule.sln >> %~dp0\BulidLog.txt || echo !!! Build StatisticModule.sln FAILED! Please check the BuildLog.txt! 
+
+::ThorCyte
+@ echo -- Start to Build ThorCyte.sln ... 
+msbuild %~dp0\ThorCyte\GUI\Application\ThorCyte\ThorCyte.sln  >  %~dp0\BulidLog.txt || echo !!! Build ThorCyte.sln FAILED! Please check the BuildLog.txt!
 
 @ echo Build All Done. 
 

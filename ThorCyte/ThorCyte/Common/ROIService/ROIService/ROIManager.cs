@@ -315,13 +315,12 @@ namespace ROIService
             }
         }
 
-        private void SetRegionEventsDefaultColor(string id, bool isWhiteBackground = true)
+        private void SetRegionEventsDefaultColor(string id)
         {
             var evs = _regionEventsDictionary[id];
-            var color = isWhiteBackground ? RegionColorIndex.Black : RegionColorIndex.White;
             foreach (var ev in evs)
             {
-                ev.ColorIndex = color;
+                ev.ColorIndex = RegionColorIndex.White;
             }
         }
 
@@ -658,9 +657,9 @@ namespace ROIService
             {
                 return RegionColorIndex.Cyan;
             }
-            if (color == Colors.Black)
+            if (color == Colors.White)
             {
-                return RegionColorIndex.Black;
+                return RegionColorIndex.White;
             }
             return RegionColorIndex.White;
         }

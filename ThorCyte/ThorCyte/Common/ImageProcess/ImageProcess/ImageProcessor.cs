@@ -58,7 +58,7 @@ namespace ImageProcess
         {
             if (dstHeight <= 0) throw new ArgumentOutOfRangeException("dstWidth");
             if (dstWidth <= 0) throw new ArgumentOutOfRangeException("dstWidth");
-            var dstData = new ImageData((uint) dstWidth, (uint) dstHeight);
+            var dstData = new ImageData((uint) dstWidth, (uint) dstHeight, IsGray);
             ImageProcessLib.Resize16U(this, (int) XSize, (int) YSize, dstData, dstWidth, dstHeight, Channels);
             return dstData;
         }
@@ -67,7 +67,7 @@ namespace ImageProcess
         {
             var width = (int) XSize;
             var height = (int) YSize;
-            var dstData = new ImageData(XSize, YSize);
+            var dstData = new ImageData(XSize, YSize, IsGray);
             var maxValue = (ushort) ((0x01 << depth) - 1);
             ImageProcessLib.AddConstant16U(value, this, width, height, dstData, Channels, maxValue);
 
@@ -104,7 +104,7 @@ namespace ImageProcess
         {
             var width = (int) XSize;
             var height = (int) YSize;
-            var dstData = new ImageData(XSize, YSize);
+            var dstData = new ImageData(XSize, YSize, IsGray);
             ImageProcessLib.SubConstant16U(value, this, width, height, dstData, Channels);      
             return dstData;
         }
@@ -158,7 +158,7 @@ namespace ImageProcess
         {
             if (Channels != 1) throw new InvalidOperationException("must be 1 channel image data.");
             ushort maxValue;
-            int status = ImageProcessLib.Max16U(this, (int) XSize, (int) YSize, Channels, out maxValue);
+            ImageProcessLib.Max16U(this, (int) XSize, (int) YSize, Channels, out maxValue);
             return maxValue;
         }
 
@@ -166,7 +166,7 @@ namespace ImageProcess
         {
             if (Channels != 1) throw new InvalidOperationException("must be 1 channel image data.");
             ushort minValue;
-            int status = ImageProcessLib.Min16U(this, (int) XSize, (int) YSize, Channels, out minValue);
+            ImageProcessLib.Min16U(this, (int) XSize, (int) YSize, Channels, out minValue);
             return minValue;
         }
 
@@ -176,7 +176,7 @@ namespace ImageProcess
             if (YSize != other.YSize) throw new InvalidOperationException("Image data YSize not equal.");
             if (Channels != other.Channels) throw new InvalidOperationException("Image data Channels not equal.");
             var dstData = new ImageData(XSize, YSize, IsGray);
-            int status = ImageProcessLib.MaxEvery16U(this, other, (int) XSize, (int) YSize, Channels, dstData);
+            ImageProcessLib.MaxEvery16U(this, other, (int) XSize, (int) YSize, Channels, dstData);
             return dstData;
         }
 
@@ -186,7 +186,7 @@ namespace ImageProcess
             if (YSize != other.YSize) throw new InvalidOperationException("Image data YSize not equal.");
             if (Channels != other.Channels) throw new InvalidOperationException("Image data Channels not equal.");
             var dstData = new ImageData(XSize, YSize, IsGray);
-            int status = ImageProcessLib.MinEvery16U(this, other, (int) XSize, (int) YSize, Channels, dstData);
+            ImageProcessLib.MinEvery16U(this, other, (int) XSize, (int) YSize, Channels, dstData);
             return dstData;
         }
 
@@ -194,7 +194,7 @@ namespace ImageProcess
         {
             var maxValue = (ushort) ((0x01 << depth) - 1);
             var dstData = new ImageData(XSize, YSize, IsGray);
-            int status = ImageProcessLib.Invert16U(this, (int) XSize, (int) YSize, Channels, maxValue, dstData);
+            ImageProcessLib.Invert16U(this, (int) XSize, (int) YSize, Channels, maxValue, dstData);
             return dstData;
         }
 
@@ -236,6 +236,46 @@ namespace ImageProcess
             return Contour(Math.Floor(minArea), maxArea, false, default(Point));
         }
 
+
+        public IList<Blob> FindContourInArray(double minArea, double maxArea = int.MaxValue)
+        {
+            return ContourInArray(Math.Floor(minArea), maxArea, false, default(Point));
+        }
+
+        public IList<Blob> FindContoursByOpenCv(double minArea, double maxArea = int.MaxValue)
+        {
+            IntPtr pBlobs = IntPtr.Zero;
+            IntPtr pPointsCountPerBlob = IntPtr.Zero;
+            int blobCount = ImageProcessLib.FindContours16UC1(this, (int) XSize, (int) YSize, minArea, maxArea,
+                ref pBlobs, ref pPointsCountPerBlob);          
+            if (pPointsCountPerBlob == IntPtr.Zero || pBlobs == IntPtr.Zero)
+                return new Blob[0];
+            var pointsCountPerBlob = new int[blobCount];
+            Marshal.Copy(pPointsCountPerBlob, pointsCountPerBlob, 0, blobCount);
+            var blobs = new Blob[blobCount];
+            int maxCount = pointsCountPerBlob.Max();
+            var buffer = new int[maxCount*2];
+            int offset = 0;
+            for (int i = 0; i < blobCount; i++)
+            {
+                int count = pointsCountPerBlob[i];
+                Marshal.Copy(pBlobs + sizeof(int) * offset, buffer, 0, 2 * count);
+                var points = new List<Point>(count);
+                for (int j = 0; j < count; j++)
+                {
+                    int x = buffer[2 * j];
+                    int y = buffer[2 * j + 1];
+                    var point = new Point(x, y);
+                    points.Add(point);
+                }
+                offset += 2 * count;
+               blobs[i] = new Blob(points);
+            }
+            ImageProcessLib.FreeIntBuffer(pBlobs);
+            ImageProcessLib.FreeIntBuffer(pPointsCountPerBlob);
+            return blobs;
+        }
+
         public ImageData Threshold(ushort threshold, ThresholdType thresholdType)
         {
             if (Channels != 1)
@@ -243,14 +283,13 @@ namespace ImageProcess
             var dstData = new ImageData(XSize, YSize, IsGray);
             var width = (int)XSize;
             var height = (int)YSize;
-            int status = 0;
             if (thresholdType == ThresholdType.Auto)
             {
-                status = ImageProcessLib.OtsuThreshold16UC1(this, width, height, dstData);
+                ImageProcessLib.OtsuThreshold16UC1(this, width, height, dstData);
             }
             else if (thresholdType == ThresholdType.Manual)
             {
-                //status = ImageProcessLib.Threshold16UC1(data.DataBuffer, width, height, threshold, dstData.DataBuffer);
+                //ImageProcessLib.Threshold16UC1(data.DataBuffer, width, height, threshold, dstData.DataBuffer);
                 for (int i = 0; i < Length; i++)
                 {
                     dstData[i] = this[i] > threshold ? (ushort) 16383 : (ushort) 0;
@@ -300,7 +339,7 @@ namespace ImageProcess
         public ImageData CommonFilter(FilterType type, int maskSize, int pass)
         {
             CheckKernelSize(type, maskSize);
-            if (pass <= 0 || pass > int.MaxValue)
+            if (pass <= 0)
                 throw new ArgumentOutOfRangeException("pass");
             else
             {
@@ -323,7 +362,7 @@ namespace ImageProcess
             if (other.Channels != Channels) throw new InvalidOperationException("Image data Channels not equal.");
             if (other.XSize != XSize || other.YSize != YSize)
                 throw new InvalidOperationException("Image data size not equal.");
-            var dstData = new ImageData(XSize, YSize);
+            var dstData = new ImageData(XSize, YSize, IsGray);
             ImageProcessLib.BitwiseAnd16UC1(this, other, (int) XSize, (int) YSize, dstData);
             return dstData;
 
@@ -335,7 +374,7 @@ namespace ImageProcess
             if (other.Channels != Channels) throw new InvalidOperationException("Image data Channels not equal.");
             if (other.XSize != XSize || other.YSize != YSize)
                 throw new InvalidOperationException("Image data size not equal.");
-            var dstData = new ImageData(XSize, YSize);
+            var dstData = new ImageData(XSize, YSize, IsGray);
             ImageProcessLib.BitwiseOr16UC1(this, other, (int)XSize, (int)YSize, dstData);
             return dstData;
         }
@@ -346,7 +385,7 @@ namespace ImageProcess
             if (other.Channels != Channels) throw new InvalidOperationException("Image data Channels not equal.");
             if (other.XSize != XSize || other.YSize != YSize)
                 throw new InvalidOperationException("Image data size not equal.");
-            var dstData = new ImageData(XSize, YSize);
+            var dstData = new ImageData(XSize, YSize, IsGray);
             ImageProcessLib.BitwiseXor16UC1(this, other, (int)XSize, (int)YSize, dstData);
             return dstData;
         }
@@ -432,7 +471,80 @@ namespace ImageProcess
             return points;
         }
 
+        private IList<Blob> ContourInArray(double minArea, double maxArea, bool concave,
+            Point offset)
 
+        {
+            var points = new List<Point>();
+            var blobs = new List<Blob>();
+            var width = (int)XSize;
+            var height = (int)YSize;
+            // Search for starting positions
+            for (int sy = 0; sy < height - 1; sy++)
+            {
+                for (int sx = 0; sx < width - 1; sx++)
+                {
+                    if (_array[sx + sy * width] == 0) continue;
+
+                    if ((sx != 0 && sy != 0 && _array[sx - 1 + (sy - 1) * width] != 0) ||
+                        (sx != 0 && _array[sx - 1 + sy * width] != 0) ||
+                        (sy != 0 && (_array[sx + (sy - 1) * width] != 0 || _array[sx + 1 + (sy - 1) * width] != 0)))
+                        continue;
+
+                    // Prepare to track contour 
+                    int x = sx;
+                    int y = sy;
+                    var pt = new Point(x, y);
+
+                    // Check if the blob containing this point already contoured
+                    bool exist = blobs.Any(blob => blob.IsVisible(pt));
+
+                    if (exist) continue;
+
+                    if (concave && offset != default(Point))
+                        pt.Offset(offset.X, offset.Y);
+
+                    points.Add(pt); // start of a contour
+                    int last = 0;
+                    int next = GetNextInArray(x, y, last);
+
+                    // Track contour counter clockwise
+                    while (true)
+                    {
+                        x = x + Dx[next];
+                        y = y + Dy[next];
+
+                        if (x < 0 || y < 0 || _array[x + y * width] == 0)
+                            break;
+
+                        if (x == sx && y == sy) // complete a contour
+                        {
+                            if (points.Count > 5)
+                            {
+                                var blob = new Blob(points);
+                                if (blob.Area > 0 && blob.Area >= minArea &&
+                                    blob.Area <= maxArea)
+                                    blobs.Add(blob);
+                            }
+
+                            break;
+                        }
+
+                        if (concave && offset != default(Point))
+                            points.Add(new Point(x + offset.X, y + offset.Y));
+                        else
+                            points.Add(new Point(x, y));
+
+                        last = (next + 4) % 8;
+                        next = GetNextInArray(x, y, last);
+                    }
+
+                    points.Clear();
+                }
+            }
+
+            return blobs;
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -516,7 +628,24 @@ namespace ImageProcess
             return blobs;
         }
 
-
+        private int GetNextInArray(int x, int y, int last)
+        {
+            int next = (last + 2) % 8;
+            int nx = x + Dx[next];
+            int ny = y + Dy[next];
+            var width = (int)XSize;
+            var height = (int)YSize;
+            while ((next != last) &&
+                   ((nx < 0) || (nx >= width) ||
+                    (ny < 0) || (ny >= height) ||
+                    (_array[nx + ny * width] == 0)))
+            {
+                next = (next + 1) % 8;
+                nx = x + Dx[next];
+                ny = y + Dy[next];
+            }
+            return (next);
+        }
         private  int GetNext(int x, int y, int last)
         {
             int next = (last + 2)%8;

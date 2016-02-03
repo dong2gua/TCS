@@ -11,9 +11,11 @@ namespace ThorCyte
     public partial class MainWindow : NoGdiWindow
     {
         private IEventAggregator _eventAggregator;
+
         public MainWindow(IEventAggregator eventAggregator)
         {   
             InitializeComponent();
+            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             _eventAggregator = eventAggregator;
             _eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExperimentLoaded);
         }

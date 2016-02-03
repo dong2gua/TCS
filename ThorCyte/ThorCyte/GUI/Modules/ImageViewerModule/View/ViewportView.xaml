@@ -92,7 +92,6 @@
                                 </Setter>
                             </DataTrigger>
                         </Style.Triggers>
-
         </Style>
         <converter:VisibilityConverter x:Key="VisibilityC"/>
     </UserControl.Resources>
@@ -117,7 +116,6 @@
                               CommandParameter="{Binding Path=PlacementTarget.SelectedItem,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
                         <Separator/>
                     </ContextMenu>
-
                 </ListView.ContextMenu>
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>

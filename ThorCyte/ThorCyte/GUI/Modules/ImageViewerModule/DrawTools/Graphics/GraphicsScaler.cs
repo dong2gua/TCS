@@ -56,7 +56,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             var format = GetFormattedText(textLength.ToString()+" "+unit);
             var textPoint = new Point(Point.X  + displayLength/2 - format.Width/2 , (Point.Y - 20));
             drawingContext.DrawText(format, textPoint);
-
         }
         FormattedText GetFormattedText(string text)
         {

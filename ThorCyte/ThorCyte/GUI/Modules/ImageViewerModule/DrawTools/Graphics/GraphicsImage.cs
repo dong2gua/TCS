@@ -36,7 +36,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                 st.ScaleY = GraphicsActualScale.Item2;
             }
         }
-
         public override void Draw(DrawingContext drawingContext)
         {
             drawingContext.DrawImage(ImageSource,ConvertToDisplayRectWithVisualScale(Rectangle));

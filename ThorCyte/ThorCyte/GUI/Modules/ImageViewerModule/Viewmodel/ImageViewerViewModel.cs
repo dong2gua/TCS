@@ -1,14 +1,16 @@
-﻿using ImageProcess;
-using Microsoft.Practices.ServiceLocation;
+﻿using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Xml.Linq;
 using ThorCyte.ImageViewerModule.DrawTools;
 using ThorCyte.ImageViewerModule.Events;
 using ThorCyte.ImageViewerModule.Model;
@@ -17,11 +19,7 @@ using ThorCyte.ImageViewerModule.View;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
-using System.Xml.Serialization;
-using System.Xml;
-using System.Xml.Linq;
-using System.IO;
-using System.Threading.Tasks;
+
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ImageViewerViewModel : BindableBase
@@ -82,8 +80,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 }
             }
         }
-
-
         private List<ViewportView> _viewports;
         public List<ViewportView> Viewports
         {
@@ -109,18 +105,44 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             set { SetProperty<int>(ref _minBrightness, value, "MinBrightness"); }
         }
         private int _brightness=0;
-        public int Brightness
+        public string Brightness
         {
-            get { return _brightness; }
-            set { SetProperty<int>(ref _brightness, value, "Brightness"); updateBrightnessContrast(); }
-        }
-        private double _contrast=1;
-        public double Contrast
-        {
-            get { return _contrast; }
+            get { return _brightness.ToString(); }
             set
             {
-                SetProperty<double>(ref _contrast, value, "Contrast");
+                int v;
+                if (!int.TryParse(value, out v)) return;
+                if (v == _brightness) return;
+                if (v > _maxBrightness) _brightness = _maxBrightness;
+                else if (v < _minBrightness) _brightness = _minBrightness;
+                else _brightness = v;
+                OnPropertyChanged();
+                OnPropertyChanged("SliderBrightness");
+                updateBrightnessContrast();
+            }
+        }
+        public int SliderBrightness
+        {
+            get { return _brightness; }
+            set
+            {
+                Brightness = value.ToString();
+            }
+        }
+
+        private double _contrast=1;
+        public string Contrast
+        {
+            get { return _contrast.ToString("0.00"); }
+            set
+            {
+                double v;
+                if (!double.TryParse(value, out v)) return;
+                if (v == _contrast) return;
+                if (v > 31) _contrast = 31;
+                else if (v < 0) _contrast = 0;
+                else _contrast = v;
+                OnPropertyChanged();
                 OnPropertyChanged("SliderContrast");        
                 updateBrightnessContrast();
             }
@@ -138,7 +160,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                     c = Math.Abs(c);
                     c = (10d - c) / 10d;
                 }
-                Contrast = c;
+                Contrast = c.ToString("0.00");
             }
         }
         private string _mousePointStatus;
@@ -168,6 +190,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         private int _scanId;
         private int _regionId;
         private int _tileId;
+        private bool _isLoading;
         public ICommand DraggerCommand { get; private set; }
         public ICommand DrawRegionCommand { get; private set; }
         public ICommand ZoomCommand { get; private set; }
@@ -179,9 +202,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         public ICommand AutoGreyCommand { get; set; }
         public ICommand AspectRatioCommand { get; set; }
         public ICommand ResetBrightnessCommand { get; set; }
-        public ICommand MaximizeViewportCommand { get; set; }
-
-        
+        public ICommand ApplyBCToChannelCommand { get; set; }        
         public ImageViewerViewModel()
         {
 
@@ -196,7 +217,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             AutoGreyCommand = new DelegateCommand(OnAutoGrey);
             AspectRatioCommand = new DelegateCommand(OnAspectRatio);
             ResetBrightnessCommand = new DelegateCommand(OnResetBrightness);
-            MaximizeViewportCommand = new DelegateCommand(OnMaximizeViewport);
+            ApplyBCToChannelCommand = new DelegateCommand(ApplyBCToChannel);
             var eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>();
             eventAggregator.GetEvent<UpdateMousePointEvent>().Subscribe(OnUpdateMousePoint);
             eventAggregator.GetEvent<OperateChannelEvent>().Subscribe(OnOperateChannel);
@@ -219,21 +240,21 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             if (ViewportType.Type == type) return;
             ImageViewEnable = false;
             Cursor = Cursors.Wait;
-            ViewportType = new ViewportDisplayType { Type = type };
             Task task;
             int currentIndex = Viewports.IndexOf(_currentViewport);
             switch (type)
             {
-                case 1:
+                case 0:
                     task = new Task(() => {
                         for (int i = 0; i < 4; i++)
                         {
                             _viewportDic[_viewports[i]].IsShown = _viewports[i] == _currentViewport;
                         }
                     });
+                    ViewportType = new ViewportDisplayType { Type = type };
                     ViewportType.Viewports.Add(_currentViewport);
                     break;
-                case 2:
+                case 1:
 
                     if (currentIndex == 0 || currentIndex == 1)
                     {
@@ -243,6 +264,15 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                             _viewportDic[_viewports[2]].IsShown = false;
                             _viewportDic[_viewports[3]].IsShown = false;
                         });
+                        if (ViewportType.Type != 4)
+                        {
+                            foreach (var o in ViewportType.Viewports)
+                            {
+                                if ((o == _viewports[0] || o == _viewports[1])&& _viewportDic[o].IsActive)
+                                    _viewportDic[o].FixToLastScaleEvent += _viewportDic[o].FixToLastScale;
+                            }
+                        }
+                        ViewportType = new ViewportDisplayType { Type = type };
                         ViewportType.Viewports.Add(_viewports[0]);
                         ViewportType.Viewports.Add(_viewports[1]);
                     }
@@ -254,11 +284,20 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                             _viewportDic[_viewports[2]].IsShown = true;
                             _viewportDic[_viewports[3]].IsShown = true;
                         });
+                        if (ViewportType.Type != 4)
+                        {
+                            foreach (var o in ViewportType.Viewports)
+                            {
+                                if( (o == _viewports[2] || o == _viewports[3])&& _viewportDic[o].IsActive)
+                                    _viewportDic[o].FixToLastScaleEvent += _viewportDic[o].FixToLastScale;
+                            }
+                        }
+                        ViewportType = new ViewportDisplayType { Type = type };
                         ViewportType.Viewports.Add(_viewports[2]);
                         ViewportType.Viewports.Add(_viewports[3]);
                     }
                     break;
-                case 3:
+                case 2:
                     if (currentIndex == 0 || currentIndex == 2)
                     {
                         task = new Task(() => {
@@ -267,6 +306,15 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                             _viewportDic[_viewports[2]].IsShown = true;
                             _viewportDic[_viewports[3]].IsShown = false;
                         });
+                        if (ViewportType.Type != 4)
+                        {
+                            foreach (var o in ViewportType.Viewports)
+                            {
+                                if ((o == _viewports[0] || o == _viewports[2])&& _viewportDic[o].IsActive)
+                                    _viewportDic[o].FixToLastScaleEvent += _viewportDic[o].FixToLastScale;
+                            }
+                        }
+                        ViewportType = new ViewportDisplayType { Type = type };
                         ViewportType.Viewports.Add(_viewports[0]);
                         ViewportType.Viewports.Add(_viewports[2]);
                     }
@@ -278,17 +326,32 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                             _viewportDic[_viewports[2]].IsShown = false;
                             _viewportDic[_viewports[3]].IsShown = true;
                         });
+                        if (ViewportType.Type != 4)
+                        {
+                            foreach (var o in ViewportType.Viewports)
+                            {
+                                if ((o == _viewports[1] || o == _viewports[3])&& _viewportDic[o].IsActive)
+                                    _viewportDic[o].FixToLastScaleEvent += _viewportDic[o].FixToLastScale;
+                            }
+                        }
+                        ViewportType = new ViewportDisplayType { Type = type };
                         ViewportType.Viewports.Add(_viewports[1]);
                         ViewportType.Viewports.Add(_viewports[3]);
                     }
                     break;
-                case 4:
+                case 3:
                     task = new Task(() => {
                         _viewportDic[_viewports[0]].IsShown = true;
                         _viewportDic[_viewports[1]].IsShown = true;
                         _viewportDic[_viewports[2]].IsShown = true;
                         _viewportDic[_viewports[3]].IsShown = true;
                     });
+                    foreach(var o in ViewportType.Viewports)
+                    {
+                        if (_viewportDic[o].IsActive)
+                            _viewportDic[o].FixToLastScaleEvent += _viewportDic[o].FixToLastScale;
+                    }
+                    ViewportType = new ViewportDisplayType { Type = type };
                     ViewportType.Viewports = _viewports;
                     break;
                 default:
@@ -300,44 +363,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 Cursor = Cursors.Arrow;
             });
             task.Start();
-        }
-        public void OnMaximizeViewport()
-        {
-            ImageViewEnable = false;
-            Cursor = Cursors.Wait;
-            Task task;
-            if (ViewportType.Type == 1)
-            {
-                _viewportDic[_currentViewport].FixToLastScaleEvent += _viewportDic[_currentViewport].FixToLastScale;
-                ViewportType = new ViewportDisplayType { Type = 4, Viewports = _viewports };
-                task = new Task(() =>
-                {
-                    _viewportDic[_viewports[0]].IsShown = true;
-                    _viewportDic[_viewports[1]].IsShown = true;
-                    _viewportDic[_viewports[2]].IsShown = true;
-                    _viewportDic[_viewports[3]].IsShown = true;
-                });
-            }
-            else
-            {
-                ViewportType = new ViewportDisplayType { Type = 1};
-                task = new Task(() =>
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        _viewportDic[_viewports[i]].IsShown = _viewports[i] == _currentViewport;
-                    }
-                    ViewportType.Viewports.Add(_currentViewport);
-                });
-            }
-            task.ContinueWith(t =>
-            {
-                ImageViewEnable = true;
-                Cursor = Cursors.Arrow;
-            });
-            task.Start();
-        }
-        
+        }        
         private void OnSelectRegionTile(RegionTile regionTile)
         {
             _regionId = regionTile.RegionId;
@@ -388,11 +414,13 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             CurrentViewport = Viewports.FirstOrDefault();
             CurrentViewport.viewportBorder.BorderBrush = Brushes.White;
             _viewportDic[CurrentViewport].IsShown = true;
-            ViewportType = new ViewportDisplayType { Type = 1 };
+            ViewportType = new ViewportDisplayType { Type = 0 };
             ViewportType.Viewports.Add(_currentViewport);
    }
         private void OnDisplay()
         {
+            if (_isLoading) return;
+            _isLoading = true;
             ImageViewEnable = false;
             Cursor = Cursors.Wait;
             Task task = new Task(() => {
@@ -402,6 +430,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             {
                 ImageViewEnable = true;
                 Cursor = Cursors.Arrow;
+                _isLoading = false;
             });
             task.Start();
             IsDragger = true;
@@ -520,7 +549,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             profileViewModel.OnCloseWindow();
             updateDrawTool();
         }
-
         private void OnRuler()
         {
             if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown)
@@ -546,6 +574,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _contrast = _viewportDic[CurrentViewport].CurrentChannelImage.Contrast;
             OnPropertyChanged("Brightness");
             OnPropertyChanged("Contrast");
+            OnPropertyChanged("SliderBrightness");
             OnPropertyChanged("SliderContrast");
             brightnessContrastWindow.ShowDialog();
         }
@@ -559,6 +588,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _contrast = channel.Contrast;
             OnPropertyChanged("Brightness");
             OnPropertyChanged("Contrast");
+            OnPropertyChanged("SliderBrightness");
             OnPropertyChanged("SliderContrast");
         }
         private void OnUpdateProfilePoints(ProfilePoints e)
@@ -590,6 +620,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _brightness = 0 - (int)(min * _contrast);
             OnPropertyChanged("Brightness");
             OnPropertyChanged("Contrast");
+            OnPropertyChanged("SliderBrightness");
             OnPropertyChanged("SliderContrast");
             updateBrightnessContrast();
         }
@@ -599,10 +630,27 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             _brightness = 0 ;
             OnPropertyChanged("Brightness");
             OnPropertyChanged("Contrast");
+            OnPropertyChanged("SliderBrightness");
             OnPropertyChanged("SliderContrast");
             updateBrightnessContrast();
         }
-        
+        private void ApplyBCToChannel()
+        {
+            if (_viewportDic[_currentViewport].CurrentChannelImage.IsComputeColor)
+            {
+                var computeColor = _viewportDic[_currentViewport].CurrentChannelImage.ComputeColorInfo;
+                computeColor.Brightness = _brightness;
+                computeColor.Contrast = _contrast;
+                updateChannelBrightnessContrast(computeColor);
+            }
+            else
+            {
+                var channel = _viewportDic[_currentViewport].CurrentChannelImage.ChannelInfo;
+                channel.Brightness = _brightness;
+                channel.Contrast = _contrast;
+                updateChannelBrightnessContrast(channel);
+            }
+        }        
         private void OnUpdateMousePoint(MousePointStatus status)
         {
             if (status.IsComputeColor)
@@ -619,7 +667,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 if (computeColor == null) return;
                 if (args.Operator == 0) EditComputeColor(computeColor);
                 else if (args.Operator == 1) DeleteComputeColor(computeColor);
-
             }
             else
             {
@@ -627,9 +674,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 if (channel == null) return;
                 if (args.Operator == 0) EditVirtualChannel(channel);
                 else if (args.Operator == 1) DeleteVirtualChannel(channel);
-
             }
-
         }
         private void Vierport_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -669,6 +714,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 _contrast = _viewportDic[CurrentViewport].CurrentChannelImage.Contrast;
                 OnPropertyChanged("Brightness");
                 OnPropertyChanged("Contrast");
+                OnPropertyChanged("SliderBrightness");
                 OnPropertyChanged("SliderContrast");
             }
             e.Handled = true;
@@ -707,6 +753,22 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown) return;
             _viewportDic[CurrentViewport].UpdateBrightnessContrast(_brightness, _contrast);
         }
+        private void updateChannelBrightnessContrast(Channel channel)
+        {
+            foreach (var o in _viewports)
+            {
+                if (_viewportDic[o].IsActive && _viewportDic[o].IsShown)
+                    _viewportDic[o].UpdateChannelBrightnessContrast(channel, _brightness, _contrast);
+            }
+        }
+        private void updateChannelBrightnessContrast(ComputeColor computeColor)
+        {
+            foreach (var o in _viewports)
+            {
+                if (_viewportDic[o].IsActive && _viewportDic[o].IsShown)
+                    _viewportDic[o].UpdateChannelBrightnessContrast(computeColor, _brightness, _contrast);
+            }
+        }
         private void EditVirtualChannel(VirtualChannel virtualChannel)
         {
             IsRuler = false;
@@ -744,7 +806,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 if (_viewportDic[o].IsShown && _viewportDic[o].IsActive)
                     _viewportDic[o].DeleteVirtualChannel(virtualChannel);
             }
-
         }
         private void EditComputeColor(ComputeColor computeColor)
         {
@@ -772,7 +833,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                         _viewportDic[o].EditComputeColor(computeColor);
                 }
             }
-
         }
         private void DeleteComputeColor(ComputeColor computeColor)
         {
@@ -782,7 +842,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 if (_viewportDic[o].IsShown && _viewportDic[o].IsActive)
                     _viewportDic[o].DeleteComputeColor(computeColor);
             }
-
         }
         private void SaveChannels(int i)
         {
@@ -823,17 +882,15 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             }
             scanxe.Add(cxe);
             xe.Add(scanxe);
-            if (!Directory.Exists(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule"))
-                Directory.CreateDirectory(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule");
-            xe.Save(_experiment.GetExperimentInfo().AnalysisPath+ "\\ImageViewerModule\\channels.xml");
+            if (!Directory.Exists(_experiment.GetExperimentInfo().AnalysisPath ))
+                Directory.CreateDirectory(_experiment.GetExperimentInfo().AnalysisPath);
+            xe.Save(_experiment.GetExperimentInfo().AnalysisPath+ "\\channels.xml");
         }
         private void LoadChannels()
         {
-            if (!Directory.Exists(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule"))
-                Directory.CreateDirectory(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule");
-            if (!File.Exists(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule\\channels.xml"))
+            if (!File.Exists(_experiment.GetExperimentInfo().AnalysisPath + "\\channels.xml"))
                 return;
-            XElement xe = XElement.Load(_experiment.GetExperimentInfo().AnalysisPath + "\\ImageViewerModule\\channels.xml");
+            XElement xe = XElement.Load(_experiment.GetExperimentInfo().AnalysisPath + "\\channels.xml");
             IEnumerable<XElement> elements = from ele in xe.Elements("Scan")
                                              where (string)ele.Attribute("ScanId") == _scanId.ToString()
                                              select ele;
@@ -906,7 +963,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 if (dic.ContainsKey(o))
                     list.Add(new ComputeColorItem() { Channel = o, IsSelected = true, Color = dic[o] });
                 else
-                    list.Add(new ComputeColorItem() { Channel = o, IsSelected = false, Color =Colors.Red });
+                    list.Add(new ComputeColorItem() { Channel = o, IsSelected = false, Color =Colors.Gray });
 
             }
             foreach (var o in _virtualChannels)
@@ -914,10 +971,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 if (dic.ContainsKey(o))
                     list.Add(new ComputeColorItem() { Channel = o, IsSelected = true, Color = dic[o] });
                 else
-                    list.Add(new ComputeColorItem() { Channel = o, IsSelected = false, Color = Colors.Red });
-
-            }
-            
+                    list.Add(new ComputeColorItem() { Channel = o, IsSelected = false, Color = Colors.Gray });
+            }            
             return list;
         }
         private void updateDrawTool()

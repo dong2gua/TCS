@@ -7,7 +7,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
     public abstract class GraphicsBase : DrawingVisual
     {
-
         protected bool Selected;
         protected Color GraphicsObjectColor;
         protected Tuple<double, double, double> GraphicsActualScale=new Tuple<double, double, double>(1,1,1);
@@ -86,13 +85,11 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                 return new Rect(l, t, w, h);
             }
         }
-
         protected GraphicsBase()
         {
             this.Transform = new ScaleTransform();
             GraphicsObjectColor = Colors.AliceBlue;
         }
-
         public abstract int HandleCount { get; }
         public abstract Point GetHandle(int handleNumber);
         public abstract Cursor GetHandleCursor(int handleNumber);
@@ -186,7 +183,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                 y = top;
             else if (y >= bottom)
                 y = bottom;
-
             return new Point(x, y);
         }
         protected Rect ConvertToDisplayRect(Rect actualRect)

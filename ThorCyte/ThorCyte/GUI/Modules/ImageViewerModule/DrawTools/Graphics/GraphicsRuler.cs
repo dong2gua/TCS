@@ -11,10 +11,8 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
-
             drawLine(drawingContext, ConvertToDisplayPoint(LineStart), ConvertToDisplayPoint(LineEnd));
             drawText(drawingContext);
-
         }
         void drawLine(DrawingContext drawingContext,Point start,Point end)
         {
@@ -23,11 +21,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             Vector vector1 = new Vector(4, 4);
             Vector vector2 = new Vector(4, -4);
             drawingContext.DrawLine(new Pen(new SolidColorBrush(lineColor), GraphicsLineWidth), start, end);
-            //drawingContext.DrawLine(new Pen(new SolidColorBrush(arrowColor), GraphicsLineWidth), start - vector1, start + vector1);
-            //drawingContext.DrawLine(new Pen(new SolidColorBrush(arrowColor), GraphicsLineWidth), start - vector2, start + vector2);
-            //drawingContext.DrawLine(new Pen(new SolidColorBrush(arrowColor), GraphicsLineWidth), end - vector1, end + vector1);
-            //drawingContext.DrawLine(new Pen(new SolidColorBrush(arrowColor), GraphicsLineWidth), end - vector2, end + vector2);
-
         }
         void drawText(DrawingContext drawingContext)
         {

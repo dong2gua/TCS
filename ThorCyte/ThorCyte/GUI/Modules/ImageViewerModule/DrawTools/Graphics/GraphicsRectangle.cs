@@ -20,9 +20,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
-
             drawingContext.DrawRectangle(null, new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), ConvertToDisplayRect(Rectangle));
-
             base.Draw(drawingContext);
         }
         public override bool Contains(Point point)

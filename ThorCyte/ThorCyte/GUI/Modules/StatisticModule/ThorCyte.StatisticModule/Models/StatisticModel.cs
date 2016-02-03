@@ -297,9 +297,10 @@ namespace ThorCyte.Statistic.Models
         {
             RunFeatureContainer = new List<RunFeature>();
         }
-        public List<Component> ComponentContainer { get; set; }
+        public List<ComponentRunFeature> ComponentContainer { get; set; }
+        public ComponentRunFeature SelectedComponent { get; set; }
         public List<RunFeature> RunFeatureContainer { get; set; }
-        public List<RunFeature> SelectedRunFeature { get; set; }
+        public RunFeature SelectedRunFeature{ get; set; }
     }
     
     public class ComponentRunFeature

@@ -145,8 +145,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>xcopy /Y $(ProjectDir)..\..\..\..\Bin\ImageProcessLib.dll $(TargetDir)
+xcopy /Y $(ProjectDir)..\..\..\..\Tools\FreeImage.dll $(TargetDir)
+xcopy /Y $(ProjectDir)..\..\..\..\Bin\ROIService.dll $(TargetDir)
+xcopy /Y $(ProjectDir)..\..\..\..\Bin\ComponentDataService.dll $(TargetDir)
+xcopy $(ProjectDir)..\..\..\..\XML\*.* $(TargetDir)\XML\ /Y/E</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -15,13 +15,13 @@
             <MenuItem Header="Settings"></MenuItem>
         </Menu>-->
         <StackPanel Margin="6,0,0,0" Orientation="Horizontal">
-            <Button ToolTip="Open Experiment" Margin="2" Command="{Binding OpenCommand}">
+            <Button ToolTip="Open Experiment" Margin="4,6,2,4" Command="{Binding OpenCommand}">
                 <Image Source="../Icons/Open.png" Stretch="Fill"></Image>
             </Button>
-            <Button ToolTip="Save Analysis Result" Margin="2" Command="{Binding SaveCommand}" >
+            <Button ToolTip="Save Analysis Result" Margin="2,6,2,4" Command="{Binding SaveCommand}" >
                 <Image Source="../Icons/Save.png" Stretch="Fill"></Image>
             </Button>
-            <Button ToolTip="Settings" Margin="2">
+            <Button ToolTip="Settings" Margin="2,6,2,4">
                 <Image Source="../Icons/Settings.png"  Stretch="Fill"></Image>
             </Button>
         </StackPanel>

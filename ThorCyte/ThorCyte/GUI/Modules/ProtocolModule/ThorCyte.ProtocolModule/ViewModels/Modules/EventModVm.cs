@@ -248,19 +248,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         }
 
         private bool[] GetChCorr()
-        {
-            if (Macro.CurrentScanInfo == null) throw new CyteException("EventModule:GetChCorr","Macro.CurrentScanInfo is null.");
-
-            foreach (var channel in from channel in Macro.CurrentScanInfo.ChannelList let chc = ChannelCollection.FirstOrDefault(ch => ch.ChannelName == channel.ChannelName) where chc == null select channel)
-            {
-                ChannelCollection.Add(new ChannelsCorrection(false,channel.ChannelName));
-            }
-
-            foreach (var channel in from channel in Macro.CurrentScanInfo.VirtualChannelList let chc = ChannelCollection.FirstOrDefault(ch => ch.ChannelName == channel.ChannelName) where chc == null select channel)
-            {
-                ChannelCollection.Add(new ChannelsCorrection(false, channel.ChannelName));
-            }
-            
+        {    
             return ChannelCollection.Select(chc => chc.IsChecked).ToArray();
         }
 
@@ -289,15 +277,28 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
         }
 
+        public override void UpdateChannels()
+        {
+            if (Macro.CurrentScanInfo == null) return;
+
+            foreach (var channel in Macro.CurrentScanInfo.ChannelList.Where(channel => !ChannelCollection.Select(chc => chc.ChannelName).Contains(channel.ChannelName)))
+            {
+                ChannelCollection.Add(new ChannelsCorrection(false,channel.ChannelName));
+            }
+
+            foreach (var channel in Macro.CurrentScanInfo.VirtualChannelList.Where(channel => !ChannelCollection.Select(chc => chc.ChannelName).Contains(channel.ChannelName)))
+            {
+                ChannelCollection.Add(new ChannelsCorrection(false, channel.ChannelName));
+            }
+        }
+
         public override void OnSerialize(XmlWriter writer)
         {
             writer.WriteAttributeString("expand-by", ExpandBy.ToString());
             writer.WriteAttributeString("keep-boundary-events", IsKeepsEventsOnBoundary.ToString().ToLower());
-
             writer.WriteAttributeString("peripheral", IsPeripheral.ToString().ToLower());
             writer.WriteAttributeString("peri-distance", PeriDistance.ToString());
             writer.WriteAttributeString("peri-width", PeriWidth.ToString());
-
             writer.WriteAttributeString("dynamic-background", IsDynamicBackground.ToString().ToLower());
             writer.WriteAttributeString("distance", BkDistance.ToString());
             writer.WriteAttributeString("width", BkWidth.ToString());
@@ -399,6 +400,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         #endregion
     }
 
+    #region ChannelsCorrection
     public class ChannelsCorrection : BindableBase
     {
         private bool _ischecked;
@@ -430,4 +432,5 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             ChannelName = channelname;
         }
     }
+    #endregion
 }

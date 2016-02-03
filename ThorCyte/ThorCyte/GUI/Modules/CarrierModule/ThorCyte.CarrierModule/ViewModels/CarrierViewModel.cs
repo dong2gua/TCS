@@ -7,6 +7,7 @@ using ThorCyte.CarrierModule.Carrier;
 using ThorCyte.CarrierModule.Common;
 using ThorCyte.CarrierModule.Views;
 using ThorCyte.Infrastructure.Events;
+using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.Infrastructure.Interfaces;
 
 namespace ThorCyte.CarrierModule.ViewModels
@@ -71,7 +72,7 @@ namespace ThorCyte.CarrierModule.ViewModels
 
         public CarrierViewModel()
         {
-            CarrierDefMgr.Initialize(@"..\..\..\..\..\..\XML");
+            CarrierDefMgr.Initialize(@".\XML");
             _tileview = new TileView();
             _plateView = new PlateView();
             _slideView = new SlideView();
@@ -129,7 +130,7 @@ namespace ThorCyte.CarrierModule.ViewModels
 
         public void LoadScanArea(ScanInfo info)
         {
-            if (_carrier != null)
+            if (_carrier != null )
 
                 _carrier.TotalRegions = info.ScanRegionList;
 
@@ -152,6 +153,7 @@ namespace ThorCyte.CarrierModule.ViewModels
                 var exp = ServiceLocator.Current.GetInstance<IExperiment>();
                 _currentCarrierType = exp.GetCarrierType();
                 _currentScanInfo = exp.GetScanInfo(_currentScanId);
+                if(_currentScanInfo == null) throw new CyteException("CarrierViewModel","current scaninfo is null.");
                 _tileview.vm.CurrentScanInfo = _currentScanInfo;
                 _slideView.slideCanvas.CurrentScanInfo = _currentScanInfo;
                 _plateView.plateCanvas.CurrentScanInfo = _currentScanInfo;

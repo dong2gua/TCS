@@ -46,6 +46,7 @@ namespace ThorCyte.HeaderModule.ViewModels
         {
             IsSaveWindow = isSaveWindow;
             _experimentPath = experimentPath;
+            _folerName = "";
             string path = experimentPath + "\\Analysis\\";
             foreach (string subdirectory in Directory.GetDirectories(path))
             {
@@ -116,9 +117,16 @@ namespace ThorCyte.HeaderModule.ViewModels
                     obj.DialogResult = true;
                     obj.Close();
                 }
-                else
+                else 
                 {
-                    MessageBox.Show("Please selected analysis folder", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (AnalysisList.Count > 0)
+                    {
+                        MessageBox.Show("Please selected analysis folder", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        obj.Close();
+                    }
                 }
             }
             

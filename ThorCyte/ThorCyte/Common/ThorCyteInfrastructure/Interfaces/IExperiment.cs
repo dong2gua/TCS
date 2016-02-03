@@ -65,7 +65,7 @@ namespace ThorCyte.Infrastructure.Interfaces
     public interface IExperiment
     {
         //Initalize
-        void Load(string experimentPath);
+        bool Load(string experimentPath);
 
         // Experiment
         ExperimentInfo GetExperimentInfo();

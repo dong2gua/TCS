@@ -34,10 +34,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         private ToolType _tool;
         public ToolType Tool
         {
-            get
-            {
-                return _tool;
-            }
+            get { return _tool; }
             set
             {
                 if ((int)value < 0 || (int)value >= (int)ToolType.Max||value==_tool) return;

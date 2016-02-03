@@ -64,82 +64,6 @@
                 </DataTemplate>
             </selector:ViewportSelector.AllViewportDataTemplate>
         </selector:ViewportSelector>
-        <Style TargetType="{x:Type control:SplitButton}">
-            <Setter Property="FocusVisualStyle" Value="{StaticResource ButtonFocusVisual}"/>
-            <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource ButtonBorder}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{StaticResource ButtonForeground}"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type control:SplitButton}">
-                        <Border
-						Background="{TemplateBinding Background}" 
-						BorderBrush="{TemplateBinding BorderBrush}"
-						BorderThickness="{TemplateBinding BorderThickness}"
-						CornerRadius="3">
-                            <StackPanel x:Name="stackpanel" >
-                                <ContentPresenter
-								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-								Margin="{TemplateBinding Padding}"
-								RecognizesAccessKey="True"
-								/>
-                                <Separator  x:Name="separator" Visibility="Hidden" Background="{TemplateBinding BorderBrush}" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-
-                                <Button x:Name="PART_DropDown" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
-                                    <Button.Style>
-                                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="{x:Type Button}">
-                                                        <Border Background="Transparent">
-                                                            <Path Data="M0,0L3,3 6,0z" Margin="1"
-															Stroke="{TemplateBinding Foreground}" 
-															Fill="{TemplateBinding Foreground}" 
-															HorizontalAlignment="Center" 
-															VerticalAlignment="Center"/>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter  Property="Background" Value="{StaticResource MouseOverButtonBackground}"/>
-                                <Setter  Property="Foreground" Value="{StaticResource MouseOverButtonForeground}"/>
-                                <Setter TargetName="separator"  Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                            <Trigger Property="IsOpen" Value="True">
-                                <Setter  Property="Background" Value="{StaticResource PressedButtonBackground}"/>
-                                <Setter  Property="Foreground" Value="{StaticResource ButtonForeground}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="true">
-                                <Setter  Property="Background" Value="{StaticResource PressedButtonBackground}"/>
-                                <Setter  Property="Foreground" Value="{StaticResource ButtonForeground}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter  Property="Foreground" Value="{StaticResource DisabledButtonForeground}"/>
-                                <Setter  Property="Background" Value="{StaticResource DisabledButtonBackground}"/>
-                            </Trigger>
-                            <Trigger Property="Orientation" Value="Horizontal">
-                                <Setter TargetName="stackpanel" Property="Orientation" Value="Horizontal"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-            </Style.Triggers>
-        </Style>
-
     </UserControl.Resources>
     <Grid IsEnabled="{Binding ImageViewEnable}">
         <Grid.RowDefinitions>
@@ -185,15 +109,36 @@
             <Button Margin="1" Command="{Binding BrightnessContrastCommand}" ToolTip="Brightness and Contrast">
                 <Image Source="..\resources\Brightness.png"/>
             </Button>
-            <control:SplitButton Margin="1" x:Name="splitButton" Mode="Dropdown" ToolTip="Select Viewport"  Command="{Binding MaximizeViewportCommand}" Orientation="Vertical">
-                <!--<Image Source="{Binding ViewportType.IsSingleWindow,Converter={StaticResource BoolToStringC},ConverterParameter='..\\resources\\ToSingle.png|..\\resources\\MultiWindow.png'}"/>-->
-                <Image Source="..\resources\MultiWindow.png"/>
-                <control:SplitButton.DropDownContent >
-                    <control:SelectViewportList x:Name="selectViewportCanvas"  />
-                </control:SplitButton.DropDownContent>
-            </control:SplitButton>
+            <Button Margin="1" x:Name="btViewportLayout" Click="Button_Click" ToolTip="Viewport Layout" >
+                <Grid>
+                    <Image x:Name="imgViewportLayout"/>
+                    <Path Data="M0,4L4,0 4,4z" Fill="Black" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                </Grid>
+            </Button>
+            <Popup x:Name="popup" StaysOpen="False" PlacementTarget="{Binding ElementName=btViewportLayout}" >
+                <ListView x:Name="lvViewport" SelectedIndex="{Binding ViewportType.Type, Mode=OneWay}" SelectionChanged="ListView_SelectionChanged" >
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.Items>
+                        <ListViewItem>
+                            <Image Source="..\resources\ViewOne.png"/>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <Image Source="..\resources\ViewH.png"/>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <Image Source="..\resources\ViewV.png"/>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <Image Source="..\resources\ViewAll.png"/>
+                        </ListViewItem>
+                    </ListView.Items>
+                </ListView>
+            </Popup>
         </StackPanel>
         <ContentControl Grid.Row="0"  Content="{Binding ViewportType}"  ContentTemplateSelector="{StaticResource ViewportSelector}"/>
-
     </Grid>
 </UserControl>

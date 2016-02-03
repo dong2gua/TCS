@@ -14,12 +14,19 @@ namespace ThorCyte.ImageViewerModule.View
             InitializeComponent();
             vm= new ImageViewerViewModel();
             this.DataContext = vm;
-            selectViewportCanvas.OnClick += SelectViewportCanvas_OnClick;
         }
-        private void SelectViewportCanvas_OnClick(int select)
+        private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            splitButton.IsOpen = false;
-            vm.OnViewportTypeChange(select); 
+            popup.IsOpen = true;
+        }
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            popup.IsOpen = false;
+            var listView = sender as ListView;
+            vm.OnViewportTypeChange(listView.SelectedIndex);
+            var selection = (listView.SelectedItem as ContentControl).Content as Image;
+            if(selection!=null)
+            imgViewportLayout.Source = selection.Source;
         }
     }
 }

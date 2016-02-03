@@ -62,7 +62,7 @@ namespace ThorCyte.GraphicModule.Views
                     FillBrush = new SolidColorBrush(ConstantHelper.ColorTable[i]),
                 });
             }
-            SciChart.RenderableSeries.Add(new FastLineRenderableSeries { SeriesColor = Colors.Black });
+            SciChart.RenderableSeries.Add(new FastLineRenderableSeries { SeriesColor = Colors.White });
         }
 
         private void ClearDataSeriesArray()

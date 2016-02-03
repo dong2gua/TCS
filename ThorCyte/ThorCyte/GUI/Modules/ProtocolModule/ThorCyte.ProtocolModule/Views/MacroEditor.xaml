@@ -150,7 +150,7 @@
         </Border>
 
         <StackPanel Margin="5,0" Orientation="Vertical" Grid.Row="1" Grid.Column="5">
-            <ToggleButton Margin="1"  Click="ToolboxClick" ToolTip="Tool Box">
+            <ToggleButton Margin="1"  Click="ToolboxClick" ToolTip="Tool Box" IsEnabled="{Binding IsAlignEnable}">
                 <Image Source="../Resource/Images/toolbox.png"/>
             </ToggleButton>
             <Button  Margin="1" Command="{Binding AlignCommnad}" CommandParameter="V" ToolTip="Vertical Align Modules" IsEnabled="{Binding IsAlignEnable}">

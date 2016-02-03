@@ -29,10 +29,10 @@ namespace ThorCyte.CarrierModule.Canvases
         private readonly VisualCollection _graphicsList;
         private readonly Hashtable _regionGraphicHashtable;
         private readonly Dictionary<string, Rect> _roomRectList = new Dictionary<string, Rect>();
-        private GraphicsEllipse _circulePointer;
         private int _currentWellId;
         private int _lastWellId;
         public List<string> AnalyzedWells;
+        public string AnalyzingWell;
 
         //96 plates
         private double _plateWidth = 127760.0;
@@ -640,54 +640,20 @@ namespace ThorCyte.CarrierModule.Canvases
 
 
             var thiskey = GetPlateId(args.WellId);
-            if (_roomRectList.ContainsKey(thiskey))
-            {
-                var rect = _roomRectList[thiskey];
-                var offset = rect.Width / 5;
+            AnalyzingWell = thiskey;
 
-                var left = rect.Left + offset;
-                var top = rect.Top + offset;
-                var right = rect.Right - offset;
-                var bottom = rect.Bottom - offset;
+            var lastkey = GetPlateId(_lastWellId);
+            if (lastkey != string.Empty && !AnalyzedWells.Contains(lastkey))
+                AnalyzedWells.Add(lastkey);
 
-                if (_circulePointer == null)
-                {
-                    _circulePointer = new GraphicsEllipse(left, top, right, bottom, 2, Colors.Red,
-                      ActualScale, 0) { Clip = new RectangleGeometry(new Rect(0, 0, Width, Height)) };
-                    _circulePointer.Clip = new RectangleGeometry(new Rect(0, 0, Width, Height));
-                }
-                else
-                {
-                    _circulePointer.Left = left;
-                    _circulePointer.Top = top;
-                    _circulePointer.Right = right;
-                    _circulePointer.Bottom = bottom;
-                }
-
-
-                if (!GraphicsList.Contains(_circulePointer))
-                {
-                    GraphicsList.Add(_circulePointer);
-                }
-
-                _circulePointer.RefreshDrawing();
-
-                var lastkey = GetPlateId(_lastWellId);
-                if (lastkey != string.Empty && !AnalyzedWells.Contains(lastkey))
-                    AnalyzedWells.Add(lastkey);
-
-                InvalidateVisual();
-            }
+            InvalidateVisual();
         }
 
         public void MacroFinish(int scanid)
         {
             if (!IsShowing) return;
 
-            if (GraphicsList.Contains(_circulePointer))
-            {
-                GraphicsList.Remove(_circulePointer);
-            }
+            AnalyzingWell = string.Empty;
 
             var lastkey = GetPlateId(_currentWellId);
             if (lastkey != string.Empty && !AnalyzedWells.Contains(lastkey))
@@ -736,8 +702,8 @@ namespace ThorCyte.CarrierModule.Canvases
 
 
                 var bh = AnalyzedWells.Contains(rectRoom.Key) ? Brushes.Green : Brushes.SlateGray;
-
-                dc.DrawEllipse(Brushes.White,
+                var bhcircle = AnalyzingWell == rectRoom.Key ? Brushes.Pink : Brushes.White;
+                dc.DrawEllipse(bhcircle,
                     new Pen(bh, LineWidth),
                     center,
                     radiusX,

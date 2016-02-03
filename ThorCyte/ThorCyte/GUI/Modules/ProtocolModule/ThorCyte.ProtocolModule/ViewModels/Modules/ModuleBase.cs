@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
 using ImageProcess;
+using Microsoft.Practices.ServiceLocation;
+using Prism.Events;
 using Prism.Mvvm;
+using ThorCyte.Infrastructure.Events;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 
@@ -18,6 +23,16 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public int ScanNo { get; set; }
         public ModuleType ModType { get; set; }
         public abstract bool Executable { get; }
+
+
+        private static IEventAggregator _eventAggregator;
+        private static IEventAggregator EventAggregator
+        {
+            get
+            {
+                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
+        }
 
         private string _displayName;
         public string DisplayName
@@ -185,6 +200,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         protected ModuleBase()
         {
+            EventAggregator.GetEvent<ShowRegionEvent>().Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
             _outputPort = new PortModel(PortType.OutPort);
             _enabled = true;
             _hasImage = false;
@@ -201,10 +217,31 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public virtual void Refresh() { }
         public virtual void OnSetScanNo() { }
         public virtual void InitialRun(){ }
+        public virtual void UpdateChannels(){ }
 
         #endregion
 
         #region Methods
+
+
+        private void ShowRegionEventHandler(string moduleName)
+        {
+            try
+            {
+                switch (moduleName)
+                {
+                    case "ReviewModule":
+                        break;
+                    case "AnalysisModule":
+                        UpdateChannels();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error Occurred in Module ShowRegionEventHandler " + ex.Message);
+            }
+        }
 
         /// <summary>
         /// Event raised when connectors are added to the node.

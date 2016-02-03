@@ -274,7 +274,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             var isConnect = false;
 
-            if (endPort == null)
+            if (startPort==null || endPort == null)
             {
                 return false;
             }
@@ -316,41 +316,48 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// </summary>
         public void ConnectionDragCompleted(ConnectorModel newConnection, PortModel portDraggedOut, PortModel portDraggedOver)
         {
-            if (portDraggedOut.PortType == PortType.InPort) portDraggedOut = newConnection.SourcePort;
-
-            if (!IsConnectable(portDraggedOut, portDraggedOver))
+            try
             {
-                // The connection was unsuccessful. Maybe the user dragged it out and dropped it in empty space.
-                PannelVm.Connections.Remove(newConnection);
-                newConnection.SourcePort = null;
-                newConnection.DestPort = null;
-                return;
+                if (portDraggedOut.PortType == PortType.InPort) portDraggedOut = newConnection.SourcePort;
+
+                if (!IsConnectable(portDraggedOut, portDraggedOver))
+                {
+                    // The connection was unsuccessful. Maybe the user dragged it out and dropped it in empty space.
+                    PannelVm.Connections.Remove(newConnection);
+                    newConnection.SourcePort = null;
+                    newConnection.DestPort = null;
+                    return;
+                }
+
+                // Only allow connections from output connector to input connector (ie each connector must have a different Type).
+                // Also only allocation from one node to another, never one node back to the same node.
+                bool connectionOk = IsConnectionOK(newConnection, portDraggedOut, portDraggedOver);
+
+                if (!connectionOk)
+                {
+                    // Connections between connectors that have the same Type,eg input -> input or output -> output, are not allowed,
+                    // Remove the connection.
+                    PannelVm.Connections.Remove(newConnection);
+                    newConnection.SourcePort = null;
+                    newConnection.DestPort = null;
+                    return;
+                }
+
+                // The user has dragged the connection on top of another valid connector.Remove any existing connection between the same two connectors.
+                var existingConnection = FindConnection(newConnection, portDraggedOut, portDraggedOver);
+
+                if (existingConnection != null)
+                {
+                    return;
+                }
+
+                // Finalize the connection by attaching it to the connector that the user dragged the mouse over.
+                newConnection.DestPort = portDraggedOver;
             }
-
-            // Only allow connections from output connector to input connector (ie each connector must have a different Type).
-            // Also only allocation from one node to another, never one node back to the same node.
-            bool connectionOk = IsConnectionOK(newConnection, portDraggedOut, portDraggedOver);
-
-            if (!connectionOk)
+            catch (Exception ex)
             {
-                // Connections between connectors that have the same Type,eg input -> input or output -> output, are not allowed,
-                // Remove the connection.
-                PannelVm.Connections.Remove(newConnection);
-                newConnection.SourcePort = null;
-                newConnection.DestPort = null;
-                return;
+                Debug.WriteLine("MacroEditorViewModel:ConnectionDragCompleted error: " + ex.Message);
             }
-
-            // The user has dragged the connection on top of another valid connector.Remove any existing connection between the same two connectors.
-            var existingConnection = FindConnection(newConnection, portDraggedOut, portDraggedOver);
-
-            if (existingConnection != null)
-            {
-                return;
-            }
-
-            // Finalize the connection by attaching it to the connector that the user dragged the mouse over.
-            newConnection.DestPort = portDraggedOver;
 
         }
 

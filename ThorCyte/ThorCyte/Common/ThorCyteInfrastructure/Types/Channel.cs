@@ -8,6 +8,14 @@
         public int ChannelId { get; set; }
         public int WaveLength { get; set; }
         public virtual bool IsvirtualChannel{get { return false; }}
+        public int Brightness { set; get; }
+        public double Contrast { set; get; }
+
+        public Channel()
+        {
+            Brightness = 0;
+            Contrast = 1.0;
+        }
 
         #endregion
 
@@ -20,8 +28,6 @@
         public Channel FirstChannel { set; get; }
         public Channel SecondChannel { set; get; }
         public ImageOperator Operator { set; get; }
-        public double Operand { set; get; }
-        public int Brightness { set; get; }
-        public double Contrast { set; get; }
+        public double Operand { set; get; } 
     }
 }

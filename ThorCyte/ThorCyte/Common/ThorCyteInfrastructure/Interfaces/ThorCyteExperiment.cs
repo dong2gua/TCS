@@ -31,6 +31,8 @@ namespace ThorCyte.Infrastructure.Interfaces
         #endregion
 
         #region Fields
+
+        private const double Tolerance = 1e-6;
         private const int ScanCount = 1;
         private const string InstrumentType = "ThorCyte";
         private bool _hasLoadExprimentInfo;
@@ -99,7 +101,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             return files.FirstOrDefault();
         }
 
-        private XmlDocument GetRunXml(string filepath)
+        private static XmlDocument GetRunXml(string filepath)
         {
             var file = Path.Combine(filepath, "run.xml");
             var doc = new XmlDocument();
@@ -112,27 +114,21 @@ namespace ThorCyte.Infrastructure.Interfaces
             return GetRunXml(BasePath);
         }
 
-        private XmlElement GetActiveRunElement(XmlDocument doc)
+        private static XmlElement GetActiveRunElement(XmlDocument doc)
         {
-            var query = string.Format("descendant::Run");
+            string query = "descendant::Run";
             XmlElement root = doc.DocumentElement;
             if (root == null) return null;
             XmlNodeList runNodes = root.SelectNodes(query);
             if (runNodes == null) return null;
-            foreach (XmlElement runNode in runNodes)
-            {
-                var activeRun = runNode.SelectSingleNode(string.Format("descendant::ActiveRun")) as XmlElement;
-                if (activeRun != null)
-                {
-                    if (activeRun.InnerText.Equals("true", StringComparison.OrdinalIgnoreCase))
-                        return runNode;
-                }
-            }
-            return null;
-
+            return (from XmlElement runNode in runNodes
+                let activeRun = runNode.SelectSingleNode("descendant::ActiveRun") as XmlElement
+                where activeRun != null
+                where activeRun.InnerText.Equals("true", StringComparison.OrdinalIgnoreCase)
+                select runNode).FirstOrDefault();
         }
 
-        private void ParseActiveRunElement(XmlElement runNode)
+        private void ParseActiveRunElement(XmlNode runNode)
         {
             XmlNodeList childern = runNode.ChildNodes;
             foreach (XmlElement child in childern)
@@ -193,30 +189,27 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         private XmlElement GetActiveInstrumentStateElement(XmlDocument doc)
         {
-            var query = string.Format("descendant::InstrumentState");
+            string query = "descendant::InstrumentState";
             XmlElement root = doc.DocumentElement;
             if (root == null) return null;
-            var nodes = root.SelectNodes(query);
-            foreach (XmlElement node in nodes)
-            {
-                var e = node.SelectSingleNode(string.Format("descendant::RunNum")) as XmlElement;
-                if (e != null)
-                {
-                    if (e.InnerText.Equals(_activeRunNum, StringComparison.OrdinalIgnoreCase))
-                        return node;
-                }
-            }
-            return null;
+            XmlNodeList nodes = root.SelectNodes(query);
+            return nodes != null
+                ? (from XmlElement node in nodes
+                    let e = node.SelectSingleNode("descendant::RunNum") as XmlElement
+                    where e != null
+                    where e.InnerText.Equals(_activeRunNum, StringComparison.OrdinalIgnoreCase)
+                    select node).FirstOrDefault()
+                : null;
         }
 
-        private void ParseActiveInstrumentStateElement(XmlElement element)
+        private void ParseActiveInstrumentStateElement(XmlNode element)
         {
             XmlElement node = element.ChildNodes.Cast<XmlElement>()
                 .FirstOrDefault(n => n.Name.Equals("SoftwareVersion"));
             _experimentInfo.SoftwareVersion = node == null ? string.Empty : node.InnerText;
         }
 
-        private XmlDocument GetWorkspaceXml(string filepath)
+        private static XmlDocument GetWorkspaceXml(string filepath)
         {
             var file = FindspecifiedFile(filepath, "*.ws.xml");
             var doc = new XmlDocument();
@@ -229,63 +222,74 @@ namespace ThorCyte.Infrastructure.Interfaces
             return GetWorkspaceXml(BasePath);
         }
 
-        private void ParseWorkspaceXml(XmlDocument doc, ScanInfo scanInfo)
+        private bool ParseWorkspaceXml(XmlDocument doc, ScanInfo scanInfo)
         {
             // carrier xml element
-            var query = string.Format("descendant::carrier");
-            var node = doc.DocumentElement.SelectSingleNode(query) as XmlElement;
-            ParseCarrierElement(node);
+            string query = "descendant::carrier";
+            XmlElement root = doc.DocumentElement;
+            if (root != null)
+            {
+                var node = root.SelectSingleNode(query) as XmlElement;
+                if (ParseCarrierElement(node) == false) return false;
+                
 
-            // scan-region xml element
-            query = string.Format("descendant::scan-area");
-            node = doc.DocumentElement.SelectSingleNode(query) as XmlElement;
-            ParseScanRegionElement(node, scanInfo);
+                // scan-region xml element
+                query = "descendant::scan-area";
+                node =root.SelectSingleNode(query) as XmlElement;
+                if (ParseScanRegionElement(node, scanInfo) == false) return false;
          
 
-            query = string.Format("descendant::modules");
-            node = doc.DocumentElement.SelectSingleNode(query) as XmlElement;
-            if (node != null)
+                query = "descendant::modules";
+                node = root.SelectSingleNode(query) as XmlElement;
+                if (node != null)
+                {
+                    XmlElement detectors = null;
+                    XmlElement fieldScan = null;
+                    foreach ( XmlElement element in node.ChildNodes)
+                    {
+                        string name = element.ParseAttributeToString("name");
+                        if (name.Equals("Detectors", StringComparison.OrdinalIgnoreCase))
+                        {
+                            detectors = element;
+                        }
+                        else if (name.Equals("FieldScan", StringComparison.OrdinalIgnoreCase))
+                        {
+                            fieldScan = element;
+                        }
+                        if (fieldScan != null && detectors != null) break;
+                    }
+                    IEnumerable<Channel> channels = GetChannels(detectors);
+                    int id = 0;
+                    foreach (var channel in channels)
+                    {
+                        channel.ChannelId = id;
+                        scanInfo.ChannelList.Add(channel);
+                        id++;
+                    }
+                    scanInfo.ObjectiveType = GetObjectiveType(fieldScan);
+                    XInterval = fieldScan.ParseAttributeToInt32("xinterval");
+                    YInterval = fieldScan.ParseAttributeToInt32("yinterval");              
+                    scanInfo.ScanPathMode = ScanPathType.LeftToRight;
+                }
+                return true;
+            }
+            else
             {
-                XmlElement detectors = null;
-                XmlElement fieldScan = null;
-                foreach ( XmlElement element in node.ChildNodes)
-                {
-                    string name = element.ParseAttributeToString("name");
-                    if (name.Equals("Detectors", StringComparison.OrdinalIgnoreCase))
-                    {
-                        detectors = element;
-                    }
-                    else if (name.Equals("FieldScan", StringComparison.OrdinalIgnoreCase))
-                    {
-                        fieldScan = element;
-                    }
-                    if (fieldScan != null && detectors != null) break;
-                }
-                IEnumerable<Channel> channels = GetChannels(detectors);
-                int id = 0;
-                foreach (var channel in channels)
-                {
-                    channel.ChannelId = id;
-                    scanInfo.ChannelList.Add(channel);
-                    id++;
-                }
-                scanInfo.ObjectiveType = GetObjectiveType(fieldScan);
-                XInterval = fieldScan.ParseAttributeToInt32("xinterval");
-                YInterval = fieldScan.ParseAttributeToInt32("yinterval");              
-                scanInfo.ScanPathMode = ScanPathType.LeftToRight;
-               
-
+                return false;
             }
         }
 
-        private void ParseCarrierElement(XmlElement element)
+        private bool ParseCarrierElement(XmlElement element)
         {
-            if (element != null)
+            if(element==null) return false;
+            else
             {
                 if (element.HasAttribute("ref"))
                 {
                     _carrierId = element.Attributes["ref"].InnerText;
                 }
+                else 
+                    return false;
 
                 XmlNode child = element.FirstChild;
                 if (child != null)
@@ -294,10 +298,15 @@ namespace ThorCyte.Infrastructure.Interfaces
                         ? CarrierType.Slide
                         : CarrierType.Well;
                 }
+                else 
+                    return false;
+                return true;
             }
+            
+            
         }
 
-        private void ParseScanRegionElement(XmlElement element, ScanInfo scanInfo)
+        private bool ParseScanRegionElement(XmlElement element, ScanInfo scanInfo)
         {
             if (element != null)
             {
@@ -305,6 +314,8 @@ namespace ThorCyte.Infrastructure.Interfaces
                 _fieldWidth = element.ParseAttributeToDouble("field-width");
                 _rows = element.ParseAttributeToInt32("rows");
                 _cols = element.ParseAttributeToInt32("cols");
+                if (Math.Abs(_fieldHeight) < Tolerance || Math.Abs(_fieldWidth) < Tolerance)
+                    return false;
                 IEnumerable<ScanRegion> regions = GetScanRegions(element);
                 foreach (var region in regions)
                 {
@@ -312,7 +323,10 @@ namespace ThorCyte.Infrastructure.Interfaces
                     scanInfo.ScanWellList.Add(well);
                     scanInfo.ScanRegionList.Add(region);
                 }
+                return true;
             }
+            else
+                return false;
         }
 
         private IEnumerable<ScanRegion> GetScanRegions(XmlElement element)
@@ -348,7 +362,7 @@ namespace ThorCyte.Infrastructure.Interfaces
         private IEnumerable<ScanRegion> GetScanRegionsInSlide(XmlElement element)
         {
             var regions = new List<ScanRegion>();
-            var query = string.Format("descendant::well");
+            string query = "descendant::well";
             var childs = element.SelectNodes(query);
             if (childs == null) return regions;
             regions.AddRange(childs.Cast<XmlElement>().Select(GetScanRegionInSlide).Where(region => region != null));
@@ -434,7 +448,7 @@ namespace ThorCyte.Infrastructure.Interfaces
                 }
                 case RegionShape.Polygon:
                 {
-                    var query = string.Format("descendant::points");
+                    string query = "descendant::points";
                     var pointsNode = element.SelectSingleNode(query) as XmlElement;
                     int n = 0;
                     if (pointsNode != null)
@@ -450,16 +464,13 @@ namespace ThorCyte.Infrastructure.Interfaces
                     if (pointNodes == null) return points;
                     else
                     {
-                        foreach (XmlElement pointNode in pointNodes)
-                        {
-                            double x = pointNode.ParseAttributeToDouble("x");
-                            double y = pointNode.ParseAttributeToDouble("y");
-                            points.Add(new Point(x, y));
-                        }
+                        points.AddRange(from XmlElement pointNode in pointNodes
+                            let x = pointNode.ParseAttributeToDouble("x")
+                            let y = pointNode.ParseAttributeToDouble("y")
+                            select new Point(x, y));
 
                         return points;
                     }
-                        
                 }
                 default:
                     return new Point[0];
@@ -481,13 +492,15 @@ namespace ThorCyte.Infrastructure.Interfaces
                 var file = Path.Combine(BasePath, mosFile);
                 var doc = new XmlDocument();
                 doc.Load(file);
-                var query = string.Format("descendant::well");
-                var nodes = doc.DocumentElement.SelectNodes(query);
-                foreach (XmlElement node in nodes)
+                string query = "descendant::well";
+                if (doc.DocumentElement != null)
                 {
-                    ScanRegion scanRegion = GetScanRegionInWell(node, shape);
-                    if (scanRegion != null)
-                        regions.Add(scanRegion);
+                    var nodes = doc.DocumentElement.SelectNodes(query);
+                    if (nodes != null)
+                        regions.AddRange(
+                            nodes.Cast<XmlElement>()
+                                .Select(node => GetScanRegionInWell(node, shape))
+                                .Where(scanRegion => scanRegion != null));
                 }
                 return regions;
 
@@ -503,12 +516,12 @@ namespace ThorCyte.Infrastructure.Interfaces
                 int regionId = 0;
                 var points = new List<Point>();
                 int wellId = element.ParseAttributeToInt32("no");
-                var regionNode = element.SelectSingleNode(string.Format("descendant::region")) as XmlElement;
+                var regionNode = element.SelectSingleNode("descendant::region") as XmlElement;
                 if (regionNode != null)
                 {
                     regionId = regionNode.ParseAttributeToInt32("no") - 1;//well id 1-base, regionId 0-base
                 }
-                var boundNode = element.SelectSingleNode(string.Format("descendant::bounding-rect")) as XmlElement;
+                var boundNode = element.SelectSingleNode("descendant::bounding-rect") as XmlElement;
                 if (boundNode != null)
                 {
                     points.AddRange(ReadScanRegionBound(boundNode, shape));
@@ -551,32 +564,36 @@ namespace ThorCyte.Infrastructure.Interfaces
         {
             string file = fileType == FileType.Mosaic ? "MosaicFile" : "RAWFile";
             XmlDocument doc = GetRunXml();
-            var query = string.Format("descendant::RunScan");
-            var nodes = doc.DocumentElement.SelectNodes(query);
-            foreach (XmlElement node in nodes)
+            string query = "descendant::RunScan";
+            if (doc.DocumentElement != null)
             {
-                var e = node.SelectSingleNode(string.Format("descendant::RunNum")) as XmlElement;
-                if (e != null)
-                {
-                    if (e.InnerText.Equals(_activeRunNum, StringComparison.OrdinalIgnoreCase))
+                var nodes = doc.DocumentElement.SelectNodes(query);
+                if (nodes != null)
+                    foreach (XmlElement node in nodes)
                     {
-                        var fileNode =
-                            node.SelectSingleNode(string.Format("descendant::{0}", file)) as XmlElement;
-                        return fileNode == null ? string.Empty : Path.Combine(BasePath, fileNode.InnerText);
+                        var e = node.SelectSingleNode("descendant::RunNum") as XmlElement;
+                        if (e != null)
+                        {
+                            if (e.InnerText.Equals(_activeRunNum, StringComparison.OrdinalIgnoreCase))
+                            {
+                                var fileNode =
+                                    node.SelectSingleNode(string.Format("descendant::{0}", file)) as XmlElement;
+                                return fileNode == null ? string.Empty : Path.Combine(BasePath, fileNode.InnerText);
+                            }
+                        }
                     }
-                }
             }
-            
+
             return string.Empty;
         }
               
-        private IEnumerable<Channel> GetChannels(XmlElement element)
+        private IEnumerable<Channel> GetChannels(XmlNode element)
         {
             var channels = new List<Channel>();
             if (element == null) return channels;
             else
             {
-                var query = string.Format("descendant::channels");
+                string query = "descendant::channels";
                 var nodes = element.SelectNodes(query);
                 if (nodes == null) return channels;
                 foreach (XmlElement node in nodes)
@@ -591,22 +608,14 @@ namespace ThorCyte.Infrastructure.Interfaces
             return channels;
         }
 
-        private IEnumerable<Channel> ParsePhsicalChannelsElement(XmlElement element)
+        private IEnumerable<Channel> ParsePhsicalChannelsElement(XmlNode element)
         {
             var channels = new List<Channel>();
             if (element == null) return channels;
             else
             {
                 var nodes = element.ChildNodes;
-                
-                foreach (XmlElement node in nodes)
-                {
-                    Channel channel = GetChannel(node);
-                    if (channel != null)
-                    {                     
-                        channels.Add(channel);               
-                    }
-                }
+                channels.AddRange(nodes.Cast<XmlElement>().Select(GetChannel).Where(channel => channel != null));
                 return channels;
             }  
 
@@ -648,7 +657,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             return value;
         }
 
-        private void ParseRawXml()
+        private bool ParseRawXml()
         {
             var doc = new XmlDocument();
             string rawFile = GetFile(FileType.Raw);
@@ -657,13 +666,32 @@ namespace ThorCyte.Infrastructure.Interfaces
             string imageTypeString = root.ParseAttributeToString("format");
             ThorCyteData.ImageType type;
             if (Enum.TryParse(imageTypeString, true, out type) == false) type = ThorCyteData.ImageType.None;
-            ImageType = type;            
-            var node = root.SelectSingleNode(string.Format("descendant::pixel-size")) as XmlElement;
-            _firstScanInfo.XPixcelSize = node.ParseAttributeToDouble("width");
-            _firstScanInfo.YPixcelSize = node.ParseAttributeToDouble("height");
-            node = root.SelectSingleNode(string.Format("descendant::field-size-in-pixel")) as XmlElement;
-            _firstScanInfo.TileWidth = node.ParseAttributeToInt32("width");
-            _firstScanInfo.TiledHeight = node.ParseAttributeToInt32("height");
+            ImageType = type;
+            if (root != null)
+            {
+                var node = root.SelectSingleNode("descendant::pixel-size") as XmlElement;
+                double xpixelsize = node.ParseAttributeToDouble("width");
+                if (Math.Abs(xpixelsize) < Tolerance) return false;
+                _firstScanInfo.XPixcelSize = xpixelsize;
+                double ypixelsize = node.ParseAttributeToDouble("height");
+                if (Math.Abs(ypixelsize) < Tolerance) return false;
+                _firstScanInfo.YPixcelSize = ypixelsize;
+                node = root.SelectSingleNode("descendant::field-size-in-pixel") as XmlElement;
+                if (node == null) return false;
+                else
+                {
+                    int width = node.ParseAttributeToInt32("width");
+                    if(width==0) return false;
+                    _firstScanInfo.TileWidth = width;
+                    int height = node.ParseAttributeToInt32("height");
+                    if (height == 0) return false;
+                    _firstScanInfo.TiledHeight = height;
+                }
+                return true;
+
+            }
+            else 
+                return false;
         }
         private ScanInfo GetFirstScanInfo()
         {
@@ -671,41 +699,12 @@ namespace ThorCyte.Infrastructure.Interfaces
                 return _firstScanInfo;
             else
             {
-                bool hasException = false;
-                try
-                {
-                    if (string.IsNullOrEmpty(_activeRunNum)) _activeRunNum = GetActiveRunNum();
-                    var doc = GetWorkspaceXml();
-                    ParseWorkspaceXml(doc, _firstScanInfo);
-                    ParseRawXml();
-                    BuildTiles(_firstScanInfo.ScanRegionList);
-                    _hasLoadFirstScanInfo = true;
-                }
-                catch (ArgumentNullException)
-                {
-                    hasException = true;
-                }
-                catch (ArgumentException)
-                {
-                    hasException = true;
-                }
-                catch (NullReferenceException)
-                {
-                    hasException = true;
-                }
-                catch (FileNotFoundException)
-                {
-                    hasException = true;
-                }
-                catch (DirectoryNotFoundException)
-                {
-                    hasException = true;
-                }
-                finally
-                {
-                    if (hasException)
-                        ClearScanInfo();                
-                }
+                if (string.IsNullOrEmpty(_activeRunNum)) _activeRunNum = GetActiveRunNum();
+                XmlDocument doc = GetWorkspaceXml();
+                if (ParseWorkspaceXml(doc, _firstScanInfo)==false) return null;
+                if (ParseRawXml()==false) return null;
+                BuildTiles(_firstScanInfo.ScanRegionList);
+                _hasLoadFirstScanInfo = true;
                 return _firstScanInfo;
 
             }
@@ -730,15 +729,7 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         public ScanInfo GetScanInfo(int scanId)
         {
-            switch (scanId)
-            {
-                case 1:
-                    return GetFirstScanInfo();
-                case 2:
-                    throw new NotSupportedException("not support mosaic scan yet.");
-                default:
-                    throw new ArgumentOutOfRangeException("scanId", "scanId could only be 1 or 2");
-            }
+            return scanId == 1 ? GetFirstScanInfo() : null;
         }
 
         public string GetCarrierType()
@@ -746,7 +737,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             if (string.IsNullOrEmpty(_carrierId))
             {
                 XmlDocument doc = GetWorkspaceXml();
-                var query = string.Format("descendant::carrier");
+                string query = "descendant::carrier";
                 XmlElement root = doc.DocumentElement;
                 if (root == null) return string.Empty;
                 var node = root.SelectSingleNode(query) as XmlElement;
@@ -766,41 +757,12 @@ namespace ThorCyte.Infrastructure.Interfaces
         {
             if (_hasLoadExprimentInfo == false)
             {
-                bool hasError = false;
-                try
-                {
-                    var doc = GetRunXml();
-                    var runNode = GetActiveRunElement(doc);
-                    ParseActiveRunElement(runNode);
-                    var instNode = GetActiveInstrumentStateElement(doc);
-                    ParseActiveInstrumentStateElement(instNode);
-                    _hasLoadExprimentInfo = true;
-                }
-                catch (ArgumentNullException)
-                {
-                    hasError = true;
-                }
-                catch (ArgumentException)
-                {
-                    hasError = true;
-                }
-                catch (NullReferenceException)
-                {
-                    hasError = true;
-                }
-                catch (FileNotFoundException)
-                {
-                    hasError = true;
-                }
-                catch (DirectoryNotFoundException)
-                {
-                    hasError = true;
-                }
-
-                finally
-                {
-                    if (hasError) ClearExperimentInfo();
-                }
+                XmlDocument doc = GetRunXml();
+                XmlElement runNode = GetActiveRunElement(doc);
+                ParseActiveRunElement(runNode);
+                XmlElement instNode = GetActiveInstrumentStateElement(doc);
+                ParseActiveInstrumentStateElement(instNode);
+                _hasLoadExprimentInfo = true;
             }
             return _experimentInfo;
         }
@@ -810,15 +772,42 @@ namespace ThorCyte.Infrastructure.Interfaces
             return ScanCount;
         }
 
-        public void Load(string experimentPath)
+        public bool Load(string experimentPath)
         {
             Clear();
             BasePath = Path.GetDirectoryName(experimentPath);
             _firstScanInfo.DataPath = BasePath;
             _experimentInfo.ExperimentPath = BasePath;
+            bool hasError = false;
             //_experimentInfo.AnalysisPath = BasePath + "\\Analysis";
-            if (!Directory.Exists(BasePath))
-                throw new DirectoryNotFoundException(string.Format("{0} not found!", BasePath));
+            try
+            {
+                GetExperimentInfo();
+                if (GetScanInfo(ScanCount) == null)
+                    return false;
+            }
+            catch (ArgumentNullException)
+            {
+                hasError = true;
+            }
+            catch (ArgumentException)
+            {
+                hasError = true;
+            }
+            catch (NullReferenceException)
+            {
+                hasError = true;
+            }
+            catch (FileNotFoundException)
+            {
+                hasError = true;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                hasError = true;
+            }
+            return !hasError;
+
         }
 
         public void SetAnalysisPath(string path)

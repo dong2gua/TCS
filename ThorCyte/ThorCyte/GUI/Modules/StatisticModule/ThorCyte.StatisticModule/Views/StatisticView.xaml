@@ -340,15 +340,15 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style TargetType="{x:Type Window}" x:Key="NoBorderWin">
+        <!--<Style TargetType="{x:Type Window}" x:Key="NoBorderWin">
             <Setter Property="WindowStyle" Value="None"/>
             <Setter Property="MaxHeight" Value="410"/>
             <Setter Property="MaxWidth" Value="410"/>
             <Setter Property="Background" Value="Gray"/>
             <Setter Property="ResizeMode" Value="NoResize"/>
-        </Style>
+        </Style>-->
     </UserControl.Resources>
-    <i:Interaction.Triggers>
+    <!--<i:Interaction.Triggers>
         <prism:InteractionRequestTrigger SourceObject="{Binding SetupPopup, Mode=OneWay}">
             <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True" WindowStyle="{DynamicResource NoBorderWin}" >
                 <prism:PopupWindowAction.WindowContent>
@@ -356,7 +356,7 @@
                 </prism:PopupWindowAction.WindowContent>
             </prism:PopupWindowAction>
         </prism:InteractionRequestTrigger>
-    </i:Interaction.Triggers>
+    </i:Interaction.Triggers>-->
     <Grid MinWidth="400">
         <Grid.RowDefinitions>
             <RowDefinition />

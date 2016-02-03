@@ -1,12 +1,12 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ImageViewerModule.Model;
 using ThorCyte.ImageViewerModule.View;
 using ThorCyte.Infrastructure.Types;
-using System.Linq;
 
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {

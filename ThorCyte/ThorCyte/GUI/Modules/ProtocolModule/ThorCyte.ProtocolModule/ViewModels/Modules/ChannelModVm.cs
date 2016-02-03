@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
-using ThorCyte.Infrastructure.Types;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Views.Modules;
 
@@ -28,7 +26,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         }
 
         public ObservableCollection<string> ChannelNames { get; set; }
-        private readonly List<Channel> _channels;
 
         private string _selectedChannel;
 
@@ -53,7 +50,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public ChannelModVm()
         { 
             ChannelNames = new ObservableCollection<string>();
-            _channels = new List<Channel>();
         }
 
         public override void OnDeserialize(XmlReader reader)
@@ -91,16 +87,13 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             if (Macro.CurrentScanInfo != null)
             {
                 ChannelNames.Clear();
-                _channels.Clear();
                 foreach (var channel in Macro.CurrentScanInfo.ChannelList)
                 {
-                    _channels.Add(channel);
                     ChannelNames.Add(channel.ChannelName);
                 }
 
                 foreach (var channel in Macro.CurrentScanInfo.VirtualChannelList)
                 {
-                    _channels.Add(channel);
                     ChannelNames.Add(channel.ChannelName);
                 }
             }
@@ -108,6 +101,28 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             if (ChannelNames.Count > 0)
             {
                 SelectedChannel = ChannelNames[0];
+            }
+        }
+
+        public override void UpdateChannels()
+        {
+            if (Macro.CurrentScanInfo != null)
+            {
+                foreach (var channel in Macro.CurrentScanInfo.ChannelList)
+                {
+                    if (!ChannelNames.Contains(channel.ChannelName))
+                    {
+                        ChannelNames.Add(channel.ChannelName);
+                    }
+                }
+
+                foreach (var channel in Macro.CurrentScanInfo.VirtualChannelList)
+                {
+                    if (!ChannelNames.Contains(channel.ChannelName))
+                    {
+                        ChannelNames.Add(channel.ChannelName);
+                    }
+                }
             }
         }
 

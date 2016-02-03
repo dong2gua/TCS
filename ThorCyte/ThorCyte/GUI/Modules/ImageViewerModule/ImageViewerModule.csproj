@@ -111,9 +111,6 @@
   <ItemGroup>
     <Compile Include="Control\GifImage.cs" />
     <Compile Include="Control\HistogramPanel.cs" />
-    <Compile Include="Control\SelectViewportCanvas.cs" />
-    <Compile Include="Control\SelectViewportList.cs" />
-    <Compile Include="Control\SplitButton.cs" />
     <Compile Include="Converter\BoolToStringConverter.cs" />
     <Compile Include="Converter\OperatorConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
@@ -254,9 +251,15 @@
   <ItemGroup>
     <Resource Include="Resources\loading.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ViewAll.png" />
+    <Resource Include="Resources\ViewH.png" />
+    <Resource Include="Resources\ViewOne.png" />
+    <Resource Include="Resources\ViewV.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(TargetPath) $(SolutionDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y $(TargetPath) $(ProjectDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

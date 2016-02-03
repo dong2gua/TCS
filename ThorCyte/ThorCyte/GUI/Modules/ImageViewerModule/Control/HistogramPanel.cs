@@ -40,10 +40,9 @@ namespace ThorCyte.ImageViewerModule.Control
             panel.RefreshChangedData();
             panel.RefreshRawData();
         }
-
-        DrawingVisual _visualRaw;
-        DrawingVisual _visualChanged;
-        ImageData _data;
+        private DrawingVisual _visualRaw;
+        private DrawingVisual _visualChanged;
+        private ImageData _data;
         public HistogramPanel()
         {
             _visualRaw = new DrawingVisual();
@@ -53,13 +52,11 @@ namespace ThorCyte.ImageViewerModule.Control
             Background = Brushes.White;
             this.SizeChanged += HistogramPanel_SizeChanged;
         }
-
         private void HistogramPanel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             RefreshChangedData();
             RefreshRawData();
         }
-
         public void SetData(ImageData imageData)
         {
             _data = imageData;
@@ -71,13 +68,9 @@ namespace ThorCyte.ImageViewerModule.Control
             if (index == 0) return _visualRaw;
             else return _visualChanged;
         }
-
         protected override int VisualChildrenCount
         {
-            get
-            {
-                return 2;
-            }
+            get { return 2; }
         }
         public int[] GetHistogram()
         {
@@ -88,7 +81,6 @@ namespace ThorCyte.ImageViewerModule.Control
                 int n =Math.Min( _data[i] >> 6,255);
                 ++hist[n];
             }
-
             return hist;
         }
         private void RefreshRawData()
@@ -135,6 +127,5 @@ namespace ThorCyte.ImageViewerModule.Control
             drawingContext.Close();
             _visualChanged.Clip=  new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight));
         }
-
     }
 }

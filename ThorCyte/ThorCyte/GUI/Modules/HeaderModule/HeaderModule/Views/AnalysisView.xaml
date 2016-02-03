@@ -7,8 +7,8 @@
              mc:Ignorable="d" WindowStartupLocation="CenterScreen"
              x:Name="AnalysisWindow"
              xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
-             d:DesignHeight="300" d:DesignWidth="300" MinWidth="480" MinHeight="480" 
-             MaxWidth="480" MaxHeight="480" Title="{Binding WindowTile}">
+             d:DesignHeight="300" d:DesignWidth="300" MinWidth="320" MinHeight="320" Width="320" Height="320"
+             MaxWidth="320" MaxHeight="320" Title="{Binding WindowTile}">
     <Window.Resources>
         <converter:BoolToVisibilityConverter x:Key="boolToVisibility"/>
     </Window.Resources>
@@ -22,8 +22,8 @@
         <DockPanel VerticalAlignment="Stretch" Grid.Row="1">
             <ListBox Margin="10,5,10,5" Height="Auto" ItemsSource="{Binding AnalysisList}" SelectedItem="{Binding FolderName}" DockPanel.Dock="Top" />
             <StackPanel VerticalAlignment="Bottom" Height="35" Orientation="Horizontal" Margin="10,4,4,4" Visibility="{Binding IsSaveWindow, Converter={StaticResource boolToVisibility}}" >
-                <TextBlock Margin="4,4" Text="Analysis Name: "></TextBlock>
-                <TextBox Margin="4,4" Text="{Binding FolderName}" Width="120"></TextBox>
+                <TextBlock VerticalAlignment="Center" Margin="4" Text="Analysis Name: "></TextBlock>
+                <TextBox VerticalAlignment="Center" Margin="4,4" Text="{Binding FolderName}" Width="120"></TextBox>
             </StackPanel>
         </DockPanel>
         

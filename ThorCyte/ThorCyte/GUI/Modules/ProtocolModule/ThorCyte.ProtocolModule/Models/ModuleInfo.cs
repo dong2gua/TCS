@@ -42,7 +42,6 @@ namespace ThorCyte.ProtocolModule.Models
         {
             get { return SmBasicModules.Any(name => Name == name); }
         }
-
         #endregion
     }
 
@@ -50,7 +49,7 @@ namespace ThorCyte.ProtocolModule.Models
     public class ModuleInfoMgr
     {
         #region Constants
-        private const string ModuleInfoPath = @"..\..\..\..\..\..\Xml\Modules.xml";
+        private const string ModuleInfoPath = @".\Xml\Modules.xml";
         #endregion
 
 

@@ -114,9 +114,16 @@ namespace ImageProcess
         [DllImport(DllName, EntryPoint = "fnipp_lib_Xor_16uC1", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int BitwiseXor16UC1Inplace(SafeHandle srcBuffer, int width, int height, SafeHandle srcDstBuffer);
 
-        [DllImport(DllName, EntryPoint = "fn_ipp_lib_rotateShift_16u", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(DllName, EntryPoint = "fnipp_lib_rotateShift_16u", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int RotateShift16U(SafeHandle srcBuffer, int width, int height, int channels,
             double angle, int xshift, int yshift, SafeHandle dstBuffer);
+
+        [DllImport(DllName, EntryPoint = "fncv_lib_findContours_16uC1", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int FindContours16UC1(SafeHandle srcBuffer, int width, int height, double minArea,
+            double maxArea, ref IntPtr pBlobs, ref IntPtr pPointsCountPerBlob);
+
+        [DllImport(DllName, EntryPoint = "FreeIntBuffer", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void FreeIntBuffer(IntPtr pBuffer);
         #endregion
 
         static ImageProcessLib()

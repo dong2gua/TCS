@@ -1,5 +1,5 @@
-﻿using System.Windows.Media;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace ThorCyte.ImageViewerModule.View
 {

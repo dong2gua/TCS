@@ -4,7 +4,7 @@
 library
 C#
 .cs
-D:\TCS\ThorCyte\ThorCyte\GUI\Modules\StatisticModule\ThorCyte.StatisticModule\obj\Debug\
+E:\TCS\ThorCyte\ThorCyte\GUI\Modules\StatisticModule\ThorCyte.StatisticModule\obj\Debug\
 ThorCyte.Statistic
 none
 false
@@ -12,8 +12,8 @@ DEBUG;TRACE
 
 5745738622
 
-17500250723
-26-1169598894
+18-1836154626
+26937083875
 ProjectDataSources.xaml;SampleData\test4SampleDataSource\test4SampleDataSource.xaml;Views\StatisticSetup.xaml;Views\StatisticSetupDetail.xaml;Views\StatisticView.xaml;
 
 True

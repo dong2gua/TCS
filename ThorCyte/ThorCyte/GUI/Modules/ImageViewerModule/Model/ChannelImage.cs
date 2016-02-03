@@ -18,6 +18,7 @@ namespace ThorCyte.ImageViewerModule.Model
             IsComputeColor = false;
         }
         public Channel ChannelInfo { get; set; }
+        public ComputeColor ComputeColorInfo { get; set; }
         public string ChannelName { get; set; }
         private Tuple<ImageSource, Int32Rect> _image;
         public Tuple<ImageSource, Int32Rect> Image

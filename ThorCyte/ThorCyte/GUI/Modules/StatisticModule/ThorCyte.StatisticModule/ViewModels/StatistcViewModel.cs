@@ -15,23 +15,33 @@ using System.Linq;
 using ROIService;
 using System.Collections.ObjectModel;
 using System.Dynamic;
+using ThorCyte.Statistic.Views;
 
 namespace ThorCyte.Statistic.ViewModels
 {
     public class StatisticViewModel : BindableBase
     {
         private IExperiment ExperimentAdapter { get; set; }
-        public StatisticViewModel(IEventAggregator eventAggregator, IUnityContainer container, IExperiment experiment)
+        private IPopupSetupWindow PopupWinAdapter{get; set; }
+        private StatisticModel ModelAdapter { get; set; }
+
+        public StatisticViewModel(IEventAggregator eventAggregator, IUnityContainer container, IExperiment experiment, StatisticModel model, IPopupSetupWindow popupwin)
         {
             SetupPopup = new InteractionRequest<StatisticDataNotification>();
             ExperimentAdapter = experiment;
+            //PopupWinAdapter = container.Resolve<IPopupSetupWindow>();
+            ModelAdapter = model;
+            PopupWinAdapter = popupwin;
             IsWellStatisticShow = false;
             IsRegionStatisticShow = false;
         }
 
         public InteractionRequest<StatisticDataNotification> SetupPopup { get; private set; }
 
-        public RunFeature CurrentRunFeature { get; set; }
+        public RunFeature CurrentRunFeature
+        {
+            get { return ModelAdapter.SelectedRunFeature; }
+        }
 
         public bool IsWellStatisticShow { get; set; }
         public bool IsRegionStatisticShow { get; set; }
@@ -60,20 +70,28 @@ namespace ThorCyte.Statistic.ViewModels
                     IsRegionStatisticShow = false;
                     OnPropertyChanged(() => IsWellStatisticShow);
                     OnPropertyChanged(() => IsRegionStatisticShow);
-                    var sm = new StatisticModel();
                     //Get Component
                     var components = ComponentDataManager.Instance.GetComponentNames();
-                    sm.ComponentContainer = components.Select(x => new Component { Name = x }).ToList();
-                    var wellComponent = new Component { Name = "Well" };
-                    sm.ComponentContainer.Add(wellComponent);
-                    sm.ComponentContainer.Reverse();
-                    var statisticNotify = new StatisticDataNotification(sm) { Title = "Setup", Content = "None", SelectedComponent=wellComponent, SelectedRunFeature=null };
-                    SetupPopup.Raise(statisticNotify,
-                 (result) => {
-                     CurrentRunFeature = result.SelectedRunFeature;
-                     OnPropertyChanged(() => WellStatisticCommand);
-                     OnPropertyChanged(() => RegionStatisticCommand);
-                 });
+                    ModelAdapter.ComponentContainer =
+                        components.Select(x =>
+                        new ComponentRunFeature()
+                        {
+                            CurrentComponent = new Component() { Name = x },
+                            RunFeatureContainer = null
+                        }).ToList();
+                    var wellComponent = new ComponentRunFeature() 
+                        {
+                            CurrentComponent = new Component() { Name = "well" },
+                            RunFeatureContainer = null
+                        };
+                    ModelAdapter.ComponentContainer.Add(wellComponent);
+                    ModelAdapter.ComponentContainer.Reverse();
+                    ModelAdapter.SelectedComponent = wellComponent;
+                    if (PopupWinAdapter.PopupWindow())
+                    {
+                        OnPropertyChanged(() => WellStatisticCommand);
+                        OnPropertyChanged(() => RegionStatisticCommand);
+                    }
                 });
             }
         }

@@ -37,6 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Abt.Controls.SciChart.Wpf">
@@ -160,11 +161,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(SolutionDir)..\..\..\Bin\ImageProcessLib.dll $(TargetDir)
-xcopy /Y $(SolutionDir)..\..\..\Tools\FreeImage.dll $(TargetDir)
-xcopy /Y $(SolutionDir)..\..\..\Tools\Abt.Controls.SciChart.Wpf.2.3.dll $(TargetDir)
-xcopy /Y $(SolutionDir)..\..\..\Bin\ROIService.dll $(TargetDir)
-xcopy /Y $(SolutionDir)..\..\..\Bin\ComponentDataService.dll $(TargetDir)
+    <PostBuildEvent>xcopy /Y $(ProjectDir)..\..\..\..\Bin\ImageProcessLib.dll $(TargetDir)
+xcopy /Y $(ProjectDir)..\..\..\..\Tools\FreeImage.dll $(TargetDir)
+xcopy /Y $(ProjectDir)..\..\..\..\Bin\ROIService.dll $(TargetDir)
+xcopy /Y $(ProjectDir)..\..\..\..\Bin\ComponentDataService.dll $(TargetDir)
+xcopy $(ProjectDir)..\..\..\..\Bin\DirectoryModules\*.* $(TargetDir)\DirectoryModules\ /Y/E
+xcopy $(ProjectDir)..\..\..\..\XML\*.* $(TargetDir)\XML\ /Y/E
+
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

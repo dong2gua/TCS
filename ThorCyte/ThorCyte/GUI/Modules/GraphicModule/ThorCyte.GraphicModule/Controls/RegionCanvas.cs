@@ -162,7 +162,7 @@ namespace ThorCyte.GraphicModule.Controls
 
         public string Id { get; set; }
 
-        private Color _objectColor = Colors.Black;
+        private Color _objectColor = Colors.White;
 
         public Color ObjectColor
         {

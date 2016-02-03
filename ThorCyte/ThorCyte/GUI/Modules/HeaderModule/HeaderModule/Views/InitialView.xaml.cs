@@ -24,5 +24,14 @@ namespace ThorCyte.HeaderModule.Views
         {
             InitializeComponent();
         }
+
+        private void Grid_OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Grid grid = sender as Grid;
+            double size = grid.ActualHeight > grid.ActualWidth ? grid.ActualWidth : grid.ActualHeight;
+            this.SoftWare.FontSize = size/10;
+            this.Version.FontSize = size/25;
+
+        }
     }
 }

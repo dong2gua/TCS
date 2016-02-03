@@ -28,33 +28,42 @@ namespace ThorCyte.Infrastructure.Interfaces
         };
         #endregion
 
-        public void Load(string experimentPath)
+        public bool Load(string experimentPath)
         {
-            _scanInfos = new List<ScanInfo>();
-            _currentScanInfo = new ScanInfo();
-            _scanInfos.Add(_currentScanInfo);
-            _experimentInfo = new ExperimentInfo();
-            _experimentInfo.InstrumentType = "ThorImage";
-            _experimentInfo.IntensityBits = 14;
-            _currentScanInfo.DataPath = Path.GetDirectoryName(experimentPath);
-            _experimentInfo.ExperimentPath = _currentScanInfo.DataPath;
-            //_experimentInfo.AnalysisPath = _currentScanInfo.DataPath + "\\Analysis";
-            _currentScanInfo.ScanId = 1;
-            _currentScanInfo.ResolutionUnit = ResUnit.Micron;
-            _currentScanInfo.ScanPathMode = ScanPathType.Serpentine;
-            XmlReader reader = new XmlTextReader(experimentPath);
-            while (reader.Read())
+            try
             {
-                if (reader.NodeType == XmlNodeType.Element)
-                    ProcessElement(reader);
-            }
+                _scanInfos = new List<ScanInfo>();
+                _currentScanInfo = new ScanInfo();
+                _scanInfos.Add(_currentScanInfo);
+                _experimentInfo = new ExperimentInfo();
+                _experimentInfo.InstrumentType = "ThorImage";
+                _experimentInfo.IntensityBits = 14;
+                _currentScanInfo.DataPath = Path.GetDirectoryName(experimentPath);
+                _experimentInfo.ExperimentPath = _currentScanInfo.DataPath;
+                //_experimentInfo.AnalysisPath = _currentScanInfo.DataPath + "\\Analysis";
+                _currentScanInfo.ScanId = 1;
+                _currentScanInfo.ResolutionUnit = ResUnit.Micron;
+                _currentScanInfo.ScanPathMode = ScanPathType.Serpentine;
+                XmlReader reader = new XmlTextReader(experimentPath);
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element)
+                        ProcessElement(reader);
+                }
 
-            SetCaptureMode(_currentScanInfo);
-            SetFileMode(_currentScanInfo);
-            foreach (var sr in _currentScanInfo.ScanRegionList)
-            {
-                sr.BulidTiles(_currentScanInfo.XPixcelSize * _currentScanInfo.TileWidth, _currentScanInfo.YPixcelSize * _currentScanInfo.TiledHeight, 0, 0, ScanPathType.Serpentine);
+                SetCaptureMode(_currentScanInfo);
+                SetFileMode(_currentScanInfo);
+                foreach (var sr in _currentScanInfo.ScanRegionList)
+                {
+                    sr.BulidTiles(_currentScanInfo.XPixcelSize*_currentScanInfo.TileWidth,
+                        _currentScanInfo.YPixcelSize*_currentScanInfo.TiledHeight, 0, 0, ScanPathType.Serpentine);
+                }
             }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
         }
 
         public ExperimentInfo GetExperimentInfo()

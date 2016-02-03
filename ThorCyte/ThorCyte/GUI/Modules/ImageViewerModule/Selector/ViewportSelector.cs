@@ -19,10 +19,10 @@ namespace ThorCyte.ImageViewerModule.Selector
             if (type == null) return OneViewportDataTemplate;
             switch (type.Type)
             {
-                case 1: return OneViewportDataTemplate;
-                case 2: return HorizontalViewportDataTemplate;
-                case 3: return VerticalViewportDataTemplate;
-                case 4: return AllViewportDataTemplate;
+                case 0: return OneViewportDataTemplate;
+                case 1: return HorizontalViewportDataTemplate;
+                case 2: return VerticalViewportDataTemplate;
+                case 3: return AllViewportDataTemplate;
                 default: return OneViewportDataTemplate;
             }
         }

@@ -32,7 +32,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             RectangleBottom = point.Y;
             GraphicsObjectColor = Colors.DeepPink;
         }
-
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
@@ -66,7 +65,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             RectangleTop = Math.Min(LineStart.Y, LineEnd.Y);
             RectangleRight = Math.Max(LineStart.X, LineEnd.X);
             RectangleBottom = Math.Max(LineStart.Y, LineEnd.Y);
-
             RefreshDrawing();
         }
         public override void MoveHandleTo(Point point, int handleNumber)
@@ -96,7 +94,6 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         public override bool Contains(Point point)
         {
             var g = new LineGeometry(LineStart, LineEnd);
-
             return g.StrokeContains(new Pen(Brushes.Black, LineHitTestWidth), point);
         }
         public override bool IntersectsWith(Rect rectangle)

@@ -56,7 +56,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y $(TargetDir)ImageProcess.dll $(SolutionDir)\..\..\Bin\
+    <PostBuildEvent>xcopy /y $(TargetDir)ImageProcess.dll $(ProjectDir)..\..\..\Bin\
 rem xcopy /y $(TargetDir)ImageProcessLib.dll $(SolutionDir)\..\..\Bin\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

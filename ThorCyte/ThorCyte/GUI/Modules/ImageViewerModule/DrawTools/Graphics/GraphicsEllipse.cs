@@ -17,29 +17,21 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
             RectangleBottom = point.Y;
             GraphicsObjectColor = Colors.Aqua;
         }
-
         public override void Draw(DrawingContext drawingContext)
         {
             if (drawingContext == null) throw new ArgumentNullException("drawingContext");
-
             var r = ConvertToDisplayRect(Rectangle);
-
             var center = new Point((r.Left + r.Right) / 2.0, (r.Top + r.Bottom) / 2.0);
-
             var radiusX = (r.Right - r.Left) / 2.0;
             var radiusY = (r.Bottom - r.Top) / 2.0;
-
             drawingContext.DrawEllipse(null, new Pen(new SolidColorBrush(ObjectColor), GraphicsLineWidth), center, radiusX, radiusY);
-
             base.Draw(drawingContext);
         }
-
         public override bool Contains(Point point)
         {
             var g = new EllipseGeometry(Rectangle);
             return g.FillContains(point) ;
         }
-
         public override bool IntersectsWith(Rect rectangle)
         {
             var rg = new RectangleGeometry(rectangle);   

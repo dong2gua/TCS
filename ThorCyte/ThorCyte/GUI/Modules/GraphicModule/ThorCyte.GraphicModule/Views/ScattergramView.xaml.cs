@@ -61,8 +61,8 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     PointMarker = new EllipsePointMarker
                     {
-                        Width =3,
-                        Height = 3,
+                        Width =1,
+                        Height = 1,
                         Stroke = ((SolidColorBrush)ConstantHelper.BrushTable[i]).Color,
                         Fill = ((SolidColorBrush)ConstantHelper.BrushTable[i]).Color
                     }
@@ -75,8 +75,8 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     PointMarker = new EllipsePointMarker
                     {
-                        Width = 3,
-                        Height = 3,
+                        Width = 1,
+                        Height = 1,
                         Stroke = ConstantHelper.TemperatureColors[i],
                         Fill = ConstantHelper.TemperatureColors[i]
                     }

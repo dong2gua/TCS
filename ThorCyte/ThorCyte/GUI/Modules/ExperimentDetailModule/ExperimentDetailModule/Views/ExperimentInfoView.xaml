@@ -18,25 +18,25 @@
                         <ColumnDefinition Width="0.68*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="22"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                    <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Label Grid.Row="0" Grid.Column="0" Content="Name:"></Label>
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentExperiment.Name}"></TextBlock>
-                    <Label Grid.Row="1" Grid.Column="0" Content="Data:"></Label>
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CurrentExperiment.Date}"></TextBlock>
-                    <Label Grid.Row="2" Grid.Column="0" Content="UserName:"></Label>
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentExperiment.UserName}"></TextBlock>
-                    <Label Grid.Row="3" Grid.Column="0" Content="Instrument:"></Label>
-                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CurrentExperiment.InstrumentType}"></TextBlock>
-                    <Label Grid.Row="4" Grid.Column="0" Content="Version:"></Label>
-                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CurrentExperiment.SoftwareVersion}"></TextBlock>
-                    <Label Grid.Row="5" Grid.Column="0" Content="Notes:"></Label>
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CurrentExperiment.Notes}" TextWrapping="Wrap"></TextBlock>
+                    <Label Padding="4,2" Grid.Row="0" Grid.Column="0" Content="Name:"></Label>
+                <TextBlock Padding="4,2" Grid.Row="0" Grid.Column="1" Text="{Binding CurrentExperiment.Name}"></TextBlock>
+                <Label Padding="4,2" Grid.Row="1" Grid.Column="0" Content="Data:"></Label>
+                <TextBlock Padding="4,2" Grid.Row="1" Grid.Column="1" Text="{Binding CurrentExperiment.Date}"></TextBlock>
+                <Label Padding="4,2" Grid.Row="2" Grid.Column="0" Content="UserName:"></Label>
+                <TextBlock Padding="4,2" Grid.Row="2" Grid.Column="1" Text="{Binding CurrentExperiment.UserName}"></TextBlock>
+                <Label Padding="4,2" Grid.Row="3" Grid.Column="0" Content="Instrument:"></Label>
+                <TextBlock Padding="4,2" Grid.Row="3" Grid.Column="1" Text="{Binding CurrentExperiment.InstrumentType}"></TextBlock>
+                <Label Padding="4,2" Grid.Row="4" Grid.Column="0" Content="Version:"></Label>
+                <TextBlock Padding="4,2" Grid.Row="4" Grid.Column="1" Text="{Binding CurrentExperiment.SoftwareVersion}"></TextBlock>
+                <Label Padding="4,2" Grid.Row="5" Grid.Column="0" Content="Notes:"></Label>
+                <TextBlock Padding="4,2" Grid.Row="5" Grid.Column="1" Text="{Binding CurrentExperiment.Notes}" TextWrapping="Wrap"></TextBlock>
             </Grid> 
             </Expander>
         <Expander Header="ScanInfo" Margin="0,2,0,2" IsExpanded="{Binding IsInitialized, Mode=OneWay}">
@@ -46,23 +46,23 @@
                             <ColumnDefinition Width="0.32*"/>
                             <ColumnDefinition Width="0.68*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Row="0" Grid.Column="0" Content="Objective:"></Label>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentScanInfo.ObjectiveType}"></TextBlock>
+                    <Label Padding="4,2" Grid.Row="0" Grid.Column="0" Content="Objective:"></Label>
+                    <TextBlock Padding="4,2" Grid.Row="0" Grid.Column="1" Text="{Binding CurrentScanInfo.ObjectiveType}"></TextBlock>
                      </Grid>
                     <Grid >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.32*"/>
                             <ColumnDefinition Width="0.68*"/>
                         </Grid.ColumnDefinitions>
-                    <Label  Grid.Column="0" Content="Channels:"></Label>
+                    <Label Padding="4,2" Grid.Column="0" Content="Channels:"></Label>
                     <StackPanel  Grid.Column="1">
-                        <ItemsControl Width="200" ItemsSource="{Binding CurrentScanInfo.ChannelList}" HorizontalAlignment="Left">
+                        <ItemsControl Width="200" Margin="0,0,0,0" ItemsSource="{Binding CurrentScanInfo.ChannelList}" HorizontalAlignment="Left">
                             <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Padding="5,0,5,0" Text="{Binding ChannelId}" />
-                                        <TextBlock Padding="5,0,5,0" Text="{Binding ChannelName}" />
-                                        <TextBlock Padding="5,0,5,0" Text="{Binding WaveLength}" />
+                                        <!--<TextBlock Padding="4,2" Text="{Binding ChannelId}" />-->
+                                        <TextBlock Padding="4,2" Text="{Binding ChannelName}" />
+                                        <!--<TextBlock Padding="4,2" Text="{Binding WaveLength}" />-->
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -76,11 +76,11 @@
                         <ColumnDefinition Width="0.68*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Label Grid.Column="0" Content="Stream Frames:"></Label>
-                    <Label Grid.Column="1" Content="{Binding CurrentScanInfo.StreamFrameCount}"></Label>
+                    <Label Padding="4,2" Grid.Column="0" Content="Stream Frames:"></Label>
+                    <Label Padding="4,2" Grid.Column="1" Content="{Binding CurrentScanInfo.StreamFrameCount}"></Label>
                     <!--<Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>-->
                     <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding StreamIndex, Mode=TwoWay}"
                                       Minimum="1" Maximum="{Binding CurrentScanInfo.StreamFrameCount}" Width="200" HorizontalAlignment="Left"/>
@@ -91,11 +91,11 @@
                         <ColumnDefinition Width="0.68*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Label Grid.Column="0" Content="Time Frames:"></Label>
-                    <Label Grid.Column="1" Content="{Binding CurrentScanInfo.TimingFrameCount}"></Label>
+                    <Label Padding="4,2" Grid.Column="0" Content="Time Frames:"></Label>
+                    <Label Padding="4,2" Grid.Column="1" Content="{Binding CurrentScanInfo.TimingFrameCount}"></Label>
                     <!--<Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>-->
                     <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding TimeIndex, Mode=TwoWay}"
                                       Minimum="1" Maximum="{Binding CurrentScanInfo.TimingFrameCount}" Width="200" HorizontalAlignment="Left"/>
@@ -106,11 +106,11 @@
                         <ColumnDefinition Width="0.68*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
+                        <RowDefinition Height="22"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Label Grid.Column="0" Content="Z Steps:"></Label>
-                    <Label Grid.Column="1" Content="{Binding CurrentScanInfo.ThirdDimensionSteps}"></Label>
+                    <Label Padding="4,2" Grid.Column="0" Content="Z Steps:"></Label>
+                    <Label Padding="4,2" Grid.Column="1" Content="{Binding CurrentScanInfo.ThirdDimensionSteps}"></Label>
                     <!--<Label Grid.Row="1" Grid.Column="0" Content="Index:" HorizontalAlignment="Center"></Label>-->
                     <xwtk:IntegerUpDown Grid.Column="1" Grid.Row="1"  Margin="2"  Value="{Binding ThirdIndex, Mode=TwoWay}"
                                       Minimum="1" Maximum="{Binding CurrentScanInfo.ThirdDimensionSteps}" Width="200" HorizontalAlignment="Left"/>

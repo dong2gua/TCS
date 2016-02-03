@@ -22,7 +22,9 @@ namespace ThorCyte
         {
             _regionManager = regionManager;
             _eventAggregator = eventAggregator;
-            //_statisticView = container.Resolve<StatisticView>();
+            container.RegisterInstance(typeof(IPopupSetupWindow), new PopupSetupWindow()) ;
+            container.RegisterInstance(typeof(IPopupDetailWindow), new PopupDetailWindow()) ;
+            container.RegisterInstance(typeof (StatisticModel), new StatisticModel());
         }
 
         public void Initialize()

@@ -315,7 +315,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             var x = XAxis.IsLogScale ? XAxis.GetValueBaseOnLog(pt.X) : (int)((pt.X - XAxis.MinRange) / XScale + 0.5);
             _historyDataList[x]++;
 
-            if (bioEvent.ColorIndex != RegionColorIndex.Black)
+            if (bioEvent.ColorIndex != RegionColorIndex.White)
             {
                 _colorDataList[(int)bioEvent.ColorIndex][x]++;
             }

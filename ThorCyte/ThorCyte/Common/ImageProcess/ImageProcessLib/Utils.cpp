@@ -107,7 +107,7 @@ const Ipp32s* getFilterKernel(FilterType type, int maskSize)
 		}
 	
 	}
-	return NULL;
+	return nullptr;
 	
 }
 
@@ -123,14 +123,12 @@ Ipp16u* getBorder(const Ipp16u* buffer, Ipp32s width, Ipp32s height, Ipp32s chan
 	const int offsetRight = maskSize - anchorX - 1;
 	const int offsetBottom = maskSize - anchorY - 1;
 	const int elementSize = sizeof(Ipp16u);
-	const IppiPoint anchor = {anchorX, anchorY};
-	const IppiSize ippMaskSize = {maskSize, maskSize};
 	const IppiSize roiWithBorder = {width + offsetLeft + offsetRight, height + offsetTop + offsetBottom};
 	const IppiSize roi = {width, height};	
 	const int srcStep = width * elementSize;
 	int stepWithBorder = 0;		
 	Ipp16u* bufferWithBorder = ippiMalloc_16u_C1(roiWithBorder.width , roiWithBorder.height, &stepWithBorder);	
-	IppStatus status = ippiCopyConstBorder_16u_C1R(buffer, srcStep, roi, bufferWithBorder, 
+	ippiCopyConstBorder_16u_C1R(buffer, srcStep, roi, bufferWithBorder, 
 												   stepWithBorder, roiWithBorder, offsetTop, offsetLeft, 0); 
 	*pStep = stepWithBorder;
 	return bufferWithBorder;
@@ -142,7 +140,7 @@ IppStatus saturate(Ipp16u* buffer, int width, int height, int channels, unsigned
 	const int step = width * channels * sizeof(unsigned short);
 	int maskStep  = 0;
 	Ipp8u* mask = ippiMalloc_8u_C1(width , height, &maskStep);
-	IppStatus status = ippStsNoErr;
+	IppStatus status;
 	switch (channels)
 	{
 		case 1:
@@ -166,12 +164,13 @@ IppStatus saturate(Ipp16u* buffer, int width, int height, int channels, unsigned
 
 				for(int i=0; i<channels; i++)
 				{
-					status = ippiCompareC_16u_C1R(pDst[i], dstStep, maxValue, mask, maskStep,roi, ippCmpGreater);
-					status = ippiSet_16u_C1MR(maxValue, pDst[i], dstStep, roi, mask, maskStep);
+					ippiCompareC_16u_C1R(pDst[i], dstStep, maxValue, mask, maskStep,roi, ippCmpGreater);
+					ippiSet_16u_C1MR(maxValue, pDst[i], dstStep, roi, mask, maskStep);
 				}
 				status = ippiCopy_16u_P3C3R(pDst, dstStep, buffer, step, roi);
 				for(int i = 0; i < 3; i++)
 					ippiFree(pDst[i]);
+				break;
 			}
 		}
 		default:
@@ -183,4 +182,14 @@ IppStatus saturate(Ipp16u* buffer, int width, int height, int channels, unsigned
 	}
 	ippiFree(mask);	
 	return status;
+}
+
+vector<vector<Point>> findContours16U(unsigned short* buffer, int width, int height)
+{
+	Mat source(height, width, CV_16UC1, buffer);
+	Mat binary = Mat::zeros(source.size(), CV_8UC1);
+	source.convertTo(binary, CV_8UC1);
+	vector<vector<Point>> contours;
+	findContours(binary, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE );	
+	return contours;
 }

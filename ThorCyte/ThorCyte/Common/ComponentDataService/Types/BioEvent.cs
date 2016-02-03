@@ -59,7 +59,7 @@ namespace ComponentDataService.Types
             BoundRect = Rect.Empty;
             _buffer = new float[featureCnt];
             FeatureCount = featureCnt;
-            ColorIndex = RegionColorIndex.Black;
+            ColorIndex = RegionColorIndex.White;
         }
 
         public BioEvent() : this(0)

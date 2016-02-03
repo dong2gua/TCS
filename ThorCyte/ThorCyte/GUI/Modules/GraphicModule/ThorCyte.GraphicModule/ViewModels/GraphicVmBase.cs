@@ -30,8 +30,8 @@ namespace ThorCyte.GraphicModule.ViewModels
         public static string DefaultGate;
         protected double XScale;
         protected double YScale;
-        protected RegionColorIndex DefaultEventColorIndex = RegionColorIndex.Black;
-        protected RegionColorIndex DefaultBackgroundIndex = RegionColorIndex.White;
+        //protected RegionColorIndex DefaultEventColorIndex = RegionColorIndex.White;
+        //protected RegionColorIndex DefaultBackgroundIndex = RegionColorIndex.White;
 
 
         public int BinCount { get; set; }
@@ -425,7 +425,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             new ColorRegionModel
             {
                 IsChecked = true,
-                RegionColor = Colors.Black,
+                RegionColor = Colors.White,
                 RegionColorString = "Default"
             },
             new ColorRegionModel

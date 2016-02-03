@@ -1,9 +1,8 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ImageViewerModule.DrawTools.Graphics;
-using System;
+
 namespace ThorCyte.ImageViewerModule.DrawTools.Tools
 {
     abstract class ToolObject : Tool

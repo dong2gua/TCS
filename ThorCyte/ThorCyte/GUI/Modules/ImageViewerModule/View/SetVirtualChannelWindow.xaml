@@ -10,7 +10,7 @@
         xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         mc:Ignorable="d"
         x:Name="Self"
-        Title="Set Virtual Channel" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner">
+        Title="Set Virtual Channel" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Window.Resources>
         <ObjectDataProvider x:Key="OperatorEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -53,16 +53,11 @@
                 <ComboBox Grid.Column="1" Grid.Row="2" Height="20" Width="100" ItemsSource="{Binding ChannelList}" SelectedItem="{Binding Channel2}"  DisplayMemberPath="ChannelName" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=0}" IsEnabled="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=2}"/>
                 <TextBlock Grid.Column="0" Grid.Row="2" Text="Operand:" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=1}" />
                 <TextBox Grid.Column="1" Grid.Row="2" Height="20" Width="100" Text="{Binding Operand}" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=1}" />
-
-
             </Grid>
         </GroupBox>
-
-
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="3" >
             <Button Height="20" Width="60" Margin="5" Content="OK" Command="{Binding ClickOKCommand}" CommandParameter="{Binding ElementName=Self}"/>
             <Button Height="20" Width="60" Margin="5" Content="Cancel" Command="{Binding ClickCancelCommand}" CommandParameter="{Binding ElementName=Self}"/>
         </StackPanel>
-
     </Grid>
 </ctrl:CustomWindow>

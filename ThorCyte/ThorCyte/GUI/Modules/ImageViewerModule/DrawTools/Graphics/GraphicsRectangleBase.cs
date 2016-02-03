@@ -50,8 +50,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                     x = RectangleLeft;
                     y = yCenter;
                     break;
-            }
-            
+            }            
             return ConvertToDisplayPoint(new Point(x, y));
         }
         public override Cursor GetHandleCursor(int handleNumber)
@@ -132,10 +131,8 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                         return i;
                 }
             }
-
             if (Contains(point))
                 return 0;
-
             return -1;
         }
     }

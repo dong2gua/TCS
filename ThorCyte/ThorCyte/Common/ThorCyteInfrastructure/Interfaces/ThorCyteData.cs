@@ -467,7 +467,7 @@ namespace ThorCyte.Infrastructure.Interfaces
         public ImageData GetData(int scanId, int scanRegionId, int channelId)
         {
             if (scanId != ScanCount)
-                throw new ArgumentOutOfRangeException("scanId");
+                return null;
             else
             {
                 try
@@ -489,6 +489,9 @@ namespace ThorCyte.Infrastructure.Interfaces
                 catch (DirectoryNotFoundException)
                 {
 
+                }
+                catch (NotSupportedException)
+                {
                 }
                 return null;
             }
@@ -524,51 +527,74 @@ namespace ThorCyte.Infrastructure.Interfaces
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int timingFrameId, double scale,
             Int32Rect regionRect)
         {
-
-            if (scale <= 0.0 || !regionRect.HasArea || regionRect.X < 0 || regionRect.Y < 0)
-                return null;
-            var original = new ImageData((uint) regionRect.Width, (uint) regionRect.Height);
-            ThorCyteImageInfo imageInfo = GetImageInfo(scanId, scanRegionId, channelId);         
-            int tileCount = imageInfo.SRegion.ScanFieldList.Count;
-            var tasks = new List<Task>(tileCount);           
-            for (int i = 0; i < tileCount; i++)
+            try
             {
-                Scanfield scanField = imageInfo.SRegion.ScanFieldList[i];
-                Int32Rect tileRect = GetScanFieldValidBound(scanField.SFRect, imageInfo);
+                if (scale <= 0.0 || !regionRect.HasArea || regionRect.X < 0 || regionRect.Y < 0)
+                    return null;
+                var original = new ImageData((uint)regionRect.Width, (uint)regionRect.Height);
+                ThorCyteImageInfo imageInfo = GetImageInfo(scanId, scanRegionId, channelId);
+                int tileCount = imageInfo.SRegion.ScanFieldList.Count;
+                var tasks = new List<Task>(tileCount);
+                for (int i = 0; i < tileCount; i++)
+                {
+                    Scanfield scanField = imageInfo.SRegion.ScanFieldList[i];
+                    Int32Rect tileRect = GetScanFieldValidBound(scanField.SFRect, imageInfo);
 
-                Int32Rect rect = Intersect(regionRect, tileRect);
-                if (rect != Int32Rect.Empty)
-                {                   
-                    string filePath = GetImageFileName(scanRegionId, channelId, scanField.ScanFieldId);
-                    if (File.Exists(filePath))
+                    Int32Rect rect = Intersect(regionRect, tileRect);
+                    if (rect != Int32Rect.Empty)
                     {
-                        int tilePosX = rect.X - tileRect.X;
-                        int tilePosY = rect.Y - tileRect.Y;
-                        tasks.Add(
-                            Task.Factory.StartNew(
-                                () =>
-                                    FillBuffer(original.DataBuffer, rect.X - regionRect.X,
-                                        rect.Y - regionRect.Y,
-                                        regionRect.Width, regionRect.Height, rect.Width, rect.Height, tilePosX,
-                                        tilePosY, filePath, _imageType)));
+                        string filePath = GetImageFileName(scanRegionId, channelId, scanField.ScanFieldId);
+                        if (File.Exists(filePath))
+                        {
+                            int tilePosX = rect.X - tileRect.X;
+                            int tilePosY = rect.Y - tileRect.Y;
+                            tasks.Add(
+                                Task.Factory.StartNew(
+                                    () =>
+                                        FillBuffer(original.DataBuffer, rect.X - regionRect.X,
+                                            rect.Y - regionRect.Y,
+                                            regionRect.Width, regionRect.Height, rect.Width, rect.Height, tilePosX,
+                                            tilePosY, filePath, _imageType)));
 
-                        // for test and debug
-                        //FillBuffer(original.DataBuffer, rect.X - regionRect.X,
-                        //    rect.Y - regionRect.Y,
-                        //    regionRect.Width, regionRect.Height, rect.Width, rect.Height, tilePosX,
-                        //    tilePosY, filePath, _imageType);
+                            // for test and debug
+                            //FillBuffer(original.DataBuffer, rect.X - regionRect.X,
+                            //    rect.Y - regionRect.Y,
+                            //    regionRect.Width, regionRect.Height, rect.Width, rect.Height, tilePosX,
+                            //    tilePosY, filePath, _imageType);
+                        }
                     }
                 }
-            }
 
-            if (tasks.Count > 0)
+                if (tasks.Count > 0)
+                {
+                    Task.WaitAll(tasks.ToArray());
+                }
+
+                ImageData image = GetResizedData(original, regionRect.Width, regionRect.Height, scale);
+                original.Dispose();
+                return image;
+            }
+            catch (ArgumentNullException)
             {
-                Task.WaitAll(tasks.ToArray());
-            }
 
-            ImageData image = GetResizedData(original, regionRect.Width, regionRect.Height, scale);
-            original.Dispose();
-            return image;
+            }
+            catch (ArgumentException)
+            {
+
+            }
+            catch (NullReferenceException)
+            {
+
+            }
+            catch (DirectoryNotFoundException)
+            {
+
+            }
+            catch (NotSupportedException)
+            { }
+            return null;
+           
+           
         }
 
         public ImageData GetTileData(int scanId, int scanRegionId, int channelId, int streamFrameId, int tileId,
@@ -580,21 +606,46 @@ namespace ThorCyte.Infrastructure.Interfaces
         public ImageData GetTileData(int scanId, int scanRegionId, int channelId, int streamFrameId, int planeId,
             int tileId, int timingFrameId)
         {
-            if (tileId > 0)
+            try
             {
-                ScanInfo info = _experiment.GetScanInfo(scanId);
-                TryInitImageType();
-                int width = info.TileWidth;
-                int height = info.TiledHeight;
-                string name = GetImageFileName(scanRegionId, channelId, tileId);
-                var data = new ImageData((uint) (width), (uint) (height));
-                FillBuffer(data.DataBuffer, 0, 0, width, height, width, height, name, _imageType);
-                return data;
+                if (tileId > 0)
+                {
+                    ScanInfo info = _experiment.GetScanInfo(scanId);
+                    TryInitImageType();
+                    int width = info.TileWidth;
+                    int height = info.TiledHeight;
+                    string name = GetImageFileName(scanRegionId, channelId, tileId);
+                    var data = new ImageData((uint) (width), (uint) (height));
+                    FillBuffer(data.DataBuffer, 0, 0, width, height, width, height, name, _imageType);
+                    return data;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+
+
+            catch (ArgumentNullException)
             {
-                return null;
+
             }
+            catch (ArgumentException)
+            {
+
+            }
+            catch (NullReferenceException)
+            {
+
+            }
+            catch (DirectoryNotFoundException)
+            {
+
+            }
+            catch (NotSupportedException)
+            {
+            }
+            return null;
         }
 
         public ImageData GetData(int scanId, int scanRegionId, int channelId, int timingFrameId)

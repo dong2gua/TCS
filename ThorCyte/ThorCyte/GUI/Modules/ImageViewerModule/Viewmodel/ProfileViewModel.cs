@@ -1,17 +1,16 @@
 ﻿using Abt.Controls.SciChart;
 using Abt.Controls.SciChart.Model.DataSeries;
 using Abt.Controls.SciChart.Visuals.RenderableSeries;
-using ImageProcess;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Mvvm;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using ThorCyte.ImageViewerModule.Events;
 using ThorCyte.ImageViewerModule.Model;
-using System.Collections.Generic;
+
 namespace ThorCyte.ImageViewerModule.Viewmodel
 {
     public class ProfileViewModel : BindableBase
@@ -92,7 +91,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         {
             if ((int)_start.Value.X > _channel.ImageData.XSize || (int)_start.Value.Y > _channel.ImageData.YSize || (int)_end.Value.X > _channel.ImageData.XSize || (int)_end.Value.Y > _channel.ImageData.YSize) return;
             var buffer = _channel.ImageData.GetDataInProfileLine(new Point(_start.Value.X, _start.Value.Y), new Point(_end.Value.X, _end.Value.Y));
-            FillChartData(buffer, Colors.Black);
+            FillChartData(buffer, Colors.White);
             ProfileCf = (ComputeContrastFactor(buffer.ToArray()) * 100).ToString("0.00") + "%";
             IsCFVisibility = true;
         }

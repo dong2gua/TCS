@@ -215,7 +215,7 @@ namespace ComponentDataService.Types
         internal IList<Blob> CreateContourBlobs(int wellId, int tileId,
             ImageData data, double minArea, double maxArea = int.MaxValue)
         {
-            IList<Blob> contours = data.FindContour(minArea, maxArea);
+            IList<Blob> contours = data.FindContoursByOpenCv(minArea, maxArea);
             int key = GetBlobKey(wellId, tileId);
             _contourBlobs[key] = contours.ToList();
             _imageWidth = (int)data.XSize;
@@ -348,11 +348,11 @@ namespace ComponentDataService.Types
             {
                 if (type == BlobType.Data)
                 {
-                    query = string.Format("descendant::data-blobs");
+                    query = "descendant::data-blobs";
                 }
                 else if (type == BlobType.Contour)
                 {
-                    query = string.Format("descendant::contour-blobs");
+                    query = "descendant::contour-blobs";
                 }
                 var countNode = fieldNode.SelectSingleNode(query) as XmlElement;
                 if (countNode == null) return EmptyBlobs.ToList();
@@ -547,10 +547,10 @@ namespace ComponentDataService.Types
             switch (type)
             {
                 case BlobType.Contour:
-                    query = string.Format("descendant::contour-blobs");
+                    query = "descendant::contour-blobs";
                     break;
                 case BlobType.Data:
-                    query = string.Format("descendant::data-blobs");
+                    query = "descendant::data-blobs";
                     break;
                 default:
                     return;

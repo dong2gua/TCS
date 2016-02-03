@@ -10,7 +10,7 @@
         mc:Ignorable="d" 
         x:Name="Self"
         Title="Set Compute Color" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow" 
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Window.Resources>
         <converter:ColorToBrushConverter x:Key="ColorToBrushC"/>
     </Window.Resources>
@@ -54,7 +54,6 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
-
         </DataGrid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2">
             <Button Height="20" Width="60" Margin="5" Content="OK" Command="{Binding ClickOKCommand}" CommandParameter="{Binding ElementName=Self}"/>

@@ -10,7 +10,7 @@ namespace ThorCyte
 
         protected override IModuleCatalog CreateModuleCatalog()
         {
-            return new DirectoryModuleCatalog() { ModulePath = @"..\..\..\..\..\..\Bin\DirectoryModules" };
+            return new DirectoryModuleCatalog() { ModulePath = "DirectoryModules" };
         }
 
         protected override DependencyObject CreateShell()

@@ -8,7 +8,7 @@
         xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
         xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         mc:Ignorable="d"
-        Title="ProfileWindow" Height="300" Width="400"  WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner" >
+        Title="ProfileWindow" Height="300" Width="400"  WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Window.Resources>
         <converter:VisibilityConverter x:Key="VisibilityC"/>
         <Style x:Key="GridLinesPanelStyle"  TargetType="sciChart:GridLinesPanel">
@@ -18,9 +18,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <!--<RowDefinition Height="32"></RowDefinition>-->
         </Grid.RowDefinitions>
-        <!-- Declare a SciChartSurface and bind to data -->
         <sciChart:SciChartSurface   SeriesSource="{Binding SeriesSource}" Background="#595959"  GridLinesPanelStyle="{StaticResource GridLinesPanelStyle}">
             <sciChart:SciChartSurface.XAxis>
                 <sciChart:NumericAxis AutoRange="Always" AxisTitle="Length (pixel)"   Margin="0,-5,0,-15"/>
@@ -30,7 +28,6 @@
                                       AxisAlignment="Left"/>
             </sciChart:SciChartSurface.YAxis>
         </sciChart:SciChartSurface>
-
         <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" >
             <Label Visibility="{Binding IsCFVisibility,Converter={StaticResource VisibilityC}}" Content="CF :" Margin="20,0,5,0" Foreground="{Binding Foreground, ElementName=numericAxis}" FontFamily="{Binding FontFamily, ElementName=numericAxis}" FontSize="{Binding FontSize,ElementName=numericAxis}" FontWeight="{Binding FontWeight, ElementName=numericAxis}"/>
             <Label Visibility="{Binding IsCFVisibility,Converter={StaticResource VisibilityC}}" Content="{Binding Path=ProfileCf}" Foreground="{Binding Foreground, ElementName=numericAxis}" FontFamily="{Binding FontFamily, ElementName=numericAxis}" FontSize="{Binding FontSize,ElementName=numericAxis}" FontWeight="{Binding FontWeight, ElementName=numericAxis}"/>

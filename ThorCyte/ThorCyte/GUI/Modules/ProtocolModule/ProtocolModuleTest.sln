@@ -8,6 +8,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProtocol", "TestProtoco
 		{B51A6970-C76F-4F18-85DE-7A292CED8973} = {B51A6970-C76F-4F18-85DE-7A292CED8973}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B17BD036-A951-4D4A-8970-544A406DEE82}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\XML\Modules.xml = ..\..\..\XML\Modules.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 1

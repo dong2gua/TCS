@@ -12,8 +12,10 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-
+#include <list>
+using namespace std;
 // TODO: reference additional headers your program requires here
 #define _IPP_SEQUENTIAL_STATIC
 #include "ipp.h"
+#include <opencv2/opencv.hpp>
+using namespace cv;

@@ -13,39 +13,44 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Statistic.Models;
+using ThorCyte.Statistic.Views;
 
 namespace ThorCyte.Statistic.ViewModels
 {
-    class StatisticSetupDetailViewModel : BindableBase, IInteractionRequestAware 
+    class StatisticSetupDetailViewModel : BindableBase
     {
-        private StatisticDataNotification notification; 
-        public StatisticSetupDetailViewModel(IEventAggregator eventAggregator, IUnityContainer container, IExperiment experiment)
+        //private StatisticDataNotification notification; 
+        private IPopupDetailWindow DetailWinAdapter { get; set; }
+        private StatisticModel ModelAdapter { get; set; }
+        public StatisticSetupDetailViewModel(IEventAggregator eventAggregator, IUnityContainer container, IExperiment experiment, IPopupDetailWindow detailwin, StatisticModel model)
         {
+            DetailWinAdapter = detailwin;
+            ModelAdapter = model;
         }
 
-        public Action FinishInteraction { get; set; }
+        //public Action FinishInteraction { get; set; }
 
-        //Receieve Notification from Setup
-        public INotification Notification
-        {
-            get
-            {
-                return this.notification;
-            }
-            set
-            {
-                if(value is StatisticDataNotification)
-                {
-                    this.notification = value as StatisticDataNotification;
-                    if (this.notification.SelectedRunFeature != null && this.notification.SelectedRunFeature.Name != "")
-                    {
-                        _RunFeatureName = this.notification.SelectedRunFeature.Name;
-                        isUserDefineRunFeatureName = true;
-                    }
-                    OnPropertyChanged(() => ComponentContainer);
-                }
-            }
-        }
+        ////Receieve Notification from Setup
+        //public INotification Notification
+        //{
+        //    get
+        //    {
+        //        return this.notification;
+        //    }
+        //    set
+        //    {
+        //        if(value is StatisticDataNotification)
+        //        {
+        //            this.notification = value as StatisticDataNotification;
+        //            if (this.notification.SelectedRunFeature != null && this.notification.SelectedRunFeature.Name != "")
+        //            {
+        //                _RunFeatureName = this.notification.SelectedRunFeature.Name;
+        //                isUserDefineRunFeatureName = true;
+        //            }
+        //            OnPropertyChanged(() => ComponentContainer);
+        //        }
+        //    }
+        //}
 
         private string _RunFeatureName = "";
         private bool isUserDefineRunFeatureName = false;
@@ -81,10 +86,10 @@ namespace ThorCyte.Statistic.ViewModels
                     rf.FeatureContainer = new List<Feature> { SelectedFeature };
                     rf.ChannelContainer = new List<Channel> { SelectedChannel };
                     rf.RegionContainer = new List<CyteRegion> { SelectedRegion };
-                    notification.SelectedRunFeature = rf;
-
-                    notification.Confirmed = true;
-                    FinishInteraction();
+                    ModelAdapter.RunFeatureContainer.Add(rf);
+                    ModelAdapter.RunFeatureContainer = ModelAdapter.RunFeatureContainer.Distinct().ToList();
+                    ModelAdapter.SelectedRunFeature = rf;
+                    DetailWinAdapter.Close();
                 });
             }
         }
@@ -93,21 +98,23 @@ namespace ThorCyte.Statistic.ViewModels
             get
             {
                 //to do: recursive component
-                if (notification != null && notification.SelectedRunFeature != null)
+                if (ModelAdapter != null && ModelAdapter.SelectedRunFeature != null)
                 {
-                    return notification.SelectedRunFeature.ComponentContainer;
+                    return ModelAdapter.SelectedRunFeature.ComponentContainer;
                 }
-                else
+                else//new runfeature
                 {
                     return ComponentDataManager.Instance.GetComponentNames().Select(x => new Component { Name = x }).ToList();
                 }
             }
         }
+
         public List<StatisticMethod> StatisticMethodContainer {
             get
             {
                 if (SelectedComponent != null)
                 {
+                    //to do: should not be calculate all the time
                     return Enum.GetNames(typeof(EnumStatistic)).Select(x =>
                             new StatisticMethod()
                             {
@@ -161,7 +168,7 @@ namespace ThorCyte.Statistic.ViewModels
                 if (SelectedComponent != null)
                 {
                     var regionNames = ROIManager.Instance.GetRegionIdList(SelectedComponent.Name);
-                    if (regionNames != null && regionNames.Count() > 0)
+                    if (regionNames != null && regionNames.Any())
                     {
                         var regions = regionNames.Select(x => new CyteRegion() { Name = x }).ToList();
                         var None = new CyteRegion() { Name = "None" };
