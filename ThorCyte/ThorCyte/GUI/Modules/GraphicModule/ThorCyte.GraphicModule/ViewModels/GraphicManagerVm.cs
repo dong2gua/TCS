@@ -1002,6 +1002,10 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 axis.IsLogScale = XmlConvert.ToBoolean(reader["log"]);
             }
+            if (reader["normalize"] != null)
+            {
+                axis.IsNormalize = XmlConvert.ToBoolean(reader["normalize"]);
+            }
             // read parameter
             while (reader.Read())
             {

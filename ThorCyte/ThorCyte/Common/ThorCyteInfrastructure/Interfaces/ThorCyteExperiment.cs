@@ -665,7 +665,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             XmlElement root = doc.DocumentElement;
             string imageTypeString = root.ParseAttributeToString("format");
             ThorCyteData.ImageType type;
-            if (Enum.TryParse(imageTypeString, true, out type) == false) type = ThorCyteData.ImageType.None;
+            if (Enum.TryParse(imageTypeString, true, out type) == false) return false;
             ImageType = type;
             if (root != null)
             {

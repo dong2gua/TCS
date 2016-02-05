@@ -12,6 +12,6 @@
     </controls:GraphicUcBase.Resources>
 
         <!--  Create the chart surface  -->
-    <s:SciChartSurface Name="SciChart"  Background="#595959" GridLinesPanelStyle="{StaticResource GridLinesPanelStyle}"  FontSize="16" ChartTitle="{Binding Title}" Padding="0,0,15,0"/>
+    <s:SciChartSurface Name="SciChart"  Background="#595959" GridLinesPanelStyle="{StaticResource GridLinesPanelStyle}"  FontSize="16" ChartTitle="{Binding Title}" Padding="0,0,20,0"/>
 </controls:GraphicUcBase>
    

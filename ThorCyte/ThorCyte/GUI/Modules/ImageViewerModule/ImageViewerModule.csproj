@@ -109,6 +109,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Control\ColorPicker.cs" />
     <Compile Include="Control\GifImage.cs" />
     <Compile Include="Control\HistogramPanel.cs" />
     <Compile Include="Converter\BoolToStringConverter.cs" />

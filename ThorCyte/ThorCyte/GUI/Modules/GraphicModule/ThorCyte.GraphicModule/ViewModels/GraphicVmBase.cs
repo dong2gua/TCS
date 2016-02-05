@@ -16,7 +16,6 @@ using ThorCyte.GraphicModule.Infrastructure;
 using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.Utils;
 using ThorCyte.Infrastructure.Interfaces;
-using ThorCyte.Infrastructure.Types;
 using ROIService.Region;
 
 namespace ThorCyte.GraphicModule.ViewModels
@@ -658,6 +657,12 @@ namespace ThorCyte.GraphicModule.ViewModels
                         max = well.Bound.Right;
                     }
                 }
+                if (_xAxis.IsLogScale)
+                {
+                    min = (int)Math.Log10(min);
+                    max =  Convert.ToInt32(Math.Log10(max)+0.5);
+                    _xAxis.InitLogTable();
+                }
                 _xAxis.SetRange(min, max);
             }
             if (_yAxis.SelectedNumeratorFeature != null && _yAxis.SelectedNumeratorFeature.FeatureType == FeatureType.YPos)
@@ -675,6 +680,12 @@ namespace ThorCyte.GraphicModule.ViewModels
                     {
                         max = well.Bound.Bottom;
                     }
+                }
+                if (_yAxis.IsLogScale)
+                {
+                    min = (int)Math.Log10(min);
+                    max = Convert.ToInt32(Math.Log10(max)+0.5);
+                    _yAxis.InitLogTable();
                 }
                 _yAxis.SetRange(min, max);
             }
