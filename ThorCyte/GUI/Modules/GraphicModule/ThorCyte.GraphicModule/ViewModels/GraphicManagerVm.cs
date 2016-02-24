@@ -41,8 +41,6 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         private IList<int> _activeWellNos;
 
-        //private bool _isBlackBackground;
-
         private bool _isControlEnabled;
 
         private bool _isDeleteTabEnabled;
@@ -120,20 +118,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             get { return _activeWellNos; }
         }
 
-        //public bool IsBlackBackground
-        //{
-        //    get { return _isBlackBackground; }
-        //    set
-        //    {
-        //        if (_isBlackBackground == value)
-        //        {
-        //            return;
-        //        }
-        //        _isBlackBackground = value;
-        //        UpdateBackground();
-        //    }
-        //}
-
         #endregion
 
         #region Constructor
@@ -150,8 +134,10 @@ namespace ThorCyte.GraphicModule.ViewModels
             eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(LoadXml);
             eventAggregator.GetEvent<SelectWells>().Subscribe(ActiveWellChanged);
             eventAggregator.GetEvent<MacroRunEvent>().Subscribe(OnUpdateComponentList);
-            eventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(OnSaveGraphics);
+            eventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(OnSaveGraphics,ThreadOption.UIThread,true);
+            eventAggregator.GetEvent<ShowRegionEvent>().Subscribe(OnSwitchTab);
             _activeWellNos = new List<int>();
+            IsLoadGateEnd = true;
         }
 
         #endregion
@@ -180,7 +166,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             SelectedContainer = containerVm;
         }
 
-        public bool IsValidateName(GraphicContainerVm vm,string name)
+        public bool IsValidateName(GraphicContainerVm vm, string name)
         {
             var result = true;
             foreach (var containerVm in _graphicContainerVms)
@@ -202,7 +188,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     var str = containerVm.Name.Remove(0, 3);
                     int id;
-                    if (int.TryParse(str,out id))
+                    if (int.TryParse(str, out id))
                     {
                         _tabIdManager.InsertId(id);
                     }
@@ -239,7 +225,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     }
                 }
                 UpdateRegion(new RegionUpdateArgs(graphicVm.Id, regionList, RegionUpdateType.Delete));
-                regionList.Clear();            
+                regionList.Clear();
             }
             _graphicContainerVms.Remove(_selectedContainer);
             if (_graphicContainerVms.Count > 0)
@@ -261,7 +247,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             return list;
         }
 
-        public void NormalizeToActiveWell(string graphicId, AxisModel axis, bool isNormalize = true)
+        public void Update(string graphicId)
         {
             var vmList = GetGraphicVmList();
             var vm = vmList.Find(graphicvm => graphicvm.Id == graphicId);
@@ -269,37 +255,18 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 return;
             }
-            if (!isNormalize)
-            {
-                vm.UpdateEvents();
-                return;
-            }
-            var featureIndex = axis.SelectedNumeratorFeature.Index;
-            if (axis.SelectedNumeratorFeature.IsPerChannel)
-                featureIndex += axis.SelectedNumeratorChannel.ChannelId;
-
-            float min = float.MaxValue;
-            float max = float.MinValue;
-
-            foreach (var no in _activeWellNos)
-            {
-                var events = ComponentDataManager.Instance.GetEvents(vm.SelectedComponent, no);
-                var minValue = events.Min(ev => ev[featureIndex]);
-                if (minValue < min)
-                {
-                    min = minValue;
-                }
-                var maxValue = events.Max(ev => ev[featureIndex]);
-                if (maxValue > max)
-                {
-                    max = maxValue;
-                }
-            }
-            axis.OldMinRange = axis.MinRange;
-            axis.OldMaxRange = axis.MaxRange;
-            axis.MinRange = Math.Round(min, 2);
-            axis.MaxRange = Math.Round(max, 2);
             vm.UpdateEvents();
+        }
+
+        public string GetParentComponent(string graphicId)
+        {
+            var vmList = GetGraphicVmList();
+            var vm = vmList.Find(graphicvm => graphicvm.Id == graphicId);
+            if (vm == null)
+            {
+                return null;
+            }
+            return vm.SelectedComponent;
         }
 
         #endregion
@@ -342,6 +309,17 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
             UpdateImage();
             AxisModel.IsSwitchWell = false;
+        }
+
+        private void OnSwitchTab(string tabName)
+        {
+            if (tabName == "AnalysisModule")
+            {
+                if (_activeWellNos.Count > 0)
+                {
+                    UpdateImage();
+                }
+            }
         }
 
         public Dictionary<string, Tuple<GraphicUcBase, GraphicVmBase>> GetGraphicDictionary()
@@ -404,19 +382,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
             UpdateImage();
         }
-
-        //private void UpdateBackground()
-        //{
-        //    var vmList = GetGraphicVmList();
-        //    foreach (var graphivm in vmList)
-        //    {
-        //        var scatterVm = graphivm as ScattergramVm;
-        //        if (scatterVm != null)
-        //        {
-        //            scatterVm.UpdateBackground();
-        //        }
-        //    }
-        //}
 
         private void UpdateImage()
         {
@@ -586,10 +551,19 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         #region Load Xml
 
-        public void LoadXml(int scanId)
+        public void LoadXml(int scanid)
         {
             var experiment = ServiceLocator.Current.GetInstance<IExperiment>();
-            var filepath = experiment.GetExperimentInfo().AnalysisPath;
+            if (experiment == null)
+            {
+                return;
+            }
+            var info = experiment.GetExperimentInfo();
+            if (info.LoadWithAnalysisResult == false)
+            {
+                return;
+            }
+            var filepath = info.AnalysisPath;
             var path = Path.Combine(filepath, ConstantHelper.GraphicXmlPath);
             Clear();
             if (!File.Exists(path))
@@ -653,7 +627,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                                 GraphicUcBase graphicUserControl;
                                 if (isScatter)
                                 {
-                                    graphicUserControl = new ScattergramView {DataContext = graphicVm};
+                                    graphicUserControl = new ScattergramView { DataContext = graphicVm };
                                     graphicVm.ViewDispatcher = graphicUserControl.Dispatcher;
                                     containerVm.GraphicDictionary.Add(id, new Tuple<GraphicUcBase, GraphicVmBase>(graphicUserControl, graphicVm));
                                 }
@@ -691,11 +665,6 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         public void LoadGraphs(XmlReader reader)
         {
-            //if (reader["black-background"] != null)
-            //{
-            //    _isBlackBackground = XmlConvert.ToBoolean(reader["black-background"]);
-            //}
-
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -793,7 +762,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 vm.SelectedComponent = reader["component"];
             }
-        
+
             if (reader["graph-id"] != null)
             {
                 var id = reader["graph-id"];
@@ -863,7 +832,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 vm.SelectedComponent = reader["component"];
             }
-          
+
             if (reader["graph-id"] != null)
             {
                 var id = reader["graph-id"];
@@ -1001,6 +970,10 @@ namespace ThorCyte.GraphicModule.ViewModels
             if (reader["log"] != null)
             {
                 axis.IsLogScale = XmlConvert.ToBoolean(reader["log"]);
+            }
+            if (reader["normalize"] != null)
+            {
+                axis.IsNormalize = XmlConvert.ToBoolean(reader["normalize"]);
             }
             // read parameter
             while (reader.Read())
@@ -1411,7 +1384,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                         {
                             new XAttribute("id", rect.Name.Remove(0, 1)),
                             new XAttribute("shape", shape),
-                            new XAttribute("color", color),
+                            new XAttribute("color", color == ConstantHelper.DefaultColorStr ? "white":color),
                             new XAttribute("x", (int)(rect.Left/xscale)),
                             new XAttribute("y", (int)(rect.Top/yscale)),
                             new XAttribute("w", (int)(rect.Rectangle.Width/xscale)),
@@ -1429,7 +1402,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                         {
                             new XAttribute("id", polygon.Name.Remove(0, 1)),
                             new XAttribute("shape", "Polygon"),
-                            new XAttribute("color", polygonColor),
+                            new XAttribute("color", polygonColor == ConstantHelper.DefaultColorStr ? "white":polygonColor),
                         };
                         region = new XElement("region", attributeList);
 

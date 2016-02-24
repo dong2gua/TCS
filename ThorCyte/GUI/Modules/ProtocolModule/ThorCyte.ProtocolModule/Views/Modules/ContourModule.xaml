@@ -5,30 +5,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converts="clr-namespace:ThorCyte.ProtocolModule.Converts"
              xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
-             xmlns:utils="clr-namespace:ThorCyte.ProtocolModule.Utils"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <converts:AreaTypeConvert x:Key="AreaCvt"/>
-
-        <ControlTemplate x:Key="CtTextBoxRequired">
-            <DockPanel>
-                <AdornedElementPlaceholder/>
-            </DockPanel>
-        </ControlTemplate> 
     </UserControl.Resources>
     <Expander Header="Contour" IsExpanded="True">
-        <StackPanel>
-            <Grid >
+        <StackPanel Margin="5,0">
+            <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="80"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Margin="2" Content="Component:"/>
                 <TextBox x:Name="TxtConponent"  Grid.Column="1" Margin="2" Text="{Binding ComponentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
-            <GroupBox Header="Min area">
-                <Grid>
+            <GroupBox Header="Min area" BorderThickness="1" BorderBrush="Silver">
+                <Grid Margin="5,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -40,17 +33,17 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
 
-                        <RadioButton Content="um²" Grid.Column="0" Margin="2"
+                        <RadioButton Content="um²" Grid.Column="0" Margin="2" HorizontalAlignment="Center"
                              IsChecked="{Binding MinAreaUnit,Converter={StaticResource AreaCvt},ConverterParameter=um}"/>
-                        <RadioButton Content="mm²" Grid.Column="1" Margin="2"
+                        <RadioButton Content="mm²" Grid.Column="1" Margin="2" HorizontalAlignment="Center"
                              IsChecked="{Binding MinAreaUnit,Converter={StaticResource AreaCvt},ConverterParameter=mm}"/>
                     </Grid>
                 </Grid>
             </GroupBox>
 
-            <Expander Header="Check max area" Margin="5" IsExpanded="{Binding IsMaxAreaChecked}">
-                <GroupBox Header="Max area" Margin="0,10">
-                    <Grid>
+            <Expander Header="Check max area" IsExpanded="{Binding IsMaxAreaChecked}">
+                <GroupBox Header="Max area" BorderThickness="1" BorderBrush="Silver">
+                    <Grid Margin="5,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
@@ -62,16 +55,16 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <RadioButton Content="um²" Grid.Column="0" Margin="2"
+                            <RadioButton Content="um²" Grid.Column="0" Margin="2" HorizontalAlignment="Center"
                              IsChecked="{Binding MaxAreaUnit,Converter={StaticResource AreaCvt},ConverterParameter=um}"/>
-                            <RadioButton Content="mm²" Grid.Column="1" Margin="2"
+                            <RadioButton Content="mm²" Grid.Column="1" Margin="2" HorizontalAlignment="Center"
                              IsChecked="{Binding MaxAreaUnit,Converter={StaticResource AreaCvt},ConverterParameter=mm}"/>
                         </Grid>
                     </Grid>
                 </GroupBox>
             </Expander>
-            <CheckBox Content="Follow concave contour" Margin="2" IsChecked="{Binding IsConcaveChecked}"/>
-            <CheckBox Content="Contour across boundary" Margin="2" IsChecked="{Binding IsBoundaryChecked}"/>
+            <CheckBox Content="Follow concave contour" Margin="5" IsChecked="{Binding IsConcaveChecked}"/>
+            <CheckBox Content="Contour across boundary" Margin="5" IsChecked="{Binding IsBoundaryChecked}"/>
         </StackPanel>
     </Expander>
 </UserControl>

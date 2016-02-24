@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using ThorCyte.CarrierModule.Carrier;
 using ThorCyte.CarrierModule.Common;
 
 namespace ThorCyte.CarrierModule.Graphics
@@ -24,7 +25,30 @@ namespace ThorCyte.CarrierModule.Graphics
         protected const double HandleSize = 12.0;
 
         // external rectangle
-        static readonly SolidColorBrush SlBrush = new SolidColorBrush(Colors.LightBlue);
+        static SolidColorBrush SlBrush
+        {
+            get
+            {
+                var ret = new SolidColorBrush();
+                switch (CarrierModule.Mode)
+                {
+                    case DisplayMode.Review:
+                    case DisplayMode.Protocol:
+                        ret.Color = Colors.Pink;
+                        break;
+                    case DisplayMode.Analysis:
+                        if (CarrierDefMgr.Instance.CurrentCarrier != null &&
+                            CarrierDefMgr.Instance.CurrentCarrier.Type == CarrierType.Microplate)
+                        {
+                            return null;
+                        }
+                        ret.Color = Colors.Pink;
+                        break;
+                }
+                return ret;
+            }
+        }
+
         public int RoomId;
 
         #endregion Class Members
@@ -76,11 +100,6 @@ namespace ThorCyte.CarrierModule.Graphics
                 }
                 RefreshDrawing();
             }
-        }
-
-        public Color FillObjectColor
-        {
-            get { return Colors.LightBlue; }
         }
 
         public Color ObjectColor

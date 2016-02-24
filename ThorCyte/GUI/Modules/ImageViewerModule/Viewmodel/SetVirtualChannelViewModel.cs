@@ -68,13 +68,35 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         {
             ClickOKCommand = new DelegateCommand<SetVirtualChannelWindow>(OnClickOK);
             ClickCancelCommand = new DelegateCommand<SetVirtualChannelWindow>(OnClickCancel);
-            if (channels == null || virtualChannels == null ) return;
+            if (channels == null || virtualChannels == null) return;
             ChannelList = new List<Channel>();
-            foreach(var o in channels)
+            foreach (var o in channels)
                 ChannelList.Add(o);
             foreach (var o in virtualChannels)
                 ChannelList.Add(o);
             _computeColors = computeColors;
+            IsNew = true;
+        }
+        public void SetCurrentChannel(VirtualChannel channel)
+        {
+            IsNew = false;
+            ChannelName = channel.ChannelName;
+            Channel1 = channel.FirstChannel;
+            Channel2 = channel.SecondChannel;
+            Operator = channel.Operator;
+            Operand = channel.Operand;
+            int i = ChannelList.Count - 1;
+            while (i > 0)
+            {
+                if (!ChannelList[i].IsvirtualChannel) break;
+                if (ChannelList[i] == channel)
+                {
+                    ChannelList.RemoveAt(i);
+                    break;
+                }
+                ChannelList.RemoveAt(i);
+                i--;
+            }
         }
         private void OnClickOK(SetVirtualChannelWindow window)
         {

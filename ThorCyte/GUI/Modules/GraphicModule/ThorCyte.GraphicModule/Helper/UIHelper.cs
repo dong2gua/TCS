@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Windows;
 using System.Windows.Threading;
+using Xceed.Wpf.Toolkit;
 
 namespace ThorCyte.GraphicModule.Helper
 {
@@ -8,7 +8,7 @@ namespace ThorCyte.GraphicModule.Helper
     {
         public static void OnCheckTabNameFailed(string name)
         {
-            var action = new Action(() => MessageBox.Show(string.Format("The tab name {0} has exist.",name)));
+            var action = new Action(() => MessageBox.Show(string.Format("The tab name {0} has exist.",name),"Message"));
 
             if (Dispatcher.CurrentDispatcher.CheckAccess())
             {

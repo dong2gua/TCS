@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 
 namespace ImageProcess.DataType
 {
@@ -17,7 +16,6 @@ namespace ImageProcess.DataType
         private readonly List<Point> _points = new List<Point>();
         private readonly List<Point> _points2 = new List<Point>(); 
         private readonly List<VLine> _lines = new List<VLine>();
-        private bool _concave;
         private RegionShape _shape = RegionShape.Contour;
         #endregion
 
@@ -45,10 +43,7 @@ namespace ImageProcess.DataType
 
         public int Area { get; private set; }
         public int EventId { get; set; }
-        //public double AreaByGeometry
-        //{
-        //    get { return _pathGeometry.GetArea(); }
-        //}
+        
         #endregion
 
         #region Constructors
@@ -78,7 +73,7 @@ namespace ImageProcess.DataType
 
         public bool Contains(Blob blob)
         {
-            return false;
+            return Contains(this, blob);
         }
 
         public void FlipH(int width)
@@ -93,7 +88,7 @@ namespace ImageProcess.DataType
         {
             _points.Clear();
             _points.AddRange(points);
-            _points.Sort(SortCornersClockwise);
+            //_points.Sort(SortCornersClockwise);
             Bound = RecalcPolygonBounds();
             InitContourLines();
             Area = ComputePolygonArea();
@@ -363,6 +358,60 @@ namespace ImageProcess.DataType
             return ring;
         }
 
+
+        // This does the dynamic background method on the pixels within the (typically perimeter) blob.
+        public int ComputeDynamicBackground(short[] data, int width, int lowPct, int highPct, int rejectPct)
+        {
+            //int xOffset = img.GetOffset(channel);
+            //ushort[,] buf = img.GetBuffer(channel);
+
+            // collect all of the pixels in the blob into the array.
+            var pixels = new List<ushort>(Area);
+
+            foreach (VLine line in _lines)
+            {
+                for (int i = 0; i < line.Length; i++)
+                {
+                    //pixels[index++] = buf[xOffset + line.X, line.Y1 + i];
+                    ushort value = (ushort) data[(line.Y1 + i)*width + line.X];
+                    pixels.Add(value);
+                }
+
+
+            }
+            int pixelCount = pixels.Count;
+            int index;
+            pixels.Sort();
+            //Array.Sort(pixels);
+            int lowIndex = (pixelCount*lowPct + 50)/100;
+            int highIndex = (pixelCount*highPct + 50)/100;
+
+            if (highIndex < lowIndex)
+                highIndex = lowIndex;
+
+            if (highIndex >= pixelCount)
+                highIndex = pixelCount - 1;
+
+            if (lowIndex >= pixelCount)
+                lowIndex = pixelCount - 1;
+
+            int total = 0;
+            for (index = lowIndex; index <= highIndex; index++)
+                total += pixels[index];
+
+            int size = highIndex - lowIndex + 1;
+            total += size/2;
+            total /= size;
+
+            int diff = pixels[highIndex] - pixels[lowIndex];
+            int average = (pixels[highIndex] + pixels[lowIndex])/2 + 1;
+
+            if (diff > (average*rejectPct/100)) // background is rejected
+                total = 0;
+
+            return total;
+        }
+
         // This does the dynamic background method on the pixels within the (typically perimeter) blob.
         public int ComputeDynamicBackground(ImageData data, int lowPct, int highPct, int rejectPct)
         {
@@ -549,59 +598,55 @@ namespace ImageProcess.DataType
 
         }
 
-       
+
         private void InitContourLines()
         {
             _lines.Clear();
-            _lines.Capacity = _points.Count;
+            //_lines.Capacity = _points.Count;
             IEnumerable<Point> sortedPoints = _points.OrderBy(p => p.X).ThenBy(p => p.Y);
-            Point pt1 = _points[0];
+            Point pt1 = sortedPoints.First();
             Point pt2 = pt1;
-
-            if (!_concave) // do not check concaveness
+            foreach (Point pt in sortedPoints)
             {
-                foreach (Point pt in sortedPoints)
+                if (Math.Abs(pt.X - pt1.X) > Tolerance) //	start of new line
                 {
-                    if (Math.Abs(pt.X - pt1.X) > Tolerance) //	start of new line
-                    {
-                        _lines.Add(new VLine(pt1.X, pt1.Y, pt2.Y));
-                        pt1 = pt2 = pt;
-                    }
-                    else
-                        pt2 = pt;
+                    _lines.Add(new VLine(pt1.X, pt1.Y, pt2.Y));
+                    pt1 = pt2 = pt;
                 }
-
-                // last line
-                _lines.Add(new VLine(pt1.X, pt1.Y, pt2.Y));
+                else
+                    pt2 = pt;
             }
-
+            // last line
+            _lines.Add(new VLine(pt1.X, pt1.Y, pt2.Y));
         }
+
 
         private int ComputePolygonArea()
         {
-         
-            double area = 0;
-            // create an array of n+2 vertices with V[n]=V[0] and V[n+1]=V[1]				
-            int n = _points.Count;
-            var pts = new Point[n + 2];
+            //double area = 0;
+            ////create an array of n+2 vertices with V[n]=V[0] and V[n+1]=V[1]				
+            //int n = _points.Count;
+            //var pts = new Point[n + 2];
 
-            for (int m = 0; m < n; m++)
-                pts[m] = _points[m];
+            //for (int m = 0; m < n; m++)
+            //    pts[m] = _points[m];
 
-            pts[n] = _points[0];
-            pts[n + 1] = _points[1];
+            //pts[n] = _points[0];
+            //pts[n + 1] = _points[1];
 
-            int i, j, k;
+            //int i, j, k;
 
-            for (i = 1, j = 2, k = 0; i <= n; i++, j++, k++)
-                area += pts[i].X * (pts[j].Y - pts[k].Y);
+            //for (i = 1, j = 2, k = 0; i <= n; i++, j++, k++)
+            //    area += pts[i].X*(pts[j].Y - pts[k].Y);
 
-            area /= 2;
+            //area /= 2;
 
-            if (area < 0)
-                area = -area;
-            return (int) area;
+            //if (area < 0)
+            //    area = -area;
+            //return (int) area;
+            return _lines.Sum(vl => vl.Length);
         }
+
 
         private int SortCornersClockwise(Point a, Point b)
         {
@@ -619,6 +664,119 @@ namespace ImageProcess.DataType
             else if (aTanA > aTanB) return 1;
             return 0;
         }
+
+        private static bool PointInsidePolygon(Blob blob, Point point)
+        {
+            int n = blob._points.Count;
+            List<Point> vertex = blob._points;
+            if (n <= 2)
+                return false;
+            bool isInside = false;
+            double x = point.X;
+            double y = point.Y;
+
+            for (int i = 0, j = n - 1; i < n; j = i++)
+            {
+                if (((vertex[i].Y > y) != (vertex[j].Y > y))
+                    &&
+                    (x <
+                     (vertex[j].X - vertex[i].X) * (y - vertex[i].Y) /
+                     (vertex[j].Y - vertex[i].Y) + vertex[i].X))
+                {
+                    isInside = !isInside;
+                }
+            }
+            return isInside;
+        }
+
+        // see: 1. http://gamedev.stackexchange.com/questions/30534/how-do-i-determine-if-one-polygon-completely-contains-another
+        //      2. https://github.com/tmpvar/2d-polygon-contains-polygon
+        private static bool Contains(Blob container, Blob contained)
+        {
+            if(container.Area<contained.Area) return false;
+            else
+            {
+                List<Point> containerPoly = container._points;
+                List<Point> containedPoly = contained._points;
+                bool isInside = containedPoly.Any(point => PointInsidePolygon(container, point));
+                if (isInside == false) return false;
+                int n = containedPoly.Count;
+                int m = containerPoly.Count;
+                for (int i = 0; i < n; i++)
+                {
+                    Point containedStart = containedPoly[i];
+                    Point containedEnd = containedPoly[(i + 1)%n];
+                    for (int j = 0; j < m; j++)
+                    {
+                        Point containerStart = containerPoly[j];
+                        Point containerEnd = containerPoly[(j + 1)%m];
+                        if (DoIntersect(containedStart, containedEnd, containerStart, containerEnd))
+                        {
+                            return false;
+                        }
+                    }
+
+                }
+                return true;
+            }
+        }
+        
+        // Given three colinear points p, q, r, the function checks if
+        // point q lies on line segment 'pr'
+        private static bool OnSegment(Point p, Point q, Point r)
+        {
+            return q.X <= Math.Max(p.X, r.X) && q.X >= Math.Min(p.X, r.X) &&
+                   q.Y <= Math.Max(p.Y, r.Y) && q.X >= Math.Min(p.Y, r.Y);
+        }
+
+        // To find Orientation of ordered triplet (p, q, r).
+        // The function returns following values
+        // 0 --> p, q and r are colinear
+        // 1 --> Clockwise
+        // 2 --> Counterclockwise
+        private static int Orientation(Point p, Point q, Point r)
+        {
+            // See http://www.geeksforgeeks.org/Orientation-3-ordered-points/
+            // for details of below formula.
+            double val = (q.Y - p.Y) * (r.X - q.X) -
+                      (q.X - p.X) * (r.Y - q.Y);
+
+            if (Math.Abs(val) < Tolerance) return 0; // colinear
+            return (val > 0) ? 1 : 2; // clock or counterclock wise
+        }
+
+        // see http://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+        // The main function that returns true if line segment 'start1-end1'
+        // and 'start2-end2' intersect.
+        private static bool DoIntersect(Point start1, Point end1, Point start2, Point end2)
+        {
+            // Find the four orientations needed for general and
+            // special cases
+            int o1 = Orientation(start1, end1, start2);
+            int o2 = Orientation(start1, end1, end2);
+            int o3 = Orientation(start2, end2, start1);
+            int o4 = Orientation(start2, end2, end1);
+
+            // General case
+            if (o1 != o2 && o3 != o4)
+                return true;
+
+            // Special Cases
+            // start1, end1 and start2 are colinear and start2 lies on segment p1q1
+            if (o1 == 0 && OnSegment(start1, start2, end1)) return true;
+
+            // start1, end1 and start2 are colinear and end2 lies on segment p1q1
+            if (o2 == 0 && OnSegment(start1, end2, end1)) return true;
+
+            // start2, end2 and start1 are colinear and start1 lies on segment p2q2
+            if (o3 == 0 && OnSegment(start2, start1, end2)) return true;
+
+            // start2, end2 and end1 are colinear and end1 lies on segment p2q2
+            if (o4 == 0 && OnSegment(start2, end1, end2)) return true;
+
+            return false; // Doesn't fall in any of the above cases
+        }
+
         #endregion
 
         #region Interface

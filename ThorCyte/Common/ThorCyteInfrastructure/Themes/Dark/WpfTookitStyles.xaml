@@ -474,5 +474,547 @@
                   TypeInTargetAssembly={x:Type prim:InputBase}, 
                   ResourceId=UShortUpDown}" 
           TargetType="{x:Type prim:InputBase}" BasedOn="{StaticResource NumericUpDown}" />
+
+    <Style x:Key="DarkButtonStyle"  TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource ButtonFocusVisual}"/>
+        <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource ButtonForeground}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border 
+						Background="{TemplateBinding Background}" 
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="3">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+							Margin="{TemplateBinding Padding}" 
+							RecognizesAccessKey="True" 
+							SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+							VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" Value="{StaticResource MouseOverButtonBackground}"/>
+                            <Setter Property="Foreground" Value="{StaticResource MouseOverButtonForeground}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Background" Value="{StaticResource PressedButtonBackground}"/>
+                            <Setter Property="Foreground" Value="{StaticResource ButtonForeground}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{StaticResource DisabledButtonForeground}"/>
+                            <Setter Property="Background" Value="{StaticResource DisabledButtonBackground}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MyCloseButtonStyle" TargetType="Button">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Background" Storyboard.TargetProperty="(Border.Background)">
+                                            <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{StaticResource MouseOverButtonBackground}"></DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Background" Storyboard.TargetProperty="(Border.Background)">
+                                            <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{StaticResource PressedButtonBackground}"></DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="Background" CornerRadius="0,0,2,0" Background="{StaticResource ButtonBackground}">
+                            <Border Margin="1,0,1,1" BorderBrush="#59FFFFFF" BorderThickness="1" CornerRadius="0,0,1,0"/>
+                        </Border>
+                        <ContentPresenter x:Name="contentPresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                        <Path x:Name="path" Fill="White" Margin="0,0,0,1" Visibility="Collapsed"
+	                            Height="6"
+		                        Width="7"
+		                        Stretch="Fill"
+		                        Opacity="1"
+		                        Data="M 2,6 C2,6 3,6 3,6 3,6 3,5 3,5 3,5 4,5 4,5 4,5 4,6 4,6 4,6 5,6 5,6 5,6 7,6 7,6 7,6 7,5 7,5 7,5 6,5 6,5 6,5 6,4 6,4 6,4 5,4 5,4 5,4 5,2 5,2 5,2 6,2 6,2 6,2 6,1 6,1 6,1 7,1 7,1 7,1 7,0 7,0 7,0 5,0 5,0 5,0 4,0 4,0 4,0 4,1 4,1 4,1 3,1 3,1 3,1 3,0 3,0 3,0 2,0 2,0 2,0 0,0 0,0 0,0 0,1 0,1 0,1 1,1 1,1 1,1 1,2 1,2 1,2 2,2 2,2 2,2 2,4 2,4 2,4 1,4 1,4 1,4 1,5 1,5 1,5 0,5 0,5 0,5 0,6 0,6 0,6 2,6 2,6 z"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource ButtonFocusVisual}"/>
+        <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource ButtonForeground}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border 
+						Background="{TemplateBinding Background}" 
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						CornerRadius="3">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+							Margin="{TemplateBinding Padding}" 
+							RecognizesAccessKey="True" 
+							SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+							VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" Value="{StaticResource MouseOverButtonBackground}"/>
+                            <Setter Property="Foreground" Value="{StaticResource MouseOverButtonForeground}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Background" Value="{StaticResource PressedButtonBackground}"/>
+                            <Setter Property="Foreground" Value="{StaticResource ButtonForeground}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{StaticResource DisabledButtonForeground}"/>
+                            <Setter Property="Background" Value="{StaticResource DisabledButtonBackground}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <xctk:WindowContentBorderMarginConverter x:Key="WindowContentBorderMarginConverter" />
+    <xctk:WindowControlBackgroundConverter x:Key="WindowControlBackgroundConverter" />
+    <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
+
+    <xctk:CenterTitleConverter x:Key="CenterTitleConverter" />
+
+    <ControlTemplate x:Key="WindowControlTemplate" TargetType="{x:Type prim:WindowControl}">
+        <Grid>
+            <Border x:Name="PART_WindowRoot"
+                          BorderThickness="{TemplateBinding WindowBorderThickness}"
+                          BorderBrush="{TemplateBinding WindowBorderBrush}"
+                          CornerRadius="2,2,0,0"
+                          Width="{TemplateBinding Width}"
+                          Height="{TemplateBinding Height}">
+                <Border.Background>
+                    <MultiBinding Converter="{StaticResource WindowControlBackgroundConverter}">
+                        <Binding Path="WindowBackground" RelativeSource="{RelativeSource TemplatedParent}" />
+                        <Binding Path="WindowOpacity" RelativeSource="{RelativeSource TemplatedParent}" />
+                    </MultiBinding>
+                </Border.Background>
+                <Border x:Name="WindowRootInnerBorder" BorderThickness="0" BorderBrush="White" CornerRadius="2,2,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <!-- Header Grid-->
+                        <Border Grid.Row="0" BorderBrush="DodgerBlue" Opacity="0.5" BorderThickness="0,0,0,1"></Border>
+                        <Grid x:Name="PART_HeaderGrid">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{Binding WindowThickness.Left, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition x:Name="HeaderButtonsColumn" Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition x:Name="HeaderRow" Height="26" />
+                                <RowDefinition Height="{Binding WindowThickness.Top, RelativeSource={RelativeSource TemplatedParent}}" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Icon and Title -->
+                            <Image x:Name="PART_Icon"
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Source="{TemplateBinding CaptionIcon}"
+                                MaxWidth="15"
+                                MaxHeight="15"
+                                Margin="0,2,0,2">
+                            </Image>
+                            <Grid x:Name="Title"
+                                 Grid.Column="2"
+                                 Grid.Row="0"
+                                 Grid.RowSpan="2">
+                                <!-- Rectangle behind title to display a glow effect on title -->
+                                <!--<Rectangle Width="{Binding ElementName=TitleGrid, Path=ActualWidth}" 
+                                          Height="{Binding ElementName=TitleGrid, Path=ActualHeight}" 
+                                          HorizontalAlignment="{Binding ElementName=TitleGrid, Path=HorizontalAlignment}" 
+                                          VerticalAlignment="{Binding ElementName=TitleGrid, Path=VerticalAlignment}"
+                                          Fill="{TemplateBinding CaptionShadowBrush}">
+                                    <Rectangle.Effect>
+                                        <BlurEffect Radius="10" />
+                                    </Rectangle.Effect>
+                                </Rectangle>-->
+                                <Grid x:Name="TitleGrid"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center">
+                                    <TextBlock x:Name="TitleText"
+                                            Text="{TemplateBinding Caption}"
+                                            Foreground="{TemplateBinding CaptionForeground}"
+                                            TextTrimming="CharacterEllipsis"
+                                            Margin="5,4,5,4" />
+                                </Grid>
+                            </Grid>
+
+                            <!-- Close-Maximize-Minimize Buttons -->
+                            <StackPanel x:Name="ButtonsPanel" 
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="3"
+                                    Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                <StackPanel.Margin>
+                                    <MultiBinding Converter="{StaticResource WindowContentBorderMarginConverter}" ConverterParameter="2">
+                                        <Binding Path="WindowThickness.Right" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="WindowThickness.Right" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <!-- not used -->
+                                    </MultiBinding>
+                                </StackPanel.Margin>
+                                <!--close button-->
+                                <Button x:Name="PART_CloseButton"
+                                    Style="{TemplateBinding CloseButtonStyle}" 
+                                    Visibility="Collapsed"/>
+                                    <!--Visibility="{TemplateBinding CloseButtonVisibility}" />-->
+                                    
+                            </StackPanel>
+
+                            <!-- ToolWindow Close Button -->
+                            <Border x:Name="ToolWindowBorder"
+                                Grid.Row="0"
+                                 Grid.RowSpan="2"
+                                 Grid.Column="3"
+                                VerticalAlignment="Top"
+                                Visibility="Collapsed"
+                                HorizontalAlignment="Right">
+                                <Border.Margin>
+                                    <MultiBinding Converter="{StaticResource WindowContentBorderMarginConverter}" ConverterParameter="2">
+                                        <Binding Path="WindowThickness.Right" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="WindowThickness.Right" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <!-- not used -->
+                                    </MultiBinding>
+                                </Border.Margin>
+                                <Button x:Name="PART_ToolWindowCloseButton"
+                                    Margin="0,3,0,1"
+                                    Style="{TemplateBinding CloseButtonStyle}" >
+                                </Button>
+                            </Border>
+
+                            <!-- Header Drag Thumb -->
+                            <Thumb x:Name="PART_HeaderThumb" 
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                Grid.Column="2"
+                                Opacity="0"
+                                IsTabStop="False"/>
+                        </Grid>
+
+                        <!-- Content Border -->
+                        <Border x:Name="ContentOuterBorder" Grid.Row="1" BorderBrush="DodgerBlue" BorderThickness="0,0,0,0">
+                            <Border.Margin>
+                                <MultiBinding Converter="{StaticResource WindowContentBorderMarginConverter}" ConverterParameter="0">
+                                    <Binding Path="WindowThickness.Left" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="WindowThickness.Bottom" RelativeSource="{RelativeSource TemplatedParent}" />
+                                </MultiBinding>
+                            </Border.Margin>
+                            <Border x:Name="ContentBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" >
+                                <Border x:Name="ContentInnerBorder" BorderBrush="#FFF2F2F2" BorderThickness="0">
+                                    <!-- only visible for ToolWindow -->
+                                    <ContentPresenter x:Name="Content" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
+                                </Border>
+                            </Border>
+                        </Border>
+
+                    </Grid>
+                </Border>
+            </Border>
+
+            <!-- Special Border to prevent all mouse inputs when this WindowControl is behind a modal window -->
+            <Border x:Name="PART_BlockMouseInputsBorder" Background="Transparent" Visibility="Collapsed"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+
+            <Trigger Property="WindowStyle" Value="None">
+                <Setter Property="Height" Value="0" TargetName="HeaderRow" />
+                <Setter Property="Visibility" Value="Collapsed" TargetName="PART_Icon" />
+                <Setter Property="Visibility" Value="Collapsed" TargetName="Title" />
+                <Setter Property="Visibility" Value="Collapsed" TargetName="PART_HeaderThumb" />
+                <Setter Property="Visibility" Value="Collapsed" TargetName="ButtonsPanel" />
+                <Setter Property="Height" Value="0" TargetName="HeaderRow" />
+            </Trigger>
+
+
+
+            <Trigger Property="WindowStyle" Value="ToolWindow">
+                <Setter Property="Height" Value="Auto" TargetName="HeaderRow" />
+                <Setter Property="Visibility" Value="Collapsed" TargetName="PART_Icon" />
+                <Setter Property="Visibility" Value="Collapsed" TargetName="ButtonsPanel" />
+                <Setter Property="Visibility" Value="Visible" TargetName="ToolWindowBorder" />
+                <Setter Property="CornerRadius" Value="0" TargetName="PART_WindowRoot" />
+                <Setter Property="CornerRadius" Value="0" TargetName="WindowRootInnerBorder" />
+                <Setter Property="BorderBrush" Value="White" TargetName="ContentOuterBorder" />
+                <Setter Property="BorderBrush" Value="Black" TargetName="ContentBorder" />
+                <Setter Property="BorderThickness" Value="1" TargetName="ContentInnerBorder" />
+            </Trigger>
+
+            <Trigger Property="IsActive" Value="False">
+                <Setter Property="Background" Value="{Binding WindowInactiveBackground, RelativeSource={RelativeSource TemplatedParent}}" TargetName="PART_WindowRoot" />
+                <Setter Property="BorderBrush" Value="#FF666666" TargetName="PART_WindowRoot" />
+                <Setter Property="BorderBrush" Value="#FF7B7B7B" TargetName="ContentBorder" />
+                <Setter Property="IsEnabled" Value="False" TargetName="Content" />
+            </Trigger>
+
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="KeyboardNavigation.TabNavigation" Value="Cycle" />
+            </Trigger>
+
+            <!-- #TODODOC-->
+            <!--Remove the Margin when no title to remove the TitleShadow glow effect.-->
+            <Trigger Property="Text" Value="" SourceName="TitleText">
+                <Setter Property="Margin" Value="0" TargetName="TitleText" />
+            </Trigger>
+
+            <Trigger Property="Text" Value="{x:Null}" SourceName="TitleText">
+                <Setter Property="Margin" Value="0" TargetName="TitleText" />
+            </Trigger>
+
+            <!-- Center the Window Title on the entire window -->
+            <DataTrigger Value="1">
+                <DataTrigger.Binding>
+                    <MultiBinding Converter="{StaticResource CenterTitleConverter}">
+                        <Binding ElementName="TitleText" Path="DesiredSize" />
+                        <Binding ElementName="PART_HeaderGrid" Path="ActualWidth" />
+                        <Binding ElementName="PART_HeaderGrid" Path="ColumnDefinitions" />
+                    </MultiBinding>
+                </DataTrigger.Binding>
+                <Setter TargetName="Title" Property="Column" Value="0" />
+                <Setter TargetName="Title" Property="ColumnSpan" Value="4" />
+                <Setter TargetName="TitleGrid" Property="HorizontalAlignment" Value="Center" />
+            </DataTrigger>
+
+            <!-- Center the Window Title in it's own column -->
+            <DataTrigger Value="2">
+                <DataTrigger.Binding>
+                    <MultiBinding Converter="{StaticResource CenterTitleConverter}">
+                        <Binding ElementName="TitleText" Path="DesiredSize" />
+                        <Binding ElementName="PART_HeaderGrid" Path="ActualWidth" />
+                        <Binding ElementName="PART_HeaderGrid" Path="ColumnDefinitions" />
+                    </MultiBinding>
+                </DataTrigger.Binding>
+                <Setter TargetName="TitleGrid" Property="HorizontalAlignment" Value="Center" />
+            </DataTrigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="MyPrimWindowStyle" TargetType="{x:Type prim:WindowControl}" >
+        <Setter Property="CloseButtonStyle" Value="{StaticResource {ComponentResourceKey 
+                  TypeInTargetAssembly={x:Type prim:WindowControl}, 
+                  ResourceId=DefaultCloseButtonStyle}}" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
+        <Setter Property="Template" Value="{StaticResource WindowControlTemplate}" />
+    </Style>
+
+    <Style TargetType="{x:Type local:MessageBox}" BasedOn="{StaticResource MyPrimWindowStyle}">
+        <Setter Property="ButtonRegionBackground" Value="{StaticResource WindowBackgroundBrush}"/>
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="MinWidth" Value="350" />
+        <Setter Property="MinHeight" Value="50" />
+        <Setter Property="MaxHeight" Value="250" />
+        <Setter Property="WindowInactiveBackground" Value="{StaticResource WindowBackgroundBrush}"/>
+        <Setter Property="CaptionForeground" Value="{StaticResource ForegroundBrush}" />
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="WindowBackground" Value="{StaticResource ScrollViewerBackground}" />
+        <Setter Property="WindowBorderBrush" Value="Black" />
+        <Setter Property="WindowBorderThickness" Value="1" />
+        <Setter Property="WindowOpacity" Value="1" />
+        
+        <Setter Property="CaptionShadowBrush" Value="{StaticResource WindowBackgroundBrush}"></Setter>
+        <Setter Property="OkButtonStyle" Value="{StaticResource DarkButtonStyle}"></Setter>
+        <Setter Property="CancelButtonStyle" Value="{StaticResource DarkButtonStyle}"></Setter>
+        <Setter Property="NoButtonStyle" Value="{StaticResource DarkButtonStyle}"></Setter>
+        <Setter Property="YesButtonStyle" Value="{StaticResource DarkButtonStyle}"></Setter>
+        
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:MessageBox}">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="group1">
+                                <VisualState x:Name="OK">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_OkButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="OKCancel">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_OkButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_CancelButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="YesNo">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_YesButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_NoButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="YesNoCancel">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_YesButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_NoButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_CancelButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <prim:WindowControl x:Name="PART_WindowControl"
+                                    Caption="{TemplateBinding Caption}" 
+                                    CaptionForeground="{TemplateBinding CaptionForeground}"
+                                    CaptionShadowBrush="{TemplateBinding CaptionShadowBrush}"
+                                    CaptionIcon="{TemplateBinding CaptionIcon}"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    IsActive="{TemplateBinding IsActive}"
+                                    WindowBackground="{TemplateBinding WindowBackground}"
+                                    WindowInactiveBackground="{TemplateBinding WindowInactiveBackground}" 
+                                    WindowBorderBrush="{TemplateBinding WindowBorderBrush}"
+                                    WindowBorderThickness="{TemplateBinding WindowBorderThickness}"
+                                    CloseButtonStyle="{TemplateBinding CloseButtonStyle}"
+                                    WindowOpacity="{TemplateBinding WindowOpacity}"
+                                            Style="{StaticResource MyPrimWindowStyle}">
+                            <prim:WindowControl.Content>
+                                <Grid MinWidth="300">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Grid Margin="24,16,24,22">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Message Image -->
+                                        <!--<Image x:Name="MessageBoxImage" 
+                                       VerticalAlignment="Center" 
+                                       SnapsToDevicePixels="True"
+                                       Width="36"
+                                        Height="36"
+                                       Stretch="UniformToFill"
+                                       Source="{TemplateBinding ImageSource}" />-->
+
+                                        <!-- Message Text -->
+                                        <ScrollViewer Background="{TemplateBinding Background}" Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                                            <TextBlock x:Name="MessageText" 
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center" 
+                                               MaxWidth="450" 
+                                               Text="{TemplateBinding Text}" 
+                                               FontFamily="{TemplateBinding FontFamily}" 
+                                               FontSize="{TemplateBinding FontSize}" 
+                                               FontStyle="{TemplateBinding FontStyle}" 
+                                               FontWeight="{TemplateBinding FontWeight}" 
+                                               Foreground="{TemplateBinding Foreground}"
+                                               Margin="10,0,0,0"/>
+                                        </ScrollViewer>
+                                    </Grid>
+
+                                    <!-- Buttons -->
+                                    <Border Grid.Row="1" Background="{TemplateBinding ButtonRegionBackground}">
+                                        <Grid HorizontalAlignment="Right" Margin="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Button Grid.Column="0" x:Name="PART_YesButton" MinWidth="65" Margin="6,0,0,0" Visibility="Collapsed" Content="{TemplateBinding YesButtonContent}" Style="{TemplateBinding YesButtonStyle}" />
+                                            <Button Grid.Column="1" x:Name="PART_NoButton" MinWidth="65" Margin="6,0,0,0" Visibility="Collapsed" Content="{TemplateBinding NoButtonContent}" Style="{TemplateBinding NoButtonStyle}" />
+                                            <Button Grid.Column="2" x:Name="PART_OkButton" MinWidth="65" Margin="6,0,0,0" Visibility="Collapsed" Content="{TemplateBinding OkButtonContent}" Style="{TemplateBinding OkButtonStyle}" />
+                                            <Button Grid.Column="3" x:Name="PART_CancelButton" MinWidth="65" Margin="6,0,0,0" Visibility="Collapsed" Content="{TemplateBinding CancelButtonContent}" Style="{TemplateBinding CancelButtonStyle}" IsCancel="True" />
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </prim:WindowControl.Content>
+                        </prim:WindowControl>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     
+
 </ResourceDictionary>

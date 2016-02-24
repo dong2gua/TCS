@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace ThorCyte.Statistic.Models
 {
@@ -213,6 +214,7 @@ namespace ThorCyte.Statistic.Models
     {
         public string Name { get; set; }
         public EnumStatistic MethodType { get; set; }
+        [XmlIgnore]
         public Func<IEnumerable<float>, double> Method { get; set; }
     }
     [Serializable]
@@ -243,7 +245,13 @@ namespace ThorCyte.Statistic.Models
     [Serializable]
     public class RunFeature
     {
+        public RunFeature()
+        {
+            Name = string.Empty;
+            IsUserDefineName = false;
+        }
         public string Name { get; set; }
+        public bool IsUserDefineName { get; set; }
         public List<Component> ComponentContainer { get; set; }
         public List<StatisticMethod> StatisticMethodContainer { get; set; }
         public List<Feature> FeatureContainer { get; set; }
@@ -257,19 +265,30 @@ namespace ThorCyte.Statistic.Models
             }
             else
             {
-                if (ComponentContainer.Count == 0 || StatisticMethodContainer.Count == 0 || FeatureContainer.Count == 0)
+                if (ComponentContainer.Count == 0 || StatisticMethodContainer.Count == 0 )
                 {
                     return false;
                 }
                 else
                 {
-                    if (ComponentContainer[0] == null || StatisticMethodContainer[0] == null || FeatureContainer[0] == null)
+                    if (ComponentContainer[0] == null || StatisticMethodContainer[0] == null)
                     {
                         return false;
                     }
                     else
                     {
-                        return true;
+                        if (StatisticMethodContainer[0].MethodType == EnumStatistic.Count)
+                        {
+                            return true;
+                        }
+                        else if(FeatureContainer.Any() && FeatureContainer[0] != null)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                 }
             }
@@ -297,6 +316,8 @@ namespace ThorCyte.Statistic.Models
         {
             RunFeatureContainer = new List<RunFeature>();
         }
+
+        public static string StatisticsPath = "/Statistics";
         public List<ComponentRunFeature> ComponentContainer { get; set; }
         public ComponentRunFeature SelectedComponent { get; set; }
         public List<RunFeature> RunFeatureContainer { get; set; }

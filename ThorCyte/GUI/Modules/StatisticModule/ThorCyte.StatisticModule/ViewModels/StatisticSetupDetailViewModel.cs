@@ -7,10 +7,12 @@ using Prism.Mvvm;
 using ROIService;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Xml.Serialization;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Statistic.Models;
 using ThorCyte.Statistic.Views;
@@ -22,10 +24,12 @@ namespace ThorCyte.Statistic.ViewModels
         //private StatisticDataNotification notification; 
         private IPopupDetailWindow DetailWinAdapter { get; set; }
         private StatisticModel ModelAdapter { get; set; }
+        private IExperiment ExperimentAdapter { get; set; }
         public StatisticSetupDetailViewModel(IEventAggregator eventAggregator, IUnityContainer container, IExperiment experiment, IPopupDetailWindow detailwin, StatisticModel model)
         {
             DetailWinAdapter = detailwin;
             ModelAdapter = model;
+            ExperimentAdapter = experiment;
         }
 
         //public Action FinishInteraction { get; set; }
@@ -79,7 +83,23 @@ namespace ThorCyte.Statistic.ViewModels
             {
                 return new DelegateCommand(() =>
                 {
-                    var rf = new RunFeature();
+                    RunFeature rf;
+                    bool IsNewFile = true;
+                    string OldName = String.Empty;
+                    
+                    if (ModelAdapter.SelectedRunFeature != null)
+                    {
+                        rf = ModelAdapter.SelectedRunFeature;
+                    }
+                    else
+                    {
+                        rf = new RunFeature();
+                    }
+                    if (rf.Name != RunFeatureName)
+                    {
+                        IsNewFile = false;
+                        OldName = rf.Name;    
+                    }
                     rf.Name = RunFeatureName;
                     rf.ComponentContainer = new List<Component> { SelectedComponent };
                     rf.StatisticMethodContainer = new List<StatisticMethod> { SelectedStatisticMethod };
@@ -89,6 +109,22 @@ namespace ThorCyte.Statistic.ViewModels
                     ModelAdapter.RunFeatureContainer.Add(rf);
                     ModelAdapter.RunFeatureContainer = ModelAdapter.RunFeatureContainer.Distinct().ToList();
                     ModelAdapter.SelectedRunFeature = rf;
+
+                    var path = ExperimentAdapter.GetExperimentInfo().AnalysisPath;
+                    if (!Directory.Exists(path + StatisticModel.StatisticsPath))
+                    {
+                        Directory.CreateDirectory(path + StatisticModel.StatisticsPath);
+                    }
+
+                    var serializer = new XmlSerializer(typeof(RunFeature));
+                    if (!IsNewFile)
+                    {
+                        File.Delete(path + StatisticModel.StatisticsPath + "/" + OldName + ".xml");
+                    }
+                    using (var stream = File.Open(path + StatisticModel.StatisticsPath + "/" + rf.Name + ".xml", FileMode.OpenOrCreate))
+                    {
+                        serializer.Serialize(stream, rf);
+                    }
                     DetailWinAdapter.Close();
                 });
             }
@@ -100,6 +136,13 @@ namespace ThorCyte.Statistic.ViewModels
                 //to do: recursive component
                 if (ModelAdapter != null && ModelAdapter.SelectedRunFeature != null)
                 {
+                    //to do: selected object to be list or single
+                    SelectedComponent = ModelAdapter.SelectedRunFeature.ComponentContainer.FirstOrDefault();
+                    SelectedStatisticMethod = ModelAdapter.SelectedRunFeature.StatisticMethodContainer.FirstOrDefault();
+                    SelectedFeature = ModelAdapter.SelectedRunFeature.FeatureContainer.FirstOrDefault();
+                    SelectedChannel = ModelAdapter.SelectedRunFeature.ChannelContainer.FirstOrDefault();
+                    SelectedRegion = ModelAdapter.SelectedRunFeature.RegionContainer.FirstOrDefault();
+
                     return ModelAdapter.SelectedRunFeature.ComponentContainer;
                 }
                 else//new runfeature
@@ -115,13 +158,20 @@ namespace ThorCyte.Statistic.ViewModels
                 if (SelectedComponent != null)
                 {
                     //to do: should not be calculate all the time
-                    return Enum.GetNames(typeof(EnumStatistic)).Select(x =>
+                    var result = Enum.GetNames(typeof(EnumStatistic)).Select(x =>
                             new StatisticMethod()
                             {
                                 Name = x,
                                 MethodType = (EnumStatistic)Enum.Parse(typeof(EnumStatistic), x),
                                 Method = StatisticMethod.GetStatisticMethod((EnumStatistic)Enum.Parse(typeof(EnumStatistic), x))
                             }).ToList();
+                    //to do: add try catch
+                    if (SelectedStatisticMethod != null)
+                    {
+                        SelectedStatisticMethod = result.Find(x => x.Name == SelectedStatisticMethod.Name);
+                        OnPropertyChanged(() => SelectedStatisticMethod);
+                    }
+                    return result;
                 }
                 else
                 {
@@ -135,10 +185,20 @@ namespace ThorCyte.Statistic.ViewModels
             get
             {
                 if (SelectedComponent != null)
-                    return ComponentDataManager.Instance.GetFeatures(SelectedComponent.Name)
-                        .Select(x => new Feature() { Name = x.Name, IsPerChannel = x.IsPerChannel, FeatureIndex = x.Index }).ToList();
+                {
+                    var result = ComponentDataManager.Instance.GetFeatures(SelectedComponent.Name)
+                        .Select(
+                            x => new Feature() { Name = x.Name, IsPerChannel = x.IsPerChannel, FeatureIndex = x.Index })
+                        .ToList();
+                    if (SelectedFeature != null)
+                    {
+                        SelectedFeature = result.Find(x => x.Name == SelectedFeature.Name);
+                        OnPropertyChanged(() => SelectedFeature);
+                    }
+                    return result;
+                }
                 else
-                    return null;    
+                    return null;
             }
         }
 
@@ -153,6 +213,12 @@ namespace ThorCyte.Statistic.ViewModels
                     for (int i = 0; i < cc.Count; i++)
                     {
                         cc[i].Index = i+1;
+                    }
+                    if (SelectedChannel != null)
+                    {
+                        //to do: add try catch
+                        SelectedChannel = cc.Find(x => x.Name != SelectedChannel.Name);
+                        OnPropertyChanged(() => SelectedChannel);
                     }
                     return cc;
                 }
@@ -175,7 +241,14 @@ namespace ThorCyte.Statistic.ViewModels
                         regions.Add(None);
                         regions.Reverse();
 
-                        SelectedRegion = None;
+                        if (SelectedRegion != null)
+                        {
+                            SelectedRegion = regions.Find(x => x.Name != SelectedRegion.Name);
+                        }
+                        else
+                        {
+                            SelectedRegion = None;
+                        }
                         OnPropertyChanged(() => SelectedRegion);
                         return regions;
                     }
@@ -205,8 +278,10 @@ namespace ThorCyte.Statistic.ViewModels
         public StatisticMethod SelectedStatisticMethod
         {
             get { return _SelectedStatisticMethod; }
-            set { _SelectedStatisticMethod = value;
-            OnPropertyChanged(() => FeatureContainer);
+            set
+            {
+                _SelectedStatisticMethod = value;
+                OnPropertyChanged(() => FeatureContainer);
             }
         }
         private Feature _SelectedFeature;

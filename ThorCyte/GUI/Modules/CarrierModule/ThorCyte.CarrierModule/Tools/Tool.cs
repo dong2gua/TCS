@@ -14,6 +14,8 @@ namespace ThorCyte.CarrierModule.Tools
 
         public abstract void OnMouseUp(SlideCanvas drawingCanvas, MouseButtonEventArgs e);
 
+        public abstract void OnMouseLeave(SlideCanvas drawingCanvas, MouseEventArgs e);
+
         public abstract void SetCursor(SlideCanvas drawingCanvas);
 
         public abstract void OnMouseDown(PlateCanvas drawingCanvas, MouseButtonEventArgs e);
@@ -21,6 +23,8 @@ namespace ThorCyte.CarrierModule.Tools
         public abstract void OnMouseMove(PlateCanvas drawingCanvas, MouseEventArgs e);
 
         public abstract void OnMouseUp(PlateCanvas drawingCanvas, MouseButtonEventArgs e);
+
+        public abstract void OnMouseLeave(PlateCanvas drawingCanvas, MouseEventArgs e);
 
         public abstract void SetCursor(PlateCanvas drawingCanvas);
 

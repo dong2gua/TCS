@@ -12,8 +12,7 @@ namespace ImageProcess
 
         private const int ElementSize = sizeof (ushort);
         private readonly bool _isGray;
-        private readonly IntPtr _dataBuffer;
-        private readonly short[] _array;
+
         #endregion
 
         #region Properties
@@ -21,10 +20,7 @@ namespace ImageProcess
         public uint XSize { get; private set; }
         public uint YSize { get; private set; }
 
-        public IntPtr DataBuffer
-        {
-            get { return _dataBuffer; }
-        }
+        public IntPtr DataBuffer { get; private set; }
 
         public bool IsGray
         {
@@ -72,10 +68,8 @@ namespace ImageProcess
             {
                 totalBytes = Length*ElementSize;
             }
-            _dataBuffer = Marshal.AllocHGlobal(totalBytes);
-            _array = new short[Length];
-            Marshal.Copy(_dataBuffer, _array, 0, Length);
-            SetHandle(_dataBuffer);
+            DataBuffer = Marshal.AllocHGlobal(totalBytes);
+            SetHandle(DataBuffer);
             NativeMethods.RtlZeroMemory(this, (uint) totalBytes);
             
         }
@@ -105,6 +99,7 @@ namespace ImageProcess
         protected override bool ReleaseHandle()
         {
             Marshal.FreeHGlobal(DataBuffer);
+            DataBuffer = IntPtr.Zero;
             return true;
         }
 

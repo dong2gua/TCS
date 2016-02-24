@@ -457,16 +457,23 @@ LIBCV_API int fnipp_lib_invert_16uI(unsigned short* srcDstBuffer, int width, int
 
 
 
-LIBCV_API int fnipp_lib_threshold_16uC1(unsigned short* srcBuffer, int width, int height, 
+LIBCV_API int fnipp_lib_threshold_16uC1(const unsigned short* srcBuffer, int width, int height, 
 									unsigned short threshold, unsigned short* dstBuffer)
 {
 	const IppiSize roi = {width, height};
 	const int step = width * sizeof(unsigned short);
-	IppStatus status = ippiThreshold_LTVal_16u_C1R(srcBuffer, step, dstBuffer, step, roi, threshold, 0);
+	const Ipp16u valueLT = 0;
+	const Ipp16u valueGT = 0x3fff;
+	int maskStep = 0;
+	Ipp8u* mask = ippiMalloc_8u_C1(width, height, &maskStep);
+	IppStatus status = ippiThreshold_LTValGTVal_16u_C1R(srcBuffer, step, dstBuffer, step, roi,threshold,valueLT, threshold, valueGT);
+	ippiCompareC_16u_C1R (dstBuffer, step, threshold, mask, maskStep, roi, ippCmpEq);
+	ippiSet_16u_C1MR(valueGT, dstBuffer, step,roi, mask, maskStep);
+	ippiFree(mask);
 	return status;
 }
 
-LIBCV_API int fnipp_lib_otsuThreshold_16uC1(unsigned short* srcBuffer, int width, int height, unsigned short* dstBuffer)
+LIBCV_API int fnipp_lib_otsuThreshold_16uC1(const unsigned short* srcBuffer, int width, int height, unsigned short* dstBuffer)
 {
 	int src8uStep = 0;
 	Ipp8u* srcBuffer8u = ippiMalloc_8u_C1(width , height, & src8uStep);
@@ -545,7 +552,14 @@ LIBCV_API int fnipp_lib_sum_16uC1M(unsigned short* buffer, int width, int height
 LIBCV_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int height, int channels, 
 									 unsigned short* dstBuffer, FilterType type, int maskSize, unsigned short maxValue)
 {
-	const Ipp32s* pKernel = getFilterKernel(type, maskSize);
+	string path = "C:\\Users\\root\\Desktop\\Filter output\\Intel IPP\\in c time cost\\";
+    string filename = get_filter_name(type, maskSize) + ".txt";
+	path = path + filename;
+	LARGE_INTEGER f;
+	QueryPerformanceFrequency(&f);
+	LARGE_INTEGER start, end;
+	QueryPerformanceCounter(&start);
+	const Ipp32s* pKernel = get_filter_kernel(type, maskSize);
 	const IppiSize roi = {width, height};
 	IppStatus status;
 	const int elementSize = sizeof(unsigned short);
@@ -554,7 +568,7 @@ LIBCV_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int hei
 	const int divisor = 1;
 	int stepBorder = 0;
 	IppiPoint anchor = {0, 0};
-	Ipp16u* srcWithBorder = getBorder(srcBuffer, width, height, channels, maskSize, &stepBorder, &anchor);
+	Ipp16u* srcWithBorder = get_border(srcBuffer, width, height, channels, maskSize, &stepBorder, &anchor);
 	const int srcElementPerLine = stepBorder / elementSize;
 	switch (channels)
 	{
@@ -579,6 +593,14 @@ LIBCV_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int hei
 	}
 	ippiFree(srcWithBorder);
 	saturate(dstBuffer, width, height, channels, maxValue);
+	QueryPerformanceCounter(&end);
+	double ms = (end.QuadPart - start.QuadPart)*1000.0/f.QuadPart;
+	FILE* file = nullptr;
+	if(fopen_s(&file, path.c_str(),"a+")==0)
+	{
+		fprintf_s(file, "%0.1f\n",ms);
+		fclose(file);
+	}
 	return status;
 }
 
@@ -643,7 +665,7 @@ LIBCV_API int fnipp_lib_Xor_16uC1I(const unsigned short* srcBuffer, int width, i
 }
 
 
-LIBCV_API int fn_ipp_lib_rotateShift_16u(const unsigned short* srcBuffer, int width, int height, int channels, double angle,
+LIBCV_API int fnipp_lib_rotateShift_16u(const unsigned short* srcBuffer, int width, int height, int channels, double angle,
 										   int shiftX, int shiftY, unsigned short* dstBuffer)
 {
 	const int step = width * channels * ElementSize;
@@ -677,60 +699,38 @@ LIBCV_API int fn_ipp_lib_rotateShift_16u(const unsigned short* srcBuffer, int wi
 }
 
 
-LIBCV_API int fncv_lib_findContours_16uC1(unsigned short* srcBuffer, int width, int height, double minArea, 
-											 double maxArea, int** ppBlobs, int** ppPointsCountPerBlob)
+LIBCV_API int fncv_lib_findContours_16uC1(unsigned short* srcBuffer, int width, int height, 
+										  int** ppBlobs, int** ppPointsCountPerBlob)
 {
-	/*const char* txt = "C:\\Users\\root\\Desktop\\contour opencv in c.txt";
-	int64 t1 = getTickCount();*/
-	vector<vector<Point>> contours = findContours16U(srcBuffer,width, height);
-	int blobCount = contours.size();
+	list<vector<POINT>> contours = find_contours16U(srcBuffer,width, height);
+	size_t blobCount = contours.size();
+	if(blobCount == 0) return 0;
 	*ppPointsCountPerBlob = static_cast<int*> (malloc(sizeof(int) * blobCount));
-	blobCount = 0;
-	int totalPointsCount = 0;
-	for(auto iter = contours.begin(); iter!=contours.end(); )
+	size_t totalPointsCount = 0;
+	for(auto it = contours.begin(); it!=contours.end();++it)
 	{
-		vector<Point> contour = *iter;
-		double area = contourArea(contour);
-		if(area >= minArea && area <= maxArea)
-		{
-			(*ppPointsCountPerBlob)[blobCount] = contour.size();
-			totalPointsCount += contour.size();;
-			blobCount++;
-			++iter;
-		}
-		else
-		{
-			iter = contours.erase(iter);
-		}
+		totalPointsCount+=(*it).size();
 	}
-
-	*ppBlobs = static_cast<int*> (malloc(sizeof(int)* totalPointsCount * 2));
+	*ppBlobs = static_cast<int*> (malloc(sizeof(int) * totalPointsCount * 2));
 	int index = 0;
-	for(int i=0; i<blobCount; i++)
+	int count = 0;
+	for(auto iter = contours.begin(); iter!=contours.end(); ++iter, count++)
 	{
-		vector<Point> contour = contours[i];
-		int n = contour.size();
-		for(int j=0; j<n; j++)
+		vector<POINT> contour = *iter;
+		size_t n = contour.size();
+		(*ppPointsCountPerBlob)[count] = static_cast<int>(n);
+		for(size_t j=0; j<n; j++)
 		{
-			Point point = contour[j];
+			POINT point = contour[j];
 			(*ppBlobs)[index] = point.x;
 			(*ppBlobs)[index+1] = point.y;
 			index += 2;
 		}
 	}
-	/*int64 t2 = getTickCount();
-	double time = (t2-t1)*1000/getTickFrequency();
-	FILE* file;
-    errno_t err =fopen_s(&file,txt,"a+");
-	if(err == 0)
-	{
-		fprintf_s(file,"%0.1f\r\n", time);
-	}
-	fclose(file);*/
-	return blobCount;
+	return static_cast<int>(blobCount);
 }
 
-LIBCV_API void FreeIntBuffer(int* pBuffer)
+LIBCV_API void free_buffer(void* pBuffer)
 {
 	free(pBuffer);
 }

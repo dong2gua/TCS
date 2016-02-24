@@ -189,8 +189,8 @@ namespace ThorCyte.Infrastructure.Interfaces
             uint totalHeight = imageInfo.YSize;
             int tileWidth = imageInfo.TileWidth;
             int channelId = imageInfo.ChannelId; 
-            string filename = GetImageFileName(scanRegion.RegionId, channelId, scanFieldId);      
-            Int32Rect vaild = GetScanFieldValidBound(scanField.SFRect, imageInfo);
+            string filename = GetImageFileName(scanRegion.RegionId, channelId, scanFieldId);
+            Int32Rect vaild = GetScanFieldValidBound(scanField.SFRect, imageInfo);          
             int startX = vaild.X;
             int startY = vaild.Y;
             var copiedX = vaild.Width;
@@ -349,11 +349,12 @@ namespace ThorCyte.Infrastructure.Interfaces
         }
 
 
+
         private int CalcPixelsToBeCopied(double len, double step)
         {
-            //return (int) Math.Floor(len/step);
             return (int) Math.Round((decimal) len/(decimal) step);
         }
+
 
         private static int CalcPixelsToBeCopied(int start, int len, int limit)
         {          
@@ -408,6 +409,7 @@ namespace ThorCyte.Infrastructure.Interfaces
                 throw new DirectoryNotFoundException(string.Format("{0} folder not found!", _imageBasePath));
         }
 
+
         /// <summary>
         /// get vaild bound rect of a scan field, vaild means
         /// the rectangle part in the scan region bound
@@ -433,6 +435,7 @@ namespace ThorCyte.Infrastructure.Interfaces
             startX = totalWidth - startX - copiedX;
             return new Int32Rect(startX, startY, copiedX, copiedY);
         }
+
 
         private ImageData GetResizedData(ImageData original, int width, int height, double scale)
         {
@@ -539,7 +542,7 @@ namespace ThorCyte.Infrastructure.Interfaces
                 {
                     Scanfield scanField = imageInfo.SRegion.ScanFieldList[i];
                     Int32Rect tileRect = GetScanFieldValidBound(scanField.SFRect, imageInfo);
-
+                   
                     Int32Rect rect = Intersect(regionRect, tileRect);
                     if (rect != Int32Rect.Empty)
                     {

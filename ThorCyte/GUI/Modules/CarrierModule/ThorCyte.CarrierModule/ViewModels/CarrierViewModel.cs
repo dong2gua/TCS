@@ -59,12 +59,20 @@ namespace ThorCyte.CarrierModule.ViewModels
             set { SetProperty(ref _tileview, value); }
         }
 
-        public bool _isTileVisible;
+        private bool _isTileExpand;
+        public bool IsTileExpand
+        {
+            get { return _isTileExpand; }
+            set { SetProperty(ref _isTileExpand, value); }
+        }
+
+        private bool _isTileVisible;
         public bool IsTileVisible
         {
             get { return _isTileVisible; }
             set { SetProperty(ref _isTileVisible, value); }
         }
+
         #endregion
 
 
@@ -80,14 +88,17 @@ namespace ThorCyte.CarrierModule.ViewModels
             
             var loadEvt = EventAggregator.GetEvent<ExperimentLoadedEvent>();
             loadEvt.Subscribe(RequestLoadModule);
-            
+
+            var showRegEvt = EventAggregator.GetEvent<ShowRegionEvent>();
+            showRegEvt.Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
+
             MessageHelper.SetStreaming += SetStreaming;
         }
 
         private void SetStreaming(bool isStreaming)
         {
             if (isStreaming)
-                IsTileVisible = true;
+                IsTileExpand = true;
         }
 
         /// <summary>
@@ -164,6 +175,31 @@ namespace ThorCyte.CarrierModule.ViewModels
             catch (Exception)
             {
                 CreateCarrier(_currentCarrierType);
+            }
+        }
+
+        private void ShowRegionEventHandler(string moduleName)
+        {
+            try
+            {
+                switch (moduleName)
+                {
+                    case "ReviewModule":
+                        IsTileVisible = true;
+                        break;
+
+                    case "ProtocolModule":
+                        IsTileVisible = true;
+                        break;
+
+                    case "AnalysisModule":
+                        IsTileVisible = false;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                CarrierModule.Logger.Write("Error occoured in CarrierViewModle.ShowRegionEventHandler", ex);
             }
         }
 

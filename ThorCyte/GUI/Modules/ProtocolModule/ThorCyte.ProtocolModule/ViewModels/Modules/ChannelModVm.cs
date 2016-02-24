@@ -62,6 +62,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             try
             {
                 _img = Macro.CurrentImages[SelectedChannel].Clone();
+
                 if (_img == null)
                 {
                     throw new CyteException("ChannelModVm", "Invaild execution image is null");

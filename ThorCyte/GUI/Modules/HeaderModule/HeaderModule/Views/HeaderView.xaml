@@ -14,7 +14,7 @@
             </MenuItem>
             <MenuItem Header="Settings"></MenuItem>
         </Menu>-->
-        <StackPanel Margin="6,0,0,0" Orientation="Horizontal">
+        <StackPanel Margin="2,0,0,0" Orientation="Horizontal">
             <Button ToolTip="Open Experiment" Margin="4,6,2,4" Command="{Binding OpenCommand}">
                 <Image Source="../Icons/Open.png" Stretch="Fill"></Image>
             </Button>

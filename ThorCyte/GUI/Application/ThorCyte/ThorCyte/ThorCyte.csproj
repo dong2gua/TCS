@@ -22,8 +22,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\Bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,19 +33,20 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\..\Bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icons\ThorCyte.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Abt.Controls.SciChart.Wpf">
       <HintPath>..\..\..\..\Tools\Abt.Controls.SciChart.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="CustomChromeLibrary">
-      <HintPath>..\..\..\..\Tools\CustomChromeLibrary\CustomChromeLibrary.dll</HintPath>
-    </Reference>
+    <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -57,9 +58,6 @@
     </Reference>
     <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
       <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Windows.Shell">
-      <HintPath>..\..\..\..\Tools\CustomChromeLibrary\Microsoft.Windows.Shell.dll</HintPath>
     </Reference>
     <Reference Include="Prism">
       <HintPath>..\..\..\..\Tools\Prism\Prism.dll</HintPath>
@@ -161,12 +159,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(ProjectDir)..\..\..\..\Bin\ImageProcessLib.dll $(TargetDir)
-xcopy /Y $(ProjectDir)..\..\..\..\Tools\FreeImage.dll $(TargetDir)
-xcopy /Y $(ProjectDir)..\..\..\..\Bin\ROIService.dll $(TargetDir)
-xcopy /Y $(ProjectDir)..\..\..\..\Bin\ComponentDataService.dll $(TargetDir)
-xcopy $(ProjectDir)..\..\..\..\Bin\DirectoryModules\*.* $(TargetDir)\DirectoryModules\ /Y/E
-xcopy $(ProjectDir)..\..\..\..\XML\*.* $(TargetDir)\XML\ /Y/E
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)..\..\..\..\Tools\FreeImage.dll" "$(TargetDir)"
+xcopy /Y "$(ProjectDir)..\..\..\..\Tools\ImageProcessLib.dll" "$(TargetDir)"
+xcopy /Y "$(ProjectDir)..\..\..\..\Tools\log4net.dll" "$(TargetDir)"
+xcopy "$(ProjectDir)..\..\..\..\XML\*.*" "$(TargetDir)\XML\" /Y/E
+
 
 </PostBuildEvent>
   </PropertyGroup>

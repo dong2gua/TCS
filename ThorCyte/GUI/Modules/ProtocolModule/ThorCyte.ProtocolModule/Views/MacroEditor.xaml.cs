@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
-using Prism.Events;
-using ThorCyte.Infrastructure.Events;
-using ThorCyte.ProtocolModule.Controls;
 using ThorCyte.ProtocolModule.Events;
 using ThorCyte.ProtocolModule.Models;
+using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels;
-using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.Views
 {
@@ -28,9 +24,7 @@ namespace ThorCyte.ProtocolModule.Views
         #endregion
 
         #region Properties and Fields
-        private const string DefaultKeyword = "Find...";
         private readonly List<GridLength> _recentGridLengths = new List<GridLength>();
-        private string _searchKeyword;
 
         public MarcoEditorViewModel ViewModel
         {
@@ -44,14 +38,6 @@ namespace ThorCyte.ProtocolModule.Views
         }
         public CreateModuleHandler CreateModule;
 
-        private IEventAggregator _eventAggregator;
-        public IEventAggregator EventAggregator
-        {
-            get
-            {
-                return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
-            }
-        }
         #endregion
 
         #region Constructors
@@ -59,19 +45,11 @@ namespace ThorCyte.ProtocolModule.Views
         {
             InitializeComponent();
             ServiceLocator.Current.GetInstance<IUnityContainer>().RegisterInstance(this);
-            EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
-            SerTb.Text = DefaultKeyword;
-            DataContext = MarcoEditorViewModel.Instance;
-            ExpLoaded(0);
+            DataContext = new MarcoEditorViewModel();
         }
         #endregion
 
         #region Methods
-
-        private void ExpLoaded(int scanId)
-        {
-            ClearSearch();
-        }
 
         private void OnCreateModule(Point location)
         {
@@ -123,6 +101,10 @@ namespace ThorCyte.ProtocolModule.Views
         private void DeleteSelectedNodes_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             ViewModel.DeleteSelectedModules();
+
+            ViewModel.DeleteSelectedConnectors();
+
+
         }
 
         /// <summary>
@@ -139,66 +121,8 @@ namespace ThorCyte.ProtocolModule.Views
 
             if (selectedItem != null)
             {
-                selectedItem.IsSelected = false;
-            }
-        }
-
-        private void OnTreeviewSelectedChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            var tree = sender as TreeView;
-            if (tree != null)
-            {
-                ViewModel.PannelVm.SelectedViewItem = tree.SelectedItem as TreeViewItemModel;
-            }
-        }
-
-        private bool IsChildInTree(DependencyObject child, Type parentType)
-        {
-            var parent = child;
-            while (parent != null)
-            {
-                if (VisualTreeHelper.GetParent(parent) == null)
-                {
-                    return false;
-                }
-                if (parent.GetType() == parentType)
-                {
-                    return true;
-                }
-
-                parent = VisualTreeHelper.GetParent(parent);
-                if (parent.GetType() == parentType)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-        private void OnMouseLeftUp(object sender, MouseButtonEventArgs e)
-        {
-            //var isModule = IsChildInTree((DependencyObject)e.OriginalSource, typeof(Module));
-
-            //if (isModule)
-            //{
-            //    var vm = ViewModel.GetSelectedModule();
-            //    ViewModel.PannelVm.SelectedModuleViewModel = vm;
-            //}
-        }
-
-        private Module FindParentModule(DependencyObject obj)
-        {
-            while (true)
-            {
-                //which module it is?
-                var parent = VisualTreeHelper.GetParent(obj);
-
-                if (parent == null) return null;
-
-                if (parent.GetType() == typeof(Module)) return parent as Module;
-
-                obj = parent;
+                MessageHelper.UnSelectItem(selectedItem);
+                ViewModel.PannelVm.SelectedViewItem = null;
             }
         }
 
@@ -216,87 +140,20 @@ namespace ThorCyte.ProtocolModule.Views
             var isChecked = (bool)(sender as ToggleButton).IsChecked;
             if (isChecked)
             {
-                treeview.Visibility = Visibility.Collapsed;
+                treePannel.Visibility = Visibility.Collapsed;
                 splitter1.Visibility = Visibility.Collapsed;
                 Grid.SetColumn(PannelBorder, 0);
                 Grid.SetColumnSpan(PannelBorder, 3);
             }
             else
             {
-                treeview.Visibility = Visibility.Visible;
+                treePannel.Visibility = Visibility.Visible;
                 splitter1.Visibility = Visibility.Visible;
                 Grid.SetColumn(PannelBorder, 2);
                 Grid.SetColumnSpan(PannelBorder, 1);
             }
         }
 
-        public void ClearSearch()
-        {
-            SerTb.Text = string.Empty;
-            SetModuleSelection(SerTb.Text);
-            SearchBox_LostFocus(SerTb,new RoutedEventArgs());
-        }
-
-        private void SerchBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            var searchBox = sender as TextBox;
-            if (searchBox == null) return;
-
-            if (searchBox.Text == DefaultKeyword && Equals(searchBox.Foreground, Brushes.LightGray))
-            {
-                searchBox.Text = string.Empty;
-                searchBox.Foreground = Brushes.LightYellow;
-            }
-        }
-
-        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            var searchBox = sender as TextBox;
-            if (searchBox == null) return;
-
-            if (searchBox.Text == string.Empty)
-            {
-                searchBox.Text = DefaultKeyword;
-                searchBox.Foreground = Brushes.LightGray;
-            }
-        }
-
-        private void SearchBox_KeyUp(object sender, KeyEventArgs keyEventArgs)
-        {
-            _searchKeyword = ((TextBox)sender).Text;
-            SetModuleSelection(_searchKeyword);
-        }
-
-        private void SetModuleSelection(string moduleKeyWord)
-        {
-            //collpse tree view 
-            ExpandTree(treeview, false);
-            ViewModel.PannelVm.FilterModuleInfo(moduleKeyWord);
-            if (moduleKeyWord == string.Empty)
-            {
-                ExpandTree(treeview, false);
-                return;
-            }
-            //Expand treeview
-            ExpandTree(treeview, true);
-        }
-
-        /// <summary>
-        /// Collapse or Expand treeview 
-        /// </summary>
-        /// <param name="treeContainer">treeview need to operate</param>
-        /// <param name="mode">true--Expand false--Collapse</param>
-        private void ExpandTree(ItemsControl treeContainer, bool mode)
-        {
-            var inStyle = new Style
-            {
-                TargetType = typeof(TreeViewItem),
-                BasedOn = (Style)FindResource(typeof (TreeViewItem))
-            };
-
-            inStyle.Setters.Add(new Setter(TreeViewItem.IsExpandedProperty, mode));
-            treeContainer.ItemContainerStyle = inStyle;
-        }
 
         #endregion
 

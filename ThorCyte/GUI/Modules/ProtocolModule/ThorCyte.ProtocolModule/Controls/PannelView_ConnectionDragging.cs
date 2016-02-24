@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ProtocolModule.Events;
+using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 
 namespace ThorCyte.ProtocolModule.Controls
@@ -72,30 +73,40 @@ namespace ThorCyte.ProtocolModule.Controls
         {
             e.Handled = true;
 
-            Trace.Assert(e.OriginalSource == _draggedOutPort);
-
-            Point mousePoint = Mouse.GetPosition(this);
-            // Raise an event so that application code can compute intermediate _connection points.
-            var connectionDraggingEventArgs =
-                new ConnectionDraggingEventArgs(ConnectionDraggingEvent, this,
-                        _draggedOutNodeDataContext, _draggingConnectionDataContext,
-                        _draggedOutConnectorDataContext);
-
-            RaiseEvent(connectionDraggingEventArgs);
-
-            // Figure out if the _connection has been dragged over a connector.
-            Port portDraggedOver;
-            object connectorDataContextDraggedOver;
-            DetermineConnectorItemDraggedOver(mousePoint, out portDraggedOver, out connectorDataContextDraggedOver);
-            if (portDraggedOver != null)
+            try
             {
-                // Raise an event so that application code can specify if the connector
-                // that was dragged over is valid or not.
-                var queryFeedbackEventArgs =
-                    new QueryConnectionFeedbackEventArgs(QueryConnectionFeedbackEvent, this, _draggedOutNodeDataContext, _draggingConnectionDataContext,
-                            _draggedOutConnectorDataContext, connectorDataContextDraggedOver);
+                if (!Equals(e.OriginalSource, _draggedOutPort))
+                {
+                    throw new ArgumentException("original source port not equals to outport.");
+                }
 
-                RaiseEvent(queryFeedbackEventArgs);
+                var mousePoint = Mouse.GetPosition(this);
+                // Raise an event so that application code can compute intermediate _connection points.
+                var connectionDraggingEventArgs =
+                    new ConnectionDraggingEventArgs(ConnectionDraggingEvent, this,
+                            _draggedOutNodeDataContext, _draggingConnectionDataContext,
+                            _draggedOutConnectorDataContext);
+
+                RaiseEvent(connectionDraggingEventArgs);
+
+                // Figure out if the _connection has been dragged over a connector.
+                Port portDraggedOver;
+                object connectorDataContextDraggedOver;
+                DetermineConnectorItemDraggedOver(mousePoint, out portDraggedOver, out connectorDataContextDraggedOver);
+                if (portDraggedOver != null)
+                {
+                    // Raise an event so that application code can specify if the connector
+                    // that was dragged over is valid or not.
+                    var queryFeedbackEventArgs =
+                        new QueryConnectionFeedbackEventArgs(QueryConnectionFeedbackEvent, this, _draggedOutNodeDataContext, _draggingConnectionDataContext,
+                                _draggedOutConnectorDataContext, connectorDataContextDraggedOver);
+
+                    RaiseEvent(queryFeedbackEventArgs);
+                }
+            }
+            catch (Exception ex)
+            {
+                Macro.Logger.Write("PannelView_ConnectionDragging.ConnectorItem_Dragging Error :", ex);
             }
         }
 
@@ -105,27 +116,38 @@ namespace ThorCyte.ProtocolModule.Controls
         private void ConnectorItem_DragCompleted(object source, ConnectorItemDragCompletedEventArgs e)
         {
             e.Handled = true;
-            Trace.Assert(e.OriginalSource == _draggedOutPort);
-            Point mousePoint = Mouse.GetPosition(this);
 
-            // Figure out if the end of the _connection was dropped on a connector.
-            Port portDraggedOver;
-            object connectorDataContextDraggedOver;
-            DetermineConnectorItemDraggedOver(mousePoint, out portDraggedOver, out connectorDataContextDraggedOver);
+            try
+            {
+                if (!Equals(e.OriginalSource, _draggedOutPort))
+                {
+                    throw new ArgumentException("original source port not equals to outport.");
+                }
+                var mousePoint = Mouse.GetPosition(this);
 
-            // Raise an event to inform application code that _connection dragging is complete.
-            // The application code can determine if the _connection between the two connectors
-            // is valid and if so it is free to make the appropriate _connection in the view-model.
-            RaiseEvent(new ConnectionDragCompletedEventArgs(ConnectionDragCompletedEvent, this, _draggedOutNodeDataContext, _draggingConnectionDataContext, _draggedOutConnectorDataContext, connectorDataContextDraggedOver));
+                // Figure out if the end of the _connection was dropped on a connector.
+                Port portDraggedOver;
+                object connectorDataContextDraggedOver;
+                DetermineConnectorItemDraggedOver(mousePoint, out portDraggedOver, out connectorDataContextDraggedOver);
 
-            IsDragging = false;
-            IsNotDragging = true;
-            IsDraggingConnection = false;
-            IsNotDraggingConnection = true;
-            _draggedOutConnectorDataContext = null;
-            _draggedOutNodeDataContext = null;
-            _draggedOutPort = null;
-            _draggingConnectionDataContext = null;
+                // Raise an event to inform application code that _connection dragging is complete.
+                // The application code can determine if the _connection between the two connectors
+                // is valid and if so it is free to make the appropriate _connection in the view-model.
+                RaiseEvent(new ConnectionDragCompletedEventArgs(ConnectionDragCompletedEvent, this, _draggedOutNodeDataContext, _draggingConnectionDataContext, _draggedOutConnectorDataContext, connectorDataContextDraggedOver));
+
+                IsDragging = false;
+                IsNotDragging = true;
+                IsDraggingConnection = false;
+                IsNotDraggingConnection = true;
+                _draggedOutConnectorDataContext = null;
+                _draggedOutNodeDataContext = null;
+                _draggedOutPort = null;
+                _draggingConnectionDataContext = null;
+            }
+            catch (Exception ex)
+            {
+                Macro.Logger.Write("PannelView_ConnectionDragging.ConnectorItem_Dragging Error :", ex);
+            }
         }
 
         /// <summary>

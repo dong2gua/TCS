@@ -10,7 +10,7 @@
         xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         mc:Ignorable="d"
         x:Name="Self"
-        Title="Set Virtual Channel" Height="300" Width="400" ResizeMode="NoResize" WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+        Title="Set Virtual Channel" Height="240" Width="320" ResizeMode="NoResize" WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Window.Resources>
         <ObjectDataProvider x:Key="OperatorEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -21,43 +21,33 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="32"/>
         </Grid.RowDefinitions>
-        
-        <StackPanel Orientation="Horizontal"  Grid.Row="0">
-            <Label Content="Channel Name:"  VerticalAlignment="Center"   Margin="20,0"/>
-            <TextBox  Text="{Binding ChannelName}"  Height="20" Width="120" IsEnabled="{Binding IsNew}"/>
-        </StackPanel>
-        <GroupBox Grid.Row="1" Margin="10">
-            <GroupBox.Header>
-                <TextBlock Text="Properties" />
-            </GroupBox.Header>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="40"/>
-                    <RowDefinition Height="40"/>
-                    <RowDefinition Height="40"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0"   Text="First Channel:"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <ComboBox Grid.Column="1" Grid.Row="0" Height="20" Width="100" ItemsSource="{Binding ChannelList}" SelectedItem="{Binding Channel1}"  DisplayMemberPath="ChannelName"/>
-                <TextBlock Grid.Column="0" Grid.Row="1" Text="Operator:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <ComboBox Grid.Column="1" Grid.Row="1" Height="20" Width="100" ItemsSource="{Binding Source={StaticResource OperatorEnum} }" SelectedItem="{Binding Operator}" />
-                <TextBlock Grid.Column="0" Grid.Row="2"  Text="Second Channel:" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=0}"/>
-                <ComboBox Grid.Column="1" Grid.Row="2" Height="20" Width="100" ItemsSource="{Binding ChannelList}" SelectedItem="{Binding Channel2}"  DisplayMemberPath="ChannelName" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=0}" IsEnabled="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=2}"/>
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="Operand:" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=1}" />
-                <TextBox Grid.Column="1" Grid.Row="2" Height="20" Width="100" Text="{Binding Operand}" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=1}" />
-            </Grid>
-        </GroupBox>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="3" >
-            <Button Height="20" Width="60" Margin="5" Content="OK" Command="{Binding ClickOKCommand}" CommandParameter="{Binding ElementName=Self}"/>
-            <Button Height="20" Width="60" Margin="5" Content="Cancel" Command="{Binding ClickCancelCommand}" CommandParameter="{Binding ElementName=Self}"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Column="0" Grid.Row="1" Content="Channel Name:"  Padding="20,2"/>
+        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding ChannelName}"  Height="20" Width="120" IsEnabled="{Binding IsNew}"/>
+        <Label Grid.Column="0" Grid.Row="2"   Content="First Channel:" Padding="20,2"/>
+        <ComboBox Grid.Column="1" Grid.Row="2" Height="20" Width="120" ItemsSource="{Binding ChannelList}" SelectedItem="{Binding Channel1}"  DisplayMemberPath="ChannelName"/>
+        <Label Grid.Column="0" Grid.Row="3" Content="Operator:" Padding="20,2"/>
+        <ComboBox Grid.Column="1" Grid.Row="3" Height="20" Width="120" ItemsSource="{Binding Source={StaticResource OperatorEnum} }" SelectedItem="{Binding Operator}" />
+        <Label Grid.Column="0" Grid.Row="4"  Content="Second Channel:" Padding="20,2" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=0}"/>
+        <ComboBox Grid.Column="1" Grid.Row="4" Height="20" Width="120" ItemsSource="{Binding ChannelList}" SelectedItem="{Binding Channel2}"  DisplayMemberPath="ChannelName" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=0}" IsEnabled="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=2}"/>
+        <Label Grid.Column="0" Grid.Row="4" Content="Operand:" Padding="20,2" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=1}" />
+        <TextBox Grid.Column="1" Grid.Row="4" Height="20" Width="120" Text="{Binding Operand}" Visibility="{Binding Operator, Converter={StaticResource OperatorC},ConverterParameter=1}" />
+
+        <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="6" Grid.ColumnSpan="2">
+            <Button  Width="70" Margin="4,0" Content="OK" Command="{Binding ClickOKCommand}" CommandParameter="{Binding ElementName=Self}"/>
+            <Button  Width="70" Margin="4,0" Content="Cancel" Command="{Binding ClickCancelCommand}" CommandParameter="{Binding ElementName=Self}"/>
         </StackPanel>
     </Grid>
 </ctrl:CustomWindow>

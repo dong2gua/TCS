@@ -34,8 +34,6 @@ namespace ImageProcess
         #region Fields
 
         private const int KernelCount = 9;
-        private static readonly int[] Dx = {-1, -1, 0, 1, 1, 1, 0, -1};
-        private static readonly int[] Dy = {0, 1, 1, 1, 0, -1, -1, -1};
         private static readonly int[][] KernelSizeList = new int[KernelCount][];
         #endregion
 
@@ -231,36 +229,27 @@ namespace ImageProcess
             return new IList<ushort>[] {first, second, third};
         }
 
-        public IList<Blob> FindContour(double minArea, double maxArea = int.MaxValue)
-        {
-            return Contour(Math.Floor(minArea), maxArea, false, default(Point));
-        }
-
-
-        public IList<Blob> FindContourInArray(double minArea, double maxArea = int.MaxValue)
-        {
-            return ContourInArray(Math.Floor(minArea), maxArea, false, default(Point));
-        }
-
-        public IList<Blob> FindContoursByOpenCv(double minArea, double maxArea = int.MaxValue)
+    
+        public IList<Blob> FindContours(double minArea, double maxArea = int.MaxValue)
         {
             IntPtr pBlobs = IntPtr.Zero;
             IntPtr pPointsCountPerBlob = IntPtr.Zero;
-            int blobCount = ImageProcessLib.FindContours16UC1(this, (int) XSize, (int) YSize, minArea, maxArea,
-                ref pBlobs, ref pPointsCountPerBlob);          
-            if (pPointsCountPerBlob == IntPtr.Zero || pBlobs == IntPtr.Zero)
+            int blobCount = ImageProcessLib.FindContours16UC1(this, (int) XSize, (int) YSize, ref pBlobs,
+                ref pPointsCountPerBlob);
+            if (blobCount == 0 || pPointsCountPerBlob == IntPtr.Zero || pBlobs == IntPtr.Zero)
                 return new Blob[0];
             var pointsCountPerBlob = new int[blobCount];
             Marshal.Copy(pPointsCountPerBlob, pointsCountPerBlob, 0, blobCount);
-            var blobs = new Blob[blobCount];
+            var blobs = new List<Blob>(blobCount);
             int maxCount = pointsCountPerBlob.Max();
             var buffer = new int[maxCount*2];
             int offset = 0;
+            var points = new List<Point>(maxCount);
             for (int i = 0; i < blobCount; i++)
             {
                 int count = pointsCountPerBlob[i];
                 Marshal.Copy(pBlobs + sizeof(int) * offset, buffer, 0, 2 * count);
-                var points = new List<Point>(count);
+                points.Clear();
                 for (int j = 0; j < count; j++)
                 {
                     int x = buffer[2 * j];
@@ -269,10 +258,12 @@ namespace ImageProcess
                     points.Add(point);
                 }
                 offset += 2 * count;
-               blobs[i] = new Blob(points);
+                var blob = new Blob(points);
+                if (blob.Area >= minArea && blob.Area <= maxArea)
+                    blobs.Add(blob);
             }
-            ImageProcessLib.FreeIntBuffer(pBlobs);
-            ImageProcessLib.FreeIntBuffer(pPointsCountPerBlob);
+            ImageProcessLib.FreeBuffer(pBlobs);
+            ImageProcessLib.FreeBuffer(pPointsCountPerBlob);
             return blobs;
         }
 
@@ -289,11 +280,11 @@ namespace ImageProcess
             }
             else if (thresholdType == ThresholdType.Manual)
             {
-                //ImageProcessLib.Threshold16UC1(data.DataBuffer, width, height, threshold, dstData.DataBuffer);
-                for (int i = 0; i < Length; i++)
-                {
-                    dstData[i] = this[i] > threshold ? (ushort) 16383 : (ushort) 0;
-                }
+                ImageProcessLib.Threshold16UC1(this, width, height, threshold, dstData);
+                //for (int i = 0; i < Length; i++)
+                //{
+                //    dstData[i] = this[i] > threshold ? (ushort) 16383 : (ushort) 0;
+                //}
             }
             return dstData;
         }
@@ -398,7 +389,7 @@ namespace ImageProcess
         }
         #endregion
 
-            #region Private
+        #region Private
 
         private void CheckKernelSize(FilterType type, int maskSize)
         {
@@ -471,199 +462,10 @@ namespace ImageProcess
             return points;
         }
 
-        private IList<Blob> ContourInArray(double minArea, double maxArea, bool concave,
-            Point offset)
-
-        {
-            var points = new List<Point>();
-            var blobs = new List<Blob>();
-            var width = (int)XSize;
-            var height = (int)YSize;
-            // Search for starting positions
-            for (int sy = 0; sy < height - 1; sy++)
-            {
-                for (int sx = 0; sx < width - 1; sx++)
-                {
-                    if (_array[sx + sy * width] == 0) continue;
-
-                    if ((sx != 0 && sy != 0 && _array[sx - 1 + (sy - 1) * width] != 0) ||
-                        (sx != 0 && _array[sx - 1 + sy * width] != 0) ||
-                        (sy != 0 && (_array[sx + (sy - 1) * width] != 0 || _array[sx + 1 + (sy - 1) * width] != 0)))
-                        continue;
-
-                    // Prepare to track contour 
-                    int x = sx;
-                    int y = sy;
-                    var pt = new Point(x, y);
-
-                    // Check if the blob containing this point already contoured
-                    bool exist = blobs.Any(blob => blob.IsVisible(pt));
-
-                    if (exist) continue;
-
-                    if (concave && offset != default(Point))
-                        pt.Offset(offset.X, offset.Y);
-
-                    points.Add(pt); // start of a contour
-                    int last = 0;
-                    int next = GetNextInArray(x, y, last);
-
-                    // Track contour counter clockwise
-                    while (true)
-                    {
-                        x = x + Dx[next];
-                        y = y + Dy[next];
-
-                        if (x < 0 || y < 0 || _array[x + y * width] == 0)
-                            break;
-
-                        if (x == sx && y == sy) // complete a contour
-                        {
-                            if (points.Count > 5)
-                            {
-                                var blob = new Blob(points);
-                                if (blob.Area > 0 && blob.Area >= minArea &&
-                                    blob.Area <= maxArea)
-                                    blobs.Add(blob);
-                            }
-
-                            break;
-                        }
-
-                        if (concave && offset != default(Point))
-                            points.Add(new Point(x + offset.X, y + offset.Y));
-                        else
-                            points.Add(new Point(x, y));
-
-                        last = (next + 4) % 8;
-                        next = GetNextInArray(x, y, last);
-                    }
-
-                    points.Clear();
-                }
-            }
-
-            return blobs;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="minArea">min area in pixels</param>
-        /// <param name="maxArea"></param>
-        /// <param name="concave"></param>
-        /// <param name="offset"></param>
-        /// <returns></returns>
-        private IList<Blob> Contour(double minArea, double maxArea, bool concave,
-            Point offset)
-        {
-            var points = new List<Point>();
-            var blobs = new List<Blob>();
-
-            var width = (int) XSize;
-            var height = (int) YSize;
-            // Search for starting positions
-            for (int sy = 0; sy < height - 1; sy++)
-            {
-                for (int sx = 0; sx < width - 1; sx++)
-                {
-                    if (this[sx + sy*width] == 0) continue;
-
-                    if ((sx != 0 && sy != 0 && this[sx - 1 + (sy - 1) * width] != 0) ||
-                        (sx != 0 && this[sx - 1 + sy * width] != 0) ||
-                        (sy != 0 && (this[sx + (sy - 1) * width] != 0 || this[sx + 1 + (sy - 1) * width] != 0)))
-                        continue;
-
-                    // Prepare to track contour 
-                    int x = sx;
-                    int y = sy;
-                    var pt = new Point(x, y);
-
-                    // Check if the blob containing this point already contoured
-                    bool exist = blobs.Any(blob => blob.IsVisible(pt));
-
-                    if (exist) continue;
-
-                    if (concave && offset != default(Point))
-                        pt.Offset(offset.X, offset.Y);
-
-                    points.Add(pt); // start of a contour
-                    int last = 0;
-                    int next = GetNext(x, y, last);
-
-                    // Track contour counter clockwise
-                    while (true)
-                    {
-                        x = x + Dx[next];
-                        y = y + Dy[next];
-
-                        if (x < 0 || y < 0 || this[x + y*width] == 0)
-                            break;
-
-                        if (x == sx && y == sy) // complete a contour
-                        {
-                            if (points.Count > 5)
-                            {
-                                var blob = new Blob(points);
-                                if (blob.Area > 0 && blob.Area >= minArea &&
-                                    blob.Area <= maxArea)
-                                    blobs.Add(blob);
-                            }
-
-                            break;
-                        }
-
-                        if (concave && offset != default(Point))
-                            points.Add(new Point(x + offset.X, y + offset.Y));
-                        else
-                            points.Add(new Point(x, y));
-
-                        last = (next + 4)%8;
-                        next = GetNext(x, y, last);
-                    }
-
-                    points.Clear();
-                }
-            }
-
-            return blobs;
-        }
-
-        private int GetNextInArray(int x, int y, int last)
-        {
-            int next = (last + 2) % 8;
-            int nx = x + Dx[next];
-            int ny = y + Dy[next];
-            var width = (int)XSize;
-            var height = (int)YSize;
-            while ((next != last) &&
-                   ((nx < 0) || (nx >= width) ||
-                    (ny < 0) || (ny >= height) ||
-                    (_array[nx + ny * width] == 0)))
-            {
-                next = (next + 1) % 8;
-                nx = x + Dx[next];
-                ny = y + Dy[next];
-            }
-            return (next);
-        }
-        private  int GetNext(int x, int y, int last)
-        {
-            int next = (last + 2)%8;
-            int nx = x + Dx[next];
-            int ny = y + Dy[next];
-            var width = (int) XSize;
-            var height = (int) YSize;
-            while ((next != last) &&
-                   ((nx < 0) || (nx >= width) ||
-                    (ny < 0) || (ny >= height) ||
-                    (this[nx + ny*width] == 0)))
-            {
-                next = (next + 1)%8;
-                nx = x + Dx[next];
-                ny = y + Dy[next];
-            }
-            return (next);
-        }
+       
+       
+       
+      
 
         private static void InitKernelSizeList()
         {

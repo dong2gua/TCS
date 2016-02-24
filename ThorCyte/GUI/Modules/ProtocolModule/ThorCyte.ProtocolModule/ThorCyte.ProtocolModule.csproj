@@ -100,6 +100,7 @@
     <Compile Include="Converts\BoolToVisibilityConverter .cs" />
     <Compile Include="Converts\ChannelNameConvert.cs" />
     <Compile Include="Converts\PhantomPatternConvert.cs" />
+    <Compile Include="Converts\PointConverter.cs" />
     <Compile Include="Converts\ThresholdMethodConvert.cs" />
     <Compile Include="Events\ConnectionDragEvents.cs" />
     <Compile Include="Events\ConnectorDragEvents.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
     <Compile Include="ViewModels\Modules\TransformModVm.cs" />
     <Compile Include="ViewModels\Modules\XorModVm.cs" />
+    <Compile Include="ViewModels\ModuleTreeViewModel.cs" />
     <Compile Include="ViewModels\PannelViewModel.cs" />
     <Compile Include="Views\Modules\BrightContrastModule.xaml.cs">
       <DependentUpon>BrightContrastModule.xaml</DependentUpon>
@@ -167,6 +169,9 @@
     </Compile>
     <Compile Include="Views\Modules\TransformModule.xaml.cs">
       <DependentUpon>TransformModule.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModuleTree.xaml.cs">
+      <DependentUpon>ModuleTree.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -210,6 +215,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ModuleTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\Images\play.png" />
@@ -226,7 +235,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(TargetPath) $(ProjectDir)..\..\..\..\Bin\DirectoryModules\</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(ProjectDir)..\..\..\..\Bin\DirectoryModules\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

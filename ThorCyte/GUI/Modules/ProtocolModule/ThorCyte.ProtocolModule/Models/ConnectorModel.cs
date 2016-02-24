@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using System.Xml;
@@ -98,6 +99,7 @@ namespace ThorCyte.ProtocolModule.Models
 
                 if (_destPort != null)
                 {
+                    ConnectionBrush = value.PortBrush;
                     _destPort.AttachedConnections.Add(this);
                     _destPort.HotspotUpdated += DestPort_HotspotUpdated;
                     DestPortHotspot = _destPort.HotSpot;
@@ -130,6 +132,17 @@ namespace ThorCyte.ProtocolModule.Models
             set
             {
                 SetProperty(ref _destPortHotspot, value);
+            }
+        }
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                if (_isSelected == value) return;
+                SetProperty(ref _isSelected, value);
             }
         }
 

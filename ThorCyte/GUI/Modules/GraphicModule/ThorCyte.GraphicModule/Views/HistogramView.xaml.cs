@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Timers;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -23,6 +24,8 @@ namespace ThorCyte.GraphicModule.Views
     public partial class HistogramView
     {
 
+        Timer resizeTimer = new Timer(500) { Enabled = false };
+
         #region Constructor
 
         public HistogramView()
@@ -31,6 +34,7 @@ namespace ThorCyte.GraphicModule.Views
             InitializeComponent();
             Init();
             SciChart.YAxis = YAxis;
+            resizeTimer.Elapsed += OnResize;
             ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<GraphUpdateEvent>().Subscribe(Update);
         }
 
@@ -53,7 +57,7 @@ namespace ThorCyte.GraphicModule.Views
 
         public override void InitRenderableSeries()
         {
-            for (var i = ConstantHelper.ColorTable.Length - 1; i >= 0; i--)
+            for (var i = 0; i < ConstantHelper.ColorTable.Length ; i++)
             {
                 SciChart.RenderableSeries.Add(new StackedColumnRenderableSeries
                 {
@@ -75,20 +79,21 @@ namespace ThorCyte.GraphicModule.Views
 
         private void ClearRenderableSeries()
         {
-            if (GraphicVm.GraphType == GraphStyle.Outline)
+            for (var i = 0; i < RenderableSeriesCount; i++)
             {
-                for (var i = 0; i < RenderableSeriesCount - 1; i++)
+                if (SciChart.RenderableSeries[i].DataSeries != null)
                 {
-                    if (SciChart.RenderableSeries[i].DataSeries != null)
-                    {
-                        SciChart.RenderableSeries[i].DataSeries.XValues.Clear();
-                        SciChart.RenderableSeries[i].DataSeries.YValues.Clear();
-                    }
+                    SciChart.RenderableSeries[i].DataSeries.XValues.Clear();
+                    SciChart.RenderableSeries[i].DataSeries.YValues.Clear();
                 }
             }
-            else
+            if (SciChart.RenderableSeries.Count > RenderableSeriesCount)
             {
-                SciChart.RenderableSeries[RenderableSeriesCount - 1].DataSeries = null;
+                var count = SciChart.RenderableSeries.Count - RenderableSeriesCount;
+                for (var index = 0; index < count; index++)
+                {
+                    SciChart.RenderableSeries.RemoveAt(RenderableSeriesCount);
+                }
             }
         }
 
@@ -123,36 +128,32 @@ namespace ThorCyte.GraphicModule.Views
 
         private void DrawGraph()
         {
-            var xscale = GraphicVm.Width / (GraphicVm.XAxis.MaxRange - GraphicVm.XAxis.MinRange);
+            var xscale =  (GraphicVm.XAxis.MaxRange - GraphicVm.XAxis.MinRange)/(GraphicVm.Width -1);
             var outlineSeries = new XyDataSeries<double, double>();
-            var isValid = false;
+            var histogramVm = (HistogramVm)GraphicVm;
+
             for (var index = 0; index < GraphicVm.Width; index++)
             {
-                var x = GraphicVm.XAxis.IsLogScale ? GraphicVm.XAxis.GetActualValue(index) : index / xscale + GraphicVm.XAxis.MinRange;
+                var x = GraphicVm.XAxis.IsLogScale ? GraphicVm.XAxis.GetActualValue(index) : index * xscale + GraphicVm.XAxis.MinRange;
                 if (GraphicVm.GraphType == GraphStyle.BarChart)
                 {
                     int acc = 0;
                     double from = 0;
-                    
+
                     for (int c = 0; c < ConstantHelper.ColorCount; c++)
                     {
-                        acc += ((HistogramVm)GraphicVm).ColorDataList[c][index];
-                        DataSeriesArray[6 - c].Append(x, acc - from);
+                        acc += histogramVm.ColorDataList[c][index];
+                        var value = (acc - from) > double.Epsilon ? (acc - from) : double.NaN;
+                        DataSeriesArray[c].Append(x, value);
                         from = acc;
                     }
-                    DataSeriesArray[0].Append(x, ((HistogramVm)GraphicVm).HistoryDataList[index] - acc);
-                    for (var i = 0; i < DataSeriesArray.Length; i++)
-                    {
-                        if (DataSeriesArray[i].YMax.CompareTo(0.0) > 0)
-                        {
-                            isValid = true;
-                            break;
-                        }
-                    }
+
+                    var rest = histogramVm.HistoryDataList[index] - acc;
+                    DataSeriesArray[ConstantHelper.ColorCount].Append(x, rest > double.Epsilon ? rest : double.NaN);
                 }
                 else
                 {
-                    outlineSeries.Append(x, ((HistogramVm)GraphicVm).HistoryDataList[index]);
+                    outlineSeries.Append(x, histogramVm.HistoryDataList[index]);
                 }
             }
 
@@ -161,33 +162,45 @@ namespace ThorCyte.GraphicModule.Views
             {
                 if (GraphicVm.GraphType == GraphStyle.Outline)
                 {
-                    SciChart.RenderableSeries[RenderableSeriesCount - 1].DataSeries = outlineSeries;
+                    if (outlineSeries.YMax.CompareTo(GraphicVm.YAxis.MinValue) > 0 )
+                    {
+                        SciChart.RenderableSeries[RenderableSeriesCount - 1].DataSeries = outlineSeries;
+                    }
                 }
                 else
                 {
+                    var isValid = false;
                     for (var i = 0; i < RenderableSeriesCount - 1; i++)
                     {
-                        SciChart.RenderableSeries[i].DataSeries = isValid ? DataSeriesArray[i]:null;
+                        if (DataSeriesArray[i].YMax.CompareTo(GraphicVm.YAxis.MinValue) > 0)
+                        {
+                            isValid = true;
+                            break;
+                        }
+                    }
+                    for (var i = 0; i < RenderableSeriesCount - 1; i++)
+                    {
+                        SciChart.RenderableSeries[i].DataSeries = isValid ? DataSeriesArray[i] : null;
                     }
                 }
             }
 
             // Draw overlays if any
-            if (((HistogramVm)GraphicVm).OverlayList.Count > 0 && ((HistogramVm)GraphicVm).IsCheckedOverlay)
+            if (histogramVm.OverlayList.Count > 0 && histogramVm.IsCheckedOverlay)
             {
                 var list = new List<KeyValuePair<Color, XyDataSeries<double, double>>>();
-                foreach (var ovr in ((HistogramVm)GraphicVm).OverlayList)
+                foreach (var ovr in histogramVm.OverlayList)
                 {
                     var tuple = new KeyValuePair<Color, XyDataSeries<double, double>>(ovr.OverlayColorInfo.ColorBrush.Color, new XyDataSeries<double, double>());
                     list.Add(tuple);
 
                     for (var i = 0; i < ovr.Datas.Count; i++)
                     {
-                        tuple.Value.Append(i / xscale, ovr.Datas[i]);
+                        tuple.Value.Append(i * xscale + GraphicVm.XAxis.MinRange, ovr.Datas[i]);
                     }
                 }
 
-                var overlayCount = ((HistogramVm)GraphicVm).OverlayList.Count;
+                var overlayCount = histogramVm.OverlayList.Count;
 
                 using (SciChart.SuspendUpdates())
                 {
@@ -221,12 +234,19 @@ namespace ThorCyte.GraphicModule.Views
         public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             base.OnSizeChanged(sender, e);
+            resizeTimer.Stop();
+            resizeTimer.Start();
+            e.Handled = true;
+        }
+
+        private void OnResize(object sender, ElapsedEventArgs e)
+        {
+            resizeTimer.Stop();
             if (GraphicVm == null)
             {
                 return;
             }
             GraphicVm.UpdateEvents();
-            e.Handled = true;
         }
 
         #endregion

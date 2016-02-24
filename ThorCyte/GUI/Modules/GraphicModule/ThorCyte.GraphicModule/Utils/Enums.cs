@@ -17,4 +17,6 @@
     public enum GraphStyle { DotPlot, DensityMap, ValueMap, BarChart, Outline }
 
     public enum ColorType { None, Normal, Customer }
+
+    public enum SelectionMode { None, Move, Size, GroupSelection }
 }

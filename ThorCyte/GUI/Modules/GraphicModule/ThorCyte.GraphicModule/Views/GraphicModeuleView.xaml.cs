@@ -36,10 +36,11 @@ namespace ThorCyte.GraphicModule.Views
             GraphicModule.RegisterGaphicManager(_graphicManagerVm);
             if (experiment != null)
             {
-                var scaid = experiment.GetCurrentScanId();
-                if (scaid > 0)
+                var scanid = experiment.GetCurrentScanId();
+
+                if (scanid > 0)
                 {
-                    _graphicManagerVm.LoadXml(scaid);
+                    _graphicManagerVm.LoadXml(scanid);
                 }
             }
 

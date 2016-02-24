@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Windows;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
@@ -15,17 +14,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
     public sealed class PannelViewModel : BindableBase
     {
         #region Properties and Fields
-        private List<TreeViewItemModel> _listModuleInfos = new List<TreeViewItemModel>
-        {
-            new TreeViewItemModel { Name = GlobalConst.SingleNodeStr,Items = new List<TreeViewItemModel>()},
-        };
-
-
-        public List<TreeViewItemModel> ListModuleInfos
-        {
-            get { return _listModuleInfos; }
-            set { _listModuleInfos = value; }
-        }
 
         /// <summary>
         /// The collection of _modules in the PannelVm.
@@ -90,9 +78,16 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             MacroEditor.Instance.CreateModule += CreateModule;
             Macro.Clear += Clear;
+            MessageHelper.SetSelectViewItem += SetSelectViewItem;
             MessageHelper.PostMessage("Ready.");
-            Initialize();
         }
+
+        private void SetSelectViewItem(object item)
+        {
+            if (item == null) return;
+            SelectedViewItem = item as TreeViewItemModel;
+        }
+
         #endregion
 
         #region Methods
@@ -102,52 +97,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
             Modules.Clear();
             Connections.Clear();
             SelectedViewItem = null;
+            SelectedModuleViewModel = null;
         }
-
-        public void Initialize()
-        {
-            foreach (var minfo in ListModuleInfos.Where(info => !Equals(info, null)))
-            {
-                minfo.Items.Clear();
-            }
-
-            foreach (var name in ModuleInfoMgr.Categories)
-            {
-                ListModuleInfos[0].Items.Add(new TreeViewItemModel
-                {
-                    Name = name ,
-                    ItemType = ModuleType.None 
-                });
-            }
-
-            // add regular subModules
-            foreach (var info in ModuleInfoMgr.ModuleInfos)
-            {
-                foreach (var item in ListModuleInfos[0].Items)
-                {
-                    if (!info.IsCombo && item.Name == info.Category)
-                    {
-                        if (item.Items == null)
-                        {
-                            item.Items = new List<TreeViewItemModel>();
-                        }
-                        item.Items.Add(new TreeViewItemModel
-                        {
-                            Name = info.DisplayName,
-                            ItemType = GetModuleType(info.DisplayName)
-                        });
-                        break;
-                    }
-                }
-            }
-
-            MessageHelper.PostMessage("Ready.");
-
-        }
-
-        
-
-
 
         /// <summary>
         /// Event raised then Connections have been removed.
@@ -161,72 +112,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 connection.SourcePort = null;
                 connection.DestPort = null;
             }
-        }
-
-        public void FilterModuleInfo(string mName)
-        {
-            if (mName == string.Empty)
-            {
-                Initialize();
-                return;
-            }
-
-            MessageHelper.PostMessage(string.Format("Searching for \"{0}\" ...", mName));
-
-            foreach (var minfo in ListModuleInfos.Where(info => !Equals(info, null)))
-            {
-                minfo.Items.Clear();
-            }
-
-            foreach (var name in ModuleInfoMgr.Categories)
-            {
-                ListModuleInfos[0].Items.Add(new TreeViewItemModel
-                {
-                    Name = name,
-                    ItemType = GetModuleType(name)
-                });
-            }
-
-            var filtedModules = new List<ModuleInfo>();
-            filtedModules.Clear();
-            // filt my modules
-            filtedModules.AddRange(ModuleInfoMgr.ModuleInfos.Where(info => !info.IsCombo && info.DisplayName.ToLower().Contains(mName.ToLower())));
-
-            // add regular subModules
-            foreach (var info in filtedModules)
-            {
-                foreach (var item in ListModuleInfos[0].Items.Where(item => !info.IsCombo && item.Name == info.Category))
-                {
-                    if (item.Items == null)
-                    {
-                        item.Items = new List<TreeViewItemModel>();
-                    }
-                    item.Items.Add(new TreeViewItemModel
-                    {
-                        Name = info.DisplayName,
-                        ItemType = GetModuleType(info.DisplayName)
-                    });
-                    break;
-                }
-            }
-
-            foreach (var lstModinfo in ListModuleInfos)
-            {
-                var rLst = lstModinfo.Items.Where(item => item.Items == null).ToList();
-
-                foreach (var item in rLst)
-                {
-                    lstModinfo.Items.Remove(item);
-                }
-            }
-            MessageHelper.PostMessage(string.Format("Searching done for \"{0}\" ...", mName));
-        }
-
-
-        private ModuleType GetModuleType(string key)
-        {
-            if (string.IsNullOrEmpty(key)) return ModuleType.None;
-            return DataDictionary.ModuleTypeDic.ContainsKey(key) ? DataDictionary.ModuleTypeDic[key] : ModuleType.None;
         }
 
         public void UnSelectedAll()

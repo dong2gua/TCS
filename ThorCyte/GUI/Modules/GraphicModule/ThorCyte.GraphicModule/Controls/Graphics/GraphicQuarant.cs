@@ -42,7 +42,14 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
             }
         }
 
+        public Scattergram ParentScattergram { get; private set; }
+
         #endregion
+
+        public GraphicQuarant(Scattergram scattergram)
+        {
+            ParentScattergram = scattergram;
+        }
 
         #region Methods
 
@@ -66,21 +73,22 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
         {
             if (!IsShow || EventPoints == null)
                 return;
+            var scale = 100.0/EventPoints.Count;
 
             var brush = new SolidColorBrush(Colors.White);
-            var percentValue = (EventPoints.Count == 0) ? 0 : (int)(FirstQuadrantPercent * 100.0 / EventPoints.Count + 0.5);
+            var percentValue = (EventPoints.Count == 0) ? 0 : (int)(FirstQuadrantPercent * scale + 0.5);
             var text = DrawHelper.GetFormatText(percentValue + "%", DefaultTitleFontSize, brush);
             dc.DrawText(text, new Point(ClientRect.BottomRight.X - text.Width, ClientRect.Y));
 
-            percentValue = (EventPoints.Count == 0) ? 0 : (int)(SecondQuadrantPercent * 100.0 / EventPoints.Count + 0.5);
+            percentValue = (EventPoints.Count == 0) ? 0 : (int)(SecondQuadrantPercent * scale + 0.5);
             text = DrawHelper.GetFormatText(percentValue + "%", DefaultTitleFontSize, brush);
             dc.DrawText(text, ClientRect.TopLeft);
 
-            percentValue = (EventPoints.Count == 0) ? 0 : (int)(ThirdQuadrantPercent * 100.0 / EventPoints.Count + 0.5);
+            percentValue = (EventPoints.Count == 0) ? 0 : (int)(ThirdQuadrantPercent * scale + 0.5);
             text = DrawHelper.GetFormatText(percentValue + "%", DefaultTitleFontSize, brush);
             dc.DrawText(text, new Point(ClientRect.BottomLeft.X, ClientRect.BottomLeft.Y - text.Height));
 
-            percentValue = (EventPoints.Count == 0) ? 0 : (int)(FourthQuadrantPercent * 100.0 / EventPoints.Count + 0.5);
+            percentValue = (EventPoints.Count == 0) ? 0 : (int)(FourthQuadrantPercent * scale + 0.5);
             text = DrawHelper.GetFormatText(percentValue + "%", DefaultTitleFontSize, brush);
             dc.DrawText(text, new Point(ClientRect.BottomRight.X - text.Width, ClientRect.BottomLeft.Y - text.Height));
 
@@ -92,10 +100,11 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
             {
                 return;
             }
-            var centerX = QuadrantLine.HorizonLine.Start.X ;
-            var centerY = QuadrantLine.VerticalLine.Start.Y ;
-            var xscale = ClientRect.Width/BaseRect.Width;
-            var yscale = ClientRect.Height/BaseRect.Height;
+            var xscale = ClientRect.Width / (ParentScattergram.Vm.XAxis.MaxValue - ParentScattergram.Vm.XAxis.MinValue);
+            var yscale = ClientRect.Height / (ParentScattergram.Vm.YAxis.MaxValue - ParentScattergram.Vm.YAxis.MinValue);
+            var centerX = QuadrantLine.HorizonLine.Start.X / xscale + ParentScattergram.Vm.XAxis.MinValue;
+            var centerY = (ClientRect.Height - QuadrantLine.VerticalLine.Start.Y) / yscale + ParentScattergram.Vm.YAxis.MinValue;
+
             FirstQuadrantPercent = 0;
             SecondQuadrantPercent = 0;
             ThirdQuadrantPercent = 0;
@@ -103,29 +112,27 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
 
             foreach (var point in EventPoints)
             {
-                var x = point.X*xscale;
-                var y = point.Y*yscale;
-
-                if (x >= centerX)
+                if (point.X >= centerX)
                 {
-                    if (y <= centerY)
+                    if (point.Y <= centerY)
                     {
-                        FirstQuadrantPercent++;
+                        ++FourthQuadrantPercent;
                     }
                     else
                     {
-                        FourthQuadrantPercent++;
+                        ++FirstQuadrantPercent;
+                      
                     }
                 }
                 else
                 {
-                    if (y < centerY)
+                    if (point.Y < centerY)
                     {
-                        SecondQuadrantPercent++;
+                        ++ThirdQuadrantPercent;
                     }
-                    else if (y > centerY)
+                    else if (point.Y > centerY)
                     {
-                        ThirdQuadrantPercent++;
+                        ++SecondQuadrantPercent;
                     }
                 }
             }

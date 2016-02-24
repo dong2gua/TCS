@@ -19,7 +19,7 @@ namespace ROIService
     {
         #region Singleton
 
-        private readonly static  ROIManager InstanceField;
+        private static readonly  ROIManager InstanceField;
 
         public static ROIManager Instance
         {

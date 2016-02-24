@@ -119,11 +119,11 @@ namespace ImageProcess
             double angle, int xshift, int yshift, SafeHandle dstBuffer);
 
         [DllImport(DllName, EntryPoint = "fncv_lib_findContours_16uC1", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int FindContours16UC1(SafeHandle srcBuffer, int width, int height, double minArea,
-            double maxArea, ref IntPtr pBlobs, ref IntPtr pPointsCountPerBlob);
+        internal static extern int FindContours16UC1(SafeHandle srcBuffer, int width, int height, ref IntPtr pBlobs,
+            ref IntPtr pPointsCountPerBlob);
 
-        [DllImport(DllName, EntryPoint = "FreeIntBuffer", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void FreeIntBuffer(IntPtr pBuffer);
+        [DllImport(DllName, EntryPoint = "free_buffer", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void FreeBuffer(IntPtr pBuffer);
         #endregion
 
         static ImageProcessLib()

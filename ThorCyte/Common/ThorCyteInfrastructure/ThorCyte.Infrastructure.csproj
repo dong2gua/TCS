@@ -42,6 +42,9 @@
     <Reference Include="ImageProcess">
       <HintPath>..\..\Bin\ImageProcess.dll</HintPath>
     </Reference>
+    <Reference Include="LogService">
+      <HintPath>..\..\Bin\LogService.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="Prism">
@@ -67,11 +70,14 @@
     <Compile Include="Commom\RawDataReader.cs" />
     <Compile Include="Controls\DoubleClickCollapseGridSplitterBehavior.cs" />
     <Compile Include="Controls\DockPanelSplitter.cs" />
+    <Compile Include="Controls\GifImage.cs" />
+    <Compile Include="Controls\HyperlinkImage.cs" />
     <Compile Include="Controls\MouseBehaviours.cs" />
     <Compile Include="Controls\NoGdiWindow\CustomWindow.cs" />
     <Compile Include="Controls\NoGdiWindow\DelegateCommand.cs" />
     <Compile Include="Controls\NoGdiWindow\NoGdiWindow.cs" />
     <Compile Include="Controls\NoGdiWindow\PropertyChanged.cs" />
+    <Compile Include="Events\DisplayRegionTileSelectionEvent.cs" />
     <Compile Include="Events\ExperimentLoadedEvent.cs" />
     <Compile Include="Events\EventType.cs" />
     <Compile Include="Events\FrameChangedEvent.cs" />
@@ -89,8 +95,10 @@
     <Compile Include="Interfaces\IData.cs" />
     <Compile Include="Interfaces\IExperiment.cs" />
     <Compile Include="Commom\RegionNames.cs" />
+    <Compile Include="Interfaces\ILog.cs" />
     <Compile Include="Interfaces\ThorCyteData.cs" />
     <Compile Include="Interfaces\ThorCyteExperiment.cs" />
+    <Compile Include="Interfaces\ThorCyteLog.cs" />
     <Compile Include="Interfaces\ThorImageData.cs" />
     <Compile Include="Interfaces\ThorImageExperiment.cs" />
     <Compile Include="Interfaces\ThorOCTData.cs" />
@@ -105,9 +113,7 @@
     <Compile Include="Types\Well.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Logging\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Page Include="Themes\Dark\Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -118,9 +124,12 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\loading.gif" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(TargetPath) $(ProjectDir)..\..\Bin\</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(ProjectDir)..\..\Bin\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

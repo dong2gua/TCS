@@ -5,22 +5,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:views="clr-namespace:ThorCyte.GraphicModule.Views"
              mc:Ignorable="d" Width="260">
-    <StackPanel>
-        <Expander Header="Axis" IsExpanded="True">
-            <views:AxisTab/>
-        </Expander>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="2,0">
+            <Expander Header="Axis" IsExpanded="True">
+                <views:AxisTab Margin="2,0,0,0"/>
+            </Expander>
 
-        <Expander Header="Event Type" IsExpanded="True">
-            <views:EventTypeTab/>
-        </Expander>
+            <Expander Header="Event Type" IsExpanded="True">
+                <views:EventTypeTab Margin="2,0,0,0"/>
+            </Expander>
 
-        <Expander Header="General" IsExpanded="True">
-            <views:GeneralTab/>
-        </Expander>
+            <Expander Header="General" IsExpanded="True">
+                <views:GeneralTab Margin="2,0,0,0"/>
+            </Expander>
 
-        <Expander Header="RegionTool" IsExpanded="True">
-            <views:RegionTool/>
-        </Expander>
-        
-    </StackPanel>
+            <Expander Header="RegionTool" IsExpanded="True">
+                <views:RegionTool Margin="2,0,0,0"/>
+            </Expander>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

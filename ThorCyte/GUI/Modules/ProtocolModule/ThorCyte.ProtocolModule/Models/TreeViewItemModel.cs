@@ -21,6 +21,13 @@ namespace ThorCyte.ProtocolModule.Models
             set { SetProperty(ref _isSelected, value); }
         }
 
+        private bool _isExpanded;
+        public bool IsExpanded
+        {
+            get { return _isExpanded; }
+            set { SetProperty(ref _isExpanded, value); }
+        }
+
         #endregion
     }
 }

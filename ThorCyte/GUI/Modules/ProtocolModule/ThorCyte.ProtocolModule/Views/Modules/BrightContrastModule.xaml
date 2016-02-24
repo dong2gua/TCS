@@ -7,24 +7,24 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Expander Header="Bright Contrast" IsExpanded="True">
         <StackPanel Margin="5,0">
-            <Grid>
+            <Grid Margin="5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="80"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Transfer function: y = Cx + B" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Transfer function: y = Cx + B" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="ExtraBold"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Brightness:" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="1" Grid.Column="1" Margin="5" Text="{Binding ElementName=BrightSld, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Contrast:" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="2" Grid.Column="1" Margin="5" Text="{Binding Path=Contrast, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             
-            <Grid>
+            <Grid Margin="5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>

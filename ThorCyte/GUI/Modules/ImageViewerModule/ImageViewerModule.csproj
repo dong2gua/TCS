@@ -109,9 +109,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Control\GifImage.cs" />
+    <Compile Include="Control\ColorPicker.cs" />
     <Compile Include="Control\HistogramPanel.cs" />
     <Compile Include="Converter\BoolToStringConverter.cs" />
+    <Compile Include="Converter\ChannelListMenuConverter.cs" />
     <Compile Include="Converter\OperatorConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
     <Compile Include="Converter\VisibilityConverter.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="DrawTools\Graphics\GraphicsLine.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsRectangleBase.cs" />
     <Compile Include="DrawTools\Graphics\GraphicsSelectionRectangle.cs" />
+    <Compile Include="DrawTools\Graphics\GraphicsThumbnail.cs" />
     <Compile Include="DrawTools\Tools\Tool.cs" />
     <Compile Include="DrawTools\Tools\ToolDragger.cs" />
     <Compile Include="DrawTools\Tools\ToolEllipse.cs" />
@@ -249,17 +251,18 @@
     <Resource Include="Resources\ToSingle.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\loading.gif" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\ViewAll.png" />
     <Resource Include="Resources\ViewH.png" />
     <Resource Include="Resources\ViewOne.png" />
     <Resource Include="Resources\ViewV.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\MaskOn.png" />
+    <Resource Include="Resources\Scale.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(TargetPath) $(ProjectDir)..\..\..\Bin\DirectoryModules\</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(ProjectDir)..\..\..\Bin\DirectoryModules\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

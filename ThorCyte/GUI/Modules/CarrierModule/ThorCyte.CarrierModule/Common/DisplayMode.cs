@@ -3,6 +3,7 @@
     public enum DisplayMode
     {
         Review,
+        Protocol,
         Analysis
     }
 }

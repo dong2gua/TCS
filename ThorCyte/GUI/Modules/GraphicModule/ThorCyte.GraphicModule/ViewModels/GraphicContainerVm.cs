@@ -147,6 +147,10 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     return;
                 }
+                if (_selectedGraphic != null)
+                {
+                    _selectedGraphic.RegionToolType = ToolType.Pointer;
+                }
                 SetProperty(ref _selectedGraphic, value);
                 IsDeleteEnabled = value != null;
                 IsPropertyEnabled = value != null;
@@ -293,6 +297,23 @@ namespace ThorCyte.GraphicModule.ViewModels
         {
             foreach (var graphicTuple in _graphicDictionary)
             {
+                var scattergram = graphicTuple.Value.Item2 as ScattergramVm;
+                if (scattergram != null )
+                {
+                    if (scattergram.XAxis.IsNormalize)
+                    {
+                        scattergram.XAxis.NormalizeToActiveWell();
+                    }
+                    if (scattergram.YAxis.IsNormalize)
+                    {
+                        scattergram.YAxis.NormalizeToActiveWell();
+                    }
+                }
+                var histohgram = graphicTuple.Value.Item2 as HistogramVm;
+                if (histohgram != null && histohgram.XAxis.IsNormalize)
+                {
+                    histohgram.XAxis.NormalizeToActiveWell();
+                }
                 graphicTuple.Value.Item2.UpdateEvents();
             }
         }
@@ -307,6 +328,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 SelectedGraphic = vm;
             }
+            vm.XAxis.NormalizeToActiveWell();
+            vm.YAxis.NormalizeToActiveWell();
             return vm;
         }
 
@@ -320,6 +343,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 SelectedGraphic = vm;
             }
+            vm.XAxis.NormalizeToActiveWell();
+            vm.SetIsNewEnabld();
             return vm;
         }
 

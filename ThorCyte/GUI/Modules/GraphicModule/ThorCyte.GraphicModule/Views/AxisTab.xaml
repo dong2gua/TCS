@@ -14,138 +14,55 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel>
-        <StackPanel>
-            <GroupBox Header="Axis">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="3*"/>
-                    </Grid.ColumnDefinitions>
-                    <RadioButton x:Name="XCheckBox" Grid.Column="0"  Content="X" IsChecked="{Binding IsXSelected,Converter={StaticResource AxisSelectedCvt},ConverterParameter=X}"/>
-                    <RadioButton x:Name="YCheckBox" Grid.Column="1"  Content="Y" IsEnabled="{Binding IsYAxisEnabled}" IsChecked="{Binding IsXSelected,Converter={StaticResource AxisSelectedCvt},ConverterParameter=Y}"/>
-                </Grid>
-            </GroupBox>
-            
-            <!--<Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="3*"/>
-                </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" Content="Ticks :"/>
-                
-                <Grid Grid.Column="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
+    <Grid Margin="5,2,2,2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
 
-                    <toolkit:IntegerUpDown x:Name="TickIntger" Grid.Column="0" Margin="2" VerticalAlignment="Center" Value="{Binding SelectedAxis.Ticks}" Minimum="1" Maximum="20"/>
-                    <TextBox x:Name="TickScaleTb" Grid.Column="1" Margin="2" IsEnabled="False" VerticalAlignment="Center" Text="{Binding SelectedAxis.TickScale}"/>
-                </Grid>
-            </Grid>-->
-        </StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="3*"/>
-            </Grid.ColumnDefinitions>
-            
-            <Grid Grid.Column="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Margin="2" IsEnabled="{Binding ElementName=ChkDefault,Path=IsChecked,Converter={StaticResource EnabledCvt}}" VerticalAlignment="Center" Text="{Binding SelectedAxis.LabelString}" />
-                <CheckBox x:Name="ChkDefault" Grid.Column="1" Margin="2" Content="Use default" VerticalAlignment="Center" IsChecked="{Binding SelectedAxis.IsDefaultLabel}"/>
-            </Grid>
-            <Label Content="Label :" Grid.Column="0"/>
-        </Grid>
+        <RadioButton x:Name="XCheckBox" Grid.Row="0" Grid.Column="0" Margin="3,0" Content="X" IsChecked="{Binding IsXSelected,Converter={StaticResource AxisSelectedCvt},ConverterParameter=X}"/>
+        <RadioButton x:Name="YCheckBox" Grid.Row="0" Grid.Column="1" Content="Y" Margin="6,0,0,0" IsEnabled="{Binding IsYAxisEnabled}" IsChecked="{Binding IsXSelected,Converter={StaticResource AxisSelectedCvt},ConverterParameter=Y}"/>
 
-        <GroupBox>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="3*"/>
-                </Grid.ColumnDefinitions>
+        <Label Content="Label :" Grid.Column="0" Grid.Row="1" />
+        <TextBox Grid.Column="0" Grid.Row="2" Margin="3,0" IsEnabled="{Binding ElementName=ChkDefault,Path=IsChecked,Converter={StaticResource EnabledCvt}}" VerticalAlignment="Center" Text="{Binding SelectedAxis.LabelString}" />
+        <CheckBox x:Name="ChkDefault" Grid.Column="1" Grid.Row="2" Margin="6,0,0,0" Content="Use default" VerticalAlignment="Center" IsChecked="{Binding SelectedAxis.IsDefaultLabel}"/>
 
-                <Grid Grid.Column="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Label Grid.Row="1" Grid.Column="0" Content="Numerator :"/>
-                    <Label Grid.Row="2" Grid.Column="0" Content="Denominator :"/>
-                </Grid>
-                
-                <Grid Grid.Column="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-
-                    <Label Grid.Row="0" Grid.Column="0" Content="Feature" HorizontalAlignment="Center"/>
-                    <Label Grid.Row="0" Grid.Column="1" Content="Channel" HorizontalAlignment="Center"/>
-
-                    <ComboBox Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="2"
-                          ItemsSource="{Binding SelectedAxis.NumeratorFeatureList}" SelectedItem="{Binding SelectedAxis.SelectedNumeratorFeature}" DisplayMemberPath="Name"/>
-                    <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" 
-                          ItemsSource="{Binding NumeratorChannelList}" SelectedItem="{Binding SelectedNumeratorChannel}" Margin="2"
+        <Label Grid.Row="3" Grid.Column="0" Content="Numerator :"/>
+        <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="3,0"
+                          ItemsSource="{Binding NumeratorFeatureList}" SelectedItem="{Binding SelectedNumeratorFeature}" DisplayMemberPath="Name"/>
+        <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0"
+                          ItemsSource="{Binding NumeratorChannelList}" SelectedItem="{Binding SelectedNumeratorChannel}"
                           IsEnabled="{Binding IsNumeratorChannelEnabled}" DisplayMemberPath="ChannelName"/>
 
-                    <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="2"
+
+        <Label Grid.Row="5" Grid.Column="0" Content="Denominator :"/>
+        <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="6" Grid.Column="0" VerticalAlignment="Center" Margin="3,0"
                           ItemsSource="{Binding DenominatorFeatureList}" SelectedItem="{Binding SelectedDenominatorFeature}" DisplayMemberPath="Name"/>
-                    <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="2"
+        <ComboBox DataContext="{Binding SelectedAxis}" Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0"
                           ItemsSource="{Binding DenominatorChannelList}" SelectedItem="{Binding SelectedDenominatorChannel}" 
                           IsEnabled="{Binding IsDenominatorChannelEnabled}" DisplayMemberPath="ChannelName"/>
-                </Grid>
 
-            </Grid>
-        </GroupBox>
+        <Label Grid.Row="7" Grid.Column="0" Content="Range :"/>
+        <toolkit:DoubleUpDown x:Name="MinRange" Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" Margin="3,0"
+                                  Value="{Binding SelectedAxis.MinRange}" />
+        <toolkit:DoubleUpDown x:Name="MaxRange" Grid.Row="8" Grid.Column="1" VerticalAlignment="Bottom" Margin="6,0,0,0"
+                                  Value="{Binding SelectedAxis.MaxRange}" />
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="3*"/>
-            </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="Range :"/>
-            
-            <Grid Grid.Column="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <toolkit:DoubleUpDown x:Name="MinRange" Grid.Column="0" VerticalAlignment="Center" Margin="2"
-                                  Value="{Binding SelectedAxis.MinRange}" IsEnabled="{Binding SelectedAxis.IsRangeEnabled}"/>
-                <toolkit:DoubleUpDown x:Name="MaxRange" Grid.Column="1" VerticalAlignment="Center" Margin="2"
-                                  Value="{Binding SelectedAxis.MaxRange}" IsEnabled="{Binding SelectedAxis.IsRangeEnabled}"/>
-            </Grid>
-        </Grid>
+        <CheckBox Content="Log scale" Grid.Row="9" Grid.Column="0" Margin="3,0" IsEnabled="{Binding SelectedAxis.IsLogScaleEnabled}" IsChecked="{Binding SelectedAxis.IsLogScale}"/>
+        <CheckBox x:Name="ChkNormalize" Grid.Row="9" Grid.Column="1" Margin="6,0,0,0" Content="Normalize" IsChecked="{Binding SelectedAxis.IsNormalize}"/>
 
-        <Grid Margin="0,0,0,2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="3*"/>
-            </Grid.ColumnDefinitions>
-
-            <!--<CheckBox x:Name="GridCb" Grid.Column="0" Margin="2" Content="Grid" IsChecked="{Binding SelectedAxis.IsShowGrid}"/>-->
-            <CheckBox Content="Log scale" Grid.Column="0" Margin="2" IsEnabled="{Binding SelectedAxis.IsLogScaleEnabled}" IsChecked="{Binding SelectedAxis.IsLogScale}"/>
-            <CheckBox x:Name="ChkNormalize" Grid.Column="1" Margin="2" Content="Normalize to active wells" IsChecked="{Binding SelectedAxis.IsNormalize}"/>
-            <!--<Grid Grid.Column="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <CheckBox Content="Log scale" Grid.Column="0" Margin="2" IsChecked="{Binding SelectedAxis.IsLogScale}"/>
-                <CheckBox x:Name="ChkNormalize" Grid.Column="1" Margin="2" Content="Normalize to active wells" IsChecked="{Binding SelectedAxis.IsNormalize}"/>
-            </Grid>-->
-        </Grid>
-    </StackPanel>
+    </Grid>
 </UserControl>

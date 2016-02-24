@@ -13,6 +13,7 @@ using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
 using ThorCyte.ProtocolModule.Controls;
+using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace ThorCyte.ProtocolModule.ViewModels
 {
@@ -28,23 +29,15 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public ICommand MacroCommnad { get; private set; }
         public ICommand AlignCommnad { get; private set; }
 
-
-        private static readonly MarcoEditorViewModel _mainWindowWm = new MarcoEditorViewModel();
-
-        public static MarcoEditorViewModel Instance
-        {
-            get { return _mainWindowWm; }
-        }
-
         private IEventAggregator _eventAggregator;
-        public IEventAggregator EventAggregator
+
+        private IEventAggregator EventAggregator
         {
             get
             {
                 return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
             }
         }
-
 
         /// <summary>
         /// This is the PannelVm that is displayed in the window.
@@ -127,7 +120,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         #region Contructors
 
-        private MarcoEditorViewModel()
+        public MarcoEditorViewModel()
         {
             MessageHelper.SetMessage += SetMessage;
             MessageHelper.SetProgress += SetProgress;
@@ -151,7 +144,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             _isAlignEnable = !IsRuning;
         }
 
-        private void ExpLoaded(int obj)
+        private void ExpLoaded(int scanid)
         {
             SelectModuleOrder.Clear();
         }
@@ -161,7 +154,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             var module = sender as Module;
 
             if (module == null) return;
-
+             
             var mb = module.Content as ModuleBase;
 
             if (mb == null) return;
@@ -208,6 +201,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
             catch (Exception ex)
             {
+                Macro.Logger.Write("Error occurred in SetModulesAlign", ex);
                 MessageBox.Show("Error occurred in SetModulesAlign" + ex.Message, "ThorCyte", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -238,13 +232,24 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
             var connection = new ConnectorModel();
 
-            if (draggedOutPort.PortType == PortType.InPort && draggedOutPort.AttachedConnections.Count > 0)
+            if (draggedOutPort.PortType == PortType.InPort)
             {
-                //1 connetion at most
-                connection = draggedOutPort.AttachedConnections[0];
-                PannelVm.Connections.Remove(connection);
-                connection.DestPortHotspot = curDragPoint;
-                PannelVm.Connections.Add(connection);
+
+                if (draggedOutPort.AttachedConnections.Count > 0)
+                {
+                    //1 connetion at most
+                    connection = draggedOutPort.AttachedConnections[0];
+                    PannelVm.Connections.Remove(connection);
+                    connection.DestPort = null;
+                    connection.DestPortHotspot = draggedOutPort.HotSpot;
+                    PannelVm.Connections.Add(connection);
+                }
+                else
+                {
+                    connection.DestPort = draggedOutPort;
+                    connection.SourcePortHotspot = draggedOutPort.HotSpot;
+                    PannelVm.Connections.Add(connection);
+                }
             }
             else if (draggedOutPort.PortType == PortType.OutPort)
             {
@@ -253,7 +258,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 connection.DestPortHotspot = curDragPoint;
                 PannelVm.Connections.Add(connection);
             }
-
             // Add the new connection to the view-model.
             return connection;
         }
@@ -306,7 +310,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// <summary>
         /// Judge Connections contain endPort,one ModuleVmBase only one Output
         /// </summary>
-        public bool HaveConnetion(PortModel endPort)
+        private bool HaveConnetion(PortModel endPort)
         {
             return PannelVm.Connections.Any(connection => connection.DestPortHotspot == endPort.HotSpot);
         }
@@ -318,7 +322,23 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             try
             {
-                if (portDraggedOut.PortType == PortType.InPort) portDraggedOut = newConnection.SourcePort;
+                if (portDraggedOut.PortType == PortType.InPort)
+                {
+
+                    if (newConnection.SourcePort == null)
+                    {
+                        //new connection switch dragout and drag over port.
+                        var tempPort = portDraggedOut;
+                        portDraggedOut = portDraggedOver;
+                        portDraggedOver = tempPort;
+                    }
+                    else
+                    {
+                        //Drag current connection
+                        portDraggedOut = newConnection.SourcePort;
+                    }
+
+                }
 
                 if (!IsConnectable(portDraggedOut, portDraggedOver))
                 {
@@ -352,10 +372,19 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 }
 
                 // Finalize the connection by attaching it to the connector that the user dragged the mouse over.
-                newConnection.DestPort = portDraggedOver;
+                if (newConnection.SourcePort == null)
+                {
+                    newConnection.SourcePort = portDraggedOut;
+                    newConnection.DestPortHotspot = portDraggedOver.HotSpot;
+                }
+                else
+                {
+                    newConnection.DestPort = portDraggedOver;
+                }
             }
             catch (Exception ex)
             {
+                Macro.Logger.Write("MacroEditorViewModel:ConnectionDragCompleted error: ", ex);
                 Debug.WriteLine("MacroEditorViewModel:ConnectionDragCompleted error: " + ex.Message);
             }
 
@@ -365,7 +394,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             var res = true;
 
-            if (newConnection.SourcePort == null) return false;
+            //if (newConnection.SourcePort == null) return false;
 
             switch (portDraggedOut.PortType)
             {
@@ -400,10 +429,21 @@ namespace ThorCyte.ProtocolModule.ViewModels
             }
         }
 
+        public void DeleteSelectedConnectors()
+        {
+            var rmvConns = PannelVm.Connections.Where(conn => conn.IsSelected).ToList();
+            foreach (var rmvc in rmvConns)
+            {
+                rmvc.SourcePort = null;
+                rmvc.DestPort = null;
+                PannelVm.Connections.Remove(rmvc);
+            }
+        }
+
         /// <summary>
         /// Delete the moduleVm from the view-model.Also deletes any connections to or from the moduleVm.
         /// </summary>
-        public void DeleteModule(ModuleBase moduleVm)
+        private void DeleteModule(ModuleBase moduleVm)
         {
             // Remove all connections attached to the moduleVm.
             PannelVm.Connections.RemoveRange(moduleVm.AttachedConnections);
@@ -435,10 +475,12 @@ namespace ThorCyte.ProtocolModule.ViewModels
         /// <summary>
         /// Retrieve a connection between the two connectors.Returns null if there is no connection between the connectors.
         /// </summary>
-        public ConnectorModel FindConnection(ConnectorModel newConnection, PortModel port1, PortModel port2)
+        private ConnectorModel FindConnection(ConnectorModel newConnection, PortModel port1, PortModel port2)
         {
-            Trace.Assert(port1.PortType != port2.PortType);
-
+            if (port1.PortType == port2.PortType)
+            {
+                return null;
+            }
             // Figure out which one is the source connector and which one is the destination connector based on their connector types.
             var sourcePort = port1.PortType == PortType.OutPort ? port1 : port2;
             var destPort = port1.PortType == PortType.OutPort ? port2 : port1;

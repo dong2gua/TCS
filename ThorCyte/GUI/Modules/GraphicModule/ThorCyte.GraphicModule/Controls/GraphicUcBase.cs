@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -115,6 +116,10 @@ namespace ThorCyte.GraphicModule.Controls
                 {
                     vm.SelectedRegionColor = GraphicVmBase.ColorRegionList[0];
                 }
+                else
+                {
+                    vm.SelectedRegionColor = GraphicVmBase.ColorRegionList.FirstOrDefault(colorModel => colorModel.RegionColor == canvas.RegionColor);
+                }
             }
         }
 
@@ -158,7 +163,7 @@ namespace ThorCyte.GraphicModule.Controls
         public virtual void SetBindings()
         {
             RegionPanel.SetBinding(RegionCanvas.ToolProperty,
-                new Binding { Path = new PropertyPath("(0)", typeof(GraphicVmBase).GetProperty("RegionToolType")), Mode = BindingMode.TwoWay, NotifyOnSourceUpdated = true });
+                new Binding("RegionToolType") { Source = GraphicVm,Mode = BindingMode.TwoWay,NotifyOnSourceUpdated=true});
             RegionPanel.SetBinding(RegionCanvas.RegionColorProperty,
                 new Binding("SelectedRegionColor") { Source = GraphicVm, Mode = BindingMode.TwoWay, Converter = new RegionColorConvert() });
             var xaxisBinding = new Binding("Title") { Source = GraphicVm.XAxis };

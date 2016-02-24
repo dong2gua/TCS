@@ -55,7 +55,7 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
             double radiusX = (r.Right - r.Left) / 2.0;
             double radiusY = (r.Bottom - r.Top) / 2.0;
             var formatText = new FormattedText(Name, new CultureInfo("en-US"), FlowDirection.LeftToRight,
-                new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal), FontSize, new SolidColorBrush(Colors.White));
+                new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal), FontSize, new SolidColorBrush(Colors.Black));
             dc.DrawEllipse(_fillObjectBrush, new Pen(brush, ActualLineWidth), center, radiusX, radiusY);
             center.X -= formatText.Width / 2;
             center.Y -= formatText.Height / 2;

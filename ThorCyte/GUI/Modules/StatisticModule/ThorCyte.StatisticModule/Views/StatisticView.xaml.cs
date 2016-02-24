@@ -1,8 +1,11 @@
-﻿using System.Runtime.InteropServices.WindowsRuntime;
+﻿using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Windows.Controls;
+using Abt.Controls.SciChart;
 using Microsoft.Practices.Unity;
 using ThorCyte.Statistic.Models;
 using ThorCyte.Statistic.ViewModels;
+using Abt.Controls.SciChart.ChartModifiers;
 
 namespace ThorCyte.Statistic.Views
 {

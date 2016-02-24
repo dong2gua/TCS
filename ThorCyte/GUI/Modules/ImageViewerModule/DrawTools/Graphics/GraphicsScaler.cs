@@ -7,8 +7,9 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
 {
     public class GraphicsScaler : GraphicsBase
     {
-        public GraphicsScaler()
+        public GraphicsScaler(DrawingCanvas canvas)
         {
+            Canvas = canvas;
             GraphicsObjectColor = Colors.Black;
         }
         public Point Point;
@@ -16,10 +17,11 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
         public double YPixelSize { get; set; }
         public override void Draw(DrawingContext drawingContext)
         {
+            if (!Canvas.IsShowScaler) return;
             if (XPixelSize == 0) return;
             int textLength;
             double displayLength, unitC = 1;
-            var realLength = 200 / ActualScale.Item3 / ActualScale.Item1* XPixelSize;
+            var realLength = 100 / ActualScale.Item3 / ActualScale.Item1* XPixelSize;
             var unit = "µm";
             var digits =(int)Math.Floor( Math.Log10(realLength));
             int tmp = (int)(realLength / Math.Pow(10, digits));

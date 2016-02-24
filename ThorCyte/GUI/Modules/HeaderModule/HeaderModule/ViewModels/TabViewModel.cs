@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ComponentDataService;
@@ -9,13 +10,15 @@ using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using ThorCyte.HeaderModule.Common;
 using ThorCyte.HeaderModule.Views;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
+using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace ThorCyte.HeaderModule.ViewModels
 {
-    public class TabViewModel: BindableBase
+    public class TabViewModel: BindableBase, ILongTimeTask
     {
         private string _currentTab;
         private IUnityContainer _unityContainer;
@@ -86,27 +89,15 @@ namespace ThorCyte.HeaderModule.ViewModels
                     _unityContainer.RegisterInstance<IData>(_data);
                     ExperimentInfo info = _experiment.GetExperimentInfo();
                     string path = info.ExperimentPath + "\\Analysis";
-                    string AnalysisPath;
-                    var di = new DirectoryInfo(path);
-                    if (di.Exists)
+                    if (Directory.Exists(path))
                     {
-                        AnalysisViewModel analysisViewModel = new AnalysisViewModel(info.ExperimentPath, false);
-                        AnalysisView w = new AnalysisView(analysisViewModel);
-                        if (w.ShowDialog() != true)
+                        var analysisViewModel = new AnalysisViewModel(info.ExperimentPath, false);
+                        var w = new AnalysisView(analysisViewModel);
+                        if (w.ShowDialog() == true)
                         {
-                            AnalysisPath = path + "\\Temp";
-                        }
-                        else
-                        {
-                            AnalysisPath = analysisViewModel.SaveAnalysisPath;
+                            _experiment.SetAnalysisPath(analysisViewModel.SaveAnalysisPath, true);
                         }
                     }
-                    else
-                    {
-                        di.Create();
-                        AnalysisPath = path + "\\Temp";
-                    }
-                    _experiment.SetAnalysisPath(AnalysisPath);
                     ComponentDataManager.Instance.Load(_experiment);
                     IsLoaded = true;
                     SelectTab("ReviewModule");
@@ -129,8 +120,26 @@ namespace ThorCyte.HeaderModule.ViewModels
             AnalysisView w = new AnalysisView(analysisViewModel);
             if (w.ShowDialog() != true) return;
             _experiment.SetAnalysisPath(analysisViewModel.SaveAnalysisPath);
+            SaveWaiting dlg = new SaveWaiting(this);
+            dlg.Owner = Application.Current.MainWindow;
+            dlg.ShowDialog();
+        }
+
+        private void Save()
+        {
             ComponentDataManager.Instance.Save(_experiment.GetExperimentInfo().AnalysisPath);
-            _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0); 
-        }  
+            _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0);
+            _waitingDlg.TaskEnd(null);
+        }
+
+        private Thread _saveThread;
+        private SaveWaiting _waitingDlg;
+        public void Start(SaveWaiting dlg)
+        {
+            _waitingDlg = dlg;
+            _saveThread = new Thread(Save);
+            _saveThread.Start();
+
+        }
     }
 }

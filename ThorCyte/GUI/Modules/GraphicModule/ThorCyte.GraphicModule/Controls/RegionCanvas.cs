@@ -15,6 +15,7 @@ using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.Utils;
 using ThorCyte.GraphicModule.ViewModels;
 using ThorCyte.Infrastructure.Types;
+using SelectionMode = ThorCyte.GraphicModule.Utils.SelectionMode;
 
 namespace ThorCyte.GraphicModule.Controls
 {
@@ -320,7 +321,7 @@ namespace ThorCyte.GraphicModule.Controls
                 }
                 else
                 {
-                    region = new GateRegion(id,0,0);
+                    region = new GateRegion(id, 0, 0);
                 }
             }
             else if (graphic.GraphicType == RegionType.Polygon)
@@ -474,12 +475,21 @@ namespace ThorCyte.GraphicModule.Controls
 
         private void OnMouseLeave(object sender, MouseEventArgs e)
         {
-            if ((CurrentTool as RegionToolObject) != null)
+
+            var tool = CurrentTool as RegionToolObject;
+            if (tool != null && tool.IsNew)
             {
-                var toolobj = CurrentTool as RegionToolObject;
-                if (toolobj.IsNew)
+                var eventArgs = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, Tool == ToolType.Polygon ? MouseButton.Right : MouseButton.Left);
+                OnMouseUp(this, eventArgs);
+                return;
+            }
+
+            var toolPoint = CurrentTool as RegionToolPointer;
+            if (toolPoint != null)
+            {
+                if (toolPoint.SelectMode == SelectionMode.Size || toolPoint.SelectMode == SelectionMode.Move)
                 {
-                    var eventArgs = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, Tool == ToolType.Polygon ? MouseButton.Right : MouseButton.Left);
+                    var eventArgs = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left);
                     OnMouseUp(this, eventArgs);
                 }
             }

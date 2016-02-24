@@ -7,16 +7,28 @@
         xmlns:controls="clr-namespace:ThorCyte.Infrastructure.Controls;assembly=ThorCyte.Infrastructure"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
+        xmlns:local="clr-namespace:ThorCyte"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" 
         UsesWindowsFormsHost="False"
-        
         Title="ThorCyte" Height="600" Width="600" MinWidth="600" MinHeight="600" 
-        Icon="Icons/ThorCyte.ico"
+        Icon="Icons/ThorCyte.ico" Background="{x:Null}" ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen" >
-    <Grid >
-    <Border BorderThickness="1"
-            
-                BorderBrush="Black"
-                CornerRadius="6">
+    <Window.Resources>
+        <Style TargetType="{x:Type local:MainWindow}">
+            <Setter Property="shell:WindowChrome.WindowChrome">
+                <Setter.Value>
+                    <shell:WindowChrome CaptionHeight="0"
+                                        CornerRadius="0"
+                                        GlassFrameThickness="0"
+                                        NonClientFrameEdges="None"
+                                        ResizeBorderThickness="4"
+                                        />
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="2,2,5,2" >
+    <Border>
         <Grid Background="#444444" >
         <Grid.ColumnDefinitions>
             <!--<ColumnDefinition Width="102"/>-->
@@ -44,14 +56,14 @@
                           Height="32"
                           Margin="100 0 0 0" />
             <DockPanel>
-                <ContentControl regions:RegionManager.RegionName="{x:Static inf:RegionNames.HeadRegion}" DockPanel.Dock="Left"/>
-                
+                <ContentControl regions:RegionManager.RegionName="{x:Static inf:RegionNames.HeadRegion}" DockPanel.Dock="Left"/>            
                 <StackPanel DockPanel.Dock="Right"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Top"
                                 Margin="4">
-                        <Image  HorizontalAlignment="Right" Height="19" Width="120" Margin="0,3,10,0" Source="Icons/ThorlabsLogo.png"/>
+                            <controls:HyperlinkImage  HorizontalAlignment="Right" Height="19" Width="120" Margin="0,3,10,0" Source="Icons/ThorlabsLogo.png" 
+                                                      ToolTip="Link to Thorlabs.com" NavigateUri="http://www.thorlabs.com"/>
                     
                         <Button ToolTip="Minimize"
                                 Height="24"

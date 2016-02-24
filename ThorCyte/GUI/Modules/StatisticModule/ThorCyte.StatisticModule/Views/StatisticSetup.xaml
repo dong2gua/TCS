@@ -51,7 +51,7 @@
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <ListBox ItemsSource="{Binding RunFeatureContainer}"  SelectedItem="{Binding DataContext.SelectedRunFeature, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}">
+                            <ListBox ItemsSource="{Binding RunFeatureContainer}"  SelectedItem="{Binding DataContext.SelectedRunFeature, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ctrl:CustomWindow}}}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel Orientation="Vertical"/>

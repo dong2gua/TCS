@@ -19,7 +19,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" x:Name="SoftWare"  HorizontalAlignment="Center" VerticalAlignment="Bottom"  FontFamily="Comic Sans MS" Foreground="White" FontSize="50" FontWeight="Heavy" Grid.ColumnSpan="2">ThorCyte</TextBlock>
-            <TextBlock Grid.Row="1" x:Name="Version" HorizontalAlignment="Left" FontFamily="Comic Sans MS"  Background="Transparent" Foreground="White" FontSize="20" Grid.Column="1"> Version 1.0</TextBlock>
+            <TextBlock Grid.Row="1" x:Name="Version" HorizontalAlignment="Left" FontFamily="Comic Sans MS"  Background="Transparent" Foreground="White" FontSize="20" Grid.Column="1"> Version 0.1</TextBlock>
         </Grid>
     </Grid>
 </UserControl>

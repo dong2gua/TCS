@@ -125,8 +125,8 @@ namespace ThorCyte.GraphicModule.Models
         public void RefreshData()
         {
             _datas.Clear();
-            _datas.AddRange(new double[(int)ParentGraph.Width]);
-            _xscale = (ParentGraph.XAxis.MaxValue - ParentGraph.XAxis.MinValue) / ((int)ParentGraph.Width - 1);
+            _datas.AddRange(new double[ParentGraph.Width]);
+            _xscale = (ParentGraph.XAxis.MaxValue - ParentGraph.XAxis.MinValue) / (ParentGraph.Width - 1);
             foreach (var wellId in _wellNoList)
             {
                 var events = ComponentDataManager.Instance.GetEvents(ParentGraph.SelectedComponent, wellId);
@@ -150,7 +150,7 @@ namespace ThorCyte.GraphicModule.Models
                 return;
            // var binWidth = ParentGraph.SelectedChannelCount / ParentGraph.SelectedBinCount;
             //pt.X /= binWidth;	// convert into plot coordinate
-            pt.X = (int)((pt.X - ParentGraph.XAxis.MinValue) / _xscale + 0.5);
+            pt.X = (int)((pt.X - ParentGraph.XAxis.MinValue) / _xscale);
             _datas[(int)pt.X] = _datas[(int)pt.X] + 1D;
         }
 

@@ -15,7 +15,7 @@
         <Grid Width="{Binding ElementName=Uct,Path=ActualWidth}">
             <ContentControl Content="{Binding ShowingView}"/>
         </Grid>
-        <Expander IsExpanded="{Binding IsTileVisible}" Header="Tile View">
+        <Expander IsExpanded="{Binding IsTileExpand}" Header="Tile View" Visibility="{Binding IsTileVisible, Converter={StaticResource BoolVisibleCvt}}">
             <ScrollViewer  Width="{Binding ElementName=Uct,Path=ActualWidth}" 
                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <ContentControl Content="{Binding ShowingTile}" BorderThickness="3"/>

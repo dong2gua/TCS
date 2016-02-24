@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using ThorCyte.Infrastructure.Interfaces;
 
 namespace ThorCyte.Infrastructure.Types
 {
@@ -105,7 +102,7 @@ namespace ThorCyte.Infrastructure.Types
 
             double incWidth = width + xInterval;
             double incHeight = height + yInterval;
-
+            
             if (scanPathType == ScanPathType.Serpentine)
             {
                 int row = 0;
@@ -120,11 +117,11 @@ namespace ThorCyte.Infrastructure.Types
                             IntersectionDetail id = gm.FillContainsWithDetail(rcGm);
                             if (id != IntersectionDetail.Empty)
                             {
-                                Scanfield field = new Scanfield(rect);
-                                field.ScanFieldId = ScanFieldList.Count + 1;
+                                Scanfield field = new Scanfield(rect) {ScanFieldId = ScanFieldList.Count + 1};
                                 ScanFieldList.Add(field);
                             }
                         }
+                       
                     }
                     else
                     {
@@ -135,8 +132,7 @@ namespace ThorCyte.Infrastructure.Types
                             IntersectionDetail id = gm.FillContainsWithDetail(rcGm);
                             if (id != IntersectionDetail.Empty)
                             {
-                                Scanfield field = new Scanfield(rect);
-                                field.ScanFieldId = ScanFieldList.Count + 1;
+                                Scanfield field = new Scanfield(rect) {ScanFieldId = ScanFieldList.Count + 1};
                                 ScanFieldList.Add(field);
                             }
                         }
@@ -155,13 +151,18 @@ namespace ThorCyte.Infrastructure.Types
                         IntersectionDetail id = gm.FillContainsWithDetail(rcGm);
                         if (id != IntersectionDetail.Empty)
                         {
-                            Scanfield field = new Scanfield(rect);
-                            field.ScanFieldId = ScanFieldList.Count + 1;
+                            Scanfield field = new Scanfield(rect) {ScanFieldId = ScanFieldList.Count + 1};
                             ScanFieldList.Add(field);
                         }
                     }
                 }
             }
+
+            int rows = (int) Math.Ceiling((Bound.Width + xInterval)/incWidth);
+            int cols = (int) Math.Ceiling((Bound.Height + yInterval)/incHeight);
+            double newWidth = rows*incWidth - xInterval;
+            double newHeight = cols*incHeight - yInterval;
+            Bound = new Rect(Bound.Location, new Size(newWidth, newHeight));
 
         }
 

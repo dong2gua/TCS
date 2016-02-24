@@ -232,6 +232,8 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 {
                     case "ReviewModule":
                         break;
+
+                    case "ProtocolModule":
                     case "AnalysisModule":
                         UpdateChannels();
                         break;
@@ -239,6 +241,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
             catch (Exception ex)
             {
+                Macro.Logger.Write("Error Occurred in Module ShowRegionEventHandler", ex);
                 MessageHelper.PostMessage("Error Occurred in Module ShowRegionEventHandler " + ex.Message);
             }
         }

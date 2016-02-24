@@ -7,7 +7,6 @@ using Prism.Interactivity.InteractionRequest;
 using ThorCyte.Statistic;
 using ThorCyte.Statistic.Models;
 using System.Collections.Generic;
-using Prism.Events;
 using Microsoft.Practices.Unity;
 using ThorCyte.Infrastructure.Interfaces;
 using ComponentDataService;
@@ -15,7 +14,18 @@ using System.Linq;
 using ROIService;
 using System.Collections.ObjectModel;
 using System.Dynamic;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
+using Abt.Controls.SciChart;
+using Abt.Controls.SciChart.ChartModifiers;
+using Abt.Controls.SciChart.Model.DataSeries;
+using Abt.Controls.SciChart.Visuals.Axes;
+using Microsoft.Practices.ObjectBuilder2;
+using Microsoft.Practices.ServiceLocation;
+using ThorCyte.Infrastructure.Events;
 using ThorCyte.Statistic.Views;
+using IEventAggregator = Prism.Events.IEventAggregator;
 
 namespace ThorCyte.Statistic.ViewModels
 {
@@ -29,11 +39,19 @@ namespace ThorCyte.Statistic.ViewModels
         {
             SetupPopup = new InteractionRequest<StatisticDataNotification>();
             ExperimentAdapter = experiment;
-            //PopupWinAdapter = container.Resolve<IPopupSetupWindow>();
             ModelAdapter = model;
             PopupWinAdapter = popupwin;
             IsWellStatisticShow = false;
             IsRegionStatisticShow = false;
+            ChartRangeLimit = new DoubleRange();
+            var loadEvt = eventAggregator.GetEvent<ExperimentLoadedEvent>();
+            loadEvt.Subscribe(RequestUpdateIExperiment);
+        }
+
+        //to do: ExperimentLoadedEvent has been changed
+        private void RequestUpdateIExperiment(int scanId)
+        {
+            ExperimentAdapter = ServiceLocator.Current.GetInstance<IExperiment>();
         }
 
         public InteractionRequest<StatisticDataNotification> SetupPopup { get; private set; }
@@ -71,18 +89,37 @@ namespace ThorCyte.Statistic.ViewModels
                     OnPropertyChanged(() => IsWellStatisticShow);
                     OnPropertyChanged(() => IsRegionStatisticShow);
                     //Get Component
+                    
+                    var path = ExperimentAdapter.GetExperimentInfo().AnalysisPath;
+                    var runfeaturelist = new List<RunFeature>();
+                    if (Directory.Exists(path + StatisticModel.StatisticsPath))
+                    {
+                        //Directory.CreateDirectory(path + StatisticModel.StatisticsPath);
+                        var statisticFiles = Directory.GetFiles(path + StatisticModel.StatisticsPath);
+                        var serializer = new XmlSerializer(typeof(RunFeature));
+                        runfeaturelist = statisticFiles.Select(x =>
+                        {
+                            RunFeature rf;
+                            using (var stream = File.OpenRead(x))
+                            {
+                                rf = (RunFeature)serializer.Deserialize(stream);
+                            }
+                            return rf;
+                        }).ToList();
+                    }
+
                     var components = ComponentDataManager.Instance.GetComponentNames();
                     ModelAdapter.ComponentContainer =
                         components.Select(x =>
                         new ComponentRunFeature()
                         {
                             CurrentComponent = new Component() { Name = x },
-                            RunFeatureContainer = null
+                            RunFeatureContainer = runfeaturelist.Where( y => y.ComponentContainer.Exists( z => z.Name == x)).ToList()
                         }).ToList();
                     var wellComponent = new ComponentRunFeature() 
                         {
-                            CurrentComponent = new Component() { Name = "well" },
-                            RunFeatureContainer = null
+                            CurrentComponent = new Component() { Name = "Well" },
+                            RunFeatureContainer = runfeaturelist
                         };
                     ModelAdapter.ComponentContainer.Add(wellComponent);
                     ModelAdapter.ComponentContainer.Reverse();
@@ -107,7 +144,14 @@ namespace ThorCyte.Statistic.ViewModels
                     columns.Add(new DataGridColumns { DisplayColumnName = "Row", BindingPropertyName = "Row", Width = 65 });
                     columns.Add(new DataGridColumns { DisplayColumnName = "Col", BindingPropertyName = "Col", Width = 65 });
                     //to do: add column dynamic
-                    columns.Add(new DataGridColumns { DisplayColumnName = CurrentRunFeature.Name ?? "Value", BindingPropertyName = "Value", Width = CurrentRunFeature.Name.Length*6 });
+                    if (CurrentRunFeature.Name == null)
+                    {
+                        columns.Add(new DataGridColumns { DisplayColumnName = "Value", BindingPropertyName = "Value", Width = 1 });
+                    }
+                    else
+                    {
+                        columns.Add(new DataGridColumns { DisplayColumnName = CurrentRunFeature.Name, BindingPropertyName = "Value", Width = CurrentRunFeature.Name.Length*7 });
+                    }
                     IsWellStatisticShow = true;
                     IsRegionStatisticShow = false;
                     OnPropertyChanged(() => IsWellStatisticShow);
@@ -166,18 +210,24 @@ namespace ThorCyte.Statistic.ViewModels
                 {
                     int scanid = ExperimentAdapter.GetCurrentScanId();
                     var WellList = ExperimentAdapter.GetScanInfo(scanid).ScanWellList;
-                    var num = new List<int>();
-                    for (int i = 0; i < WellList.Count; i++)
-                    {
-                        num.Add(i);
-                    }
+                    var num = Enumerable.Range(0, WellList.Count);
                     //to do: get statistic list
                     if (CurrentRunFeature == null || !CurrentRunFeature.IsValid())
                         return null;
 
                     string ComponentName = CurrentRunFeature.ComponentContainer[0].Name;
                     StatisticMethod StatisticMethod = CurrentRunFeature.StatisticMethodContainer[0];
-                    Feature CurrentFeature = CurrentRunFeature.FeatureContainer[0];
+                    bool IsStatisticCount = false;
+                    Feature CurrentFeature = null;
+                    if (StatisticMethod.MethodType == EnumStatistic.Count)
+                    {
+                        IsStatisticCount = true;
+                    }
+                    else
+                    {
+                        IsStatisticCount = false;
+                        CurrentFeature = CurrentRunFeature.FeatureContainer[0];
+                    }
 
                     var GridViewRowCollection = new ObservableCollection<ExpandoObject>(num.Select(x =>
                     {
@@ -192,27 +242,72 @@ namespace ThorCyte.Statistic.ViewModels
                         item.Add("Row", (x/12 + 1).ToString());
                         item.Add("Col", (x%12 == 0 ? 1 : x%12 + 1).ToString());
                         //to do: add value dynamic
-                        item.Add("Value", string.Format("{0:f4}", StatisticMethod.Method(
-                            aEvent.Select(y =>
-                                y[
-                                    GetDataIndex(CurrentFeature,
-                                        CurrentRunFeature.HasChannel() ? CurrentRunFeature.ChannelContainer[0] : null)]))));
-                        return (ExpandoObject) item;
+                        if (IsStatisticCount)
+                        {
+                            item.Add("Value", string.Format("{0:f4}", StatisticMethod.Method(aEvent.Select(y => 1.0f))));
+                            return (ExpandoObject)item;
+                        }
+                        else
+                        {
+                            item.Add("Value", string.Format("{0:f4}", StatisticMethod.Method(
+                                aEvent.Select(y =>
+                                    y[
+                                        GetDataIndex(CurrentFeature,
+                                            CurrentRunFeature.HasChannel() ? CurrentRunFeature.ChannelContainer[0] : null)]))));
+                            return (ExpandoObject)item;
+                        }
                     }));
                     return GridViewRowCollection;
                 }
-                catch (Exception)
+                catch (Exception e)
+                {
+                    Debug.WriteLine("{0}", e.Message);
+                    return null;
+                }
+            }
+        }
+
+
+        public IDataSeries ChartDataSeries
+        {
+            get
+            {
+                if (DataCollection != null)
+                {
+                    var result = DataCollection.Select(x =>
+                    {
+                        var item = x as IDictionary<string, object>;
+                        return
+                            new
+                            {
+                                Index = int.Parse(item["Index"].ToString()),
+                                Value = double.Parse(item["Value"].ToString())
+                            };
+                    });
+                    var xydataSeries = new XyDataSeries<int, double>();
+                    if (result != null && result.Any())
+                    {
+                        ChartRangeLimit = new DoubleRange(0, result.Max(x => x.Value)*1.2);
+                        OnPropertyChanged(() => ChartRangeLimit);
+                    }
+                    result.ForEach(x => xydataSeries.Append(x.Index, x.Value));
+                    return xydataSeries;
+                }
+                else
                 {
                     return null;
                 }
             }
         }
 
-        public List<WellStatisticEntry> WellStatisticDataSource { get; set; }
+        public DoubleRange ChartRangeLimit { get; set; }
+
+        //public List<WellStatisticEntry> WellStatisticDataSource { get; set; }
         
         public ICommand WellStatisticCommand { get {
             return new DelegateCommand(() => {
                 OnPropertyChanged(() => GridViewColumns);
+                OnPropertyChanged(() => ChartDataSeries);
             }, () => CurrentRunFeature != null);
         } }
 

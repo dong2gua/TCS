@@ -12,16 +12,8 @@ using ThorCyte.GraphicModule.Utils;
 
 namespace ThorCyte.GraphicModule.Controls.RegionTools
 {
-    class RegionToolPointer:RegionTool
+    public class RegionToolPointer:RegionTool
     {
-        private enum SelectionMode
-        {
-            None,
-            Move,           // object(s) are moved
-            Size,           // object is resized
-            GroupSelection
-        }
-
         #region Properties and Field
 
         private SelectionMode _selectMode = SelectionMode.None;
@@ -29,6 +21,11 @@ namespace ThorCyte.GraphicModule.Controls.RegionTools
         private GraphicsBase _resizedObject;
         private bool _isChanged;
         private int _resizedObjectHandle;
+
+        public SelectionMode SelectMode
+        {
+            get { return _selectMode; }
+        }
 
         #endregion
 

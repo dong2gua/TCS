@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ThorCyte.ProtocolModule.Events;
-using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.Controls
 {
@@ -14,6 +12,9 @@ namespace ThorCyte.ProtocolModule.Controls
     public class Module : ListBoxItem
     {
         #region Dependency Property
+        public static readonly DependencyProperty IsDraggingProperty =
+            DependencyProperty.Register("IsDragging", typeof(bool), typeof(Module),
+                new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         public static readonly DependencyProperty XProperty =
             DependencyProperty.Register("X", typeof(double), typeof(Module),
@@ -101,6 +102,16 @@ namespace ThorCyte.ProtocolModule.Controls
         }
 
         /// <summary>
+        /// This Module is Dragging ,Set to 'true' when dragging has started.
+        /// </summary>
+        public bool IsDragging
+        {
+            get { return (bool)GetValue(IsDraggingProperty); }
+            set { SetValue(IsDraggingProperty, value); }
+        }
+
+
+        /// <summary>
         /// Reference to the data-bound parent NetworkView.
         /// </summary>
         public PannelView ParentPannelView
@@ -123,11 +134,6 @@ namespace ThorCyte.ProtocolModule.Controls
         /// Set to 'true' when left mouse button and the control key are held down.
         /// </summary>
         private bool _isLeftMouseAndControlDown;
-
-        /// <summary>
-        /// Set to 'true' when dragging has started.
-        /// </summary>
-        private bool _isDragging;
 
         /// <summary>
         /// The threshold distance the mouse-cursor must move before dragging begins.
@@ -197,7 +203,7 @@ namespace ThorCyte.ProtocolModule.Controls
             {
                 // Control key is not held down.
                 _isLeftMouseAndControlDown = false;
-                if (ParentPannelView.SelectedModules.Count != 0)
+                if (ParentPannelView.SelectedModules.Count == 1)
                 {
                     // Item is not selected.Deselect all, and select the item.
                     ParentPannelView.SelectedModules.Clear();
@@ -242,7 +248,7 @@ namespace ThorCyte.ProtocolModule.Controls
         {
             base.OnMouseMove(e);
 
-            if (_isDragging)
+            if (IsDragging)
             {
                 // Raise the event to notify that dragging is in progress.
                 var curMousePoint = e.GetPosition(ParentPannelView);
@@ -279,7 +285,7 @@ namespace ThorCyte.ProtocolModule.Controls
                         _isLeftMouseAndControlDown = false;
                         return;
                     }
-                    _isDragging = true;
+                    IsDragging = true;
                     CaptureMouse();
                     e.Handled = true;
                 }
@@ -295,12 +301,12 @@ namespace ThorCyte.ProtocolModule.Controls
 
             if (_isLeftMouseDown)
             {
-                if (_isDragging)
+                if (IsDragging)
                 {
                     // Raise an event to notify that _module dragging has finished.
                     RaiseEvent(new ModuleDragCompletedEventArgs(ModuleDragCompletedEvent, this, new Module[] { this }));
                     ReleaseMouseCapture();
-                    _isDragging = false;
+                    IsDragging = false;
                 }
                 else
                 {

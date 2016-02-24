@@ -73,72 +73,81 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="auto"/>
-        </Grid.ColumnDefinitions>        
-        <TextBlock Margin="10,0" Grid.Row="1"  VerticalAlignment="Center" Height="25" Text="{Binding MousePointStatus}"/>
-        <StackPanel Margin="0,5" Orientation="Vertical" Grid.Row="0" Grid.Column="1">
-            <Button Margin="1" Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle" ToolTip="Rectangle">
-                <Image Source="..\resources\Rectangle.png"/>
-            </Button>
-            <Button Margin="1" Command="{Binding DrawRegionCommand}" CommandParameter="Ellipse" ToolTip="Ellipse">
-                <Image Source="..\resources\ellipse.png"/>
-            </Button>
-            <Button Margin="1" Command="{Binding ZoomCommand}" CommandParameter="true" ToolTip="Zoom In">
-                <Image Source="..\resources\ZoomIn.png"/>
-            </Button>
-            <Button Margin="1" Command="{Binding ZoomCommand}" CommandParameter="false" ToolTip="Zoom Out">
-                <Image Source="..\resources\ZoomOut.png"/>
-            </Button>
-            <ToggleButton Margin="1"  IsChecked="{Binding IsDragger}" Command="{Binding DraggerCommand}" ToolTip="Drag">
-                <Image Source="..\resources\Drag.png"/>
-            </ToggleButton>
-            <ToggleButton Margin="1"  IsChecked="{Binding IsProfile}" Command="{Binding ProfileCommand}" ToolTip="Profile">
-                <Image Source="..\resources\Profile.png"/>
-            </ToggleButton>
-            <ToggleButton Margin="1"  IsChecked="{Binding IsRuler}" Command="{Binding RulerCommand}" ToolTip="Ruler">
-                <Image Source="..\resources\Ruler.png"/>
-            </ToggleButton>
-            <ToggleButton Margin="1"  IsChecked="{Binding IsAspectRatio}" Command="{Binding AspectRatioCommand}" ToolTip="Aspect Ratio">
-                <Image Source="..\resources\Ratio.png"/>
-            </ToggleButton>
-            <Button Margin="1" Command="{Binding VirtualChannelCommand}" ToolTip="Add Virtual Channel">
-                <Image Source="..\resources\VirtualChannel.png"/>
-            </Button>
-            <Button Margin="1" Command="{Binding ComputeColorCommand}" ToolTip="Add Compute Color">
-                <Image Source="..\resources\ComputeColor.png"/>
-            </Button>
-            <Button Margin="1" Command="{Binding BrightnessContrastCommand}" ToolTip="Brightness and Contrast">
-                <Image Source="..\resources\Brightness.png"/>
-            </Button>
-            <Button Margin="1" x:Name="btViewportLayout" Click="Button_Click" ToolTip="Viewport Layout" >
-                <Grid>
-                    <Image x:Name="imgViewportLayout"/>
-                    <Path Data="M0,4L4,0 4,4z" Fill="Black" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-                </Grid>
-            </Button>
-            <Popup x:Name="popup" StaysOpen="False" PlacementTarget="{Binding ElementName=btViewportLayout}" >
-                <ListView x:Name="lvViewport" SelectedIndex="{Binding ViewportType.Type, Mode=OneWay}" SelectionChanged="ListView_SelectionChanged" >
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.Items>
-                        <ListViewItem>
-                            <Image Source="..\resources\ViewOne.png"/>
-                        </ListViewItem>
-                        <ListViewItem>
-                            <Image Source="..\resources\ViewH.png"/>
-                        </ListViewItem>
-                        <ListViewItem>
-                            <Image Source="..\resources\ViewV.png"/>
-                        </ListViewItem>
-                        <ListViewItem>
-                            <Image Source="..\resources\ViewAll.png"/>
-                        </ListViewItem>
-                    </ListView.Items>
-                </ListView>
-            </Popup>
-        </StackPanel>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="1" Grid.ColumnSpan="2" Height="24">
+            <TextBlock Margin="8,0" VerticalAlignment="Bottom" Text="{Binding MousePointStatus}"/>
+        </Border>
+        <Grid Grid.Row="0" Grid.Column="1">
+            <Border Margin="2,0,0,2" Background="#333333" CornerRadius="2" BorderThickness="1" BorderBrush="#222222">
+                <StackPanel Margin="1,3" Orientation="Vertical">
+                    <Button Margin="1" Command="{Binding DrawRegionCommand}" CommandParameter="Rectangle" ToolTip="Rectangle">
+                        <Image Source="..\resources\Rectangle.png"/>
+                    </Button>
+                    <Button Margin="1" Command="{Binding DrawRegionCommand}" CommandParameter="Ellipse" ToolTip="Ellipse">
+                        <Image Source="..\resources\ellipse.png"/>
+                    </Button>
+                    <Button Margin="1" Command="{Binding FixToViewportCommand}" ToolTip="Fix To Viewport">
+                        <Image Source="..\resources\ZoomIn.png"/>
+                    </Button>
+                    <ToggleButton Margin="1"  IsChecked="{Binding IsDragger}" Command="{Binding DraggerCommand}" ToolTip="Drag">
+                        <Image Source="..\resources\Drag.png"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="1"  IsChecked="{Binding IsProfile}" Command="{Binding ProfileCommand}" ToolTip="Profile">
+                        <Image Source="..\resources\Profile.png"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="1"  IsChecked="{Binding IsRuler}" Command="{Binding RulerCommand}" ToolTip="Ruler">
+                        <Image Source="..\resources\Ruler.png"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="1"  IsChecked="{Binding IsScaler}" ToolTip="Show Scaler">
+                        <Image Source="..\resources\Scale.png"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="1"  IsChecked="{Binding IsThumbnail}" ToolTip="Show Thumbnail">
+                        <Image Source="..\resources\MaskOn.png"/>
+                    </ToggleButton>
+                    <ToggleButton Margin="1"  IsChecked="{Binding IsAspectRatio}" Command="{Binding AspectRatioCommand}" ToolTip="Aspect Ratio">
+                        <Image Source="..\resources\Ratio.png"/>
+                    </ToggleButton>
+                    <Button Margin="1" Command="{Binding VirtualChannelCommand}" ToolTip="Virtual Channel">
+                        <Image Source="..\resources\VirtualChannel.png"/>
+                    </Button>
+                    <Button Margin="1" Command="{Binding ComputeColorCommand}" ToolTip="Compute Color">
+                        <Image Source="..\resources\ComputeColor.png"/>
+                    </Button>
+                    <Button Margin="1" Command="{Binding BrightnessContrastCommand}" ToolTip="Brightness and Contrast">
+                        <Image Source="..\resources\Brightness.png"/>
+                    </Button>
+                    <Button Margin="1" x:Name="btViewportLayout" Click="Button_Click" ToolTip="Viewport Layout" >
+                        <Grid>
+                            <Image x:Name="imgViewportLayout"/>
+                            <Path Data="M0,4L4,0 4,4z" Fill="Black" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                        </Grid>
+                    </Button>
+                    <Popup x:Name="popup" StaysOpen="False" PlacementTarget="{Binding ElementName=btViewportLayout}" >
+                        <ListView x:Name="lvViewport" SelectedIndex="{Binding ViewportType.Type, Mode=OneWay}" SelectionChanged="ListView_SelectionChanged" >
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                            <ListView.Items>
+                                <ListViewItem>
+                                    <Image Source="..\resources\ViewOne.png"/>
+                                </ListViewItem>
+                                <ListViewItem>
+                                    <Image Source="..\resources\ViewH.png"/>
+                                </ListViewItem>
+                                <ListViewItem>
+                                    <Image Source="..\resources\ViewV.png"/>
+                                </ListViewItem>
+                                <ListViewItem>
+                                    <Image Source="..\resources\ViewAll.png"/>
+                                </ListViewItem>
+                            </ListView.Items>
+                        </ListView>
+                    </Popup>
+                </StackPanel>
+            </Border>
+        </Grid>
         <ContentControl Grid.Row="0"  Content="{Binding ViewportType}"  ContentTemplateSelector="{StaticResource ViewportSelector}"/>
     </Grid>
 </UserControl>

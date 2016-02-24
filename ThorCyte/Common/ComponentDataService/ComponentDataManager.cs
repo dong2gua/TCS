@@ -7,11 +7,20 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Xml;
+using Microsoft.Practices.ServiceLocation;
+using Prism.Events;
+using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 
 namespace ComponentDataService
 {
+    public enum EventSource
+    {
+        FromDisk = 0,
+        FromMemory
+    };
+
     public class ComponentDataManager : IComponentDataService
     {
         #region Fields
@@ -25,6 +34,7 @@ namespace ComponentDataService
             new Dictionary<string, BioComponent>(DefaultSize);
 
         private static readonly ComponentDataManager InstanceField;
+        private EventSource _eventSource;
         #endregion
 
         #region Constructors
@@ -36,7 +46,7 @@ namespace ComponentDataService
 
         private ComponentDataManager()
         {
-            
+            RegisterMessage();
         }
         #endregion
 
@@ -52,6 +62,13 @@ namespace ComponentDataService
         #region Methods
 
         #region Private
+
+        private void RegisterMessage()
+        {
+            var eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>();
+            eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(e => { _eventSource = EventSource.FromDisk; });
+            eventAggregator.GetEvent<MacroRunEvent>().Subscribe(e => { _eventSource = EventSource.FromMemory; });
+        }
 
         private IEnumerable<string> GetComponentNamesFromXml()
         {
@@ -99,8 +116,8 @@ namespace ComponentDataService
                 }
             }
         }
-       
 
+       
         #endregion
 
         #region Methods in Interface
@@ -162,8 +179,8 @@ namespace ComponentDataService
             if (wellId <= 0 || wellId > scanRegionCount)
                 throw new ArgumentOutOfRangeException("wellId");
             try
-            {               
-                return comp.GetEvents(wellId);
+            {
+                return comp.GetEvents(wellId, _eventSource);
             }
             catch (FileNotFoundException)
             {
@@ -216,9 +233,10 @@ namespace ComponentDataService
                     Directory.CreateDirectory(componentFolder);
                 string contourFolder = Path.Combine(componentFolder, ContourXmlFolder);
                 if (Directory.Exists(contourFolder) == false)
-                    Directory.CreateDirectory(contourFolder);
-                bioComponent.SaveTileBlobs(componentFolder);
+                    Directory.CreateDirectory(contourFolder);              
+                bioComponent.SaveTileBlobs(componentFolder);             
                 bioComponent.SaveEvents(componentFolder);
+            
             }
             SaveEvtXml(evtFolder);
         }
@@ -279,8 +297,8 @@ namespace ComponentDataService
                     int tileId = field.ScanFieldId;
                     IList<Blob> masterDataBlob = master.GetTileBlobs(wellId, tileId, BlobType.Data);
                     IList<Blob> slaveDataBlob = slave.GetTileBlobs(wellId, tileId, BlobType.Data);
-                    IList<BioEvent> slaveEvents = slave.GetEvents(wellId);
-                    IList<BioEvent> masterEvents = master.GetEvents(wellId);
+                    IList<BioEvent> slaveEvents = slave.GetEvents(wellId, _eventSource);
+                    IList<BioEvent> masterEvents = master.GetEvents(wellId, _eventSource);
                     Association(masterDataBlob, masterEvents, slaveDataBlob, slaveEvents);
                 }
             }

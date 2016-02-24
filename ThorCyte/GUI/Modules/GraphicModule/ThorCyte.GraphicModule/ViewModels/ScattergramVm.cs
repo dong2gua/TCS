@@ -30,22 +30,6 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         #region Properties and Fields
 
-        private string _labelTitle;
-
-        public string LabelTitle
-        {
-            get { return _labelTitle; }
-            set
-            {
-                if (_labelTitle == value)
-                {
-                    return;
-                }
-                SetProperty(ref _labelTitle, value);
-                SetTitle();
-            }
-        }
-
         public int ZIndex
         {
             get { return _zIndex; }
@@ -320,6 +304,9 @@ namespace ThorCyte.GraphicModule.ViewModels
         public override void UpdateFeatures()
         {
             base.UpdateFeatures();
+            var selectedZScaleFeature = _selecedZScaleFeature;
+            var selectedZScaleChannel = _selecedZScaleChannel;
+
             var features = ComponentDataManager.Instance.GetFeatures(SelectedComponent).OrderBy(f => f.Name);
             var channels = ComponentDataManager.Instance.GetChannels(SelectedComponent).OrderBy(channel => channel.ChannelName);
             foreach (var feature in features)
@@ -331,18 +318,18 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 _zScaleChannelList.Add(channel);
             }
+            if (selectedZScaleFeature != null)
+            {
+                _selecedZScaleFeature =
+                    _zScaleFeatureList.FirstOrDefault(
+                        feature => feature.FeatureType == selectedZScaleFeature.FeatureType);
+            }
+            if (selectedZScaleChannel != null)
+            {
+                _selecedZScaleChannel =
+                    _zScaleChannelList.FirstOrDefault(channel => channel.ChannelId == selectedZScaleChannel.ChannelId);
+            }
         }
-
-        //public void UpdateBackground()
-        //{
-        //    IsWhiteBackground = !GraphicModule.GraphicManagerVmInstance.IsBlackBackground;
-        //    var color = GraphicModule.GraphicManagerVmInstance.IsBlackBackground ? Colors.White : Colors.Black;
-        //    ColorRegionList[0].RegionColor = color;
-        //    DefaultEventColorIndex = _isWhiteBackground ? RegionColorIndex.Black : RegionColorIndex.White;
-        //    DefaultBackgroundIndex = _isWhiteBackground ? RegionColorIndex.White : RegionColorIndex.Black;
-        //    OnPropertyChanged("IsWhiteBackground");
-        //    UpdateEvents();
-        //}
 
         public override void UpdateEvents(object args)
         {
@@ -411,8 +398,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
             else
             {
-                var x = XAxis.IsLogScale ? XAxis.GetValueBaseOnLog(point.X) : (int)Math.Round((point.X - XAxis.MinValue) / XScale + 0.5);
-                var y = YAxis.IsLogScale ? YAxis.GetValueBaseOnLog(point.Y) : (int)Math.Round((point.Y - YAxis.MinValue) / YScale + 0.5);
+                var x = XAxis.IsLogScale ? XAxis.GetValueBaseOnLog(point.X) : (int)Math.Round((point.X - XAxis.MinValue) / XScale );
+                var y = YAxis.IsLogScale ? YAxis.GetValueBaseOnLog(point.Y) : (int)Math.Round((point.Y - YAxis.MinValue) / YScale );
                 ++_densityArray[x, y];
                 if (_isExpression)
                 {
@@ -498,17 +485,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             Init();
             XAxis.IsInitialized = false;
             YAxis.IsInitialized = false;
-            XAxis.IsDefaultLabel = true;
-            XAxis.SelectedNumeratorFeature =
-                XAxis.NumeratorFeatureList.FirstOrDefault(feature => feature.FeatureType == FeatureType.XPos);
-            XAxis.SetDefaultRange(XAxis.IsLogScale);
-            XAxis.UpdateTitle();
-            YAxis.IsDefaultLabel = true;
-            YAxis.SelectedNumeratorFeature =
-            YAxis.NumeratorFeatureList.FirstOrDefault(feature => feature.FeatureType == FeatureType.YPos);
-            YAxis.SetDefaultRange(XAxis.IsLogScale);
-            YAxis.UpdateTitle();
-            //IsWhiteBackground = !GraphicModule.GraphicManagerVmInstance.IsBlackBackground;
+            XAxis.InitParam(id,FeatureType.XPos);
+            YAxis.InitParam(id, FeatureType.YPos);
             XAxis.IsInitialized = true;
             YAxis.IsInitialized = true;
         }
@@ -559,8 +537,8 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         public void CheckNormalizeXyEnabled()
         {
-            IsNormalizeXyEnabeld = XAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos ||
-                                   YAxis.SelectedNumeratorFeature.FeatureType == FeatureType.YPos;
+            IsNormalizeXyEnabeld = (XAxis.SelectedNumeratorFeature !=null && XAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos) ||
+                                   (YAxis.SelectedNumeratorFeature != null && YAxis.SelectedNumeratorFeature.FeatureType == FeatureType.YPos);
             if (!IsNormalizeXyEnabeld)
             {
                 IsNormalizexy = false;

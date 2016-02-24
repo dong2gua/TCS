@@ -153,7 +153,7 @@ namespace ThorCyte.ProtocolModule.Controls
                 if (ParentModule != null)
                 {
                     // Delegate to parent _module to execute selection logic.
-                    ParentModule.LeftMouseDownSelectionLogic();
+                    //ParentModule.LeftMouseDownSelectionLogic();
                 }
 
                 _lastMousePoint = e.GetPosition(ParentPannelView);
@@ -165,7 +165,7 @@ namespace ThorCyte.ProtocolModule.Controls
                 if (ParentModule != null)
                 {
                     // Delegate to parent _module to execute selection logic.
-                    ParentModule.RightMouseDownSelectionLogic();
+                    //ParentModule.RightMouseDownSelectionLogic();
                 }
             }
         }
@@ -195,6 +195,7 @@ namespace ThorCyte.ProtocolModule.Controls
                     // The user is left-dragging the connector and _connection dragging is enabled,
                     // but don't initiate the drag operation until 
                     // the mouse cursor has moved more than the threshold distance.
+                    ParentPannelView.SelectedModules.Clear();
                     Point curMousePoint = e.GetPosition(ParentPannelView);
                     var dragDelta = curMousePoint - _lastMousePoint;
                     double dragDistance = Math.Abs(dragDelta.Length);
@@ -240,7 +241,7 @@ namespace ThorCyte.ProtocolModule.Controls
                         if (ParentModule != null)
                         {
                             // Delegate to parent _module to execute selection logic.
-                            ParentModule.LeftMouseUpSelectionLogic();
+                            //ParentModule.LeftMouseUpSelectionLogic();
                         }
                     }
                     _isLeftMouseDown = false;
@@ -250,7 +251,6 @@ namespace ThorCyte.ProtocolModule.Controls
             ReleaseMouseCapture();
             _isDragging = false;
             _isLeftMouseDown = false;
-            //e.Handled = true;
         }
 
         /// <summary>

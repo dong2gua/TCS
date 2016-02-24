@@ -84,8 +84,22 @@ namespace ThorCyte.Statistic.ViewModels
                 _SelectedRunFeature = value; }
         }
 
+        //to do:obselete
         public InteractionRequest<StatisticDataNotification> SetupPopupDetail { get; private set; }
         public ICommand SetupStatisticDetailCommand
+        {
+            get
+            {
+                return new DelegateCommand(() =>
+                {
+                    ModelAdapter.SelectedRunFeature = null;
+                    PopupWindowAdapter.PopupWindow();
+                    PopupSetupAdapter.Close();
+                }, () => true);
+            }
+        }
+
+        public ICommand EditCommand
         {
             get
             {
@@ -97,7 +111,7 @@ namespace ThorCyte.Statistic.ViewModels
                     }
                     PopupWindowAdapter.PopupWindow();
                     PopupSetupAdapter.Close();
-                }, () => true);
+                }, ()=>true);
             }
         }
 

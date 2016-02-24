@@ -11,7 +11,7 @@
         <cvt:PhantomPatternConvert x:Key="PatternCvt" />
     </UserControl.Resources>
     <Expander Header="Phantom" IsExpanded="True">
-        <StackPanel>
+        <StackPanel Margin="5,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -19,8 +19,8 @@
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
 
                 <Label Grid.Row="0" Grid.Column="0" Margin="2" Content="Name :"/>
@@ -30,11 +30,11 @@
                 <ComboBox Grid.Row="1" Grid.Column="1" Margin="2"/>
             </Grid>
 
-            <GroupBox Header="Pattern">
-                <Grid>
+            <GroupBox Header="Pattern" BorderThickness="1" BorderBrush="Silver">
+                <Grid Margin="5,5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <RadioButton Grid.Column="0" Margin="2" Content="Lattice" IsChecked="{Binding Pattern,Converter={StaticResource PatternCvt},ConverterParameter=lattice}"/>
@@ -42,10 +42,10 @@
                 </Grid>
             </GroupBox>
 
-            <Grid>
+            <Grid Margin="5,5">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="125"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
@@ -57,8 +57,8 @@
                 <Label Grid.Row="0" Grid.Column="0" Content="Radius"/>
                 <Grid Grid.Row="0" Grid.Column="1">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="35"/>
                     </Grid.ColumnDefinitions>
 
                     <xctk:IntegerUpDown Grid.Column="0" Margin="2" Height="20" Value="{Binding Radius}" Minimum="1" Maximum="5000"/>
@@ -69,8 +69,8 @@
                 <Label Grid.Row="1" Grid.Column="0" Content="Minimum distance&#x000A;between centers"/>
                 <Grid Grid.Row="1" Grid.Column="1">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="35"/>
                     </Grid.ColumnDefinitions>
 
                     <xctk:IntegerUpDown Grid.Column="0" Margin="2" Height="20" Value="{Binding Distance}" Minimum="1" Maximum="5000"/>
@@ -82,8 +82,8 @@
                 <Label Grid.Row="2" Grid.Column="0" Content="Count per field"/>
                 <Grid Grid.Row="2" Grid.Column="1">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="35"/>
                     </Grid.ColumnDefinitions>
                     <xctk:IntegerUpDown Grid.Column="0" Margin="2" Height="20" Value="{Binding Count}" Minimum="1" Maximum="5000"/>
                     <Label Grid.Column="1" Margin="2" Content="um"/>

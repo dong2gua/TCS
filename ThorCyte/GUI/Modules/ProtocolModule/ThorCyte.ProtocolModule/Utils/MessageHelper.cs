@@ -13,6 +13,10 @@ namespace ThorCyte.ProtocolModule.Utils
         public delegate void MacroRunningHandler(bool isRuning);
         public static MacroRunningHandler SetRuning;
 
+        public delegate void SetSelectViewItemHandler(object item);
+        public static SetSelectViewItemHandler SetSelectViewItem;
+
+        public static SetSelectViewItemHandler UnSelectViewItem;
 
         public static void PostMessage(string msg)
         {
@@ -33,5 +37,16 @@ namespace ThorCyte.ProtocolModule.Utils
             SetRuning.Invoke(isRunding);
         }
 
+        public static void SetSelectItem(object item)
+        {
+            if (SetSelectViewItem == null) return;
+            SetSelectViewItem.Invoke(item);
+        }
+
+        public static void UnSelectItem(object item)
+        {
+            if (UnSelectViewItem == null) return;
+            UnSelectViewItem.Invoke(item);
+        }
     }
 }

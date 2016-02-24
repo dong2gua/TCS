@@ -312,7 +312,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 return;
             }
 
-            var x = XAxis.IsLogScale ? XAxis.GetValueBaseOnLog(pt.X) : (int)((pt.X - XAxis.MinRange) / XScale + 0.5);
+            var x = XAxis.IsLogScale ? XAxis.GetValueBaseOnLog(pt.X) : (int)((pt.X - XAxis.MinRange) / XScale);
             _historyDataList[x]++;
 
             if (bioEvent.ColorIndex != RegionColorIndex.White)
@@ -353,11 +353,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             Init();
             XAxis.IsInitialized = false;
             YAxis.IsInitialized = false;
-            XAxis.SelectedNumeratorFeature =
-                XAxis.NumeratorFeatureList.FirstOrDefault(feature => feature.FeatureType == FeatureType.Area);
-            XAxis.SetDefaultRange(XAxis.IsLogScale);
-            XAxis.IsDefaultLabel = true;
-            XAxis.UpdateTitle();
+            XAxis.InitParam(id, FeatureType.Area);
             _isAutoYScale = true;
             _yScaleValue = ConstantHelper.DefaultHistogramYScale;
             OnPropertyChanged("IsAutoYScale");
@@ -418,8 +414,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 IsCheckedOverlay = false;
                 IsEnabledOverlay = false;
             }
-           
-            UpdateGraphData();
+           UpdateEvents();
         }
 
         public void SetIsNewEnabld()
@@ -427,6 +422,12 @@ namespace ThorCyte.GraphicModule.ViewModels
             IsNewOverlayEnabled = GraphicModule.GraphicManagerVmInstance.ActiveWellNos != null &&
                                   GraphicModule.GraphicManagerVmInstance.ActiveWellNos.Count > 0;
         }
+
+        public override void SetTitle()
+        {
+            Title = string.IsNullOrEmpty(LabelTitle) ? SelectedComponent : LabelTitle;
+        }
+
         #endregion
     }
 }

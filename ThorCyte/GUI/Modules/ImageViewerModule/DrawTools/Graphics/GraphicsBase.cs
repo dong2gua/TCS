@@ -85,6 +85,10 @@ namespace ThorCyte.ImageViewerModule.DrawTools.Graphics
                 return new Rect(l, t, w, h);
             }
         }
+        public Rect DisplayRectangle
+        {
+            get { return ConvertToDisplayRect(Rectangle); }
+        }
         protected GraphicsBase()
         {
             this.Transform = new ScaleTransform();

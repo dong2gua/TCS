@@ -146,7 +146,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     _img = InputImage;
                     FilterType ft;
                     Enum.TryParse(_selectedFilter, true, out ft);
-                    var masksize = Convert.ToInt32(_selectedKSize.Substring(0, 1));
+                    var masksize = Convert.ToInt32(_selectedKSize.Substring(0, _selectedKSize.LastIndexOf("x") - 1));
 
                     var processedImg = _img.CommonFilter(ft, masksize,_passIndex);
 

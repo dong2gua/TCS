@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.ViewModels;
+using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace ThorCyte.GraphicModule.Views
 {
@@ -95,12 +96,12 @@ namespace ThorCyte.GraphicModule.Views
             {
                 if (overlay.Name.ToLower().Equals(overlayName.ToLower()))
                 {
-                    MessageBox.Show(this, "The name you have chosen (" + overlayName + ") already exists.");
+                    MessageBox.Show(this, "The name you have chosen (" + overlayName + ") already exists.", "Message");
                     return true;
                 }
                 if (overlay.OverlayColorInfo.ColorBrush.Color.Equals(color))
                 {
-                    MessageBox.Show(this, "The color you have chosen (" + overlay.OverlayColorInfo.ColorBrush.Color + ") is already used by " + overlay.Name);
+                    MessageBox.Show(this, "The color you have chosen (" + overlay.OverlayColorInfo.ColorBrush.Color + ") is already used by " + overlay.Name, "Message");
                     return true;
                 }
             }

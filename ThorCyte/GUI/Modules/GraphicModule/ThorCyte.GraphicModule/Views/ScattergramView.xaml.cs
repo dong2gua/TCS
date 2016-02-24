@@ -112,19 +112,11 @@ namespace ThorCyte.GraphicModule.Views
             {
                 _dotDictionary[index].Clear();
             }
-            if (!IsLoading)
-            {
-                //SciChart.GridLinesPanel.Background = ((ScattergramVm)GraphicVm).IsWhiteBackground ? Brushes.White : Brushes.Black;
-            }
-
-            //((XyScatterRenderableSeries)SciChart.RenderableSeries[6]).PointMarker.Fill =
-            //   ((ScattergramVm)GraphicVm).IsWhiteBackground ? Colors.Black : Colors.White;
         }
 
         public override void SetBindings()
         {
             base.SetBindings();
-            //RegionPanel.SetBinding(Scattergram.IsWhiteBackgroudProperty, new Binding("IsWhiteBackground") { Source = GraphicVm, NotifyOnSourceUpdated = true });
 
             RegionPanel.SetBinding(Scattergram.IsShowQuadrantProperty, new Binding("IsShowQuadrant") { Source = GraphicVm });
 
@@ -211,8 +203,7 @@ namespace ThorCyte.GraphicModule.Views
                     var index = item.Key;
                     var xList = item.Value.Select(pt => pt.X).ToList();
                     var yList = item.Value.Select(pt => pt.Y).ToList();
-                    var physicalList = item.Value.Select(pt => new Point((pt.X - GraphicVm.XAxis.MinRange) * xscale, GraphicVm.Height - (pt.Y - GraphicVm.YAxis.MinRange) * yscale)).ToList();
-                    pointList.AddRange(physicalList);
+                    pointList.AddRange(item.Value);
                     DataSeriesArray[index].Append(xList, yList);
                     SciChart.RenderableSeries[baseIndex + index].DataSeries = DataSeriesArray[index];
                 }
@@ -227,11 +218,12 @@ namespace ThorCyte.GraphicModule.Views
                         continue;
                     }
                     var index = item.Key;
-                    var xList = item.Value.Select(pt => GraphicVm.XAxis.IsLogScale ? GraphicVm.XAxis.GetActualValue((int)pt.X) : pt.X / xscale).ToList();
-                    var yList = item.Value.Select(pt => GraphicVm.YAxis.IsLogScale ? GraphicVm.YAxis.GetActualValue((int)pt.Y) : pt.Y / yscale).ToList();
-
-                    var physicalList = item.Value.Select(pt => GraphicVm.XAxis.IsLogScale ? pt : new Point((pt.X - GraphicVm.XAxis.MinRange) / xscale, (pt.Y - GraphicVm.YAxis.MinRange) / yscale)).ToList();
-                    pointList.AddRange(physicalList);
+                    var xList = item.Value.Select(pt => GraphicVm.XAxis.IsLogScale ? GraphicVm.XAxis.GetActualValue((int)pt.X) : pt.X / xscale + GraphicVm.XAxis.MinRange).ToList();
+                    var yList = item.Value.Select(pt => GraphicVm.YAxis.IsLogScale ? GraphicVm.YAxis.GetActualValue((int)pt.Y) : pt.Y / yscale + GraphicVm.YAxis.MinRange).ToList();
+                    for(var i = 0; i < xList.Count; i++)
+                    {
+                        pointList.Add(new Point(xList[i], yList[i]));
+                    }
                     DataSeriesArray[index].Append(xList, yList);
                     SciChart.RenderableSeries[baseIndex + index].DataSeries = DataSeriesArray[index];
                 }
@@ -255,8 +247,6 @@ namespace ThorCyte.GraphicModule.Views
 
                 SetAxis();
                 SetBindings();
-                //SciChart.AnnotationUnderlaySurface.Background = ((ScattergramVm)GraphicVm).IsWhiteBackground ? Brushes.White : Brushes.Black;
-
                 SciChart.AdornerLayerCanvas.Children.Add(RegionPanel);
                 GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
                 GraphicVm.UpdateEvents();

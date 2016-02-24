@@ -37,6 +37,8 @@ namespace ThorCyte.CarrierModule.Carrier
             }
         }
 
+        public CarrierDef CurrentCarrier { get; private set; }
+
         #endregion
 
         #region Methods
@@ -68,10 +70,14 @@ namespace ThorCyte.CarrierModule.Carrier
             {
                 idOrName = "96 Well Plastic Plate";
             }
+            CurrentCarrier = null;
             foreach (CarrierDef carrier in _carriers)
             {
                 if (carrier.ID == idOrName || carrier.Name == idOrName)
+                {
+                    CurrentCarrier = carrier;
                     return carrier;
+                }
             }
 
             if (throwException)

@@ -157,7 +157,7 @@ namespace ThorCyte.GraphicModule.Controls.Graphics
             }
             var brush = new SolidColorBrush(ObjectColor);
             var formatText = new FormattedText(Name, new CultureInfo("en-US"), FlowDirection.LeftToRight,
-               new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal), FontSize, new SolidColorBrush(Colors.White));
+               new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal), FontSize, new SolidColorBrush(Colors.Black));
             var xMax = _points[0].X;
             var xMin = _points[0].X;
             var yMax = _points[0].Y;

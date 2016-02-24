@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" >
     <StackPanel>
-        <CheckBox Margin="2" Content="Enable Overlays" IsEnabled="{Binding IsEnabledOverlay}" IsChecked="{Binding IsCheckedOverlay}"/>
+        <CheckBox Margin="5,2,2,2" Content="Enable Overlays" IsEnabled="{Binding IsEnabledOverlay}" IsChecked="{Binding IsCheckedOverlay}"/>
 
-        <GroupBox Header="Historam Overlays">
+        <!--<GroupBox Header="Historam Overlays">-->
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -16,13 +16,13 @@
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Content="Active Overlays"/>
+                <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0" Content="Active Overlays :"/>
 
-                <DataGrid  x:Name="OverlayDg" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"  
+                <DataGrid  x:Name="OverlayDg" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,2,2,2"  
                            MinHeight="120" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow"
                            ItemsSource="{Binding OverlayList}" SelectedItem="{Binding SelectedOverlay}" >
                     <DataGrid.Columns>
@@ -52,11 +52,11 @@
                 </DataGrid>
 
                
-                <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2,0,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0" Margin="2" Content="New" IsEnabled="{Binding IsNewOverlayEnabled}" Click="OnNewOverlay"/>
@@ -64,6 +64,6 @@
                     <Button Grid.Column="2" Margin="2" Content="Delete" IsEnabled="{Binding IsDeleteEnabled}" Command="{Binding DeleteOverlayCmd}"/>
                 </Grid>
             </Grid>
-        </GroupBox>
+        <!--</GroupBox>-->
     </StackPanel>
 </UserControl>

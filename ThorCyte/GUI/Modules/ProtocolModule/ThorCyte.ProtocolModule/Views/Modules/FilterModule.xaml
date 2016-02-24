@@ -8,7 +8,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Expander Header="Filter" IsExpanded="True">
         <StackPanel>
-            <Grid Margin="0,10,0,0">
+            <Grid Margin="5,10,5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
@@ -16,14 +16,14 @@
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Row="0"  Grid.Column="0" Content="Filter Type:" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <Label Grid.Row="0"  Grid.Column="0" Content="Filter Type:" VerticalContentAlignment="Center"/>
                 <ComboBox Grid.Row="0" Grid.Column="1" Name="ComboFilter" VerticalAlignment="Center" ItemsSource="{Binding Path=Filters}" SelectedItem="{Binding Path= SelectedFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                <Label Grid.Row="1"  Grid.Column="0" Content="Kernel Size:" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <Label Grid.Row="1"  Grid.Column="0" Content="Kernel Size:" VerticalContentAlignment="Center"/>
                 <ComboBox Grid.Row="1" Grid.Column="1" Name="ComboKSize" VerticalAlignment="Center" ItemsSource="{Binding Path=KSizes}" SelectedItem="{Binding Path= SelectedKSize}"/>
-                <Label Grid.Row="2" Grid.Column="0" Content="Pass :" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="0,10"/>
+                <Label Grid.Row="2" Grid.Column="0" Content="Pass :" VerticalContentAlignment="Center" Margin="0,10"/>
                 <xctk:IntegerUpDown Grid.Row="2" Grid.Column="1" Margin="0,10" Minimum="1" Value="{Binding PassIndex}"/>
             </Grid>
         </StackPanel>

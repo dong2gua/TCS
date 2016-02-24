@@ -47,7 +47,7 @@ namespace ThorCyte.CarrierModule.Canvases
         public static readonly DependencyProperty CarrierDescriptionProperty;
         public static readonly DependencyProperty CarrierDescriptionFontSizeProperty;
 
-        private readonly Dictionary<DisplayMode, List<ScanRegion>> _regionListDic; 
+        private readonly Dictionary<DisplayMode, List<ScanRegion>> _regionListDic;
 
         private readonly Tool[] _tools;                   // Array of tools
 
@@ -63,6 +63,7 @@ namespace ThorCyte.CarrierModule.Canvases
         #region Constructors
         public SlideCanvas()
         {
+            EventAggregator.GetEvent<MacroRunEvent>().Subscribe(MacroRun, ThreadOption.UIThread, true);
             EventAggregator.GetEvent<MacroStartEvnet>().Subscribe(MacroStart, ThreadOption.UIThread, true);
             EventAggregator.GetEvent<MacroFinishEvent>().Subscribe(MacroFinish, ThreadOption.UIThread, true);
             EventAggregator.GetEvent<ShowRegionEvent>().Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
@@ -488,21 +489,30 @@ namespace ThorCyte.CarrierModule.Canvases
             InvalidateVisual();
         }
 
+        private DisplayMode _currentDisplayMode = DisplayMode.Review;
+
         private void ShowRegionEventHandler(string moduleName)
         {
             try
             {
                 if (!IsShowing) return;
-
+                var mode = DisplayMode.Review;
                 switch (moduleName)
                 {
                     case "ReviewModule":
-                        SwitchSelections(DisplayMode.Review);
+                        mode = DisplayMode.Review;
+                        break;
+                    case "ProtocolModule":
+                        mode = DisplayMode.Protocol;
                         break;
                     case "AnalysisModule":
-                        SwitchSelections(DisplayMode.Analysis);
+                        mode = DisplayMode.Analysis;
                         break;
                 }
+
+                if (mode == _currentDisplayMode) return;
+                SwitchSelections(mode);
+                _currentDisplayMode = mode;
 
             }
             catch (Exception ex)
@@ -514,19 +524,7 @@ namespace ThorCyte.CarrierModule.Canvases
 
         public void SwitchSelections(DisplayMode mode)
         {
-            //Record current Selected regions
-            switch (mode)
-            {
-                case DisplayMode.Analysis:
-                    //swtich to analysis
-                    RecordSelections(DisplayMode.Review);
-                    break;
-                case DisplayMode.Review:
-                    //switch to review
-                    RecordSelections(DisplayMode.Analysis);
-                    break;
-            }
-
+            RecordSelections(_currentDisplayMode);
             ApplySelections(mode);
         }
 
@@ -567,6 +565,9 @@ namespace ThorCyte.CarrierModule.Canvases
                 gph.IsSelected = true;
                 _slideMod.AddActiveRegion(region);
             }
+
+            InvalidateVisual();
+
         }
 
         private void DrawRooms(DrawingContext dc)
@@ -669,7 +670,7 @@ namespace ThorCyte.CarrierModule.Canvases
             Draw(drawingContext, false);
         }
 
-        public void Draw(DrawingContext drawingContext, bool withSelection)
+        private void Draw(DrawingContext drawingContext, bool withSelection)
         {
             var oldSelection = false;
 
@@ -727,22 +728,37 @@ namespace ThorCyte.CarrierModule.Canvases
             return true;
         }
 
-        public void MacroStart(MacroStartEventArgs args)
+        private void MacroRun(int obj)
+        {
+            foreach (GraphicsBase gph in _regionGraphicHashtable.Values)
+            {
+                gph.ObjectColor = Colors.Black;
+            }
+        }
+
+        private void MacroStart(MacroStartEventArgs args)
         {
             if (!IsShowing) return;
             if (!IsRegionChanged(args.RegionId)) return;
             _lastRegionId = _currentRegionId;
             _currentRegionId = args.RegionId;
 
+            var rgncurrent = _slideMod.TotalRegions.FirstOrDefault(r => r.RegionId == _currentRegionId);
+
+            if (rgncurrent != null && _regionGraphicHashtable.ContainsKey(rgncurrent))
+            {
+                ((GraphicsBase)_regionGraphicHashtable[rgncurrent]).ObjectColor = Colors.Lime;
+            }
+
             var rgn = _slideMod.TotalRegions.FirstOrDefault(r => r.RegionId == _lastRegionId);
 
             if (rgn != null && _regionGraphicHashtable.ContainsKey(rgn))
             {
-                ((GraphicsBase)_regionGraphicHashtable[rgn]).ObjectColor = Colors.Green;
+                ((GraphicsBase)_regionGraphicHashtable[rgn]).ObjectColor = Colors.LimeGreen;
             }
         }
 
-        public void MacroFinish(int scanid)
+        private void MacroFinish(int scanid)
         {
             if (!IsShowing) return;
 
@@ -750,7 +766,8 @@ namespace ThorCyte.CarrierModule.Canvases
 
             if (rgn != null && _regionGraphicHashtable.ContainsKey(rgn))
             {
-                ((GraphicsBase)_regionGraphicHashtable[rgn]).ObjectColor = Colors.Green;
+                ((GraphicsBase)_regionGraphicHashtable[rgn]).ObjectColor = Colors.LimeGreen;
+
             }
             _currentRegionId = -1;
             _lastRegionId = -1;
@@ -853,6 +870,7 @@ namespace ThorCyte.CarrierModule.Canvases
                 switch (CarrierModule.Mode)
                 {
                     case DisplayMode.Review:
+                        //case DisplayMode.Protocol:
                         eventArgs = new List<int>();
                         eventArgs.Clear();
                         eventArgs.AddRange(_slideMod.ActiveRegions.Select(region => region.RegionId));

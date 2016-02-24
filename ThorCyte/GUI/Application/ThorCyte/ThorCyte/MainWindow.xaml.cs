@@ -15,12 +15,11 @@ namespace ThorCyte
         public MainWindow(IEventAggregator eventAggregator)
         {   
             InitializeComponent();
-            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             _eventAggregator = eventAggregator;
             _eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExperimentLoaded);
         }
 
-        private void ExperimentLoaded(int obj)
+        private void ExperimentLoaded(int scanId)
         {
             RightCol.SetValue(ColumnDefinition.WidthProperty, new GridLength(325));
         }

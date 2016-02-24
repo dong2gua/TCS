@@ -74,7 +74,7 @@
         private void MoveHeader_Excuted(object obj)
         {
             MouseButtonEventArgs e = obj as MouseButtonEventArgs;
-            if (e.ClickCount > 1)
+            if (e.ClickCount > 1 && this.ResizeMode != ResizeMode.NoResize)
             {
                 this.MaximizeCommand.Execute(null);
             }
@@ -143,7 +143,7 @@
         {
             get
             {
-                if (this.WindowState == System.Windows.WindowState.Normal)
+                if (this.WindowState == System.Windows.WindowState.Normal && this.ResizeMode!=ResizeMode.NoResize)
                 {
                     return System.Windows.Visibility.Visible;
                 }
@@ -159,7 +159,7 @@
         {
             get
             {
-                if (this.WindowState == System.Windows.WindowState.Maximized)
+                if (this.WindowState == System.Windows.WindowState.Maximized && this.ResizeMode != ResizeMode.NoResize)
                 {
                     return System.Windows.Visibility.Visible;
                 }
@@ -175,7 +175,7 @@
         /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
         protected void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount > 1)
+            if (e.ClickCount > 1 && this.ResizeMode != ResizeMode.NoResize)
             {
                 this.MaximizeCommand.Execute(null);
             }
@@ -205,31 +205,31 @@
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        private void ResizeableWindow_Initialized(object sender, EventArgs e)
+        protected virtual void ResizeableWindow_Initialized(object sender, EventArgs e)
         {
-            // Visual Properties
-            this.WindowStyle = System.Windows.WindowStyle.None;
+            //// Visual Properties
+            //this.WindowStyle = System.Windows.WindowStyle.None;
 
-            // Real transparency only works above Windows XP and if there are no WindowsFormsHost controls
-            if ((Environment.OSVersion.Version.Major > 5) & (!this.UsesWindowsFormsHost))
-            {
-                Grid root = this.Content as Grid;
+            //// Real transparency only works above Windows XP and if there are no WindowsFormsHost controls
+            //if ((Environment.OSVersion.Version.Major > 5) & (!this.UsesWindowsFormsHost))
+            //{
+            //    Grid root = this.Content as Grid;
 
-                if (root != null)
-                {
-                    this.AllowsTransparency = true;
-                    this.Background = new SolidColorBrush(Colors.Transparent);
+            //    if (root != null)
+            //    {
+            //        this.AllowsTransparency = true;
+            //        this.Background = new SolidColorBrush(Colors.Transparent);
 
-                    root.Children.Add(this.GetResizeHandleRectangle("TopDragHandle", HorizontalAlignment.Stretch, VerticalAlignment.Top));
-                    root.Children.Add(this.GetResizeHandleRectangle("RightDragHandle", HorizontalAlignment.Right, VerticalAlignment.Stretch));
-                    root.Children.Add(this.GetResizeHandleRectangle("BottomDragHandle", HorizontalAlignment.Stretch, VerticalAlignment.Bottom));
-                    root.Children.Add(this.GetResizeHandleRectangle("LeftDragHandle", HorizontalAlignment.Left, VerticalAlignment.Stretch));
-                    root.Children.Add(this.GetResizeHandleRectangle("TopLeftDragHandle", HorizontalAlignment.Left, VerticalAlignment.Top));
-                    root.Children.Add(this.GetResizeHandleRectangle("TopRightDragHandle", HorizontalAlignment.Right, VerticalAlignment.Top));
-                    root.Children.Add(this.GetResizeHandleRectangle("BottomRightDragHandle", HorizontalAlignment.Right, VerticalAlignment.Bottom));
-                    root.Children.Add(this.GetResizeHandleRectangle("BottomLeftDragHandle", HorizontalAlignment.Left, VerticalAlignment.Bottom));
-                }
-            }
+            //        root.Children.Add(this.GetResizeHandleRectangle("TopDragHandle", HorizontalAlignment.Stretch, VerticalAlignment.Top));
+            //        root.Children.Add(this.GetResizeHandleRectangle("RightDragHandle", HorizontalAlignment.Right, VerticalAlignment.Stretch));
+            //        root.Children.Add(this.GetResizeHandleRectangle("BottomDragHandle", HorizontalAlignment.Stretch, VerticalAlignment.Bottom));
+            //        root.Children.Add(this.GetResizeHandleRectangle("LeftDragHandle", HorizontalAlignment.Left, VerticalAlignment.Stretch));
+            //        root.Children.Add(this.GetResizeHandleRectangle("TopLeftDragHandle", HorizontalAlignment.Left, VerticalAlignment.Top));
+            //        root.Children.Add(this.GetResizeHandleRectangle("TopRightDragHandle", HorizontalAlignment.Right, VerticalAlignment.Top));
+            //        root.Children.Add(this.GetResizeHandleRectangle("BottomRightDragHandle", HorizontalAlignment.Right, VerticalAlignment.Bottom));
+            //        root.Children.Add(this.GetResizeHandleRectangle("BottomLeftDragHandle", HorizontalAlignment.Left, VerticalAlignment.Bottom));
+            //    }
+            //}
         }
 
         /// <summary>
@@ -283,6 +283,7 @@
         /// <param name="o">The o.</param>
         private void Maximize_Executed(object o)
         {
+            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             if (this.WindowState == System.Windows.WindowState.Maximized)
             {
                 this.WindowState = System.Windows.WindowState.Normal;
@@ -309,7 +310,7 @@
         /// <param name="hAlign">The horizontal alignment.</param>
         /// <param name="vAlign">The vertical alignment.</param>
         /// <returns>A resizehandle rectangle.</returns>
-        private Rectangle GetResizeHandleRectangle(string name, HorizontalAlignment hAlign, VerticalAlignment vAlign)
+        protected Rectangle GetResizeHandleRectangle(string name, HorizontalAlignment hAlign, VerticalAlignment vAlign)
         {
             Rectangle rect = new Rectangle();
             rect.Fill = new SolidColorBrush(Colors.Transparent);

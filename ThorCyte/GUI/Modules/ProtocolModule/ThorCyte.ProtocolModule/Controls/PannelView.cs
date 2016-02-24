@@ -112,7 +112,7 @@ namespace ThorCyte.ProtocolModule.Controls
 
         public static readonly DependencyProperty IsClearSelectionOnEmptySpaceClickEnabledProperty =
             DependencyProperty.Register("IsClearSelectionOnEmptySpaceClickEnabled", typeof(bool), typeof(PannelView),
-                new FrameworkPropertyMetadata(false));
+                new FrameworkPropertyMetadata(true));
 
         public static readonly DependencyProperty EnableConnectionDraggingProperty =
             DependencyProperty.Register("EnableConnectionDragging", typeof(bool), typeof(PannelView),
@@ -212,7 +212,7 @@ namespace ThorCyte.ProtocolModule.Controls
         /// <summary>
         /// Cached reference to the ItemsControl for connections in the visual-tree.
         /// </summary>
-        private ItemsControl _connectionItemsControl;
+        private ItemsControl _pannelControl;
 
         /// <summary>
         /// Cached list of currently selected modules.
@@ -839,10 +839,10 @@ namespace ThorCyte.ProtocolModule.Controls
 
             _moduleItemsControl.SelectionChanged += nodeItemsControl_SelectionChanged;
 
-            _connectionItemsControl = (ItemsControl)Template.FindName("PART_ConnectionItemsControl", this);
-            if (_connectionItemsControl == null)
+            _pannelControl = (ItemsControl)Template.FindName("PART_PannelControl", this);
+            if (_pannelControl == null)
             {
-                throw new ApplicationException("Failed to find 'PART_ConnectionItemsControl' in the visual tree for 'NetworkView'.");
+                throw new ApplicationException("Failed to find 'PART_PannelControl' in the visual tree for 'NetworkView'.");
             }
 
             _dragSelectionCanvas = (FrameworkElement)Template.FindName("PART_DragSelectionCanvas", this);
@@ -906,7 +906,7 @@ namespace ThorCyte.ProtocolModule.Controls
         /// Otherwise '_module' can actually be a 'ModuleVmBase' in which case it is 
         /// simply returned.
         /// </summary>
-        public Module FindAssociatedNodeItem(object node)
+        private Module FindAssociatedNodeItem(object node)
         {
             var module = node as Module ?? _moduleItemsControl.FindAssociatedModule(node);
             return module;

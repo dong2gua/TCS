@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
+using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace ThorCyte.HeaderModule.ViewModels
 {
@@ -48,10 +43,14 @@ namespace ThorCyte.HeaderModule.ViewModels
             _experimentPath = experimentPath;
             _folerName = "";
             string path = experimentPath + "\\Analysis\\";
-            foreach (string subdirectory in Directory.GetDirectories(path))
+            if (Directory.Exists(path))
             {
-                AnalysisList.Add(subdirectory.Remove(0, path.Length));
+                foreach (string subdirectory in Directory.GetDirectories(path))
+                {
+                    AnalysisList.Add(subdirectory.Remove(0, path.Length));
+                }
             }
+            
             OkCommand = new DelegateCommand<Window>(OnOk);
             CancelCommand = new DelegateCommand<Window>(OnCancel);
 
@@ -81,7 +80,7 @@ namespace ThorCyte.HeaderModule.ViewModels
                     }
                     else
                     {
-                        MessageBoxResult result = MessageBox.Show("Are you sure replace analysis result?", "Save analysis result", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+                        MessageBoxResult result = MessageBox.Show(Application.Current.MainWindow, "Are you sure replace analysis result?", "Save analysis result", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
                         if (result == MessageBoxResult.Yes)
                         {
                             foreach (FileInfo file in di.GetFiles())
@@ -101,7 +100,7 @@ namespace ThorCyte.HeaderModule.ViewModels
                 }
                 else
                 {
-                    MessageBox.Show("Please input analysis folder", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(Application.Current.MainWindow,"Please input analysis folder", "Message", MessageBoxButton.OK, null);
                 }
 
                 //if (!Regex.Match(FolerName, @"^[0-9]+\s+([a-zA-Z]+|[a-zA-Z]+\s[a-zA-Z]+)$").Success)
@@ -121,7 +120,7 @@ namespace ThorCyte.HeaderModule.ViewModels
                 {
                     if (AnalysisList.Count > 0)
                     {
-                        MessageBox.Show("Please selected analysis folder", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show(Application.Current.MainWindow, "Please selected analysis folder", "Message", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {

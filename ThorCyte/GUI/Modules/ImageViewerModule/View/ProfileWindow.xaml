@@ -8,7 +8,7 @@
         xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
         xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         mc:Ignorable="d"
-        Title="ProfileWindow" Height="300" Width="400"  WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+        Title="ProfileWindow" MinHeight="300" MinWidth="400" Height="300" Width="400" WindowStyle="ToolWindow"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Window.Resources>
         <converter:VisibilityConverter x:Key="VisibilityC"/>
         <Style x:Key="GridLinesPanelStyle"  TargetType="sciChart:GridLinesPanel">

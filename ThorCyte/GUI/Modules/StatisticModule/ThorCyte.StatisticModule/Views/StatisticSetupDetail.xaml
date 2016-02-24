@@ -35,7 +35,7 @@
                 <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343">
                     <Label Content="Component" Margin="5,0" FontSize="16"></Label>
                     <ListBox Width="100" Height="300" Margin="5,0" ItemsSource="{Binding ComponentContainer}" DisplayMemberPath="Name"
-                            SelectedItem="{Binding SelectedComponent}" SelectionMode="Extended"  >
+                            SelectedItem="{Binding SelectedComponent, Mode=TwoWay}" SelectionMode="Extended"  >
                         <ListBox.Resources>
                             <!--高亮状态（选中且有焦点）-->
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" x:Key="{x:Static SystemColors.HighlightBrushKey}">
@@ -55,7 +55,7 @@
                     <Label Content="Statistic" Margin="5,0" FontSize="16"></Label>
                     <ListBox x:Name="ListBoxStat" x:FieldModifier="private"
                         Width="100" Height="300" Margin="5,0" 
-                             SelectedItem="{Binding SelectedStatisticMethod}" ItemsSource="{Binding StatisticMethodContainer}" DisplayMemberPath="Name">
+                             SelectedItem="{Binding SelectedStatisticMethod, Mode=TwoWay}" ItemsSource="{Binding StatisticMethodContainer}" DisplayMemberPath="Name">
                     </ListBox>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343">
@@ -63,21 +63,21 @@
                     <ScrollViewer  Margin="5,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <ListBox x:Name="ListBoxFeature" x:FieldModifier="private"
                             Width="100" Height="300" ItemsSource="{Binding FeatureContainer}" DisplayMemberPath="Name"
-                                 SelectedItem="{Binding SelectedFeature}">
+                                 SelectedItem="{Binding SelectedFeature, Mode=TwoWay}">
                         </ListBox>
                     </ScrollViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343">
                     <Label Content="Channel" Margin="5,0" FontSize="16"></Label>
                     <ListBox Width="100" Height="300" Margin="5,0" ItemsSource="{Binding ChannelContainer}" DisplayMemberPath="Name"
-                             SelectedItem="{Binding SelectedChannel}">
+                             SelectedItem="{Binding SelectedChannel, Mode=TwoWay}">
                     </ListBox>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0,10,0,0" Height="343">
                     <Label Content="Region" Margin="5,0" FontSize="16"></Label>
                     <ScrollViewer Margin="5,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <ListBox Width="100" Height="300" ItemsSource="{Binding RegionContainer}" DisplayMemberPath="Name"
-                                 SelectedItem="{Binding SelectedRegion}">
+                                 SelectedItem="{Binding SelectedRegion, Mode=TwoWay}">
                         </ListBox>
                     </ScrollViewer>
                 </StackPanel>

@@ -10,12 +10,16 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <windows.h>
+
+// TODO: reference additional headers your program requires here
+// C/C++ standard lib header files 
 #include <stdio.h>
 #include <stdlib.h>
 #include <list>
+#include <vector>
+#include <algorithm>
 using namespace std;
-// TODO: reference additional headers your program requires here
+
+//Intel IPP header files
 #define _IPP_SEQUENTIAL_STATIC
 #include "ipp.h"
-#include <opencv2/opencv.hpp>
-using namespace cv;

@@ -5,12 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ThorCyte.ImageViewerModule.View"
              xmlns:drawtools="clr-namespace:ThorCyte.ImageViewerModule.DrawTools"
-             xmlns:control="clr-namespace:ThorCyte.ImageViewerModule.Control"
+             xmlns:globalcontrol="clr-namespace:ThorCyte.Infrastructure.Controls;assembly=ThorCyte.Infrastructure"
              xmlns:converter="clr-namespace:ThorCyte.ImageViewerModule.Converter"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
+        <converter:ChannelListMenuConverter x:Key="ChannelListMenuC"/>
         <DataTemplate x:Key="ExpandedListViewItemTemplate" DataType="{x:Type ListViewItem}">
             <Grid  Width="80">
                 <Grid.RowDefinitions>
@@ -29,7 +30,14 @@
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ChannelName}"/>
             </Grid>
         </DataTemplate>
+        <ContextMenu x:Key="ItemContextMenu" Visibility="{Binding Converter={StaticResource ChannelListMenuC}}">
+            <MenuItem  Header="Edit"  Command="{Binding DataContext.ListViewEditCommand , RelativeSource={RelativeSource  FindAncestor, AncestorType=local:ViewportView}}"
+                              CommandParameter="{Binding Path=PlacementTarget.DataContext ,RelativeSource={RelativeSource  AncestorType={x:Type ContextMenu}}}" />
+            <MenuItem  Header="Delete"  Command="{Binding  DataContext.ListViewDeleteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ViewportView}}"
+                              CommandParameter="{Binding Path=PlacementTarget.DataContext ,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
+        </ContextMenu>
         <Style x:Key="ChannelListStyle" TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource {x:Type ListViewItem}}">
+            <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -102,21 +110,14 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-            <control:GifImage Source="../Resources/loading.gif" Width="50" Visibility="{Binding IsLoading, Converter={StaticResource VisibilityC}}" Panel.ZIndex="1"/>
-            <drawtools:DrawingCanvas x:Name="drawCanvas"  DisplayImage="{Binding CurrentChannelImage.Image}" ActualScale="{Binding Scale}" ImageSize="{Binding ImageSize}"/>
+            <Grid Visibility="{Binding IsLoading, Converter={StaticResource VisibilityC}}" Panel.ZIndex="1" Background="#55555555" Cursor="Wait">
+                <globalcontrol:GifImage  Width="30" />
+            </Grid>
+            <drawtools:DrawingCanvas x:Name="drawCanvas"  DisplayImage="{Binding CurrentChannelImage.Image}" ImageSize="{Binding ImageSize}"/>
             <Rectangle Grid.Row="1" Height="1" Fill="{Binding Path=BorderBrush,ElementName=viewportBorder}" />
             <Button Grid.Row="2" Height="22" Width="20" VerticalAlignment="Top" HorizontalAlignment="Right" Command="{Binding ExpandListCommand}" Panel.ZIndex="1" Style="{StaticResource ExpandButtonStyle}"/>
             
-            <ListView Grid.Row="2"  ItemsSource="{Binding ChannelImages}" SelectedItem="{Binding CurrentChannelImage}"  ItemContainerStyle="{StaticResource ChannelListStyle}" >
-                <ListView.ContextMenu>
-                    <ContextMenu  >
-                        <MenuItem Header="Edit"  Command="{Binding  ListViewEditCommand}"
-                              CommandParameter="{Binding Path=PlacementTarget.SelectedItem,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
-                        <MenuItem Header="Delete"  Command="{Binding  ListViewDeleteCommand}"
-                              CommandParameter="{Binding Path=PlacementTarget.SelectedItem,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
-                        <Separator/>
-                    </ContextMenu>
-                </ListView.ContextMenu>
+            <ListView Grid.Row="2"  ItemsSource="{Binding ChannelImages}" SelectedItem="{Binding CurrentChannelImage, Mode=TwoWay}"  ItemContainerStyle="{StaticResource ChannelListStyle}" >
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal"/>

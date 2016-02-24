@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.ImageViewerModule.Model;
-using ThorCyte.ImageViewerModule.View;
 using ThorCyte.Infrastructure.Types;
 
 namespace ThorCyte.ImageViewerModule.Viewmodel
@@ -13,8 +12,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
     public class SetComputeColorViewModel : BindableBase
     {
         public ICommand SelectionChangedCommand { get; private set; }
-        public ICommand ClickOKCommand { get; private set; }
-        public ICommand ClickCancelCommand { get; private set; }
         private IList<Channel> _channels;
         private IList<VirtualChannel> _virtualChannels;
         private IList<ComputeColor> _computeColors;
@@ -56,8 +53,6 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         public SetComputeColorViewModel(IList<Channel> channels, IList<VirtualChannel> virtualChannels, IList<ComputeColor> computeColors)
         {
             SelectionChangedCommand = new DelegateCommand<ComputeColorItem>(OnSelectionChanged);
-            ClickOKCommand = new DelegateCommand<SetComputeColorWindow>(OnClickOK);
-            ClickCancelCommand = new DelegateCommand<SetComputeColorWindow>(OnClickCancel);
             if (channels == null || virtualChannels==null|| computeColors == null) return;
             _channels = channels;
             _virtualChannels = virtualChannels;
@@ -85,34 +80,28 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             }
             OnPropertyChanged("IsCheckedAll");
         }
-        private void OnClickOK(SetComputeColorWindow window)
+        public bool VertifyInput()
         {
-            if (ChannelList.Where(x => x.IsSelected).Count() == 0) return;
+            if (ChannelList.Where(x => x.IsSelected).Count() == 0) return false;
             if (IsNew)
             {
                 foreach (var o in _channels)
                 {
                     if (o.ChannelName == _channelName)
-                        return;
+                        return false;
                 }
                 foreach (var o in _virtualChannels)
                 {
                     if (o.ChannelName == _channelName)
-                        return;
+                        return false;
                 }
                 foreach (var o in _computeColors)
                 {
                     if (o.Name == _channelName)
-                        return;
+                        return false;
                 }
             }
-            window.DialogResult = true;
-            window.Close();
-        }
-        private void OnClickCancel(SetComputeColorWindow window)
-        {
-            window.DialogResult = false;
-            window.Close();
+            return true;
         }
     }
 }

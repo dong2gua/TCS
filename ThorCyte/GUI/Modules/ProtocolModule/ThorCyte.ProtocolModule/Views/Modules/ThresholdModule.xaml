@@ -14,35 +14,30 @@
     </UserControl.Resources>
 
     <Expander Header="Threshold" IsExpanded="True">
-        <StackPanel>
-            <GroupBox Header="Methods">
-                <StackPanel>
+        <StackPanel Margin="5,0">
+            <GroupBox Header="Methods" BorderThickness="1" BorderBrush="Silver">
+                <StackPanel Margin="5,0,5,5">
                     <RadioButton Content="Manual" Margin="5,10" IsChecked="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Manual}"/>
-                    <GroupBox Header="Auto">
-                        <Grid>
+                    <GroupBox Header="Auto" BorderThickness="1" BorderBrush="Silver">
+                        <Grid Margin="5,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="3*"/>
-                            </Grid.ColumnDefinitions>
-                            <RadioButton Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Content="Statistical" IsChecked="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Statistical}" 
+
+                            <RadioButton Grid.Row="0" Grid.Column="0" Margin="2" Content="Statistical" IsChecked="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Statistical}" 
                                      Visibility="{Binding IsStatisticalVisible,Converter={StaticResource BoolToVisibleCvt}}"/>
-                            <RadioButton Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Content="Otsu" IsChecked="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Otsu}"/>
+                            <RadioButton Grid.Row="1" Grid.Column="0" Margin="2" Content="Otsu" IsChecked="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Otsu}"/>
                         </Grid>
                     </GroupBox>
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="Threshold" IsEnabled="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Manual}">
-                <Grid>
+            <GroupBox Header="Threshold" IsEnabled="{Binding Method,Converter={StaticResource ThresholdMethodCvt},ConverterParameter=Manual}" BorderThickness="1" BorderBrush="Silver">
+                <Grid Margin="5,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="4*"/>
-                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>

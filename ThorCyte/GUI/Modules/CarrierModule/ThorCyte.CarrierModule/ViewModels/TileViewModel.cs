@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Practices.ServiceLocation;
@@ -26,6 +27,7 @@ namespace ThorCyte.CarrierModule.ViewModels
         public int Width { get; set; }
         public int Height { get; set; }
         public int FieldId { get; set; }
+        public bool IsSelected { get; set; }
         public Brush BkColor { get; set; }
         public Brush FtColor { get; set; }
 
@@ -36,6 +38,7 @@ namespace ThorCyte.CarrierModule.ViewModels
             Width = 0;
             Height = 0;
             FieldId = 0;
+            IsSelected = false;
 
             BkColor = Brushes.DimGray;
             FtColor = Brushes.WhiteSmoke;
@@ -43,11 +46,12 @@ namespace ThorCyte.CarrierModule.ViewModels
 
         public void SetSelected()
         {
-            BkColor = Brushes.LightBlue;
+            BkColor = Brushes.Pink;
             FtColor = Brushes.DimGray;
 
             OnPropertyChanged(new PropertyChangedEventArgs("BkColor"));
             OnPropertyChanged(new PropertyChangedEventArgs("FtColor"));
+            IsSelected = true;
         }
 
         public void SetUnselected()
@@ -58,6 +62,7 @@ namespace ThorCyte.CarrierModule.ViewModels
 
             OnPropertyChanged(new PropertyChangedEventArgs("BkColor"));
             OnPropertyChanged(new PropertyChangedEventArgs("FtColor"));
+            IsSelected = false;
         }
 
         public Rect TileRect
@@ -178,27 +183,78 @@ namespace ThorCyte.CarrierModule.ViewModels
             //subscribe select region event.
             var selectRegionEvt = EventAggregator.GetEvent<RegionsSelected>();
             var shwoRegionEvent = EventAggregator.GetEvent<ShowRegionEvent>();
+            var displayTileSelection = EventAggregator.GetEvent<DisplayRegionTileSelectionEvent>();
             selectRegionEvt.Subscribe(OnSelectRegionChanged);
             shwoRegionEvent.Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
+            displayTileSelection.Subscribe(DisplayTile, ThreadOption.UIThread, true);
+            MessageHelper.SetStreaming += SetStreaming;
 
             //delegate button click command
             CmdTileTrigger = new DelegateCommand<object>(OnTileSelect);
 
             //Define button infomations to show on UI
             _tilesShowInCanvas = new ObservableCollection<TileItem>();
-            
+
         }
+
+
+        private DisplayMode _currentDisplayMode = DisplayMode.Review;
+        private readonly Dictionary<DisplayMode, int> _tileDic = new Dictionary<DisplayMode, int>();
 
         private void ShowRegionEventHandler(string moduleName)
         {
+            var mode = DisplayMode.Review;
+
             switch (moduleName)
             {
                 case "ReviewModule":
+                    mode = DisplayMode.Review;
                     break;
+
+                case "ProtocolModule":
+                    mode = DisplayMode.Protocol;
+                    break;
+
                 case "AnalysisModule":
-                    SetEmptyContent();
+                    mode = DisplayMode.Analysis;
+                    //SetEmptyContent();
                     break;
             }
+
+            if (mode == _currentDisplayMode) return;
+
+            SwitchSelections(mode);
+            _currentDisplayMode = mode;
+        }
+
+        public void SwitchSelections(DisplayMode mode)
+        {
+            RecordSelections(_currentDisplayMode);
+            ApplySelections(mode);
+        }
+
+        private void RecordSelections(DisplayMode mode)
+        {
+
+            var tile = _tilesShowInCanvas.FirstOrDefault(t => t.IsSelected);
+
+            if (tile == null) return;
+
+            if (_tileDic.ContainsKey(mode))
+            {
+                _tileDic.Remove(mode);
+            }
+
+            _tileDic.Add(mode, tile.FieldId);
+        }
+
+        private void ApplySelections(DisplayMode mode)
+        {
+            UnSelectAllTile();
+
+            if (!_tileDic.ContainsKey(mode)) return;
+
+            SetSelectTile(_tileDic[mode]);
         }
 
         public void SetEmptyContent()
@@ -222,6 +278,23 @@ namespace ThorCyte.CarrierModule.ViewModels
                 {
                     tile.SetUnselected();
                 }
+            }
+        }
+
+        private void SetSelectTile(int tileid)
+        {
+            var tile = _tilesShowInCanvas.FirstOrDefault(t => t.FieldId == tileid);
+
+            if (tile == null) return;
+
+            tile.SetSelected();
+        }
+
+        private void UnSelectAllTile()
+        {
+            foreach (var tile in _tilesShowInCanvas)
+            {
+                tile.SetUnselected();
             }
         }
 
@@ -297,7 +370,7 @@ namespace ThorCyte.CarrierModule.ViewModels
                 if (args.Count != 1 || CarrierModule.Mode == DisplayMode.Analysis)
                 {
                     //Clear Canvas items and set size to 0,0
-                    SetEmptyContent();
+                    //SetEmptyContent();
                     return;
                 }
 
@@ -354,18 +427,18 @@ namespace ThorCyte.CarrierModule.ViewModels
         private bool IsRectInside(Rect parent, Rect son)
         {
             var tolerance = 2;
-            
-            if (son.Left+tolerance < parent.Left)
+
+            if (son.Left + tolerance < parent.Left)
             {
                 return false;
             }
 
-            if (son.Right > parent.Right+tolerance)
+            if (son.Right > parent.Right + tolerance)
             {
                 return false;
             }
 
-            if (son.Top+tolerance < parent.Top)
+            if (son.Top + tolerance < parent.Top)
             {
                 return false;
             }
@@ -385,14 +458,49 @@ namespace ThorCyte.CarrierModule.ViewModels
         /// <returns>transformed rectangle</returns>
         private Rect CoordinateTransform(Rect o)
         {
-            var r = new Rect();
+            var r = new Rect
+            {
+                X = ViewWidth - o.Left - o.Width,
+                Y = o.Top,
+                Width = o.Width,
+                Height = o.Height
+            };
 
             //r.X = ViewWidth - o.Left;
-            r.X = ViewWidth - o.Left - o.Width;
-            r.Y = o.Top;
-            r.Width = o.Width;
-            r.Height = o.Height;
             return r;
+        }
+
+
+        private void DisplayTile(RegionTile st)
+        {
+            try
+            {
+                UnSelectAllTile(); 
+                if (st.RegionId < 0) return;
+                if (st.RegionId > CurrentScanInfo.ScanRegionList.Count - 1) return;
+                var sr = CurrentScanInfo.ScanRegionList[st.RegionId];
+                LoadTiles(sr);
+                SetSelectTile(st.TileId);
+            }
+            catch (Exception ex)
+            {
+                CarrierModule.Logger.Write("Error occurred in TileViewModel.DisplayTile.", ex);
+            }
+        }
+
+        private void SetStreaming(bool isstreaming)
+        {
+            if (isstreaming)
+            {
+                SetSelectTile(_inRegion.ScanFieldList[0].ScanFieldId);
+                EventAggregator.GetEvent<SelectRegionTileEvent>().Publish(new RegionTile()
+                {
+                    TileId = _inRegion.ScanFieldList[0].ScanFieldId,
+                    RegionId = _inRegion.RegionId
+                });
+
+            }
+
         }
 
     }

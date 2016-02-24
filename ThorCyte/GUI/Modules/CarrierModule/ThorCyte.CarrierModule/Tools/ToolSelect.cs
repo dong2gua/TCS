@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using ThorCyte.CarrierModule.Canvases;
@@ -28,7 +30,6 @@ namespace ThorCyte.CarrierModule.Tools
 
             // Capture mouse until MouseUp event is received
             drawingCanvas.CaptureMouse();
-
         }
 
         public override void OnMouseMove(SlideCanvas drawingCanvas, MouseEventArgs e)
@@ -73,7 +74,12 @@ namespace ThorCyte.CarrierModule.Tools
             r.Normalize();
             var rect = r.Rectangle;
 
-            drawingCanvas.GraphicsList.Remove(r);
+
+            var rmg = (from GraphicsBase g in drawingCanvas.GraphicsList where g is GraphicsSelectionRectangle select g).Cast<GraphicsSelectionRectangle>().ToList();
+            foreach (var g in rmg)
+            {
+                drawingCanvas.GraphicsList.Remove(g);
+            }
 
             foreach (var g in from GraphicsBase g in drawingCanvas.GraphicsList where g.IntersectsWith(rect) select g)
             {
@@ -84,6 +90,25 @@ namespace ThorCyte.CarrierModule.Tools
             drawingCanvas.ReleaseMouseCapture();
             drawingCanvas.Tool = ToolType.Select;
             drawingCanvas.Cursor = HelperFunctions.DefaultCursor;
+        }
+
+
+        /// <summary>
+        /// Handle mouse leave.
+        /// </summary>
+        /// <param name="drawingCanvas"></param>
+        /// <param name="e"></param>
+        public override void OnMouseLeave(SlideCanvas drawingCanvas, MouseEventArgs e)
+        {
+            var rmg = (from GraphicsBase g in drawingCanvas.GraphicsList where g is GraphicsSelectionRectangle select g).Cast<GraphicsSelectionRectangle>().ToList();
+            foreach (var g in rmg)
+            {
+                drawingCanvas.GraphicsList.Remove(g);
+            }
+
+            drawingCanvas.ReleaseMouseCapture();
+            drawingCanvas.Tool = ToolType.Select;
+            drawingCanvas.Cursor = PlateHelperFunctions.DefaultCursor;
         }
 
         /// <summary>
@@ -162,7 +187,26 @@ namespace ThorCyte.CarrierModule.Tools
                 g.IsSelected = true;
             }
 
+            var rmg = (from GraphicsBase g in drawingCanvas.GraphicsList where g is GraphicsSelectionRectangle select g).Cast<GraphicsSelectionRectangle>().ToList();
+            foreach (var g in rmg)
+            {
+                drawingCanvas.GraphicsList.Remove(g);
+            }
+
             drawingCanvas.SetActiveRegions();
+            drawingCanvas.ReleaseMouseCapture();
+            drawingCanvas.Tool = ToolType.Select;
+            drawingCanvas.Cursor = PlateHelperFunctions.DefaultCursor;
+        }
+
+        public override void OnMouseLeave(PlateCanvas drawingCanvas, MouseEventArgs e)
+        {
+            var rmg = (from GraphicsBase g in drawingCanvas.GraphicsList where g is GraphicsSelectionRectangle select g).Cast<GraphicsSelectionRectangle>().ToList();
+            foreach (var g in rmg)
+            {
+                drawingCanvas.GraphicsList.Remove(g);
+            }
+
             drawingCanvas.ReleaseMouseCapture();
             drawingCanvas.Tool = ToolType.Select;
             drawingCanvas.Cursor = PlateHelperFunctions.DefaultCursor;

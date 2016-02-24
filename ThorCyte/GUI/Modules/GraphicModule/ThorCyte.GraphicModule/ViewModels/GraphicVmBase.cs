@@ -12,11 +12,11 @@ using Prism.Events;
 using Prism.Mvvm;
 using ROIService;
 using ThorCyte.GraphicModule.Events;
+using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.Infrastructure;
 using ThorCyte.GraphicModule.Models;
 using ThorCyte.GraphicModule.Utils;
 using ThorCyte.Infrastructure.Interfaces;
-using ThorCyte.Infrastructure.Types;
 using ROIService.Region;
 
 namespace ThorCyte.GraphicModule.ViewModels
@@ -32,6 +32,45 @@ namespace ThorCyte.GraphicModule.ViewModels
         protected double YScale;
         //protected RegionColorIndex DefaultEventColorIndex = RegionColorIndex.White;
         //protected RegionColorIndex DefaultBackgroundIndex = RegionColorIndex.White;
+        private static readonly ImpObservableCollection<ColorRegionModel> _colorRegionList = new ImpObservableCollection<ColorRegionModel>()
+        {
+            new ColorRegionModel
+            {
+                IsChecked = true,
+                RegionColor = Colors.White,
+                RegionColorString = ConstantHelper.DefaultColorStr
+            },
+            new ColorRegionModel
+            {
+                RegionColor = Colors.Red,
+                RegionColorString = "Red"
+            },
+            new ColorRegionModel
+            {
+                RegionColor = Colors.LawnGreen,
+                RegionColorString = "LawnGreen"
+            },
+            new ColorRegionModel
+            {
+                RegionColor = Colors.Orange,
+                RegionColorString = "Orange"
+            },
+            new ColorRegionModel
+            {
+                RegionColor = Colors.Yellow,
+                RegionColorString = "Yellow"
+            },
+            new ColorRegionModel
+            {
+                RegionColor = Colors.Magenta,
+                RegionColorString = "Magenta"
+            },
+            new ColorRegionModel
+            {
+                RegionColor = Colors.Cyan,
+                RegionColorString = "Cyan"
+            }
+        };
 
 
         public int BinCount { get; set; }
@@ -240,9 +279,9 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        private static ToolType _regionToolType;
+        private ToolType _regionToolType;
 
-        public static ToolType RegionToolType
+        public ToolType RegionToolType
         {
             get { return _regionToolType; }
             set
@@ -251,8 +290,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     return;
                 }
-                _regionToolType = value;
-                OnStaticPropertyChanged("RegionToolType");
+                SetProperty(ref _regionToolType, value);
             }
         }
 
@@ -397,6 +435,22 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
+        private string _labelTitle;
+
+        public string LabelTitle
+        {
+            get { return _labelTitle; }
+            set
+            {
+                if (_labelTitle == value)
+                {
+                    return;
+                }
+                SetProperty(ref _labelTitle, value);
+                SetTitle();
+            }
+        }
+
         private ImpObservableCollection<string> _gate1List = new ImpObservableCollection<string>();
 
         public ImpObservableCollection<string> Gate1List
@@ -420,45 +474,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             get { return _operatorList; }
         }
 
-        private static readonly ImpObservableCollection<ColorRegionModel> _colorRegionList = new ImpObservableCollection<ColorRegionModel>()
-        {
-            new ColorRegionModel
-            {
-                IsChecked = true,
-                RegionColor = Colors.White,
-                RegionColorString = "Default"
-            },
-            new ColorRegionModel
-            {
-                RegionColor = Colors.Red,
-                RegionColorString = "Red"
-            },
-            new ColorRegionModel
-            {
-                RegionColor = Colors.LawnGreen,
-                RegionColorString = "LawnGreen"
-            },
-            new ColorRegionModel
-            {
-                RegionColor = Colors.Orange,
-                RegionColorString = "Orange"
-            },
-            new ColorRegionModel
-            {
-                RegionColor = Colors.Yellow,
-                RegionColorString = "Yellow"
-            },
-            new ColorRegionModel
-            {
-                RegionColor = Colors.Magenta,
-                RegionColorString = "Magenta"
-            },
-            new ColorRegionModel
-            {
-                RegionColor = Colors.Cyan,
-                RegionColorString = "Cyan"
-            }
-        };
+
 
         public static ImpObservableCollection<ColorRegionModel> ColorRegionList
         {
@@ -558,7 +574,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 return;
             }
-            SelectedComponent = _componentList[0];
+            _selectedComponent = _componentList[0];
             Title = _componentList[0];
             UpdateFeatures();
 
@@ -570,8 +586,21 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         public void UpdateComponentList(IList<string> components)
         {
+            var component = _selectedComponent;
+            _selectedComponent = null;
             _componentList.Clear();
             _componentList.AddRange(components);
+            if (component != null)
+            {
+                _selectedComponent = _componentList.FirstOrDefault(com => com == component);
+                if (_selectedComponent == null && components.Count > 0)
+                {
+                    _selectedComponent = _componentList[0];
+                }
+               
+            }
+            OnPropertyChanged("SelectedComponent");
+            SetTitle();
         }
 
         public virtual void UpdateFeatures()
@@ -642,7 +671,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 return;
             }
-            if (_xAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos)
+            if (_xAxis.SelectedNumeratorFeature != null && _xAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos)
             {
                 min = scaninfo.ScanWellList[baseId - 1].Bound.Left;
                 max = scaninfo.ScanWellList[baseId - 1].Bound.Right;
@@ -657,6 +686,12 @@ namespace ThorCyte.GraphicModule.ViewModels
                     {
                         max = well.Bound.Right;
                     }
+                }
+                if (_xAxis.IsLogScale)
+                {
+                    min = (int)Math.Log10(min);
+                    max =  Convert.ToInt32(Math.Log10(max)+0.5);
+                    _xAxis.InitLogTable();
                 }
                 _xAxis.SetRange(min, max);
             }
@@ -676,6 +711,12 @@ namespace ThorCyte.GraphicModule.ViewModels
                         max = well.Bound.Bottom;
                     }
                 }
+                if (_yAxis.IsLogScale)
+                {
+                    min = (int)Math.Log10(min);
+                    max = Convert.ToInt32(Math.Log10(max)+0.5);
+                    _yAxis.InitLogTable();
+                }
                 _yAxis.SetRange(min, max);
             }
         }
@@ -688,15 +729,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
             GraphicModule.GraphicManagerVmInstance.UpdateRelationShip(Id);
             GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
-        }
-
-        static void OnStaticPropertyChanged(string propertyName)
-        {
-            var handler = StaticPropertyChanged;
-            if (handler != null)
-            {
-                handler(null, new PropertyChangedEventArgs(propertyName));
-            }
         }
 
         #endregion

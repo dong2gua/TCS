@@ -50,10 +50,10 @@ LIBCV_API int fnipp_lib_invert_16u(unsigned short* srcBuffer, int width, int hei
 									 int channels, unsigned short maxValue, unsigned short* dstBuffer);
 LIBCV_API int fnipp_lib_invert_16uI(unsigned short* srcDstBuffer, int width, int height, 
 									  int channels, unsigned short maxValue);
-LIBCV_API int fnipp_lib_threshold_16uC1(unsigned short* srcBuffer, int width, int height, 
+LIBCV_API int fnipp_lib_threshold_16uC1(const unsigned short* srcBuffer, int width, int height, 
 									unsigned short threshold, unsigned short* dstBuffer);
 
-LIBCV_API int fnipp_lib_otsuThreshold_16uC1(unsigned short* srcBuffer, int width, int height, unsigned short* dstBuffer);
+LIBCV_API int fnipp_lib_otsuThreshold_16uC1(const unsigned short* srcBuffer, int width, int height, unsigned short* dstBuffer);
 
 LIBCV_API int fnipp_lib_dilate_16uC1(unsigned short* srcBuffer, int width, int height, int maskSize, unsigned short* dstBuffer);
 
@@ -81,6 +81,5 @@ LIBCV_API int fnipp_lib_Xor_16uC1I(const unsigned short* srcBuffer, int width, i
 LIBCV_API int fnipp_lib_rotateShift_16u(const unsigned short* srcBuffer, int width, int height, int channels, double angle,
 										   int shiftX, int shiftY, unsigned short* dstBuffer);
 
-LIBCV_API int fncv_lib_findContours_16uC1(unsigned short* srcBuffer, int width, int height, double minArea, 
-											 double maxArea, int** ppBlobs, int** ppPointsCountPerBlob/*, double** ppAreas*/);
-LIBCV_API void FreeIntBuffer(int* pBuffer);
+LIBCV_API int fncv_lib_findContours_16uC1(unsigned short* srcBuffer, int width, int height, int** ppBlobs, int** ppPointsCountPerBlob);
+LIBCV_API void free_buffer(void* pBuffer);

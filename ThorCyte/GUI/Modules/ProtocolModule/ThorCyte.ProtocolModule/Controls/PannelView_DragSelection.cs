@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using ThorCyte.ProtocolModule.Models;
 
 namespace ThorCyte.ProtocolModule.Controls
 {
@@ -64,7 +69,6 @@ namespace ThorCyte.ProtocolModule.Controls
             if (e.ChangedButton == MouseButton.Left)
             {
                 //  Clear selection immediately when starting drag selection.
-                //SelectedModules.Clear();
                 _isLeftMouseButtonDown = true;
                 _origMouseDownPoint = e.GetPosition(this);
                 CaptureMouse();
@@ -106,6 +110,11 @@ namespace ThorCyte.ProtocolModule.Controls
                 {
                     // A click and release in empty space clears the selection.
                     SelectedModules.Clear();
+
+                    foreach (var con in _pannelControl.Items.OfType<ConnectorModel>())
+                    {
+                        con.IsSelected = false;
+                    }
                 }
             }
         }
@@ -215,7 +224,7 @@ namespace ThorCyte.ProtocolModule.Controls
                 var itemRect = new Rect(itemPt1, itemPt2);
                 if (dragRect.IntersectsWith(itemRect))
                 {
-                    if(!nodeItem.IsSelected)                    
+                    if (!nodeItem.IsSelected)
                         nodeItem.IsSelected = true;
                 }
                 else
@@ -224,7 +233,64 @@ namespace ThorCyte.ProtocolModule.Controls
                         nodeItem.IsSelected = false;
                 }
             }
+
+            foreach (ConnectorModel connItem in Connections)
+            {
+
+                var itemline = new LineGeometry
+                {
+                    StartPoint = connItem.SourcePortHotspot,
+                    EndPoint = connItem.DestPortHotspot
+                };
+
+                if (IsIntersects(itemline, dragRect))
+                {
+                    if (!connItem.IsSelected)
+                        connItem.IsSelected = true;
+                }
+                else
+                {
+                    if (connItem.IsSelected)
+                        connItem.IsSelected = false;
+                }
+            }
+
         }
+
+        private bool IsIntersects(LineGeometry l, Rect rect)
+        {
+            var ret = false;
+            try
+            {
+                if (l == null || rect == null)
+                {
+                    ret = false;
+                }
+                else
+                {
+                    var r = new RectangleGeometry(rect);
+                    var det = r.FillContainsWithDetail(l, 1.0, ToleranceType.Relative);
+
+                    switch (det)
+                    {
+                        case IntersectionDetail.FullyContains:
+                        case IntersectionDetail.Intersects:
+                        case IntersectionDetail.FullyInside:
+                            ret = true;
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error occurred in IsIntersects " + ex.Message);
+            }
+
+            return ret;
+
+        }
+
+
 
         #endregion
     }

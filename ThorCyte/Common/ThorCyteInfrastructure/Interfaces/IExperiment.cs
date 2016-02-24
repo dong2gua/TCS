@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
+using ThorCyte.Infrastructure.Events;
 using ThorCyte.Infrastructure.Types;
 namespace ThorCyte.Infrastructure.Interfaces
 {
@@ -16,6 +17,7 @@ namespace ThorCyte.Infrastructure.Interfaces
         public int IntensityBits { set; get; }
         public string ExperimentPath { set; get; }
         public string AnalysisPath { set; get; }
+        public bool LoadWithAnalysisResult { set; get;}
     }
 
     public class ScanInfo
@@ -82,6 +84,6 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         int GetCurrentScanId();
 
-        void SetAnalysisPath(string path);
+        void SetAnalysisPath(string path, bool isLoad = false);
     }
 }

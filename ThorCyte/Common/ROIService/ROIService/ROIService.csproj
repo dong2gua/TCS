@@ -37,9 +37,6 @@
     <Reference Include="ComponentDataService">
       <HintPath>..\..\..\Bin\ComponentDataService.dll</HintPath>
     </Reference>
-    <Reference Include="ImageProcess">
-      <HintPath>..\..\..\..\Bin\ImageProcess.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\..\Tools\Prism\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -70,10 +67,15 @@
     <Compile Include="Region\RectangleRegion.cs" />
     <Compile Include="ROIManager.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\ImageProcess\ImageProcess\ImageProcess.csproj">
+      <Project>{bfc42732-f58c-4217-8b7f-ade6f00a8208}</Project>
+      <Name>ImageProcess</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y $(TargetDir)ROIService.dll $(ProjectDir)\..\..\..\Bin\</PostBuildEvent>
+    <PostBuildEvent>xcopy /y "$(TargetDir)ROIService.dll" "$(ProjectDir)\..\..\..\Bin\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

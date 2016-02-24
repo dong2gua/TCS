@@ -47,6 +47,8 @@ namespace ThorCyte.ProtocolModule.Controls
                         throw new ApplicationException("Unexpected code path!");
                     }
                     _cachedSelectedNodeItems.Add(module);
+
+                    module.IsDragging = true;
                 }
             }
 
@@ -91,6 +93,15 @@ namespace ThorCyte.ProtocolModule.Controls
             e.Handled = true;
             var eventArgs = new ModuleDragCompletedEventArgs(ModuleDragCompletedEvent, this, SelectedModules);
             RaiseEvent(eventArgs);
+
+            if (_cachedSelectedNodeItems != null)
+            {
+                foreach (var node in _cachedSelectedNodeItems)
+                {
+                    node.IsDragging = false;
+                }
+            }
+
             _cachedSelectedNodeItems = null;
             IsDragging = false;
             IsNotDragging = true;

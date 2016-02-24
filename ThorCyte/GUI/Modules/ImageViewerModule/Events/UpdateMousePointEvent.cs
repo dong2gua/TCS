@@ -12,5 +12,6 @@ namespace ThorCyte.ImageViewerModule.Events
         public Point Point { get; set; }
         public double GrayValue { get; set; }
         public bool IsComputeColor { get; set; }
+        public bool ZoomOnly { get; set; }
     }
 }

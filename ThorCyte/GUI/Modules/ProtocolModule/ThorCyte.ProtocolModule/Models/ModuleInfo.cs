@@ -42,7 +42,6 @@ namespace ThorCyte.ProtocolModule.Models
         {
             get { return SmBasicModules.Any(name => Name == name); }
         }
-
         #endregion
     }
 

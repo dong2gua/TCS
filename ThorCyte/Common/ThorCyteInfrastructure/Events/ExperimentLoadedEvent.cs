@@ -1,5 +1,4 @@
-﻿
-using Prism.Events;
+﻿using Prism.Events;
 
 namespace ThorCyte.Infrastructure.Events
 {

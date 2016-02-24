@@ -7,8 +7,8 @@
              mc:Ignorable="d" WindowStartupLocation="CenterScreen"
              x:Name="AnalysisWindow"
              xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
-             d:DesignHeight="300" d:DesignWidth="300" MinWidth="320" MinHeight="320" Width="320" Height="320"
-             MaxWidth="320" MaxHeight="320" Title="{Binding WindowTile}">
+             d:DesignHeight="300" d:DesignWidth="300"  Width="320" Height="320" ResizeMode="NoResize"
+              Title="{Binding WindowTile}">
     <Window.Resources>
         <converter:BoolToVisibilityConverter x:Key="boolToVisibility"/>
     </Window.Resources>
@@ -16,18 +16,20 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="32"/>
         </Grid.RowDefinitions>
         <Label FontWeight="Bold" >Analysis Result List:</Label>
         <DockPanel VerticalAlignment="Stretch" Grid.Row="1">
-            <ListBox Margin="10,5,10,5" Height="Auto" ItemsSource="{Binding AnalysisList}" SelectedItem="{Binding FolderName}" DockPanel.Dock="Top" />
+            <ScrollViewer Margin="10,0,10,0" DockPanel.Dock="Top" Height="184">
+                <ListBox  Height="Auto" ItemsSource="{Binding AnalysisList}" SelectedItem="{Binding FolderName}"  />
+            </ScrollViewer>
             <StackPanel VerticalAlignment="Bottom" Height="35" Orientation="Horizontal" Margin="10,4,4,4" Visibility="{Binding IsSaveWindow, Converter={StaticResource boolToVisibility}}" >
                 <TextBlock VerticalAlignment="Center" Margin="4" Text="Analysis Name: "></TextBlock>
                 <TextBox VerticalAlignment="Center" Margin="4,4" Text="{Binding FolderName}" Width="120"></TextBox>
             </StackPanel>
         </DockPanel>
         
-        <StackPanel Margin="0,5" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Margin="0,4" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Width="70" Margin="4,0" Command="{Binding OkCommand}" CommandParameter="{Binding ElementName=AnalysisWindow}">Ok</Button>
             <Button Width="70" Margin="4,0" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=AnalysisWindow}" >Cancel</Button>
         </StackPanel>

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows;
 using System.Xml;
@@ -40,13 +40,14 @@ namespace ComponentDataService.Types
         private string _basePath;
         private string _contourXmlPath;
         private readonly FeatureCollection _features = new FeatureCollection(DefaultFeatureCount);
-        private readonly string _componentName = string.Empty;
+        private readonly string _componentName;
         private readonly Dictionary<int, int> _eventsCountDict = new Dictionary<int, int>(DefaultEventsCount);
         private int _featureCount;
         private readonly List<Channel> _channels = new List<Channel>(DefaultChannelCount);
         private readonly IExperiment _experiment;
-        private int _imageWidth;
-        private int _imageHeight;
+        private const int ImageWidth = 1000;
+        private const int ImageHeight = 768;
+        private readonly short[] _imageBuffer = new short[ImageHeight*ImageWidth];
         private readonly int _scanId;
         #endregion
 
@@ -112,8 +113,7 @@ namespace ComponentDataService.Types
             _features.AddRange(features);
         }
 
-
-       
+      
         internal List<Blob> GetTileBlobs(int wellId, int tileId, BlobType type)
         {
             int key = GetBlobKey(wellId, tileId);
@@ -151,21 +151,29 @@ namespace ComponentDataService.Types
 
         }
 
-        internal List<BioEvent> GetEvents(int wellId)
+        internal List<BioEvent> GetEvents(int wellId, EventSource source)
         {
+            
             if (_eventsDict.ContainsKey(wellId) == false)
             {
-                _eventsDict[wellId] = ReadEventsFromBinary(wellId);
+                switch (source)
+                {
+                    case EventSource.FromDisk:
+                        _eventsDict[wellId] = ReadEventsFromBinary(wellId);
+                        return _eventsDict[wellId];
+                    case EventSource.FromMemory:
+                        return EmptyEvents.ToList();
+                }
+                
             }
             return _eventsDict[wellId];
-
         }
 
         internal void SaveTileBlobs(string baseFolder)
         {
-            string contourXml = Path.Combine(baseFolder, ComponentDataManager.ContourXmlFolder);
-            WriteBlobsXml(contourXml);
-            WriteBlobsBinary(baseFolder);
+            string contourXml = Path.Combine(baseFolder, ComponentDataManager.ContourXmlFolder);         
+            WriteBlobsXml(contourXml);                       
+            WriteBlobsBinary(baseFolder);           
         }
 
         internal void SaveEvents(string baseFolder)
@@ -215,11 +223,11 @@ namespace ComponentDataService.Types
         internal IList<Blob> CreateContourBlobs(int wellId, int tileId,
             ImageData data, double minArea, double maxArea = int.MaxValue)
         {
-            IList<Blob> contours = data.FindContoursByOpenCv(minArea, maxArea);
+            IList<Blob> contours = data.FindContours(minArea, maxArea);
             int key = GetBlobKey(wellId, tileId);
             _contourBlobs[key] = contours.ToList();
-            _imageWidth = (int)data.XSize;
-            _imageHeight = (int) data.YSize;
+            //ImageWidth = (int)data.XSize;
+            //ImageHeight = (int) data.YSize;
             return contours;
         }
 
@@ -239,7 +247,7 @@ namespace ComponentDataService.Types
            
             foreach (Blob contour in contours)
             {
-                if (contour.TouchesEdge(define.DataExpand, _imageWidth, _imageHeight)==false)
+                if (contour.TouchesEdge(define.DataExpand, ImageWidth, ImageHeight)==false)
                 {
                     Blob dataBlob = contour.CreateExpanded(define.DataExpand, 0, 0);
                     if (dataBlob != null)
@@ -257,6 +265,7 @@ namespace ComponentDataService.Types
             }
             stored.AddRange(evs);
             _dataBlobs[key] = dataBlobs;
+            ResetEventCountDict();
             return evs;
         }
 
@@ -285,7 +294,9 @@ namespace ComponentDataService.Types
             IList<VirtualChannel> virtualChannels = info.VirtualChannelList;
             var channels = new List<Channel>(physicalChannels.Count + virtualChannels.Count);
             channels.AddRange(physicalChannels.OrderBy(chn => chn.ChannelId));
-            channels.AddRange(virtualChannels.OrderBy(chn => chn.ChannelId));
+            channels.AddRange(virtualChannels);
+            for (int i = physicalChannels.Count; i < channels.Count; i++)
+                channels[i].ChannelId = i;
             return channels;
         }
 
@@ -751,15 +762,20 @@ namespace ComponentDataService.Types
             return featuresNode;
         }
 
-        private XmlElement CreateWells(XmlDocument doc)
+        private void ResetEventCountDict()
         {
-            var wellsNode = doc.CreateElement("wells");
+            _eventsCountDict.Clear();
             foreach (KeyValuePair<int, List<BioEvent>> entry in _eventsDict)
             {
                 int key = entry.Key;
                 int count = entry.Value.Count;
                 _eventsCountDict[key] = count;
             }
+        }
+
+        private XmlElement CreateWells(XmlDocument doc)
+        {
+            var wellsNode = doc.CreateElement("wells");
             foreach (KeyValuePair<int, int> entry in _eventsCountDict)
             {
                 XmlElement node = doc.CreateElement("well");
@@ -804,6 +820,8 @@ namespace ComponentDataService.Types
             int index = features.IndexOf(idFeature);
             return index;
         }
+
+       
         public BioEvent CreateEvent(Blob blobOrg, Blob blobData,
             BlobDefine define, IDictionary<string, ImageData> imageDict, int wellId, int tileId)
         {
@@ -833,7 +851,8 @@ namespace ComponentDataService.Types
             {
                 Channel channel = Channels[i];
                 string channelName = channel.ChannelName;
-                ImageData image = imageDict[channelName];
+                ImageData iimage = imageDict[channelName];
+                Marshal.Copy(iimage.DataBuffer, _imageBuffer, 0, _imageBuffer.Length);
                 const int rejectPercent = 200;
                 // dynamic background
                 int bkgnd = 0;
@@ -842,7 +861,8 @@ namespace ComponentDataService.Types
                     bool correctBk = define.DynamicBkCorrections[i];
                     if (correctBk)
                     {
-                        bkgnd = bkBlob.ComputeDynamicBackground(image, define.BackgroundLowBoundPercent,
+                        bkgnd = bkBlob.ComputeDynamicBackground(_imageBuffer, ImageWidth,
+                            define.BackgroundLowBoundPercent,
                             define.BackgroundHighBoundPercent, rejectPercent);
 
 
@@ -855,7 +875,7 @@ namespace ComponentDataService.Types
                 // integral, max-pixel
                 int maxPixel;
 
-                float integral = ComputeIntegral(image, blobData, bkgnd, out maxPixel);
+                float integral = ComputeIntegral(_imageBuffer, blobData, bkgnd, out maxPixel);
 
 
                 Feature fi = GetFeature(FeatureType.Integral);
@@ -867,7 +887,7 @@ namespace ComponentDataService.Types
 
                 //YAK 4-8-2011: stdv of the intensities
 
-                float stdv = ComputeStdv(image, blobData, bkgnd, integral / blobData.Area);
+                float stdv = ComputeStdv(_imageBuffer, blobData, bkgnd, integral / blobData.Area);
 
                 Feature fstdv = GetFeature(FeatureType.Stdv);
                 if (fstdv != null)
@@ -882,7 +902,7 @@ namespace ComponentDataService.Types
                 if (periBlob != null)
                 {
                     var periIntegral =
-                        (int)ComputeIntegral(image, periBlob, bkgnd, out maxPixel);
+                        (int)ComputeIntegral(_imageBuffer, periBlob, bkgnd, out maxPixel);
 
                     Feature fp = GetFeature(FeatureType.PeripheralIntegral);
                     if (fp != null)
@@ -902,7 +922,7 @@ namespace ComponentDataService.Types
             // common features
 
             Point center = blobData.Centroid();
-            double px = field.SFRect.X + (_imageWidth - center.X) * pixelWidth;
+            double px = field.SFRect.X + (ImageWidth - center.X) * pixelWidth;
             //double px = field.SFRect.X + (center.X) * pixelWidth;
             double py = field.SFRect.Y + center.Y*pixelHeight;
             ev[GetFeature(FeatureType.XPos).Index] = (int) px;
@@ -1036,7 +1056,7 @@ namespace ComponentDataService.Types
             int dist = define.BackgroundDistance;
             int extent = width + dist;
             Blob bkBlob = null;
-            if (blobData.TouchesEdge(extent, _imageWidth, _imageHeight) == false)
+            if (blobData.TouchesEdge(extent, ImageWidth, ImageHeight) == false)
             {
                bkBlob = blobData.CreateRing(dist, width, false, 0, 0);
             }
@@ -1049,13 +1069,55 @@ namespace ComponentDataService.Types
             int dist = define.PeripheralDistance;
             int extent = width + dist;
             Blob periBlob = null;
-            if (blobOrg.TouchesEdge(extent, _imageWidth, _imageHeight) == false)
+            if (blobOrg.TouchesEdge(extent, ImageWidth, ImageHeight) == false)
             {
                 periBlob = blobOrg.CreateRing(dist, width, false, 0, 0);
             }            
             return periBlob;
         }
 
+
+        public float ComputeIntegral(short[] data, Blob blob, int bkgnd, out int maxPixel)
+        {
+            maxPixel = 0;
+
+            if (blob.Area <= 0) return 0;
+
+            int height = blob.Bound.Height;
+            var yValues = new int[height];
+
+            //int xOffset = GetOffset(channel);
+            //ushort[,] buf = GetBuffer(channel);
+          
+            float integral = 0;
+
+            foreach (VLine line in blob.Lines)
+            {
+                int offset = line.Y1 - blob.Bound.Y;
+                if (line.X < 0 || line.X >= ImageWidth || line.Y1 + line.Length >= ImageHeight)
+                    continue; // can happen when region was created interactively
+
+                for (int i = 0; i < line.Length; i++)
+                {
+                    //yValues[offset + i] += (nTmp = buf[xOffset + line.X, line.Y1 + i] - bkgnd);
+                    int nTmp;
+                    yValues[offset + i] += (nTmp = data[(line.Y1 + i) * ImageWidth + line.X] - bkgnd);
+
+                    if (nTmp > maxPixel)
+                    {
+                        maxPixel = nTmp;
+                    }
+                }
+            }
+
+
+            for (int i = 0; i < height; i++)
+                integral += yValues[i];
+
+            //m_maxPixelPos.X = peakX;
+            //m_maxPixelPos.Y = peakY;
+            return integral;
+        }
 
         public float ComputeIntegral(ImageData data, Blob blob, int bkgnd, out int maxPixel)
         {
@@ -1100,6 +1162,44 @@ namespace ComponentDataService.Types
             return integral;
         }
 
+        //YAK 4-8-2011: compute the standard deviation of the intensities of the blob
+        public float ComputeStdv(short[] data, Blob blob, int bkgnd, float meanInt)
+        {
+            if (blob.Area <= 0) return 0;
+
+            int height = blob.Bound.Height;
+            var yValues = new float[height];
+
+            //int xOffset = GetOffset(channel);
+            //ushort[,] buf = GetBuffer(channel);
+          
+            float stdv = 0;
+            int numPixels = 0;
+            foreach (VLine line in blob.Lines)
+            {
+                int offset = line.Y1 - blob.Bound.Y;
+                if (line.X < 0 || line.X >= ImageWidth || line.Y1 + line.Length >= ImageHeight)
+                    continue; // can happen when region was created interactively
+
+                for (int i = 0; i < line.Length; i++)
+                {
+                    numPixels++;
+                    //double tmpN = (buf[xOffset + line.X, line.Y1 + i] - bkgnd - MeanInt) * (buf[xOffset + line.X, line.Y1 + i] - bkgnd - MeanInt);
+                    double tmpN = (data[(line.Y1 + i) * ImageWidth + line.X] - bkgnd - meanInt) *
+                                  (data[(line.Y1 + i) * ImageWidth + line.X] - bkgnd - meanInt);
+                    yValues[offset + i] += (float)tmpN;
+                    // (nTmp = buf[xOffset + line.X, line.Y1 + i] - bkgnd);                  
+                }
+            }
+
+
+            for (int i = 0; i < height; i++)
+                stdv += yValues[i];
+
+            stdv /= numPixels;
+            stdv = (float)Math.Sqrt(stdv);
+            return stdv;
+        }
 
         //YAK 4-8-2011: compute the standard deviation of the intensities of the blob
         public float ComputeStdv(ImageData data, Blob blob, int bkgnd, float meanInt)
@@ -1125,8 +1225,8 @@ namespace ComponentDataService.Types
                 {
                     numPixels++;
                     //double tmpN = (buf[xOffset + line.X, line.Y1 + i] - bkgnd - MeanInt) * (buf[xOffset + line.X, line.Y1 + i] - bkgnd - MeanInt);
-                    double tmpN = (data[(line.Y1 + 1)*width + line.X] - bkgnd - meanInt)*
-                                  (data[(line.Y1 + 1)*width + line.X] - bkgnd - meanInt);
+                    double tmpN = (data[(line.Y1 + i)*width + line.X] - bkgnd - meanInt)*
+                                  (data[(line.Y1 + i)*width + line.X] - bkgnd - meanInt);
                     yValues[offset + i] += (float) tmpN;
                     // (nTmp = buf[xOffset + line.X, line.Y1 + i] - bkgnd);                  
                 }

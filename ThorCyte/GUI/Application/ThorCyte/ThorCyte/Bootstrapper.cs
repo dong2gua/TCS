@@ -1,6 +1,8 @@
 ﻿using System.Windows;
+using Microsoft.Practices.Unity;
 using Prism.Modularity;
 using Prism.Unity;
+using ThorCyte.Infrastructure.Interfaces;
 
 namespace ThorCyte
 {
@@ -16,6 +18,8 @@ namespace ThorCyte
         protected override DependencyObject CreateShell()
         {
             var view = this.Container.TryResolve<MainWindow>();
+            var _log = new ThorCyteLog();
+            Container.RegisterInstance<ILog>(_log);
             return view;
         }
 

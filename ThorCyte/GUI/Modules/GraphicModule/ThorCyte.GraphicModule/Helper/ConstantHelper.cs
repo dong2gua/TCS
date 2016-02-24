@@ -42,6 +42,8 @@ namespace ThorCyte.GraphicModule.Helper
 
         public const string CustomerStr = "Custom";
 
+        public const string DefaultColorStr = "Default";
+
         public const string DefaultTabName = "Tab";
 
         public const string AxisMaxTextFormat = "#.#E+0";

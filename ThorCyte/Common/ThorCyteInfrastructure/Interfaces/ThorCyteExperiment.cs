@@ -316,7 +316,8 @@ namespace ThorCyte.Infrastructure.Interfaces
                 _cols = element.ParseAttributeToInt32("cols");
                 if (Math.Abs(_fieldHeight) < Tolerance || Math.Abs(_fieldWidth) < Tolerance)
                     return false;
-                IEnumerable<ScanRegion> regions = GetScanRegions(element);
+                ICollection<ScanRegion> regions = GetScanRegions(element);
+                if (regions.Count == 0) return false;
                 foreach (var region in regions)
                 {
                     Well well = new Well(region.WellId, region.Bound);
@@ -329,7 +330,7 @@ namespace ThorCyte.Infrastructure.Interfaces
                 return false;
         }
 
-        private IEnumerable<ScanRegion> GetScanRegions(XmlElement element)
+        private ICollection<ScanRegion> GetScanRegions(XmlElement element)
         {
             var regions = new List<ScanRegion>();
             switch (_carrierType)
@@ -361,6 +362,8 @@ namespace ThorCyte.Infrastructure.Interfaces
         /// <returns></returns>
         private IEnumerable<ScanRegion> GetScanRegionsInSlide(XmlElement element)
         {
+            string mosFile = GetFile(FileType.Mosaic);
+            if (string.IsNullOrEmpty(mosFile)) return new ScanRegion[0];
             var regions = new List<ScanRegion>();
             string query = "descendant::well";
             var childs = element.SelectNodes(query);
@@ -779,7 +782,8 @@ namespace ThorCyte.Infrastructure.Interfaces
             _firstScanInfo.DataPath = BasePath;
             _experimentInfo.ExperimentPath = BasePath;
             bool hasError = false;
-            //_experimentInfo.AnalysisPath = BasePath + "\\Analysis";
+            _experimentInfo.AnalysisPath = "";
+            _experimentInfo.LoadWithAnalysisResult = false;
             try
             {
                 GetExperimentInfo();
@@ -810,13 +814,26 @@ namespace ThorCyte.Infrastructure.Interfaces
 
         }
 
+        public void SetAnalysisPath(string path, bool isLoad)
+        {
+            if (Directory.Exists(path))
+            {
+                _experimentInfo.AnalysisPath = path;
+                if (isLoad)
+                    _experimentInfo.LoadWithAnalysisResult = true;
+            }  
+        }
+
         public void SetAnalysisPath(string path)
         {
-            _experimentInfo.AnalysisPath = path;
+            SetAnalysisPath(path, false);
         }
         #endregion
 
         #endregion
+
+
+       
     }
 
     internal static class Utils

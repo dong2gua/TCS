@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Text;
 using System.Windows;
+using ComponentDataService;
 using ComponentDataService.Types;
 using Prism.Mvvm;
 using ThorCyte.GraphicModule.Helper;
@@ -81,7 +83,6 @@ namespace ThorCyte.GraphicModule.Models
                 {
                     OldMinRange = _minRange;
                     OldMaxRange = _maxRange;
-                    SetDefaultRange(true);
                 }
                 else
                 {
@@ -102,18 +103,11 @@ namespace ThorCyte.GraphicModule.Models
                 {
                     return;
                 }
-                IsRangeEnabled = !value;
-                IsLogScaleEnabled = !value;
                 if (value)
                 {
-                    IsLogScale = false;
+                    NormalizeToActiveWell();
+                    GraphicModule.GraphicManagerVmInstance.Update(GraphicId);
                 }
-                if (!value)
-                {
-                    MinRange = OldMinRange;
-                    MaxRange = OldMaxRange;
-                }
-                GraphicModule.GraphicManagerVmInstance.NormalizeToActiveWell(GraphicId, this, value);
                 SetProperty(ref _isNormalize, value);
             }
         }
@@ -132,6 +126,7 @@ namespace ThorCyte.GraphicModule.Models
                     return;
                 }
                 SetProperty(ref _minRange, value);
+                IsNormalize = false;
                 OnFeatureUpdate();
 
             }
@@ -149,8 +144,10 @@ namespace ThorCyte.GraphicModule.Models
                 {
                     return;
                 }
+                
                 MaxValue = _isLogScale ? Math.Pow(10, value) : value;
                 SetProperty(ref _maxRange, value);
+                IsNormalize = false;
                 OnFeatureUpdate();
             }
         }
@@ -237,9 +234,9 @@ namespace ThorCyte.GraphicModule.Models
                 }
                 if (IsInitialized)
                 {
-                    SetDefaultRange(_isLogScale);
                     UpdateTitle();
                 }
+                IsNormalize = true;
                 OnPropertyChanged();
                 OnPropertyChanged("SelectedNumeratorChannel");
                 OnFeatureUpdate();
@@ -257,6 +254,7 @@ namespace ThorCyte.GraphicModule.Models
                 {
                     return;
                 }
+                IsNormalize = true;
                 SetProperty(ref _selectedNumeratorChannel, value);
                 UpdateTitle();
                 OnFeatureUpdate();
@@ -289,6 +287,7 @@ namespace ThorCyte.GraphicModule.Models
                         SelectedDenominatorChannel = null;
                     }
                 }
+                IsNormalize = true;
                 UpdateTitle();
                 OnPropertyChanged();
                 OnFeatureUpdate();
@@ -306,7 +305,7 @@ namespace ThorCyte.GraphicModule.Models
                 {
                     return;
                 }
-
+                IsNormalize = true;
                 SetProperty(ref _selectedDenominatorChannel, value);
                 UpdateTitle();
                 OnFeatureUpdate();
@@ -356,21 +355,6 @@ namespace ThorCyte.GraphicModule.Models
                     return;
                 }
                 SetProperty(ref _isDenominatorChannelEnabled, value);
-            }
-        }
-
-        private bool _isRangeEnabled = true;
-
-        public bool IsRangeEnabled
-        {
-            get { return _isRangeEnabled; }
-            set
-            {
-                if (_isRangeEnabled == value)
-                {
-                    return;
-                }
-                SetProperty(ref _isRangeEnabled, value);
             }
         }
 
@@ -426,7 +410,6 @@ namespace ThorCyte.GraphicModule.Models
             BinCount = ConstantHelper.LowBinCount;
             IsMaxCountChanged = false;
             AxisType = type;
-            //  SetTickScale();
         }
 
         #endregion
@@ -473,6 +456,12 @@ namespace ThorCyte.GraphicModule.Models
 
         public void AddFeatures(IEnumerable featureList)
         {
+            var selectedNumeratorFeature = _selectedNumeratorFeature;
+            var selectedDenominatorFeature = _selectedDenominatorFeature;
+
+            _selectedNumeratorFeature = null;
+            _selectedDenominatorFeature = null;
+
             _numeratorFeatureList.Clear();
             _denominatorFeatureList.Clear();
 
@@ -484,10 +473,29 @@ namespace ThorCyte.GraphicModule.Models
                 _numeratorFeatureList.Add(f);
                 _denominatorFeatureList.Add(f);
             }
+            if (selectedNumeratorFeature != null)
+            {
+                _selectedNumeratorFeature =
+                    _numeratorFeatureList.FirstOrDefault(
+                        feature => feature.FeatureType == selectedNumeratorFeature.FeatureType);
+                OnPropertyChanged("SelectedNumeratorFeature");
+            }
+            if (selectedDenominatorFeature!=null)
+            {
+                _selectedDenominatorFeature = _denominatorFeatureList.FirstOrDefault(
+                        feature => feature.FeatureType == selectedDenominatorFeature.FeatureType);
+                OnPropertyChanged("SelectedDenominatorFeature");
+            }
         }
 
         public void AddChannles(IEnumerable channelList)
         {
+            var selectedNumeratorChannel = _selectedNumeratorChannel;
+            var selectedDenominatorChannel = _selectedDenominatorChannel;
+
+            _selectedNumeratorChannel = null;
+            _selectedDenominatorChannel = null;
+
             _numeratorChannelList.Clear();
             _denominatorChannelList.Clear();
             foreach (var channel in channelList)
@@ -495,6 +503,20 @@ namespace ThorCyte.GraphicModule.Models
                 var ch = (Channel)channel;
                 _numeratorChannelList.Add(ch);
                 _denominatorChannelList.Add(ch);
+            }
+
+            if (selectedNumeratorChannel != null)
+            {
+                _selectedNumeratorChannel =
+                    _numeratorChannelList.FirstOrDefault(
+                        channel => channel.ChannelId == selectedNumeratorChannel.ChannelId);
+                OnPropertyChanged("SelectedNumeratorChannel");
+            }
+            if (selectedDenominatorChannel != null)
+            {
+                _selectedDenominatorChannel = _denominatorChannelList.FirstOrDefault(
+                        channel => channel.ChannelId == selectedDenominatorChannel.ChannelId);
+                OnPropertyChanged("SelectedDenominatorChannel");
             }
         }
 
@@ -573,81 +595,7 @@ namespace ThorCyte.GraphicModule.Models
             }
             Title = temStr.ToString();
         }
-
-        public static float GetFetureDefaultMax(FeatureType featureType, bool logScale)
-        {
-            switch (featureType)
-            {
-                case FeatureType.PeripheralIntensity:
-                case FeatureType.Intensity:
-                case FeatureType.PeripheralMax:
-                case FeatureType.MaxPixel:
-                case FeatureType.Background:
-                    if (logScale)
-                        return 4;
-                    return 16384;//BioImage.MaxValue + 1;
-                case FeatureType.Integral:
-                case FeatureType.PeripheralIntegral:
-                    return logScale ? 7 : 10000000f;
-                case FeatureType.ParentId:
-                    return 40f;
-                case FeatureType.Perimeter:
-                    return logScale ? 2 : 60f;
-                case FeatureType.Circularity:
-                    return logScale ? 2 : 50f;
-                case FeatureType.Time:
-                    return logScale ? 4 : 10000f;
-                case FeatureType.WellNo:
-                    return logScale ? 2f : 100f;
-                case FeatureType.Merged:
-                    return 2;
-                case FeatureType.Diameter:
-                    return logScale ? 2f : 20f;
-                case FeatureType.Eccentricity:
-                    return logScale ? 1f : 2f;
-                case FeatureType.Elongation:
-                    return logScale ? 1f : 5f;
-                case FeatureType.MajorAxis:
-                case FeatureType.MinorAxis:
-                    return logScale ? 2f : 20f;
-                case FeatureType.HalfRadius:
-                    return logScale ? 2f : 20f;
-                case FeatureType.Stdv:
-                    return logScale ? 4f : 10000f;
-                case FeatureType.Scan:
-                    if (logScale)
-                        return 3;
-                    return 768;//DaqScan.FieldYPixels;
-                default:
-                    if (featureType == FeatureType.Area ||
-                        featureType.ToString().StartsWith(FeatureType.Area.ToString()))
-                        return logScale ? 3 : 800;
-                    if (featureType.ToString().StartsWith(FeatureType.Count.ToString()))
-                        return logScale ? 2 : 20f;
-                    break;
-            }
-
-            return logScale ? 2 : 100f;
-        }
-
-        public void SetDefaultRange(bool isLogScale)
-        {
-            if (SelectedNumeratorFeature != null)
-            {
-                _minRange = 0;
-                _maxRange = GetFetureDefaultMax(SelectedNumeratorFeature.FeatureType, isLogScale);
-                MinValue = _isLogScale ? Math.Pow(10, _minRange) : _minRange;
-                MaxValue = _isLogScale ? Math.Pow(10, _maxRange) : _maxRange;
-                OnPropertyChanged("MinRange");
-                OnPropertyChanged("MaxRange");
-            }
-
-            if (isLogScale)
-            {
-                InitLogTable();
-            }
-        }
-
+        
         private void SetOldRange()
         {
             _minRange = OldMinRange;
@@ -662,11 +610,11 @@ namespace ThorCyte.GraphicModule.Models
         {
             if (_logTable.Length != BinCount)
             {
-                _logTable = new long[BinCount + 1];
+                _logTable = new long[BinCount+1];
             }
             for (var i = 0; i < _logTable.Length; i++)
             {
-                double f = i * (_maxRange - _minRange) / (BinCount - 1);
+                double f = i * (_maxRange - _minRange) / (BinCount-1);
                 f += _minRange;
                 f = Math.Pow(10.0, f);
                 if (f > long.MaxValue) f = long.MaxValue; // jcl-5331
@@ -679,7 +627,7 @@ namespace ThorCyte.GraphicModule.Models
             if (nValue <= 0) return 0;
 
             if (nValue > _logTable[BinCount - 1])
-                return BinCount;
+                return BinCount - 1;
             var i = BinCount;
             var j = 0;
 
@@ -710,14 +658,91 @@ namespace ThorCyte.GraphicModule.Models
             return _logTable[index];
         }
 
+        public void NormalizeToActiveWell()
+        {
+            var parentCompoent = GraphicModule.GraphicManagerVmInstance.GetParentComponent(GraphicId);
+            if (string.IsNullOrEmpty(parentCompoent))
+            {
+                return;
+            }
+            var featureIndex = SelectedNumeratorFeature.Index;
+            if (SelectedNumeratorFeature.IsPerChannel)
+                featureIndex += SelectedNumeratorChannel.ChannelId;
+
+            float min = float.NaN;
+            float max = float.NaN;
+
+            foreach (var no in GraphicModule.GraphicManagerVmInstance.ActiveWellNos)
+            {
+                var events = ComponentDataManager.Instance.GetEvents(parentCompoent, no);
+                if (events.Count == 0)
+                {
+                    continue;
+                }
+                var minValue = events.Min(ev => ev[featureIndex]);
+                if (float.IsNaN(min) || minValue < min)
+                {
+                    min = minValue;
+                }
+                var maxValue = events.Max(ev => ev[featureIndex]);
+                if (float.IsNaN(max) || maxValue > max)
+                {
+                    max = maxValue;
+                }
+            }
+            OldMinRange = MinRange;
+            OldMaxRange = MaxRange;
+            var isValid = Math.Abs(max - float.MinValue) > double.Epsilon && Math.Abs(min - float.MaxValue) > double.Epsilon
+                && Math.Abs(max - min) > double.Epsilon;
+
+            if (!isValid)
+            {
+                max = max + 1;
+            }
+            if (!float.IsNaN(min) && !float.IsNaN(max))
+            {
+                if (IsLogScale)
+                {
+                    var maxValue = Convert.ToInt32(Math.Log10(max) + 0.5);
+                    if (maxValue == 0)
+                    {
+                        maxValue = 1;
+                    }
+                    var minValue = maxValue == 1 ? 0 : (int)Math.Log10(min);
+                    SetRange(minValue < 0 ? 0 : minValue, maxValue);
+                    InitLogTable();
+                }
+                else
+                {
+                    SetRange(Math.Round(min, 2), Math.Round(max, 2));
+                }
+            }
+        }
+
         private void OnFeatureUpdate()
         {
             CalcFeatureIndex();
+            if (IsNormalize)
+            {
+                NormalizeToActiveWell();
+                GraphicModule.GraphicManagerVmInstance.Update(GraphicId);
+            }
             if (IsInitialized && !IsSwitchWell && !IsMaxCountChanged)
             {
                 GraphicModule.GraphicManagerVmInstance.UpdateGraphFeatures(GraphicId);
                 UpdateTitle();
             }
+        }
+
+        public void InitParam(string parentId,FeatureType defaultType)
+        {
+            GraphicId = parentId;
+            _selectedNumeratorFeature =
+                    NumeratorFeatureList.FirstOrDefault(feature => feature.FeatureType == defaultType);
+            IsNormalize = true;
+            IsDefaultLabel = true;
+            CalcFeatureIndex();
+            UpdateTitle();
         }
 
         #endregion

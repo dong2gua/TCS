@@ -10,47 +10,44 @@
         <converts:InverseBooleanConverter x:Key="InverseBooleanCvt"/>
         <converts:GraphTypeConvert x:Key="GraphTypeCvt"/>
     </UserControl.Resources>
-    <StackPanel>
-        <Grid>
+    <StackPanel Margin="5,2,2,2">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Content="Title :"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Margin="3,2,0,2" Text="{Binding LabelTitle}"/>
+            </Grid>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <CheckBox Grid.Column="0" Margin="3,0" Content="Auto Y scale" IsChecked="{Binding IsAutoYScale}"/>
+                <xctk:IntegerUpDown Grid.Column="1" Margin="6,0,0,0" Height="20" Value="{Binding YScaleValue}" IsEnabled="{Binding IsAutoYScale, Converter={StaticResource InverseBooleanCvt}}"/>
+            </Grid>
+        </StackPanel>
+
+        <Grid IsEnabled="{Binding IsSwitchStyleEnabled}">
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="0" Margin="2" Content="Title"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Margin="2" Text="{Binding Title}"/>
-
-            <!--<Label Grid.Row="1" Grid.Column="0" Margin="2" Content="#of channels displayed"/>
-            <ComboBox Grid.Row="1" Grid.Column="1" Margin="2" ItemsSource="{Binding ChannelCountList}" SelectedItem="{Binding SelectedChannelCount}"/>
-
-            <Label Grid.Row="2" Grid.Column="0" Margin="2" Content="Bin count"/>
-            <ComboBox Grid.Row="2" Grid.Column="1" Margin="2" ItemsSource="{Binding BinCountList}" SelectedItem="{Binding SelectedBinCount}"/>-->
-
-            <CheckBox Grid.Row="3" Grid.Column="0" Margin="2" Content="Auto Y scale" IsChecked="{Binding IsAutoYScale}"/>
-            <xctk:IntegerUpDown Grid.Row="3" Grid.Column="1" Margin="2" Height="20" Value="{Binding YScaleValue}" IsEnabled="{Binding IsAutoYScale, Converter={StaticResource InverseBooleanCvt}}"/>
-
-            <!--<Label Grid.Row="4" Grid.Column="0" Margin="2" Content="Smooth:"/>
-            <xctk:IntegerUpDown Grid.Row="4" Grid.Column="1" Margin="2" Height="20" Value="{Binding Smooth}"/>-->
+            <Label Content="Plot Style :" Grid.Row="0" Grid.Column="0"/>
+            <RadioButton Grid.Row="1" Grid.Column="0" Margin="3,0" Content="Bar charts" IsChecked="{Binding GraphType,Converter={StaticResource GraphTypeCvt},ConverterParameter=barchart}"/>
+            <RadioButton Grid.Row="1" Grid.Column="1" Margin="6,0,0,0" Content="OutLine" IsChecked="{Binding GraphType,Converter={StaticResource GraphTypeCvt},ConverterParameter=outline}"/>
 
         </Grid>
-        <GroupBox Header="Plot Style" IsEnabled="{Binding IsSwitchStyleEnabled}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="3*"/>
-                </Grid.ColumnDefinitions>
-
-                <RadioButton Grid.Column="0" Margin="2" Content="Bar charts" IsChecked="{Binding GraphType,Converter={StaticResource GraphTypeCvt},ConverterParameter=barchart}"/>
-                <RadioButton Grid.Column="1" Margin="2" Content="OutLine" IsChecked="{Binding GraphType,Converter={StaticResource GraphTypeCvt},ConverterParameter=outline}"/>
-            </Grid>
-        </GroupBox>
     </StackPanel>
 </UserControl>

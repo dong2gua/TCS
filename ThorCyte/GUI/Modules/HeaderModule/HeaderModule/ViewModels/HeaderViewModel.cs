@@ -34,32 +34,32 @@ namespace ThorCyte.HeaderModule.ViewModels
 
         private void OpenExperiment()
         {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Experiment files (*.xml, *.oct)|*.xml; *.oct|All files (*.*)|*.*";
-            if (dlg.ShowDialog() == true)
-            {
-                string fileName = dlg.FileName;
-                if (fileName.Contains("Run.xml"))
-                {
-                    _experiment = new ThorCyteExperiment();
-                    _data = new ThorCyteData();
-                }
-                else if (fileName.Contains("Experiment.xml"))
-                {
-                    _experiment = new ThorImageExperiment();
-                    _data = new ThorImageData();
-                }
-                if (_experiment != null)
-                {
-                    _experiment.Load(fileName);
-                    _data.SetExperimentInfo(_experiment);
-                    _unityContainer.RegisterInstance<IExperiment>(_experiment);
-                    _unityContainer.RegisterInstance<IData>(_data);
-                    ComponentDataManager.Instance.Load(_experiment);
-                    if(_experiment.GetScanCount() > 0)
-                        _eventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(1);
-                }
-            }
+            //OpenFileDialog dlg = new OpenFileDialog();
+            //dlg.Filter = "Experiment files (*.xml, *.oct)|*.xml; *.oct|All files (*.*)|*.*";
+            //if (dlg.ShowDialog() == true)
+            //{
+            //    string fileName = dlg.FileName;
+            //    if (fileName.Contains("Run.xml"))
+            //    {
+            //        _experiment = new ThorCyteExperiment();
+            //        _data = new ThorCyteData();
+            //    }
+            //    else if (fileName.Contains("Experiment.xml"))
+            //    {
+            //        _experiment = new ThorImageExperiment();
+            //        _data = new ThorImageData();
+            //    }
+            //    if (_experiment != null)
+            //    {
+            //        _experiment.Load(fileName);
+            //        _data.SetExperimentInfo(_experiment);
+            //        _unityContainer.RegisterInstance<IExperiment>(_experiment);
+            //        _unityContainer.RegisterInstance<IData>(_data);
+            //        ComponentDataManager.Instance.Load(_experiment);
+            //        if(_experiment.GetScanCount() > 0)
+            //            _eventAggregator.GetEvent<ExperimentLoadedEvent>().Publish(1);
+            //    }
+            //}
         }
 
         private void CloseExperiment()
@@ -68,25 +68,25 @@ namespace ThorCyte.HeaderModule.ViewModels
 
         private void SaveAnalysisResult()
         {
-            if(_experiment == null)
-                return;
-            var di = new DirectoryInfo(_experiment.GetExperimentInfo().AnalysisPath);
-            if (!di.Exists)
-            {
-                di.Create();
-            }
-            else
-            {
-                foreach (FileInfo file in di.GetFiles())
-                {
-                    file.Delete();
-                }
-                foreach (DirectoryInfo dir in di.GetDirectories())
-                {
-                    dir.Delete(true);
-                }
-            }
-            _eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0);
+            //if(_experiment == null)
+            //    return;
+            //var di = new DirectoryInfo(_experiment.GetExperimentInfo().AnalysisPath);
+            //if (!di.Exists)
+            //{
+            //    di.Create();
+            //}
+            //else
+            //{
+            //    foreach (FileInfo file in di.GetFiles())
+            //    {
+            //        file.Delete();
+            //    }
+            //    foreach (DirectoryInfo dir in di.GetDirectories())
+            //    {
+            //        dir.Delete(true);
+            //    }
+            //}
+            //_eventAggregator.GetEvent<SaveAnalysisResultEvent>().Publish(0);
         }  
     }
 }

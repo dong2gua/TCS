@@ -82,7 +82,7 @@ namespace ThorCyte.GraphicModule.Controls
                 new RegionToolPolygon()
             };
             CurrentTool = Tools[0];
-            _graphicQuarant = new GraphicQuarant
+            _graphicQuarant = new GraphicQuarant(this)
             {
                 ObjectColor = ObjectColor
             };
@@ -106,7 +106,6 @@ namespace ThorCyte.GraphicModule.Controls
                     _graphicQuarant.Draw();
                 }
             }
-           
         }
 
         public void Update(List<Point> pointList)

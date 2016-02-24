@@ -1,28 +1,16 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace ThorCyte.ProtocolModule.Controls
 {
     /// <summary>
     /// Defines a simple straight arrow draw along a line.
     /// </summary>
-    public class Arrow : Shape
+    public class Arrow : ListBoxItem
     {
         #region Dependency Property
-
-        public static readonly DependencyProperty ArrowHeadLengthProperty =
-            DependencyProperty.Register("ArrowHeadLength", typeof(double), typeof(Arrow),
-                new FrameworkPropertyMetadata(20.0, FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public static readonly DependencyProperty ArrowHeadWidthProperty =
-            DependencyProperty.Register("ArrowHeadWidth", typeof(double), typeof(Arrow),
-                new FrameworkPropertyMetadata(12.0, FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public static readonly DependencyProperty DotSizeProperty =
-            DependencyProperty.Register("DotSize", typeof(double), typeof(Arrow),
-                new FrameworkPropertyMetadata(3.0, FrameworkPropertyMetadataOptions.AffectsRender));
-
         public static readonly DependencyProperty StartProperty =
             DependencyProperty.Register("Start", typeof(Point), typeof(Arrow),
                 new FrameworkPropertyMetadata(new Point(0.0, 0.0), FrameworkPropertyMetadataOptions.AffectsRender));
@@ -31,36 +19,24 @@ namespace ThorCyte.ProtocolModule.Controls
             DependencyProperty.Register("End", typeof(Point), typeof(Arrow),
                 new FrameworkPropertyMetadata(new Point(0.0, 0.0), FrameworkPropertyMetadataOptions.AffectsRender));
 
+        public static readonly DependencyProperty ZIndexProperty =
+            DependencyProperty.Register("ZIndex", typeof(int), typeof(Arrow),
+                new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
+        public static readonly DependencyProperty ParentPannelViewProperty =
+            DependencyProperty.Register("ParentPannelView", typeof(PannelView), typeof(Arrow),
+                new FrameworkPropertyMetadata(ParentNetworkView_PropertyChanged));
+
+
+        public static readonly DependencyProperty ConBrushProperty =
+            DependencyProperty.Register("ConBrush", typeof(Brush), typeof(Arrow),
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
         #endregion
 
         #region Properties and Fields
-
-        /// <summary>
-        /// The length of the arrow head.
-        /// </summary>
-        public double ArrowHeadLength
-        {
-            get { return (double)GetValue(ArrowHeadLengthProperty); }
-            set { SetValue(ArrowHeadLengthProperty, value); }
-        }
-
-        /// <summary>
-        /// The width of the arrow head.
-        /// </summary>
-        public double ArrowHeadWidth
-        {
-            get { return (double)GetValue(ArrowHeadWidthProperty); }
-            set { SetValue(ArrowHeadWidthProperty, value); }
-        }
-
-        /// <summary>
-        /// The size of the dot at the start of the arrow.
-        /// </summary>
-        public double DotSize
-        {
-            get { return (double)GetValue(DotSizeProperty); }
-            set { SetValue(DotSizeProperty, value); }
-        }
+        private bool _isLeftMouseDown;
+        private bool _isLeftMouseAndControlDown;
 
         /// <summary>
         /// The start point of the arrow.
@@ -81,25 +57,32 @@ namespace ThorCyte.ProtocolModule.Controls
         }
 
         /// <summary>
-        /// Return the shape's geometry.
+        /// The Z index of the _module.
         /// </summary>
-        protected override Geometry DefiningGeometry
+        public int ZIndex
         {
-            get
-            {
-                // Geometry has not yet been generated.Generate geometry and cache it.
-                var geometry = new LineGeometry
-                {
-                    StartPoint = Start,
-                    EndPoint = End
-                };
-                var group = new GeometryGroup();
-                group.Children.Add(geometry);
-                //remove arrow head
-                //GenerateArrowHeadGeometry(group);
-                // Return cached geometry.
-                return group;
-            }
+            get { return (int)GetValue(ZIndexProperty); }
+            set { SetValue(ZIndexProperty, value); }
+        }
+
+
+        /// <summary>
+        /// The Arrow fill brush.
+        /// </summary>
+        public Brush ConBrush
+        {
+            get { return (Brush)GetValue(ConBrushProperty); }
+            set { SetValue(ConBrushProperty, value); }
+        }
+
+
+        /// <summary>
+        /// Reference to the data-bound parent NetworkView.
+        /// </summary>
+        public PannelView ParentPannelView
+        {
+            get { return (PannelView)GetValue(ParentPannelViewProperty); }
+            set { SetValue(ParentPannelViewProperty, value); }
         }
 
         #endregion
@@ -107,40 +90,91 @@ namespace ThorCyte.ProtocolModule.Controls
         #region Methods
 
         /// <summary>
-        /// Generate the geometry for the three optional arrow symbols at the start, middle and end of the arrow.
+        /// Bring the _module to the front of other elements.
         /// </summary>
-        private void GenerateArrowHeadGeometry(GeometryGroup geometryGroup)
+        internal void BringToFront()
         {
-            //Draw a ellipse at start point
-            var ellipse = new EllipseGeometry(Start, DotSize, DotSize);
-            geometryGroup.Children.Add(ellipse);
-
-            var startDir = End - Start;
-            startDir.Normalize();
-            var basePoint = End - (startDir * ArrowHeadLength);
-            var crossDir = new Vector(-startDir.Y, startDir.X);
-
-            var arrowHeadPoints = new Point[3];
-            arrowHeadPoints[0] = End;
-            arrowHeadPoints[1] = basePoint - (crossDir * (ArrowHeadWidth / 2));
-            arrowHeadPoints[2] = basePoint + (crossDir * (ArrowHeadWidth / 2));
-
-            // Build geometry for the arrow head.
-            var arrowHeadFig = new PathFigure
+            if (ParentPannelView == null)
             {
-                IsClosed = false,
-                IsFilled = false,
-                StartPoint = arrowHeadPoints[1]
-            };
-
-            arrowHeadFig.Segments.Add(new LineSegment(arrowHeadPoints[0], true));
-            arrowHeadFig.Segments.Add(new LineSegment(arrowHeadPoints[2], true));
-
-            var pathGeometry = new PathGeometry();
-            pathGeometry.Figures.Add(arrowHeadFig);
-            geometryGroup.Children.Add(pathGeometry);
-
+                return;
+            }
+            var maxZ = ParentPannelView.FindMaxZIndex();
+            ZIndex = maxZ + 1;
         }
+
+        private static void ParentNetworkView_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            // Bring new _nodes to the front of the z-order.
+            var nodeItem = (Arrow)d;
+            nodeItem.BringToFront();
+        }
+
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            BringToFront();
+
+            if (ParentPannelView != null)
+            {
+                ParentPannelView.Focus();
+            }
+
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                _isLeftMouseDown = true;
+                LeftMouseDownSelectionLogic();
+                e.Handled = true;
+            }
+            else if (e.ChangedButton == MouseButton.Right)
+            {
+            }
+        }
+
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            if (_isLeftMouseDown)
+            {
+                // Execute mouse up selection logic only if there was no drag operation.
+                LeftMouseUpSelectionLogic();
+                _isLeftMouseDown = false;
+                e.Handled = true;
+            }
+        }
+
+        private void LeftMouseDownSelectionLogic()
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+            {
+                // Control key was held down.
+                // This means that the rectangle is being added to or removed from the existing selection.
+                // Don't do anything yet, we will act on this later in the MouseUp event handler.
+                _isLeftMouseAndControlDown = true;
+                IsSelected = !IsSelected;
+            }
+            else
+            {
+                // Control key is not held down.
+                _isLeftMouseAndControlDown = false;
+            }
+        }
+
+
+        private void LeftMouseUpSelectionLogic()
+        {
+            if (_isLeftMouseAndControlDown)
+            {
+            }
+            else
+            {
+                IsSelected = true;
+            }
+            _isLeftMouseAndControlDown = false;
+        }
+
         #endregion
     }
 }
