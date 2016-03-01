@@ -172,6 +172,9 @@
     <Compile Include="Views\GeneralTab.xaml.cs">
       <DependentUpon>GeneralTab.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\GraphicDetailWnd.xaml.cs">
+      <DependentUpon>GraphicDetailWnd.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GraphicModeuleView.xaml.cs">
       <DependentUpon>GraphicModeuleView.xaml</DependentUpon>
     </Compile>
@@ -240,6 +243,10 @@
     <Page Include="Views\GeneralTab.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GraphicDetailWnd.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\GraphicModeuleView.xaml">
       <Generator>MSBuild:Compile</Generator>

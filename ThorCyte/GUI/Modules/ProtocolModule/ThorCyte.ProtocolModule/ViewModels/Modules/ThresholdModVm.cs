@@ -252,6 +252,35 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             writer.WriteAttributeString("threshold", Threshold.ToString());
         }
 
+        public override object Clone()
+        {
+            var mod = new ThresholdModVm();
+            //===============Common======================
+            mod.Name = Name;
+            mod.Id = GetNextModId();
+            mod.DisplayName = DisplayName;
+            mod.ScanNo = ScanNo;
+            mod.Enabled = Enabled;
+            mod.X = X;
+            mod.Y = Y;
+
+            //===============Threshold=====================
+            mod.HasImage = HasImage;
+            mod.View = new ThresholdModule();
+            mod.ModType = ModType;
+            mod.OutputPort.DataType = OutputPort.DataType;
+
+            mod.InputPorts[0].DataType = InputPorts[0].DataType;
+            mod.InputPorts[0].ParentModule = mod;
+            mod.OutputPort.ParentModule = mod;
+
+            mod.Method = Method;
+            mod.Threshold = Threshold;
+            mod.IsRecalculateEnabled = IsRecalculateEnabled;
+
+            return mod;
+        }
+
         #endregion
     }
 }

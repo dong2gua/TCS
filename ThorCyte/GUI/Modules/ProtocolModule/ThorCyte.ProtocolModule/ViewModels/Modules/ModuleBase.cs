@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
 using ImageProcess;
@@ -15,15 +14,16 @@ using ThorCyte.ProtocolModule.Utils;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
-    public abstract class ModuleBase : BindableBase
+    public abstract class ModuleBase : BindableBase, ICloneable
     {
         #region Properties
 
-        public int Id { get; set; }
+        private static int _modIdCount;
+
         public int ScanNo { get; set; }
         public ModuleType ModType { get; set; }
-        public abstract bool Executable { get; }
 
+        public abstract bool Executable { get; }
 
         private static IEventAggregator _eventAggregator;
         private static IEventAggregator EventAggregator
@@ -37,13 +37,14 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         private string _displayName;
         public string DisplayName
         {
-            get {
+            get
+            {
                 return _displayName.Trim() == string.Empty ? _name : _displayName;
             }
             set
             {
-                if(_displayName == value) return;
-                SetProperty(ref _displayName,value);
+                if (_displayName == value) return;
+                SetProperty(ref _displayName, value);
             }
         }
 
@@ -72,8 +73,12 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         private bool _hasImage;
         public bool HasImage
         {
-            set { _hasImage = value; }
             get { return _hasImage; }
+            set
+            {
+                if (_hasImage == value) return;
+                SetProperty(ref _hasImage, value);
+            }
         }
 
         private bool _enabled;
@@ -100,6 +105,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 {
                     return;
                 }
+                if (value < 0) _x = 0;
                 SetProperty(ref _x, value);
             }
         }
@@ -114,6 +120,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 {
                     return;
                 }
+                if (value < 0) _y = 0;
                 SetProperty(ref _y, value);
             }
         }
@@ -129,6 +136,18 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     return;
                 }
                 SetProperty(ref _name, value);
+            }
+        }
+
+        private int _id;
+        public int Id
+        {
+            get { return _id; }
+            set
+            {
+                if (value > _modIdCount) _modIdCount = value;                
+                if (_id == value) return;
+                SetProperty(ref _id, value);
             }
         }
 
@@ -198,6 +217,11 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         #region Constructors
 
+        static ModuleBase()
+        {
+            _modIdCount = 0;
+        }
+
         protected ModuleBase()
         {
             EventAggregator.GetEvent<ShowRegionEvent>().Subscribe(ShowRegionEventHandler, ThreadOption.UIThread, true);
@@ -209,21 +233,18 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         #endregion
 
         #region Virtual Methods and Properties
+        public abstract object Clone();
 
         public virtual void OnSerialize(XmlWriter writer) { }
         public virtual void OnDeserialize(XmlReader reader) { }
         public virtual void OnExecute() { }
         public virtual void Initialize() { }
         public virtual void Refresh() { }
-        public virtual void OnSetScanNo() { }
-        public virtual void InitialRun(){ }
-        public virtual void UpdateChannels(){ }
-
+        public virtual void InitialRun() { }
+        public virtual void UpdateChannels() { }
         #endregion
 
         #region Methods
-
-
         private void ShowRegionEventHandler(string moduleName)
         {
             try
@@ -271,7 +292,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public void Execute()
         {
             if (!Enabled) return;
-            
+
             if (_inputPorts.Any(p => !p.DataExists))
             {
                 Debug.WriteLine("Data not exist return execute");
@@ -280,7 +301,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
             try
             {
-                
+
                 if (_hasImage)    // set the input image from the first image input port
                 {
                     foreach (var port in _inputPorts)
@@ -314,7 +335,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             switch (_outputPort.AttachedConnections.Count)
             {
                 case 0:
-                    if (_outputPort.Image == null) return; 
+                    if (_outputPort.Image == null) return;
                     _outputPort.Image.Dispose();
                     break;
                 case 1:
@@ -327,7 +348,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     }
                     if (_outputPort.Image != null)
                         _outputPort.Image.Dispose();
-                    
+
                     break;
             }
         }
@@ -374,6 +395,21 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
 
         }
+
+        public static int GetNextModId()
+        {
+            try
+            {
+                return ++_modIdCount;
+            }
+            catch (OverflowException)
+            {
+                _modIdCount = 0;
+                return _modIdCount;
+            }
+
+        }
+
         #endregion
     }
 }

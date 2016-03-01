@@ -248,7 +248,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         }
 
         private bool[] GetChCorr()
-        {    
+        {
             return ChannelCollection.Select(chc => chc.IsChecked).ToArray();
         }
 
@@ -283,7 +283,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
             foreach (var channel in Macro.CurrentScanInfo.ChannelList.Where(channel => !ChannelCollection.Select(chc => chc.ChannelName).Contains(channel.ChannelName)))
             {
-                ChannelCollection.Add(new ChannelsCorrection(false,channel.ChannelName));
+                ChannelCollection.Add(new ChannelsCorrection(false, channel.ChannelName));
             }
 
             foreach (var channel in Macro.CurrentScanInfo.VirtualChannelList.Where(channel => !ChannelCollection.Select(chc => chc.ChannelName).Contains(channel.ChannelName)))
@@ -387,7 +387,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                     {
                         case "channel":
                             var index = Convert.ToInt32(reader["index"]);
-                            ChannelCollection.Add(new ChannelsCorrection(Convert.ToBoolean(reader["correct"]),reader["label"]));
+                            ChannelCollection.Add(new ChannelsCorrection(Convert.ToBoolean(reader["correct"]), reader["label"]));
                             break;
                     }
                 }
@@ -397,11 +397,52 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         }
 
+        public override object Clone()
+        {
+            var mod = new EventModVm();
+            //===============Common======================
+            mod.Name = Name;
+            mod.Id = GetNextModId();
+            mod.DisplayName = DisplayName;
+            mod.ScanNo = ScanNo;
+            mod.Enabled = Enabled;
+            mod.X = X;
+            mod.Y = Y;
+
+            //===============Event=====================
+            mod.HasImage = HasImage;
+            mod.View = new EventModule();
+            mod.ModType = ModType;
+
+            mod.InputPorts[0].DataType = InputPorts[0].DataType;
+            mod.InputPorts[0].ParentModule = mod;
+            mod.OutputPort.DataType = OutputPort.DataType;
+            mod.OutputPort.ParentModule = mod;
+
+            mod.ExpandBy = ExpandBy;
+            mod.IsKeepsEventsOnBoundary = IsKeepsEventsOnBoundary;
+            mod.IsDynamicBackground = IsDynamicBackground;
+            mod.BkDistance = BkDistance;
+            mod.BkWidth = BkWidth;
+            mod.BkLowPct = BkLowPct;
+            mod.BkHighPct = BkHighPct;
+            mod.IsPeripheral = IsPeripheral;
+            mod.PeriDistance = PeriDistance;
+            mod.PeriWidth = PeriWidth;
+            mod.ChannelCollection.Clear();
+            foreach (var cl in ChannelCollection)
+            {
+                mod.ChannelCollection.Add((ChannelsCorrection)cl.Clone());
+            }
+            return mod;
+        }
+
+
         #endregion
     }
 
     #region ChannelsCorrection
-    public class ChannelsCorrection : BindableBase
+    public class ChannelsCorrection : BindableBase, ICloneable
     {
         private bool _ischecked;
         public bool IsChecked
@@ -430,6 +471,14 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         {
             IsChecked = isChecked;
             ChannelName = channelname;
+        }
+
+        public object Clone()
+        {
+            var chc = new ChannelsCorrection();
+            chc.ChannelName = ChannelName;
+            chc.IsChecked = IsChecked;
+            return chc;
         }
     }
     #endregion

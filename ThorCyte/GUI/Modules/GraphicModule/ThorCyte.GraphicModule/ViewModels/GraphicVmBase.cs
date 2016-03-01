@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -23,16 +25,14 @@ namespace ThorCyte.GraphicModule.ViewModels
 {
     public abstract class GraphicVmBase : BindableBase
     {
-        public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
-
         #region Properties and Fields
 
         public static string DefaultGate;
         protected double XScale;
         protected double YScale;
-        //protected RegionColorIndex DefaultEventColorIndex = RegionColorIndex.White;
-        //protected RegionColorIndex DefaultBackgroundIndex = RegionColorIndex.White;
-        private static readonly ImpObservableCollection<ColorRegionModel> _colorRegionList = new ImpObservableCollection<ColorRegionModel>()
+
+        private static readonly ImpObservableCollection<ColorRegionModel> _colorRegionList = new ImpObservableCollection
+            <ColorRegionModel>()
         {
             new ColorRegionModel
             {
@@ -80,6 +80,7 @@ namespace ThorCyte.GraphicModule.ViewModels
         public Dispatcher ViewDispatcher { get; set; }
 
         private string _id;
+
         public string Id
         {
             get { return _id; }
@@ -115,11 +116,11 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        private AxisModel _xAxis = new AxisModel(AxesEnum.XAxis) ;
+        private AxisModel _xAxis = new AxisModel(AxesEnum.XAxis);
 
         public AxisModel XAxis
         {
-            get { return _xAxis;}
+            get { return _xAxis; }
             set
             {
                 if (_xAxis == value)
@@ -134,7 +135,7 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         public AxisModel YAxis
         {
-            get  { return _yAxis;}
+            get { return _yAxis; }
             set
             {
                 if (_yAxis == value)
@@ -242,6 +243,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 }
                 SetProperty(ref _selectedGate1, value);
                 IsOperatorEnable = _selectedGate1 != DefaultGate;
+                SetTitle();
                 UpdateRelationship();
             }
         }
@@ -258,6 +260,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _selectedGate2, value);
+                SetTitle();
                 UpdateRelationship();
             }
         }
@@ -275,6 +278,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 }
                 SetProperty(ref _selectedOperator, value);
                 IsGate2Enable = _selectedOperator != OperationType.None;
+                SetTitle();
                 UpdateRelationship();
             }
         }
@@ -305,11 +309,6 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     return;
                 }
-                //var colorModel = value;
-                //if (colorModel.RegionColor.Equals(Colors.Black) || colorModel.RegionColor.Equals(Colors.White))
-                //{
-                //    colorModel.RegionColor = GraphicModule.GraphicManagerVmInstance.IsBlackBackground ? Colors.White : Colors.Black;
-                //}
                 SetProperty(ref _selectedRegionColor, value);
             }
         }
@@ -326,6 +325,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _selectedComponent, value);
+                SetTitle();
             }
         }
 
@@ -386,7 +386,9 @@ namespace ThorCyte.GraphicModule.ViewModels
                     return;
                 }
                 SetProperty(ref _graphType, value);
-                ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<GraphUpdateEvent>().Publish(new GraphUpdateArgs(Id));
+                ServiceLocator.Current.GetInstance<IEventAggregator>()
+                    .GetEvent<GraphUpdateEvent>()
+                    .Publish(new GraphUpdateArgs(Id));
             }
         }
 
@@ -467,7 +469,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             set { _gate2List = value; }
         }
 
-        private readonly ImpObservableCollection<OperationType> _operatorList = new ImpObservableCollection<OperationType>();
+        private readonly ImpObservableCollection<OperationType> _operatorList =
+            new ImpObservableCollection<OperationType>();
 
         public ImpObservableCollection<OperationType> OperatorList
         {
@@ -504,11 +507,18 @@ namespace ThorCyte.GraphicModule.ViewModels
 
         protected abstract void UpdateGraphData();
 
-        protected virtual void ProcessEvent(BioEvent bioEvent) { }
+        protected virtual void ProcessEvent(BioEvent bioEvent)
+        {
+        }
 
-        protected virtual void ClearPlot() { }
+        protected virtual void ClearPlot()
+        {
+        }
 
-        protected virtual bool ValidateParameters() { return true; }
+        protected virtual bool ValidateParameters()
+        {
+            return true;
+        }
 
         public void SetSize(int width, int height)
         {
@@ -561,9 +571,13 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        public virtual void SetTitle() { }
+        public virtual void SetTitle()
+        {
+        }
 
-        public virtual void InitGraphParams(string id) { }
+        public virtual void InitGraphParams(string id)
+        {
+        }
 
         public virtual void Init()
         {
@@ -578,7 +592,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             Title = _componentList[0];
             UpdateFeatures();
 
-            
+
             _gate1List.Add(DefaultGate);
             _selectedGate1 = _gate1List[0];
             _selectedOperator = _operatorList[0];
@@ -597,7 +611,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     _selectedComponent = _componentList[0];
                 }
-               
+
             }
             OnPropertyChanged("SelectedComponent");
             SetTitle();
@@ -606,7 +620,8 @@ namespace ThorCyte.GraphicModule.ViewModels
         public virtual void UpdateFeatures()
         {
             var features = ComponentDataManager.Instance.GetFeatures(_selectedComponent).OrderBy(f => f.Name);
-            var channels = ComponentDataManager.Instance.GetChannels(_selectedComponent).OrderBy(channel => channel.ChannelName);
+            var channels =
+                ComponentDataManager.Instance.GetChannels(_selectedComponent).OrderBy(channel => channel.ChannelName);
 
             _xAxis.AddFeatures(features);
             _yAxis.AddFeatures(features);
@@ -671,7 +686,8 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 return;
             }
-            if (_xAxis.SelectedNumeratorFeature != null && _xAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos)
+            if (_xAxis.SelectedNumeratorFeature != null &&
+                _xAxis.SelectedNumeratorFeature.FeatureType == FeatureType.XPos)
             {
                 min = scaninfo.ScanWellList[baseId - 1].Bound.Left;
                 max = scaninfo.ScanWellList[baseId - 1].Bound.Right;
@@ -690,12 +706,13 @@ namespace ThorCyte.GraphicModule.ViewModels
                 if (_xAxis.IsLogScale)
                 {
                     min = (int)Math.Log10(min);
-                    max =  Convert.ToInt32(Math.Log10(max)+0.5);
+                    max = Convert.ToInt32(Math.Log10(max) + 0.5);
                     _xAxis.InitLogTable();
                 }
                 _xAxis.SetRange(min, max);
             }
-            if (_yAxis.SelectedNumeratorFeature != null && _yAxis.SelectedNumeratorFeature.FeatureType == FeatureType.YPos)
+            if (_yAxis.SelectedNumeratorFeature != null &&
+                _yAxis.SelectedNumeratorFeature.FeatureType == FeatureType.YPos)
             {
                 min = scaninfo.ScanWellList[baseId - 1].Bound.Top;
                 max = scaninfo.ScanWellList[baseId - 1].Bound.Bottom;
@@ -714,7 +731,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 if (_yAxis.IsLogScale)
                 {
                     min = (int)Math.Log10(min);
-                    max = Convert.ToInt32(Math.Log10(max)+0.5);
+                    max = Convert.ToInt32(Math.Log10(max) + 0.5);
                     _yAxis.InitLogTable();
                 }
                 _yAxis.SetRange(min, max);
@@ -729,6 +746,33 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
             GraphicModule.GraphicManagerVmInstance.UpdateRelationShip(Id);
             GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
+        }
+
+        public string GetComment()
+        {
+            var comment = new StringBuilder();
+
+            if (string.IsNullOrEmpty(_selectedGate1) || _selectedGate1 == DefaultGate) // no gating
+            {
+                comment.Append(string.Format("{0}", Id));
+            }
+            else if (!string.IsNullOrEmpty(_selectedGate1) && _selectedGate1 != DefaultGate && string.IsNullOrEmpty(_selectedGate2) ) // single gating
+            {
+                comment.Append(string.Format("{0}:{1}", Id, _selectedGate1.ToString(CultureInfo.InvariantCulture)));
+            }
+            else // double gating
+            {
+                if (_isGate2Enable)
+                {
+                    comment.Append(string.Format("{0}:{1} {2} {3}", Id, _selectedGate1.ToString(CultureInfo.InvariantCulture),
+                    _selectedOperator, _selectedGate2.ToString(CultureInfo.InvariantCulture)));
+                }
+                else
+                {
+                    comment.Append(string.Format("{0}:{1}", Id, _selectedGate1.ToString(CultureInfo.InvariantCulture)));
+                }
+            }
+            return comment.ToString();
         }
 
         #endregion

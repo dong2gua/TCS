@@ -212,7 +212,7 @@ namespace ThorCyte.Statistic.ViewModels
                         .Select(x => new Channel() { Name = x.ChannelName }).ToList();
                     for (int i = 0; i < cc.Count; i++)
                     {
-                        cc[i].Index = i+1;
+                        cc[i].Index = i;
                     }
                     if (SelectedChannel != null)
                     {

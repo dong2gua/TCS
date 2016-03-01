@@ -4,7 +4,7 @@
         xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         xmlns:models="clr-namespace:ThorCyte.GraphicModule.Models"
         xmlns:controls="clr-namespace:ThorCyte.GraphicModule.Controls"
-        Title="Overlay Properties"
+        Title="Overlay Properties" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         Width="300"  Height="200" Loaded="WndLoaded">
     <Window.Resources>
         <ResourceDictionary>

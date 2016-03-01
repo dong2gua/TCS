@@ -14,7 +14,6 @@ namespace ThorCyte.ProtocolModule.Models
         public List<TreeViewItemModel> Items { get; set; }
 
         private bool _isSelected;
-
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -27,6 +26,14 @@ namespace ThorCyte.ProtocolModule.Models
             get { return _isExpanded; }
             set { SetProperty(ref _isExpanded, value); }
         }
+
+        private bool _isEnabled = true;
+        public bool IsEnabled
+        {
+            get { return _isEnabled;}
+            set { SetProperty(ref _isEnabled, value); }
+        }
+
 
         #endregion
     }

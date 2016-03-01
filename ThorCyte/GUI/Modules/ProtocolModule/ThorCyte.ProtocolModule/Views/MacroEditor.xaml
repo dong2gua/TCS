@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ThorCyte.ProtocolModule.Views.MacroEditor"
+﻿<UserControl x:Name="userControl" x:Class="ThorCyte.ProtocolModule.Views.MacroEditor"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -15,8 +15,7 @@
             <converts:BoolReverseConverter x:Key="BoolReverseCvt"/>
             <converts:BoolToVisibilityConverter x:Key="BoolVisibleCvt"/>
             <converts:PointConverter x:Key="PtCvt"/>
-            <RoutedUICommand x:Key="Commands.DeleteSelectedNodes"/>
-            
+
             <Style TargetType="{x:Type control:Arrow}">
                 <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
                 <Setter Property="Background" Value="Transparent" />
@@ -52,11 +51,7 @@
                                IsSelected="{Binding IsSelected, Mode=TwoWay}"/>
             </DataTemplate>
 
-            <Style TargetType="{x:Type control:Module}">
-                <Setter Property="X" Value="{Binding X}"/>
-                <Setter Property="Y" Value="{Binding Y}"/>
-                <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
-            </Style>
+
 
             <Style TargetType="{x:Type control:Port}" >
                 <Setter Property="Hotspot" Value="{Binding HotSpot, Mode=OneWayToSource}"/>
@@ -76,9 +71,17 @@
                 </Setter>
             </Style>
 
+            <Style TargetType="{x:Type control:Module}">
+                <Setter Property="X" Value="{Binding X, Mode=TwoWay}"/>
+                <Setter Property="Y" Value="{Binding Y, Mode=TwoWay}"/>
+                <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+            </Style>
+
             <DataTemplate DataType="{x:Type modulesBase:ModuleBase}" >
-                <Grid Width="140" MinHeight="70" ZIndex="-1">
-                    <Rectangle Fill="LightGray" RadiusX="3" RadiusY="3"/>
+                <Border Width="140" MinHeight="70" CornerRadius="3">
+                    <Border.Background>
+                        <SolidColorBrush Color="LightGray"/>
+                    </Border.Background>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -100,21 +103,21 @@
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CaptionString}" ToolTip="{Binding CaptionString}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" FontStyle="Italic" Foreground="DarkBlue"/>
                         <control:Port DataContext="{Binding OutputPort}" Grid.Row="3" VerticalAlignment="Bottom" Background="{Binding PortBrush}" PortType="{Binding PortType}"/>
                     </Grid>
-                </Grid>
+                </Border>
             </DataTemplate>
-
-
         </ResourceDictionary>
     </UserControl.Resources>
 
     <UserControl.InputBindings>
-        <KeyBinding Key="Delete" Command="{StaticResource Commands.DeleteSelectedNodes}"/>
+        <KeyBinding Key="Delete" Command="{Binding DeleteCommand}"/>
+        <KeyBinding Key="W" Command="{Binding MoveCommand}" CommandParameter="Up"/>
+        <KeyBinding Key="S" Command="{Binding MoveCommand}" CommandParameter="Down"/>
+        <KeyBinding Key="A" Command="{Binding MoveCommand}" CommandParameter="Left"/>
+        <KeyBinding Key="D" Command="{Binding MoveCommand}" CommandParameter="Right"/>
+        <KeyBinding Gesture="CTRL+A" Command="{Binding SelectAllCommand}"/>
+        <KeyBinding Gesture="CTRL+C" Command="{Binding CopyModulesCommnad}"/>
+        <KeyBinding Gesture="CTRL+V" Command="{Binding PasteModulesCommnad}"/>
     </UserControl.InputBindings>
-
-    <UserControl.CommandBindings>
-        <CommandBinding  Command="{StaticResource Commands.DeleteSelectedNodes}"  Executed="DeleteSelectedNodes_Executed" />
-    </UserControl.CommandBindings>
-
     <Grid x:Name="gridMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220"/>
@@ -143,7 +146,18 @@
                 <control:PannelView x:Name="pannel" Background="DimGray" PreviewKeyDown="PannelKeyDown" 
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
-                            ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown"/>
+                            ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown">
+                    <control:PannelView.ContextMenu>
+                        <ContextMenu x:Name="testMenu">
+                            <MenuItem Header="Copy" Command="{Binding CopyModulesCommnad}" IsEnabled="{Binding IsRemoveEnable}"/>
+                            <MenuItem Header="Paste here" Command="{Binding PasteModulesCommnad}"  CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" IsEnabled="{Binding IsPasteEnable}"/>
+                            <MenuItem Header="Remove" Command="{Binding DeleteCommand}" IsEnabled="{Binding IsRemoveEnable}"/>
+                            <Separator/>
+                            <MenuItem Header="Vertical Align" Command="{Binding AlignCommnad}" CommandParameter="V" IsEnabled="{Binding IsAlignEnable}"/>
+                            <MenuItem Header="Horizontal Align" Command="{Binding AlignCommnad}" CommandParameter="H" IsEnabled="{Binding IsAlignEnable}"/>
+                        </ContextMenu>
+                    </control:PannelView.ContextMenu>
+                </control:PannelView>
             </ScrollViewer>
         </Border>
 
@@ -168,12 +182,28 @@
                 <ToggleButton Margin="1"  Click="ToolboxClick" ToolTip="Tool Box" IsEnabled="{Binding IsAlignEnable}">
                     <Image Source="../Resource/Images/toolbox.png"/>
                 </ToggleButton>
-                <Button  Margin="1" Command="{Binding AlignCommnad}" CommandParameter="V" ToolTip="Vertical Align Modules" IsEnabled="{Binding IsAlignEnable}">
+
+                <Separator/>
+
+                <Button  Margin="1" Command="{Binding CopyModulesCommnad}" ToolTip="Copy seleted modules" IsEnabled="{Binding IsRemoveEnable}">
+                    <Image Source="../Resource/Images/copy.png"/>
+                </Button>
+                <Button  Margin="1" Command="{Binding PasteModulesCommnad}" ToolTip="Paste seleted modules" IsEnabled="{Binding IsPasteEnable}">
+                    <Image Source="../Resource/Images/paste.png"/>
+                </Button>
+                <Button  Margin="1" Command="{Binding DeleteCommand}" ToolTip="Delete seleted modules" IsEnabled="{Binding IsRemoveEnable}">
+                    <Image Source="../Resource/Images/delete.png"/>
+                </Button>
+
+                <Button  Margin="1" Command="{Binding AlignCommnad}" CommandParameter="V" ToolTip="Vertical Align" IsEnabled="{Binding IsAlignEnable}">
                     <Image Source="../Resource/Images/Vertical align Top.png"/>
                 </Button>
-                <Button  Margin="1" Command="{Binding AlignCommnad}" CommandParameter="H" ToolTip="Horizontal Align Modules" IsEnabled="{Binding IsAlignEnable}">
+                <Button  Margin="1" Command="{Binding AlignCommnad}" CommandParameter="H" ToolTip="Horizontal Align" IsEnabled="{Binding IsAlignEnable}">
                     <Image Source="../Resource/Images/Horizontal Align Left.png"/>
                 </Button>
+
+                <Separator/>
+
                 <Button  Margin="1" Command="{Binding MacroCommnad}" ToolTip="{Binding TipStr}">
                     <Image Source="{Binding ImgSource}"/>
                 </Button>

@@ -59,11 +59,16 @@ namespace ThorCyte.ProtocolModule.ViewModels
                         {
                             item.Items = new List<TreeViewItemModel>();
                         }
-                        item.Items.Add(new TreeViewItemModel
+
+                        var tvItem = new TreeViewItemModel()
                         {
                             Name = info.DisplayName,
                             ItemType = GetModuleType(info.DisplayName)
-                        });
+                        };
+
+                        if (info.Reference == null || info.Reference.Trim() == string.Empty) tvItem.IsEnabled = false;
+
+                        item.Items.Add(tvItem);
                         break;
                     }
                 }
@@ -111,11 +116,15 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     {
                         item.Items = new List<TreeViewItemModel>();
                     }
-                    item.Items.Add(new TreeViewItemModel
+
+                    var tvItem = new TreeViewItemModel()
                     {
                         Name = info.DisplayName,
                         ItemType = GetModuleType(info.DisplayName)
-                    });
+                    };
+
+                    if (info.Reference == null || info.Reference.Trim() == string.Empty) tvItem.IsEnabled = false;
+                    item.Items.Add(tvItem);
                     break;
                 }
             }

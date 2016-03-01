@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,10 +19,11 @@ namespace ThorCyte.ProtocolModule.Controls
 
         public static readonly DependencyProperty XProperty =
             DependencyProperty.Register("X", typeof(double), typeof(Module),
-                new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+                new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,ModuleMoved));
+
         public static readonly DependencyProperty YProperty =
             DependencyProperty.Register("Y", typeof(double), typeof(Module),
-                new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+                new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ModuleMoved));
 
         public static readonly DependencyProperty ZIndexProperty =
             DependencyProperty.Register("ZIndex", typeof(int), typeof(Module),
@@ -80,7 +82,10 @@ namespace ThorCyte.ProtocolModule.Controls
         public double X
         {
             get { return (double)GetValue(XProperty); }
-            set { SetValue(XProperty, value); }
+            set
+            {
+                SetValue(XProperty, value);
+            }
         }
 
         /// <summary>
@@ -89,7 +94,10 @@ namespace ThorCyte.ProtocolModule.Controls
         public double Y
         {
             get { return (double)GetValue(YProperty); }
-            set { SetValue(YProperty, value); }
+            set
+            {
+                SetValue(YProperty, value);
+            }
         }
 
         /// <summary>
@@ -369,6 +377,11 @@ namespace ThorCyte.ProtocolModule.Controls
         {
             if (e.NewValue == e.OldValue) return;
             if (OnSelectionChanged != null) OnSelectionChanged(d, e);
+        }
+
+        private static void ModuleMoved(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (Resize != null) Resize(((Module)d).X + ((Module)d).ActualWidth, ((Module)d).Y + ((Module)d).ActualHeight);
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using ThorCyte.Infrastructure.Types;
+﻿using System.Windows;
+using ThorCyte.Infrastructure.Types;
 
 namespace ROIService.Region
 {
@@ -14,9 +15,10 @@ namespace ROIService.Region
             Shape = RegionShape.Gate;
         }
 
-        public override bool Contains(System.Windows.Point pt)
+        public override bool Contains(Point pt)
         {
-            return (pt.X >= MinValue && pt.X <= MaxValue);
+            Point inner = ToInnerPoint(pt);
+            return (inner.X >= MinValue && inner.X <= MaxValue);
         }
 
       

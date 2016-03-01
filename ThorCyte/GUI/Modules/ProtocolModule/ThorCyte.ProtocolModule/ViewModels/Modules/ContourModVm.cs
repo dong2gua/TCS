@@ -323,6 +323,42 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 MinAreaUnit = (UnitType)Enum.Parse(typeof(UnitType), reader["unit"]);
             }
         }
+
+        public override object Clone()
+        {
+            var mod = new ContourModVm();
+            //===============Common======================
+            mod.Name = Name;
+            mod.Id = GetNextModId();
+            mod.DisplayName = DisplayName;
+            mod.ScanNo = ScanNo;
+            mod.Enabled = Enabled;
+            mod.X = X;
+            mod.Y = Y;
+
+            //===============Contour=====================
+
+            mod.HasImage = HasImage;
+            mod.View = new ContourModule();
+            mod.ModType = ModType;
+
+            mod.InputPorts[0].DataType = InputPorts[0].DataType;
+            mod.InputPorts[0].ParentModule = mod;
+            mod.OutputPort.DataType = OutputPort.DataType;
+            mod.OutputPort.ParentModule = mod;
+
+            mod.ComponentName = ComponentName;
+            mod.MinArea = MinArea;
+            mod.MaxArea = MaxArea;
+            mod.IsMaxAreaChecked = IsMaxAreaChecked;
+            mod.IsConcaveChecked = IsConcaveChecked;
+            mod.IsBoundaryChecked = IsBoundaryChecked;
+            mod.MaxAreaUnit = MaxAreaUnit;
+            mod.MinAreaUnit = MinAreaUnit;
+            return mod;
+        }
+
         #endregion
+
     }
 }

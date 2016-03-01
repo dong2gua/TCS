@@ -194,9 +194,6 @@
                     <Button Margin="1" Click="OnAddHistogram" IsEnabled="{Binding IsNewGraphicEnabled}" ToolTip="New Histogram">
                         <Image Source="../Resource/Images/NewHistogram.png"/>
                     </Button>
-                    <Button Margin="1" IsEnabled="{Binding IsDeleteEnabled}" Click="OnDeleteGraphic" ToolTip="Delete">
-                        <Image Source="../Resource/Images/remove.png"/>
-                    </Button>
                     <ToggleButton IsEnabled="{Binding IsPropertyEnabled}" IsChecked="{Binding IsShowProperty}" ToolTip="Show/Hide properties">
                         <Image Source="../Resource/Images/properties.png"/>
                     </ToggleButton>

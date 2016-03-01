@@ -227,7 +227,6 @@ namespace ThorCyte.GraphicModule.Views
                 GraphicVm.SetSize((int)SciChart.AnnotationUnderlaySurface.ActualWidth, (int)SciChart.AnnotationUnderlaySurface.ActualHeight);
                 GraphicVm.UpdateEvents();
             }
-
             IsLoading = false;
         }
 
@@ -247,6 +246,27 @@ namespace ThorCyte.GraphicModule.Views
                 return;
             }
             GraphicVm.UpdateEvents();
+        }
+
+        private void OnDelete(object sender, RoutedEventArgs e)
+        {
+            ServiceLocator.Current.GetInstance<IEventAggregator>()
+             .GetEvent<DelateGraphicEvent>().Publish(Convert.ToInt32(GraphicVm.Id));
+        }
+
+        public override void SetCloseButtonState(bool isStandAlone)
+        {
+            CloseBtn.Visibility = isStandAlone ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public override void SetHeightBinding()
+        {
+            SetBinding(HeightProperty, new Binding("ActualWidth") { Source = this });
+        }
+
+        public override void ClearHeightBinding()
+        {
+            BindingOperations.ClearBinding(this, HeightProperty);
         }
 
         #endregion

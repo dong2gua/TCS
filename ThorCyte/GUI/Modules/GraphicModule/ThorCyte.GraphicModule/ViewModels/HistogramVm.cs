@@ -358,6 +358,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             _yScaleValue = ConstantHelper.DefaultHistogramYScale;
             OnPropertyChanged("IsAutoYScale");
             OnPropertyChanged("YScaleValue");
+            SetTitle();
             XAxis.IsInitialized = true;
             YAxis.IsInitialized = true;
         }
@@ -426,6 +427,12 @@ namespace ThorCyte.GraphicModule.ViewModels
         public override void SetTitle()
         {
             Title = string.IsNullOrEmpty(LabelTitle) ? SelectedComponent : LabelTitle;
+            var comment = GetComment();
+            if (string.IsNullOrEmpty(comment))
+            {
+                return;
+            }
+            Title += string.Format("({0}{1})", ConstantHelper.PrefixHistogramName, comment);
         }
 
         #endregion

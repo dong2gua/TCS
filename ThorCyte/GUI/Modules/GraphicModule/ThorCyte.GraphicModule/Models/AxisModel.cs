@@ -426,6 +426,10 @@ namespace ThorCyte.GraphicModule.Models
             OnPropertyChanged("MaxRange");
             OnPropertyChanged("MinValue");
             OnPropertyChanged("MaxValue");
+            if (IsInitialized)
+            {
+                GraphicModule.GraphicManagerVmInstance.UpdateRegionLocation(GraphicId);
+            }
         }
 
         public object Clone()
@@ -703,12 +707,32 @@ namespace ThorCyte.GraphicModule.Models
             {
                 if (IsLogScale)
                 {
-                    var maxValue = Convert.ToInt32(Math.Log10(max) + 0.5);
-                    if (maxValue == 0)
+                    int maxValue = 0;
+                    int minValue = 0;
+
+                    if (max < 0)
                     {
                         maxValue = 1;
+                        minValue = 0;
                     }
-                    var minValue = maxValue == 1 ? 0 : (int)Math.Log10(min);
+                    else if (max > 0 && min < 0)
+                    {
+                        maxValue = Convert.ToInt32(Math.Log10(max) + 0.5);
+                        if (maxValue == 0)
+                        {
+                            maxValue = 1;
+                        }
+                        minValue = 0;
+                    }
+                    else
+                    {
+                        maxValue = Convert.ToInt32(Math.Log10(max) + 0.5);
+                        if (maxValue == 0)
+                        {
+                            maxValue = 1;
+                        }
+                        minValue = maxValue == 1 ? 0 : (int)Math.Log10(min);
+                    }
                     SetRange(minValue < 0 ? 0 : minValue, maxValue);
                     InitLogTable();
                 }
@@ -717,6 +741,7 @@ namespace ThorCyte.GraphicModule.Models
                     SetRange(Math.Round(min, 2), Math.Round(max, 2));
                 }
             }
+
         }
 
         private void OnFeatureUpdate()

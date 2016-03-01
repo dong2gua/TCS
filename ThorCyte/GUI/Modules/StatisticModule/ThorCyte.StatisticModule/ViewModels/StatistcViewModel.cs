@@ -26,6 +26,7 @@ using Microsoft.Practices.ServiceLocation;
 using ThorCyte.Infrastructure.Events;
 using ThorCyte.Statistic.Views;
 using IEventAggregator = Prism.Events.IEventAggregator;
+using DependencyAttribute =  Microsoft.Practices.Unity.DependencyAttribute ;
 
 namespace ThorCyte.Statistic.ViewModels
 {
@@ -108,7 +109,7 @@ namespace ThorCyte.Statistic.ViewModels
                         }).ToList();
                     }
 
-                    var components = ComponentDataManager.Instance.GetComponentNames();
+                    var components = ComponentData.GetComponentNames();
                     ModelAdapter.ComponentContainer =
                         components.Select(x =>
                         new ComponentRunFeature()
@@ -150,7 +151,10 @@ namespace ThorCyte.Statistic.ViewModels
                     }
                     else
                     {
-                        columns.Add(new DataGridColumns { DisplayColumnName = CurrentRunFeature.Name, BindingPropertyName = "Value", Width = CurrentRunFeature.Name.Length*7 });
+                        foreach (var runFeature in ModelAdapter.RunFeatureContainer)
+                        {
+                            columns.Add(new DataGridColumns { DisplayColumnName = runFeature.Name, BindingPropertyName =runFeature.Name, Width = runFeature.Name.Length * 7 });
+                        }
                     }
                     IsWellStatisticShow = true;
                     IsRegionStatisticShow = false;
@@ -175,14 +179,14 @@ namespace ThorCyte.Statistic.ViewModels
         //to do: get featurelist and channellist in advance, the method can be optimized.
         private int GetDataIndex(string pComponentName, string pFeature, string pChannel)
         {
-            var featureList = ComponentDataManager.Instance.GetFeatures(pComponentName)
+            var featureList = ComponentData.GetFeatures(pComponentName)
                 .Select(x => new Feature() { Name = x.Name, IsPerChannel = x.IsPerChannel, FeatureIndex = x.Index }).ToList();
             var feature = featureList.Find(x => x.Name == pFeature);
 
             Channel channel = null;
             if (pChannel != "")
             {
-                var channelList = ComponentDataManager.Instance.GetChannels(pComponentName)
+                var channelList = ComponentData.GetChannels(pComponentName)
                     .Select(x => new Channel() { Name = x.ChannelName }).ToList();
                 for (int i = 0; i < channelList.Count; i++)
                 {
@@ -201,6 +205,24 @@ namespace ThorCyte.Statistic.ViewModels
                 return 0;
         }
 
+        [Dependency]
+        public Func<IEnumerable<IComponentDataService>> ComponentDataFactory { get; set;  }
+
+        private IComponentDataService _componentData;
+
+        public IComponentDataService ComponentData
+        {
+            get
+            {
+                if (ComponentDataFactory().Count() > 0)
+                    _componentData = ComponentDataFactory().First();
+                else
+                {
+                    _componentData = ComponentDataManager.Instance;
+                }
+                return _componentData;
+            }
+        }
 
         public ObservableCollection<ExpandoObject> DataCollection
         {
@@ -210,52 +232,60 @@ namespace ThorCyte.Statistic.ViewModels
                 {
                     int scanid = ExperimentAdapter.GetCurrentScanId();
                     var WellList = ExperimentAdapter.GetScanInfo(scanid).ScanWellList;
+                    //to do: get the num from WellList, not create it by yourselft
                     var num = Enumerable.Range(0, WellList.Count);
                     //to do: get statistic list
                     if (CurrentRunFeature == null || !CurrentRunFeature.IsValid())
                         return null;
 
                     string ComponentName = CurrentRunFeature.ComponentContainer[0].Name;
-                    StatisticMethod StatisticMethod = CurrentRunFeature.StatisticMethodContainer[0];
-                    bool IsStatisticCount = false;
-                    Feature CurrentFeature = null;
-                    if (StatisticMethod.MethodType == EnumStatistic.Count)
-                    {
-                        IsStatisticCount = true;
-                    }
-                    else
-                    {
-                        IsStatisticCount = false;
-                        CurrentFeature = CurrentRunFeature.FeatureContainer[0];
-                    }
 
                     var GridViewRowCollection = new ObservableCollection<ExpandoObject>(num.Select(x =>
                     {
                         //to do: get specific region? where is the API
-                        var aEvent = ComponentDataManager.Instance.GetEvents(ComponentName, x + 1);
-                        var item = new ExpandoObject() as IDictionary<string, object>;
-                        var statisticmthd = StatisticMethod.MethodType;
-                        item.Add("Index", (x + 1).ToString());
-                        item.Add("Well",
-                            Convert.ToChar((x/12 + 1) + 64).ToString() + (x%12 == 0 ? 1 : x%12 + 1).ToString());
-                        item.Add("Label", "");
-                        item.Add("Row", (x/12 + 1).ToString());
-                        item.Add("Col", (x%12 == 0 ? 1 : x%12 + 1).ToString());
-                        //to do: add value dynamic
-                        if (IsStatisticCount)
+                        var aEvent = ComponentData.GetEvents(ComponentName, x + 1);
+                        var items = new ExpandoObject() as IDictionary<string, object>;
+                        items.Add("Index", (x + 1).ToString());
+                        items.Add("Well",
+                            Convert.ToChar((x / 12 + 1) + 64).ToString() + (x % 12 == 0 ? 1 : x % 12 + 1).ToString());
+                        items.Add("Label", "");
+                        items.Add("Row", (x / 12 + 1).ToString());
+                        items.Add("Col", (x % 12 == 0 ? 1 : x % 12 + 1).ToString());
+
+                        foreach (var runFeature in ModelAdapter.RunFeatureContainer)
                         {
-                            item.Add("Value", string.Format("{0:f4}", StatisticMethod.Method(aEvent.Select(y => 1.0f))));
-                            return (ExpandoObject)item;
+
+                            StatisticMethod StatisticMethod = runFeature.StatisticMethodContainer[0];
+                            bool IsStatisticCount;
+                            Feature CurrentFeature = null;
+                            if (StatisticMethod.MethodType == EnumStatistic.Count)
+                            {
+                                IsStatisticCount = true;
+                            }
+                            else
+                            {
+                                IsStatisticCount = false;
+                                CurrentFeature = runFeature.FeatureContainer[0];
+                            }
+
+                            //to do: add value dynamic
+                            if (IsStatisticCount)
+                            {
+                                items.Add(runFeature.Name,
+                                    string.Format("{0:f4}", StatisticMethod.Method(aEvent.Select(y => 1.0f))));
+                            }
+                            else
+                            {
+                                items.Add(runFeature.Name, string.Format("{0:f4}", StatisticMethod.Method(
+                                    aEvent.Select(y =>
+                                        y[
+                                            GetDataIndex(CurrentFeature,
+                                                CurrentRunFeature.HasChannel()
+                                                    ? CurrentRunFeature.ChannelContainer[0]
+                                                    : null)]))));
+                            }
                         }
-                        else
-                        {
-                            item.Add("Value", string.Format("{0:f4}", StatisticMethod.Method(
-                                aEvent.Select(y =>
-                                    y[
-                                        GetDataIndex(CurrentFeature,
-                                            CurrentRunFeature.HasChannel() ? CurrentRunFeature.ChannelContainer[0] : null)]))));
-                            return (ExpandoObject)item;
-                        }
+                        return (ExpandoObject)items;
                     }));
                     return GridViewRowCollection;
                 }
@@ -274,24 +304,25 @@ namespace ThorCyte.Statistic.ViewModels
             {
                 if (DataCollection != null)
                 {
-                    var result = DataCollection.Select(x =>
-                    {
-                        var item = x as IDictionary<string, object>;
-                        return
-                            new
-                            {
-                                Index = int.Parse(item["Index"].ToString()),
-                                Value = double.Parse(item["Value"].ToString())
-                            };
-                    });
-                    var xydataSeries = new XyDataSeries<int, double>();
-                    if (result != null && result.Any())
-                    {
-                        ChartRangeLimit = new DoubleRange(0, result.Max(x => x.Value)*1.2);
-                        OnPropertyChanged(() => ChartRangeLimit);
-                    }
-                    result.ForEach(x => xydataSeries.Append(x.Index, x.Value));
-                    return xydataSeries;
+                    //var result = DataCollection.Select(x =>
+                    //{
+                    //    var item = x as IDictionary<string, object>;
+                    //    return
+                    //        new
+                    //        {
+                    //            Index = int.Parse(item["Index"].ToString()),
+                    //            Value = double.Parse(item["Value"].ToString())
+                    //        };
+                    //});
+                    //var xydataSeries = new XyDataSeries<int, double>();
+                    //if (result != null && result.Any())
+                    //{
+                    //    ChartRangeLimit = new DoubleRange(0, result.Max(x => x.Value)*1.2);
+                    //    OnPropertyChanged(() => ChartRangeLimit);
+                    //}
+                    //result.ForEach(x => xydataSeries.Append(x.Index, x.Value));
+                    //return xydataSeries;
+                    return null;    
                 }
                 else
                 {

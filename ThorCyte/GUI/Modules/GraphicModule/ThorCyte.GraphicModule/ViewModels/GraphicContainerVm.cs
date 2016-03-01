@@ -264,27 +264,37 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        public void OnDeleteGraphic()
+        public void OnDeleteGraphic(string id)
         {
-            if (_selectedGraphic == null)
+            GraphicVmBase deleteVm = null;
+            foreach (var vm in _graphicVmList)
+            {
+                if (vm.Id == id)
+                {
+                    deleteVm = vm;
+                    break;
+                }
+            }
+            if (deleteVm == null)
             {
                 return;
             }
-            var idInt = int.Parse(_selectedGraphic.Id);
+            var idInt = int.Parse(id);
             _idManager.RemoveId(idInt);
             var ids = ROIManager.Instance.GetRegionIdList();
             var regionList = new List<MaskRegion>();
             foreach (var regionId in ids)
             {
                 var region = ROIManager.Instance.GetRegion(regionId);
-                if (region != null && region.GraphicId == _selectedGraphic.Id)
+                if (region != null && region.GraphicId == id)
                 {
                     regionList.Add(region);
                 }
             }
-            _graphicDictionary.Remove(_selectedGraphic.Id);
-            ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<RegionUpdateEvent>().Publish(new RegionUpdateArgs(_selectedGraphic.Id, regionList, RegionUpdateType.Delete));
-            _graphicVmList.Remove(_selectedGraphic);
+            _graphicDictionary.Remove(id);
+            ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<RegionUpdateEvent>().Publish(new RegionUpdateArgs(id, regionList, RegionUpdateType.Delete));
+            _graphicVmList.Remove(deleteVm);
+
             if (_graphicVmList.Count == 0)
             {
                 IsShowProperty = false;

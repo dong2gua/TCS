@@ -115,11 +115,6 @@ namespace ThorCyte.GraphicModule.Views
             _panel.AddHistogram();
         }
 
-        private void OnDeleteGraphic(object sender, RoutedEventArgs e)
-        {
-            _panel.DeleteGraphic();
-        }
-
         #endregion
 
 

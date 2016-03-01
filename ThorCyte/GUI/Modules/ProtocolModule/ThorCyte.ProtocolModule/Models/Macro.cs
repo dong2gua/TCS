@@ -302,17 +302,8 @@ namespace ThorCyte.ProtocolModule.Models
 
                 var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
                 module.Name = modInfo.Name;
+                module.Id = ModuleBase.GetNextModId();
                 module.DisplayName = modInfo.DisplayName;
-
-                if (Modules.Count == 0)
-                {
-                    module.Id = 0;
-                }
-                else
-                {
-                    module.Id = Modules[Modules.Count - 1].Id + 1;
-                }
-
                 module.ScanNo = CurrentScanId;
                 Modules.Add(module);
                 return module;
@@ -325,7 +316,7 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
-        private void CreateConnector(int inPortId, int outPortId, int inPortIndex, int outPortIndex)
+        public static void CreateConnector(int inPortId, int outPortId, int inPortIndex, int outPortIndex)
         {
             ModuleBase inModule = null;
             ModuleBase outModule = null;

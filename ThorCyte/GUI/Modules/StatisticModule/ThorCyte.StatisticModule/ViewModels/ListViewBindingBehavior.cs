@@ -21,7 +21,7 @@ namespace ThorCyte.Statistic.ViewModels
 
     public class ListViewBindingBehavior
     {
-        //Build DependencyProperty ColumnsCollection  
+        //Build Attached DependencyProperty ColumnsCollection  
         public static readonly DependencyProperty ColumnsCollectionProperty =
             DependencyProperty.RegisterAttached("ColumnsCollection", typeof(ObservableCollection<DataGridColumns>), typeof(ListViewBindingBehavior), new PropertyMetadata(OnColumnsCollectionChanged));
 

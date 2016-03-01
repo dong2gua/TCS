@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using Microsoft.Practices.ServiceLocation;
+using Prism.Events;
 using ThorCyte.GraphicModule.Controls;
+using ThorCyte.GraphicModule.Events;
 using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.ViewModels;
+using ThorCyte.Infrastructure.Events;
 
 namespace ThorCyte.GraphicModule.Views
 {
@@ -20,6 +26,8 @@ namespace ThorCyte.GraphicModule.Views
 
         private UniformGrid _uniformgrid;
 
+        public static List<GraphicDetailWnd> DetailWndList = new List<GraphicDetailWnd>();
+
         #endregion
 
         #region Constructor
@@ -27,6 +35,14 @@ namespace ThorCyte.GraphicModule.Views
         public GraphicPanelView()
         {
             InitializeComponent();
+            ServiceLocator.Current.GetInstance<IEventAggregator>()
+                .GetEvent<DelateGraphicEvent>()
+                .Subscribe(DeleteGraphic);
+            ServiceLocator.Current.GetInstance<IEventAggregator>()
+                .GetEvent<ShowDetailGraphicEvent>()
+                .Subscribe(OnShowDetail);
+            ServiceLocator.Current.GetInstance<IEventAggregator>()
+                .GetEvent<ShowRegionEvent>().Subscribe(OnSwitchTab);
             Loaded += OnLoaded;
         }
 
@@ -120,7 +136,7 @@ namespace ThorCyte.GraphicModule.Views
                     if (newDataContext.GraphicDictionary.ContainsKey(scattervm.Id))
                     {
                         var graphic = newDataContext.GraphicDictionary[scattervm.Id].Item1 as ScattergramView;
-                        if (!GraphicViewList.Items.Contains(graphic))
+                        if (graphic != null && !GraphicViewList.Items.Contains(graphic))
                         {
                             GraphicViewList.Items.Add(graphic);
                         }
@@ -211,30 +227,161 @@ namespace ThorCyte.GraphicModule.Views
         }
 
 
-        public void DeleteGraphic()
+        public void DeleteGraphic(int id)
         {
             var containerVm = DataContext as GraphicContainerVm;
-            if (containerVm == null || GraphicViewList.SelectedItem == null)
+            if (containerVm == null)
             {
                 return;
             }
-            containerVm.OnDeleteGraphic();
+            var idStr = id.ToString(CultureInfo.InvariantCulture);
+            containerVm.OnDeleteGraphic(idStr);
+            var deleteIndex = -1;
             var selectedIndex = GraphicViewList.SelectedIndex;
-            GraphicViewList.Items.RemoveAt(selectedIndex);
+            foreach (var item in GraphicViewList.Items)
+            {
+                var vm = item as GraphicUcBase;
+                if (vm == null)
+                {
+                    continue;
+                }
+                if (vm.Id == idStr)
+                {
+                    deleteIndex = GraphicViewList.Items.IndexOf(item);
+                    GraphicViewList.Items.Remove(item);
+                    break;
+                }
+            }
+            if (selectedIndex > deleteIndex)
+            {
+                selectedIndex = selectedIndex - 1;
+            }
             if (GraphicViewList.Items.Count == 0)
             {
                 return;
             }
             if (GraphicViewList.Items.Count > selectedIndex)
             {
-                GraphicViewList.SelectedItem = GraphicViewList.Items[selectedIndex];
+                GraphicViewList.SelectedItem = selectedIndex >= 0 ? GraphicViewList.Items[selectedIndex] : null;
             }
             else
             {
                 GraphicViewList.SelectedItem = GraphicViewList.Items[GraphicViewList.Items.Count - 1];
             }
-            containerVm.SelectedGraphic = (GraphicVmBase)((GraphicUcBase)GraphicViewList.SelectedItem).DataContext;
+
+            if (GraphicViewList.SelectedItem != null)
+            {
+                containerVm.SelectedGraphic = (GraphicVmBase)((GraphicUcBase)GraphicViewList.SelectedItem).DataContext;
+            }
             UpdateGridLayout();
+        }
+
+        private void OnShowDetail(string id)
+        {
+            var graphcUc = GraphicViewList.SelectedItem as GraphicUcBase;
+            if (graphcUc == null || graphcUc.Id != id)
+            {
+                return;
+            }
+            var wnd = new GraphicDetailWnd
+            {
+                Content = graphcUc,
+            };
+            DetailWndList.Add(wnd);
+            graphcUc.SetCloseButtonState(true);
+            graphcUc.ClearHeightBinding();
+            GraphicViewList.Items.Remove(graphcUc);
+            wnd.Show();
+            UpdateGridLayout();
+            wnd.MouseLeftButtonDown += delegate
+            {
+                var containerVm = DataContext as GraphicContainerVm;
+                if (containerVm==null)
+                {
+                    return;
+                }
+                GraphicViewList.SelectedItem = null;
+                containerVm.SelectedGraphic = ((GraphicUcBase) wnd.Content).DataContext as GraphicVmBase;
+            };
+            wnd.Closed += delegate
+            {
+                var content = wnd.Content as GraphicUcBase;
+                if (content == null)
+                {
+                    return;
+                }
+                wnd.Content = null;
+                var index = GetIndex(content);
+                if (GraphicViewList.Items.Count > index)
+                {
+                    GraphicViewList.Items.Insert(index, content);
+                }
+                else
+                {
+                    GraphicViewList.Items.Add(content);
+                }
+                if (GraphicViewList.SelectedItem == null)
+                {
+                    GraphicViewList.SelectedIndex = GraphicViewList.Items.Count > index
+                        ? index : GraphicViewList.Items.Count - 1;
+                }
+                graphcUc.SetCloseButtonState(false);
+                graphcUc.SetHeightBinding();
+                DetailWndList.Remove(wnd);
+                wnd = null;
+                UpdateGridLayout();
+            };
+        }
+
+        private int GetIndex(GraphicUcBase graphic)
+        {
+            var index = 0;
+            var containerVm = (GraphicContainerVm)DataContext;
+            var baseIndex = containerVm.GraphicVmList.IndexOf(graphic.GraphicVm);
+            if (baseIndex == 0)
+            {
+                index = 0;
+            }
+            else
+            {
+                var beginIndex = GraphicViewList.Items.Count - 1 >= baseIndex
+                    ? baseIndex   : GraphicViewList.Items.Count - 1;
+                for (var i = beginIndex;i>=0;i--)
+                {
+                    var graphicUc = GraphicViewList.Items[i] as GraphicUcBase;
+                    if (graphicUc == null)
+                    {
+                        continue;
+                    }
+                    var currentIndex = containerVm.GraphicVmList.IndexOf(graphicUc.GraphicVm);
+                    if (currentIndex < baseIndex)
+                    {
+                        index = i+1;
+                        break;
+                    }
+                }
+            }
+            return index;
+        }
+
+        private void OnSwitchTab(string tabName)
+        {
+            if (DetailWndList == null || DetailWndList.Count == 0)
+            {
+                return;
+            }
+            foreach (var wnd in DetailWndList)
+            {
+                wnd.Visibility = tabName == "AnalysisModule" ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        public static void CloseAllDetailWindow()
+        {
+            foreach (var wnd in DetailWndList)
+            {
+                wnd.Close();
+            }
         }
 
         #endregion

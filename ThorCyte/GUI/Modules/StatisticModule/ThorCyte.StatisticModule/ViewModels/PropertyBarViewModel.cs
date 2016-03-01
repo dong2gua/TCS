@@ -37,7 +37,7 @@ namespace ThorCyte.Statistic.ViewModels
         public string RunFeatureName
         {
             get {
-                if (SelectedRunFeature == null ||(SelectedRunFeature != null && !SelectedRunFeature.IsUserDefineName))
+                if ((SelectedRunFeature == null && _RunFeatureName == "")||(SelectedRunFeature != null && !SelectedRunFeature.IsUserDefineName))
                 {
                     _RunFeatureName = (SelectedComponent == null ? "" : SelectedComponent.Name)
                         + (SelectedStatisticMethod == null ? "" : " " + SelectedStatisticMethod.Name)
@@ -48,11 +48,18 @@ namespace ThorCyte.Statistic.ViewModels
                 return _RunFeatureName; 
             }
             set {
-                if (SelectedRunFeature != null && !SelectedRunFeature.IsUserDefineName)
+                if (SelectedRunFeature == null || (SelectedRunFeature != null && !SelectedRunFeature.IsUserDefineName))
                 {
                     if(_RunFeatureName != value)
                     {
-                        SelectedRunFeature.IsUserDefineName = true;
+                        if (SelectedRunFeature != null)
+                        {
+                            SelectedRunFeature.IsUserDefineName = true;
+                        }
+                        else
+                        {
+                            _IsChangeNewFileName = true;
+                        }
                     }
                 }
                 _RunFeatureName = value;
@@ -67,6 +74,7 @@ namespace ThorCyte.Statistic.ViewModels
                 {
                     IsNewFile = true;
                     SelectedRunFeature = null;
+                    _RunFeatureName = String.Empty;
                     OnPropertyChanged(()=>SelectedRunFeature);
                 }, () => true);
             }
@@ -89,6 +97,8 @@ namespace ThorCyte.Statistic.ViewModels
                 },(x) => true);
             }
         }
+
+        private bool _IsChangeNewFileName = false;
 
         private bool _IsNewFile = false;
         public bool IsNewFile
@@ -123,6 +133,10 @@ namespace ThorCyte.Statistic.ViewModels
                     rf.FeatureContainer = new List<Feature> { SelectedFeature };
                     rf.ChannelContainer = new List<Channel> { SelectedChannel };
                     rf.RegionContainer = new List<CyteRegion> { SelectedRegion };
+                    if (_IsChangeNewFileName)
+                    {
+                        rf.IsUserDefineName = true; 
+                    }
 
                     //add to file
                     var path = ExperimentAdapter.GetExperimentInfo().AnalysisPath;
@@ -172,6 +186,9 @@ namespace ThorCyte.Statistic.ViewModels
                     runfeaturelist.ForEach(x => 
                         x.StatisticMethodContainer.Where(y => y != null).ToList().ForEach(y => 
                             y.Method = StatisticMethod.GetStatisticMethod(y.MethodType)));
+
+                    //to do: get data from files for the first time, then get the value from Model
+                    ModelAdapter.RunFeatureContainer = runfeaturelist;
 
                     if (runfeaturelist != null)
                     {
@@ -240,7 +257,7 @@ namespace ThorCyte.Statistic.ViewModels
                 }
                 else//new runfeature
                 {
-                    result = ComponentDataManager.Instance.GetComponentNames().Select(x => new Component { Name = x }).ToList();
+                    result = ComponentData.GetComponentNames().Select(x => new Component { Name = x }).ToList();
                 }
                 if (SelectedComponent == null)
                 {
@@ -288,6 +305,25 @@ namespace ThorCyte.Statistic.ViewModels
             }
         }
 
+        [Dependency]
+        public Func<IEnumerable<IComponentDataService>> ComponentDataFactory { get; set;  }
+
+        private IComponentDataService _componentData;
+
+        public IComponentDataService ComponentData
+        {
+            get
+            {
+                if (ComponentDataFactory().Count() > 0)
+                    _componentData = ComponentDataFactory().First();
+                else
+                {
+                    _componentData = ComponentDataManager.Instance;
+                }
+                return _componentData;
+            }
+        }
+
         public List<Feature> FeatureContainer
         {
             get
@@ -295,7 +331,7 @@ namespace ThorCyte.Statistic.ViewModels
                 List<Feature> result;
                 if (SelectedComponent != null)
                 {
-                    result = ComponentDataManager.Instance.GetFeatures(SelectedComponent.Name)
+                    result = ComponentData.GetFeatures(SelectedComponent.Name)
                         .Select(
                             x => new Feature() {Name = x.Name, IsPerChannel = x.IsPerChannel, FeatureIndex = x.Index})
                         .ToList();
@@ -328,11 +364,11 @@ namespace ThorCyte.Statistic.ViewModels
                 List<Channel> result;
                 if (SelectedComponent != null && SelectedFeature != null && SelectedFeature.IsPerChannel)
                 {
-                    result = ComponentDataManager.Instance.GetChannels(SelectedComponent.Name)
+                    result = ComponentData.GetChannels(SelectedComponent.Name)
                         .Select(x => new Channel() {Name = x.ChannelName}).ToList();
                     for (int i = 0; i < result.Count; i++)
                     {
-                        result[i].Index = i + 1;
+                        result[i].Index = i;
                     }
                 }
                 else
@@ -417,6 +453,7 @@ namespace ThorCyte.Statistic.ViewModels
             {
                 _SelectedStatisticMethod = value;
                 OnPropertyChanged(() => FeatureContainer);
+                OnPropertyChanged(() => RunFeatureName);
             }
         }
         private Feature _SelectedFeature;

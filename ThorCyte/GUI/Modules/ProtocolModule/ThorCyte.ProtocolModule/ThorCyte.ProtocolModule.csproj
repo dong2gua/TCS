@@ -233,6 +233,11 @@
     <Resource Include="Resource\Images\Horizontal Align Left.png" />
     <Resource Include="Resource\Images\Vertical align Top.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\copy.png" />
+    <Resource Include="Resource\Images\delete.png" />
+    <Resource Include="Resource\Images\paste.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(ProjectDir)..\..\..\..\Bin\DirectoryModules\"</PostBuildEvent>

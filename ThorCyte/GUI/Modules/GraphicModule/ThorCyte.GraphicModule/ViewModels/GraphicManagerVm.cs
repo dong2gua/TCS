@@ -156,6 +156,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             _tabIdManager.Clear();
             _activeWellNos.Clear();
             ROIManager.Instance.Clear();
+            GraphicPanelView.CloseAllDetailWindow();
         }
 
         private void OnAddTab()
@@ -319,6 +320,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     UpdateImage();
                 }
+
             }
         }
 
@@ -333,6 +335,28 @@ namespace ThorCyte.GraphicModule.ViewModels
                 }
             }
             return dic;
+        }
+
+        public void UpdateRegionLocation(string graphId)
+        {
+            var regionList = RegionHelper.GetRegionList();
+            var list = new List<MaskRegion>();
+            var dictionary = GetGraphicDictionary();
+            foreach (var regionItem in regionList)
+            {
+                if (regionItem.GraphicId != graphId)
+                {
+                    continue;
+                }
+                var id = ConstantHelper.PrefixRegionName + regionItem.Id;
+                UpdateRegionPoint(id, regionItem, dictionary[regionItem.GraphicId].Item2,
+                    dictionary[regionItem.GraphicId].Item1);
+                list.Add(regionItem);
+            }
+            if (list.Count > 0)
+            {
+                _roiInstance.UpdateRegions(list);
+            }
         }
 
         public void UpdateGraphFeatures(string graphId)
@@ -558,15 +582,9 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 return;
             }
+            Clear();
             var info = experiment.GetExperimentInfo();
             if (info.LoadWithAnalysisResult == false)
-            {
-                return;
-            }
-            var filepath = info.AnalysisPath;
-            var path = Path.Combine(filepath, ConstantHelper.GraphicXmlPath);
-            Clear();
-            if (!File.Exists(path))
             {
                 if (_graphicContainerVms.Count == 0)
                 {
@@ -574,6 +592,9 @@ namespace ThorCyte.GraphicModule.ViewModels
                 }
                 return;
             }
+            var filepath = info.AnalysisPath;
+            var path = Path.Combine(filepath, ConstantHelper.GraphicXmlPath);
+          
             var reader = new XmlTextReader(path);
             while (reader.Read())
             {
@@ -772,6 +793,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     GraphicContainerVm.IdManagerInstance.InsertId(result);
                 }
                 vm.Id = id;
+                vm.SetTitle();
                 vm.XAxis.GraphicId = id;
                 vm.YAxis.GraphicId = id;
             }
@@ -842,6 +864,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     GraphicContainerVm.IdManagerInstance.InsertId(result);
                 }
                 vm.Id = id;
+                vm.SetTitle();
                 vm.XAxis.GraphicId = id;
                 vm.YAxis.GraphicId = id;
             }
@@ -1131,11 +1154,11 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     if (reader["x"] != null)
                     {
-                        x = XmlConvert.ToDouble(reader["x"]) / xscale;
+                        x = XmlConvert.ToDouble(reader["x"]) / xscale + vm.XAxis.MinValue;
                     }
                     if (reader["y"] != null)
                     {
-                        y = (ConstantHelper.LowBinCount - XmlConvert.ToDouble(reader["y"])) / yscale;
+                        y = (ConstantHelper.LowBinCount - XmlConvert.ToDouble(reader["y"])) / yscale + vm.YAxis.MinValue;
                     }
 
                     if (!double.IsNaN(x) && !double.IsNaN(y))
@@ -1322,7 +1345,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                     attributeList = new List<XAttribute>
                     {
                         new XAttribute("feature", vm.YAxis.SelectedNumeratorFeature != null ? vm.YAxis.SelectedNumeratorFeature.Name:string.Empty),
-                        new XAttribute("channel", vm.YAxis.SelectedNumeratorChannel!= null ? vm.YAxis.SelectedNumeratorChannel.ChannelName: string.Empty),
+                        new XAttribute("channel", vm.YAxis.SelectedNumeratorChannel!= null ? vm.YAxis.SelectedNumeratorChannel.ChannelId.ToString(): string.Empty),
                     };
                     numerator = new XElement("numerator", attributeList);
                     yAxis.Add(numerator);
@@ -1331,7 +1354,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                         attributeList = new List<XAttribute>
                     {
                         new XAttribute("feature", vm.YAxis.SelectedDenominatorFeature.Name),
-                        new XAttribute("channel", vm.YAxis.SelectedDenominatorChannel!= null ? vm.YAxis.SelectedDenominatorChannel.ChannelName: string.Empty),
+                        new XAttribute("channel", vm.YAxis.SelectedDenominatorChannel!= null ? vm.YAxis.SelectedDenominatorChannel.ChannelId.ToString(): string.Empty),
                     };
                         var denominator = new XElement("denominator", attributeList);
                         yAxis.Add(denominator);

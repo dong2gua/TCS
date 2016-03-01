@@ -20,7 +20,7 @@
                     <Grid x:Name="MGrid">
                         <Border x:Name="selectionBorder" Background="{TemplateBinding Background}" BorderBrush="DarkGray" BorderThickness="2"
                                  Margin="{TemplateBinding Margin}" Padding="{TemplateBinding Padding}" CornerRadius="3">
-                            <ContentPresenter/>
+                            <ContentPresenter x:Name="modulebase"/>
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -74,7 +74,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type control:PannelView}">
-                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" MinHeight="{TemplateBinding Height}" MinWidth="{TemplateBinding Width}">
                         <Grid>
                             <control:ModuleItemsControl
                                 x:Name="PART_NodeItemsControl"

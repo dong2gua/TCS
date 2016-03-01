@@ -45,5 +45,33 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             InputPorts[2].DataType = PortDataType.Event;
             InputPorts[2].ParentModule = this;
         }
+
+        public override object Clone()
+        {
+            var mod = new OverlapParentChild2ModVm();
+            //===============Common======================
+            mod.Name = Name;
+            mod.Id = GetNextModId();
+            mod.DisplayName = DisplayName;
+            mod.ScanNo = ScanNo;
+            mod.Enabled = Enabled;
+            mod.X = X;
+            mod.Y = Y;
+
+            //===============Association 2=====================
+            mod.HasImage = HasImage;
+            mod.ModType = ModType;
+            mod.InputPorts[0].DataType = InputPorts[0].DataType;
+            mod.InputPorts[0].ParentModule = mod;
+            mod.InputPorts[1].DataType = InputPorts[1].DataType;
+            mod.InputPorts[1].ParentModule = mod;
+            mod.InputPorts[2].DataType = InputPorts[2].DataType;
+            mod.InputPorts[2].ParentModule = mod;
+            mod.OutputPort.DataType = OutputPort.DataType;
+            mod.OutputPort.ParentModule = mod;
+
+            return mod;
+        }
+
     }
 }

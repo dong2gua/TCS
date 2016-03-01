@@ -216,6 +216,35 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
         }
 
+        public override object Clone()
+        {
+            var mod = new FilterModVm();
+            //===============Common======================
+            mod.Name = Name;
+            mod.Id = GetNextModId();
+            mod.DisplayName = DisplayName;
+            mod.ScanNo = ScanNo;
+            mod.Enabled = Enabled;
+            mod.X = X;
+            mod.Y = Y;
+
+            //===============Filter=====================
+            mod.HasImage = HasImage;
+            mod.View = new FilterModule();
+            mod.ModType = ModType;
+
+            mod.InputPorts[0].DataType = InputPorts[0].DataType;
+            mod.InputPorts[0].ParentModule = mod;
+            mod.OutputPort.DataType = OutputPort.DataType;
+            mod.OutputPort.ParentModule = mod;
+            mod.SelectedFilter = SelectedFilter;
+            mod.SelectedKSize = SelectedKSize;
+            mod.PassIndex = PassIndex;
+
+            return mod;
+        }
+
+
         #endregion
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using ComponentDataService;
 using ComponentDataService.Types;
@@ -41,22 +42,6 @@ namespace ThorCyte.GraphicModule.ViewModels
         {
             get { return _dotTupleList; }
         }
-
-        //private bool _isWhiteBackground;
-
-        //public bool IsWhiteBackground
-        //{
-        //    get { return _isWhiteBackground; }
-        //    set
-        //    {
-        //        if (_isWhiteBackground == value)
-        //        {
-        //            return;
-        //        }
-        //        _isWhiteBackground = value;
-        //        GraphicModule.GraphicManagerVmInstance.IsBlackBackground = !_isWhiteBackground;
-        //    }
-        //}
 
         private bool _isMapChecked;
 
@@ -430,13 +415,19 @@ namespace ThorCyte.GraphicModule.ViewModels
                 }
                 else
                 {
-                    Title = SelectedComponent;
+                    Title = SelectedComponent ?? string.Empty;
                 }
             }
             else
             {
                 Title = LabelTitle;
             }
+            var comment = GetComment();
+            if (string.IsNullOrEmpty(comment))
+            {
+                return;
+            }
+            Title += string.Format("({0}{1})",ConstantHelper.PrefixScattergramName ,comment);
         }
 
         protected override void ClearPlot()
@@ -487,6 +478,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             YAxis.IsInitialized = false;
             XAxis.InitParam(id,FeatureType.XPos);
             YAxis.InitParam(id, FeatureType.YPos);
+            SetTitle();
             XAxis.IsInitialized = true;
             YAxis.IsInitialized = true;
         }

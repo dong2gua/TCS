@@ -3,6 +3,7 @@ using ImageProcess;
 using ImageProcess.DataType;
 using System.Collections.Generic;
 using ThorCyte.Infrastructure.Interfaces;
+using ThorCyte.Infrastructure.Types;
 
 namespace ComponentDataService
 {
@@ -26,5 +27,6 @@ namespace ComponentDataService
         int GetComponentScanId(string componentName);
         void Association(string masterComponentName, string slaveComponentName);
         void Association(string masterComponentName, string firstSlaveComponentName, string secondSlaveComponentName);
+        IList<Channel> GetChannels(string componentName);
     }
 }

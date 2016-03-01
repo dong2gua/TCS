@@ -10,6 +10,7 @@
             <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
                 <Setter Property="IsSelected" Value="{Binding IsSelected}" />
                 <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>

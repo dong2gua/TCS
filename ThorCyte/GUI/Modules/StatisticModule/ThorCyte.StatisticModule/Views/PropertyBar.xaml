@@ -386,7 +386,7 @@
             <Border x:Name="border" Height="59.784" CornerRadius="6" Background="#FF595959" Margin="0,0,0.409,0" Width="296">
                 <Grid Background="#FF595959">
                     <Rectangle Fill="#FF595959" HorizontalAlignment="Left" Height="10" VerticalAlignment="Top" Width="296"/>
-                    <TextBox x:Name="textBox" Margin="25,27,13,10" Text="{Binding RunFeatureName}" FontSize="16" Foreground="Black" IsReadOnly="True" Background="DarkGray">
+                    <TextBox x:Name="textBox" Margin="25,27,13,10" Text="{Binding RunFeatureName, UpdateSourceTrigger=PropertyChanged}" FontSize="14" Foreground="Black" IsReadOnly="True" Background="DarkGray">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDoubleClick">
                                 <ei:CallMethodAction TargetObject="{Binding ElementName=UserControl}" MethodName="RFNameDoubleClick"></ei:CallMethodAction>
@@ -414,7 +414,7 @@
             </Border>
             <Expander Foreground="White" FontSize="16" FontWeight="Bold" Header="Statistic List" IsExpanded="True" Width="296" Margin="0,2,0,0" >
                 <Border x:Name="Group" Width="299.591" Height="35">
-                    <ComboBox Margin="24,6,17,7" Height="22" ItemsSource="{Binding RunFeatureContainer}" SelectedItem="{Binding SelectedRunFeature}">
+                    <ComboBox Margin="24,6,17,7" Height="22" ItemsSource="{Binding RunFeatureContainer}" SelectedItem="{Binding SelectedRunFeature}" FontSize="13" FontWeight="Normal">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid Width="250">
@@ -443,23 +443,23 @@
             <Expander Foreground="White" FontSize="16" FontWeight="Bold" Header="Statistic Object" IsExpanded="True" Width="296" Margin="0,2,0,0" >
                 <StackPanel x:Name="StatisticObjectStack" HorizontalAlignment="Left" Height="245" Width="296" >
                     <Grid Margin="33,2,14,0" Height="28">
-                        <ComboBox Margin="85,3,0,3" Height="22" Grid.Row="0" ItemsSource="{Binding ComponentContainer}" SelectedItem="{Binding SelectedComponent}" DisplayMemberPath="Name"/>
+                        <ComboBox Margin="85,3,0,3" Height="22" Grid.Row="0" ItemsSource="{Binding ComponentContainer}" SelectedItem="{Binding SelectedComponent}" DisplayMemberPath="Name" FontSize="13" FontWeight="Normal"/>
                         <Label Content="Component" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="13.333" Foreground="White" Grid.Column="0" Grid.Row="0" FontWeight="Normal"/>
                     </Grid>
                     <Grid Margin="33,2,14,0" Height="28">
-                        <ComboBox Margin="85,3,0,3" Height="22" ItemsSource="{Binding FeatureContainer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFeature}"/>
+                        <ComboBox Margin="85,3,0,3" Height="22" ItemsSource="{Binding FeatureContainer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFeature}" FontSize="13" FontWeight="Normal"/>
                         <Label Content="Feature" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="13.333" Foreground="White" Grid.Column="0" FontWeight="Normal"/>
                     </Grid>
                     <Grid Margin="33,2,14,0" Height="28">
-                        <ComboBox Margin="85,3,0,3" Height="22" ItemsSource="{Binding ChannelContainer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedChannel}"/>
+                        <ComboBox Margin="85,3,0,3" Height="22" ItemsSource="{Binding ChannelContainer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedChannel}" FontSize="13" FontWeight="Normal"/>
                         <Label Content="Channel" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="13.333" Foreground="White" Grid.Column="0" FontWeight="Normal"/>
                     </Grid>
                     <Grid Margin="33,2,14,0" Height="28" >
-                        <ComboBox Margin="85,3,0,3" Height="22" ItemsSource="{Binding RegionContainer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRegion}"/>
+                        <ComboBox Margin="85,3,0,3" Height="22" ItemsSource="{Binding RegionContainer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRegion}" FontSize="13" FontWeight="Normal"/>
                         <Label Content="Region" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="13.333" Foreground="White" Grid.Column="0" FontWeight="Normal"/>
                     </Grid>
                     <Grid Margin="21,4,14,0" Height="62">
-                        <ComboBox Margin="5,24,0,0" Height="22" ItemsSource="{Binding StatisticMethodContainer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedStatisticMethod}"/>
+                        <ComboBox Margin="5,24,0,0" Height="22" ItemsSource="{Binding StatisticMethodContainer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedStatisticMethod}" FontWeight="Bold" FontSize="13" FontStyle="Italic"/>
                         <Label Content="Statistic Method" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,31" FontSize="16" Foreground="White" FontWeight="Bold"/>
                     </Grid>
                     <Button Content="Confirm" HorizontalAlignment="Center" Margin="179,8,5,0" VerticalAlignment="Center" Width="56" BorderThickness="0" Height="23" FontSize="11" FontWeight="Bold"

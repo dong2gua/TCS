@@ -6,9 +6,12 @@ using System.Windows.Input;
 using Abt.Controls.SciChart;
 using Abt.Controls.SciChart.Model.DataSeries;
 using Abt.Controls.SciChart.Visuals.Axes;
+using Microsoft.Practices.ServiceLocation;
 using ThorCyte.GraphicModule.Controls.Graphics;
 using ThorCyte.GraphicModule.Converts;
+using ThorCyte.GraphicModule.Events;
 using ThorCyte.GraphicModule.ViewModels;
+using IEventAggregator = Prism.Events.IEventAggregator;
 
 namespace ThorCyte.GraphicModule.Controls
 {
@@ -61,6 +64,7 @@ namespace ThorCyte.GraphicModule.Controls
             Loaded += OnLoad;
             RegionPanel.PreviewMouseLeftButtonUp += OnCanvasLeftUp;
             SizeChanged += OnSizeChanged;
+            MouseDoubleClick += OnShowDetailWnd;
         }
 
         #endregion
@@ -71,13 +75,19 @@ namespace ThorCyte.GraphicModule.Controls
 
         public abstract void SetAxis();
 
+        public abstract void SetCloseButtonState(bool isStandAlone);
+
+        public abstract void SetHeightBinding();
+
+        public abstract void ClearHeightBinding();
+
         public abstract void OnLoad(object sender, RoutedEventArgs e);
 
         public virtual void Init()
         {
             for (var index = 0; index < RenderableSeriesCount; index++)
             {
-                DataSeriesArray[index] = new XyDataSeries<double, double> {AcceptsUnsortedData = true};
+                DataSeriesArray[index] = new XyDataSeries<double, double> { AcceptsUnsortedData = true };
             }
             InitRenderableSeries();
             InitAxis();
@@ -149,7 +159,7 @@ namespace ThorCyte.GraphicModule.Controls
                 AutoRange = AutoRange.Never,
                 GrowBy = new DoubleRange(0.1, 0.1),
 
-                VisibleRange = new DoubleRange(0,100),
+                VisibleRange = new DoubleRange(0, 100),
 
                 DrawMinorTicks = true,
                 DrawMinorGridLines = false,
@@ -163,12 +173,17 @@ namespace ThorCyte.GraphicModule.Controls
         public virtual void SetBindings()
         {
             RegionPanel.SetBinding(RegionCanvas.ToolProperty,
-                new Binding("RegionToolType") { Source = GraphicVm,Mode = BindingMode.TwoWay,NotifyOnSourceUpdated=true});
+                new Binding("RegionToolType") { Source = GraphicVm, Mode = BindingMode.TwoWay, NotifyOnSourceUpdated = true });
             RegionPanel.SetBinding(RegionCanvas.RegionColorProperty,
                 new Binding("SelectedRegionColor") { Source = GraphicVm, Mode = BindingMode.TwoWay, Converter = new RegionColorConvert() });
             var xaxisBinding = new Binding("Title") { Source = GraphicVm.XAxis };
             XAxis.SetBinding(AxisBase.AxisTitleProperty, xaxisBinding);
             XLogAxis.SetBinding(AxisBase.AxisTitleProperty, xaxisBinding);
+        }
+
+        private void OnShowDetailWnd(object sender, MouseButtonEventArgs e)
+        {
+            ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<ShowDetailGraphicEvent>().Publish(GraphicVm.Id);
         }
 
         #endregion

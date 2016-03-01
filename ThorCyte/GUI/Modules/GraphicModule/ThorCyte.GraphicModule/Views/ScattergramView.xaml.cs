@@ -61,7 +61,7 @@ namespace ThorCyte.GraphicModule.Views
                 {
                     PointMarker = new EllipsePointMarker
                     {
-                        Width =1,
+                        Width = 1,
                         Height = 1,
                         Stroke = ((SolidColorBrush)ConstantHelper.BrushTable[i]).Color,
                         Fill = ((SolidColorBrush)ConstantHelper.BrushTable[i]).Color
@@ -98,7 +98,7 @@ namespace ThorCyte.GraphicModule.Views
                 DrawMajorBands = false,
                 TextFormatting = "#.#E+0",
                 ScientificNotation = ScientificNotation.LogarithmicBase,
-                VisibleRange = new DoubleRange(0,100)
+                VisibleRange = new DoubleRange(0, 100)
             };
         }
 
@@ -124,7 +124,7 @@ namespace ThorCyte.GraphicModule.Views
 
             RegionPanel.SetBinding(HeightProperty, new Binding("ActualHeight") { Source = SciChart.AnnotationUnderlaySurface });
 
-            SetBinding(HeightProperty, new Binding("ActualWidth") { Source = this });
+            SetHeightBinding();
 
             var yaxisBinding = new Binding("Title") { Source = GraphicVm.YAxis };
 
@@ -166,6 +166,21 @@ namespace ThorCyte.GraphicModule.Views
             }
             SciChart.XAxis.VisibleRange = new DoubleRange(GraphicVm.XAxis.MinValue, GraphicVm.XAxis.MaxValue);
             SciChart.YAxis.VisibleRange = new DoubleRange(GraphicVm.YAxis.MinValue, GraphicVm.YAxis.MaxValue);
+        }
+
+        public override void SetCloseButtonState(bool isStandAlone )
+        {
+            CloseBtn.Visibility = isStandAlone ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public override void SetHeightBinding()
+        {
+            SetBinding(HeightProperty, new Binding("ActualWidth") { Source = this });
+        }
+
+        public override void ClearHeightBinding()
+        {
+            BindingOperations.ClearBinding(this, HeightProperty);
         }
 
         private void DrawPlot()
@@ -220,7 +235,7 @@ namespace ThorCyte.GraphicModule.Views
                     var index = item.Key;
                     var xList = item.Value.Select(pt => GraphicVm.XAxis.IsLogScale ? GraphicVm.XAxis.GetActualValue((int)pt.X) : pt.X / xscale + GraphicVm.XAxis.MinRange).ToList();
                     var yList = item.Value.Select(pt => GraphicVm.YAxis.IsLogScale ? GraphicVm.YAxis.GetActualValue((int)pt.Y) : pt.Y / yscale + GraphicVm.YAxis.MinRange).ToList();
-                    for(var i = 0; i < xList.Count; i++)
+                    for (var i = 0; i < xList.Count; i++)
                     {
                         pointList.Add(new Point(xList[i], yList[i]));
                     }
@@ -252,10 +267,9 @@ namespace ThorCyte.GraphicModule.Views
                 GraphicVm.UpdateEvents();
             }
 
-            
+
             IsLoading = false;
         }
-
 
         public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -271,7 +285,12 @@ namespace ThorCyte.GraphicModule.Views
             e.Handled = true;
         }
 
-        #endregion
+        private void OnDelete(object sender, RoutedEventArgs e)
+        {
+            ServiceLocator.Current.GetInstance<IEventAggregator>()
+                .GetEvent<DelateGraphicEvent>().Publish(Convert.ToInt32(GraphicVm.Id));
+        }
 
+        #endregion
     }
 }

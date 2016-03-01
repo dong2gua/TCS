@@ -157,13 +157,15 @@ namespace ThorCyte.Infrastructure.Types
                     }
                 }
             }
-
-            int rows = (int) Math.Ceiling((Bound.Width + xInterval)/incWidth);
-            int cols = (int) Math.Ceiling((Bound.Height + yInterval)/incHeight);
-            double newWidth = rows*incWidth - xInterval;
-            double newHeight = cols*incHeight - yInterval;
+            double dcols = (Bound.Width + xInterval)/incWidth;
+            double fractionInCol = dcols - Math.Truncate(dcols);
+            double drows = (Bound.Height + yInterval)/incHeight;
+            double fractionInRow = drows - Math.Truncate(drows);
+            int rows = fractionInRow < 0.05 ? (int) drows : (int) drows + 1;
+            int cols = fractionInCol < 0.05 ? (int) dcols : (int) dcols + 1;
+            double newWidth = cols*incWidth - xInterval;
+            double newHeight = rows*incHeight - yInterval;
             Bound = new Rect(Bound.Location, new Size(newWidth, newHeight));
-
         }
 
         private PathGeometry MakeGeometryFromPoints(IList<Point> points)

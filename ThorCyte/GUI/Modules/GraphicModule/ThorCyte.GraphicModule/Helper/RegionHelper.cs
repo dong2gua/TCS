@@ -25,8 +25,8 @@ namespace ThorCyte.GraphicModule.Helper
                 var rectRegion = (RectangleRegion)region;
                 if (vm.XAxis.IsLogScale)
                 {
-                    x = rectGraphic.Rectangle.Left * xLogscale;
-                    width = rectGraphic.Rectangle.Right * xLogscale - x;
+                    x = rectGraphic.Rectangle.Left * xLogscale + vm.XAxis.MinRange;
+                    width = rectGraphic.Rectangle.Right * xLogscale + vm.XAxis.MinRange - x;
                 }
                 else
                 {
@@ -36,7 +36,7 @@ namespace ThorCyte.GraphicModule.Helper
 
                 if (vm.YAxis.IsLogScale)
                 {
-                    y = (canvas.ActualHeight - rectGraphic.Rectangle.Top) * yLogscale;
+                    y = (canvas.ActualHeight - rectGraphic.Rectangle.Top) * yLogscale + vm.YAxis.MinRange;
                     height = rectGraphic.Rectangle.Height * yLogscale;
                 }
                 else
@@ -54,13 +54,13 @@ namespace ThorCyte.GraphicModule.Helper
                 double min, max;
                 if (vm.XAxis.IsLogScale)
                 {
-                    min = rectGraphic.Rectangle.Left * xLogscale;
-                    max = rectGraphic.Rectangle.Right * xLogscale - min;
+                    min = rectGraphic.Rectangle.Left * xLogscale + vm.XAxis.MinRange;
+                    max = rectGraphic.Rectangle.Right * xLogscale + vm.XAxis.MinRange;
                 }
                 else
                 {
                     min = rectGraphic.Rectangle.Left / canvas.XScale + vm.XAxis.MinRange;
-                    max = rectGraphic.Rectangle.Right / canvas.XScale;
+                    max = rectGraphic.Rectangle.Right / canvas.XScale + vm.XAxis.MinRange;
                 }
                 rectRegion.MinValue = min;
                 rectRegion.MaxValue = max;
@@ -73,8 +73,8 @@ namespace ThorCyte.GraphicModule.Helper
                 for (var index = 0; index < polygonGraphic.Points.Length; index++)
                 {
                     var p = polygonGraphic.Points[index];
-                    x = vm.XAxis.IsLogScale ? p.X * xLogscale : p.X / canvas.XScale + vm.XAxis.MinRange; 
-                    y = vm.YAxis.IsLogScale ? (canvas.ActualHeight - p.Y) * yLogscale : (canvas.ActualHeight - p.Y) / canvas.YScale + vm.YAxis.MinRange;
+                    x = vm.XAxis.IsLogScale ? p.X * xLogscale + vm.XAxis.MinRange : p.X / canvas.XScale + vm.XAxis.MinRange; 
+                    y = vm.YAxis.IsLogScale ? (canvas.ActualHeight - p.Y) * yLogscale+ vm.YAxis.MinRange: (canvas.ActualHeight - p.Y) / canvas.YScale + vm.YAxis.MinRange;
                     polygonRegion.Vertex.Add(new Point(x, y));
                 }
             }
@@ -87,8 +87,8 @@ namespace ThorCyte.GraphicModule.Helper
 
                 if (vm.XAxis.IsLogScale)
                 {
-                    x = centerx * xLogscale;
-                    width = ellipseGraphic.Rectangle.Width * xLogscale;
+                    x = centerx * xLogscale + vm.XAxis.MinRange;
+                    width = ellipseGraphic.Rectangle.Width* xLogscale;
                 }
                 else
                 {
@@ -98,7 +98,7 @@ namespace ThorCyte.GraphicModule.Helper
 
                 if (vm.YAxis.IsLogScale)
                 {
-                    y = centery * yLogscale;
+                    y = centery * yLogscale + vm.YAxis.MinRange;
                     height = ellipseGraphic.Rectangle.Height * yLogscale;
                 }
                 else

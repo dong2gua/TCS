@@ -11,6 +11,7 @@
         <ResourceDictionary>
             <converts:IsEnabledConvert x:Key="EnabledCvt"/>
             <converts:AxisSelectedConvert x:Key="AxisSelectedCvt"/>
+            <converts:InverseBooleanConverter x:Key="InverseCvt"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -62,7 +63,7 @@
                                   Value="{Binding SelectedAxis.MaxRange}" />
 
         <CheckBox Content="Log scale" Grid.Row="9" Grid.Column="0" Margin="3,0" IsEnabled="{Binding SelectedAxis.IsLogScaleEnabled}" IsChecked="{Binding SelectedAxis.IsLogScale}"/>
-        <CheckBox x:Name="ChkNormalize" Grid.Row="9" Grid.Column="1" Margin="6,0,0,0" Content="Normalize" IsChecked="{Binding SelectedAxis.IsNormalize}"/>
+        <CheckBox x:Name="ChkNormalize" Grid.Row="9" Grid.Column="1" Margin="6,0,0,0" Content="Normalize" IsEnabled="{Binding SelectedAxis.IsNormalize,Converter={StaticResource InverseCvt}}" IsChecked="{Binding SelectedAxis.IsNormalize}"/>
 
     </Grid>
 </UserControl>

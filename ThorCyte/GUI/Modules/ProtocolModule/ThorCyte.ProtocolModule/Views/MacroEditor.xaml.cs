@@ -96,18 +96,6 @@ namespace ThorCyte.ProtocolModule.Views
         }
 
         /// <summary>
-        /// Event raised to delete the selected _module.
-        /// </summary>
-        private void DeleteSelectedNodes_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            ViewModel.DeleteSelectedModules();
-
-            ViewModel.DeleteSelectedConnectors();
-
-
-        }
-
-        /// <summary>
         /// create new _module if no _module is selected
         /// </summary>
         private void OnMouseLeftDown(object sender, MouseButtonEventArgs e)

@@ -3226,7 +3226,7 @@
                                Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=Title, Mode=TwoWay}"
                                Margin="10,4,4,4"
                                Foreground="White"
-                               FontWeight="Bold" />
+                               FontWeight="Bold" FontSize="16"/>
                                     <Grid local:MouseBehaviour.MouseLeftButtonDownCommand="{Binding  RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=MoveHeaderCommand}"
                                           Background="Transparent"
                                           VerticalAlignment="Top"

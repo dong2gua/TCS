@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
@@ -28,9 +31,15 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public ICommand SaveMacroCommand { get; private set; }
         public ICommand MacroCommnad { get; private set; }
         public ICommand AlignCommnad { get; private set; }
+        public ICommand CopyModulesCommnad { get; private set; }
+        public ICommand PasteModulesCommnad { get; private set; }
+        public ICommand MoveCommand { get; private set; }
+        public ICommand DeleteCommand { get; private set; }
+        public ICommand SelectAllCommand { get; private set; }
+
+        private List<ModuleBase> _clipboard = new List<ModuleBase>();
 
         private IEventAggregator _eventAggregator;
-
         private IEventAggregator EventAggregator
         {
             get
@@ -114,7 +123,27 @@ namespace ThorCyte.ProtocolModule.ViewModels
             set { SetProperty(ref _isAlignEnable, value); }
         }
 
+        private bool _isPasteEnable;
+        public bool IsPasteEnable
+        {
+            get { return _isPasteEnable; }
+            set
+            {
+                if (_isPasteEnable == value) return;
+                SetProperty(ref _isPasteEnable, value);
+            }
+        }
 
+        private bool _isRemoveEnable;
+        public bool IsRemoveEnable
+        {
+            get { return _isRemoveEnable; }
+            set
+            {
+                if (_isRemoveEnable == value) return;
+                SetProperty(ref _isRemoveEnable, value);
+            }
+        }
 
         #endregion
 
@@ -134,6 +163,13 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
             AlignCommnad = new DelegateCommand<string>(SetModulesAlign);
 
+            CopyModulesCommnad = new DelegateCommand(CopyModules);
+            PasteModulesCommnad = new DelegateCommand<object>(PasteModules);
+
+            DeleteCommand = new DelegateCommand(DeleteModules);
+            MoveCommand = new DelegateCommand<string>(MoveModules);
+            SelectAllCommand = new DelegateCommand(SelectAllModules);
+
             _pannelVm = new PannelViewModel();
 
             RegionCount = 10;
@@ -143,6 +179,27 @@ namespace ThorCyte.ProtocolModule.ViewModels
             _tipStr = IsRuning ? "Stop Run" : "Start Run";
             _isAlignEnable = !IsRuning;
         }
+
+        private void SelectAllModules()
+        {
+            foreach (var m in PannelVm.Modules)
+            {
+                m.IsSelected = true;
+            }
+
+            foreach (var c in PannelVm.Connections)
+            {
+                c.IsSelected = true;
+            }
+
+        }
+
+        private void DeleteModules()
+        {
+            DeleteSelectedModules();
+            DeleteSelectedConnectors();
+        }
+
 
         private void ExpLoaded(int scanid)
         {
@@ -154,13 +211,13 @@ namespace ThorCyte.ProtocolModule.ViewModels
             var module = sender as Module;
 
             if (module == null) return;
-             
+
             var mb = module.Content as ModuleBase;
 
             if (mb == null) return;
 
             //SelectModuleIndex.
-            if ((bool) e.NewValue)
+            if ((bool)e.NewValue)
             {
                 SelectModuleOrder.Add(mb.Id);
             }
@@ -169,6 +226,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 SelectModuleOrder.Remove(mb.Id);
             }
 
+            IsRemoveEnable = SelectModuleOrder.Count > 0 && _isAlignEnable;
             PannelVm.SelectedModuleViewModel = SelectModuleOrder.Count == 1 ? PannelVm.Modules.FirstOrDefault(md => md.Id == SelectModuleOrder[0]) : null;
         }
 
@@ -206,6 +264,48 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     MessageBoxImage.Error);
             }
         }
+
+        public void MoveModules(string direction)
+        {
+            try
+            {
+                var space = 5;
+
+                foreach (var m in PannelVm.Modules.Where(md => md.IsSelected))
+                {
+                    switch (direction)
+                    {
+                        case "Up":
+                            m.Y -= space;
+
+                            if (m.Y < 0) m.Y = 0;
+
+                            break;
+                        case "Down":
+                            m.Y += space;
+                            break;
+                        case "Left":
+                            m.X -= space;
+
+                            if (m.X < 0) m.X = 0;
+
+                            break;
+                        case "Right":
+                            m.X += space;
+                            break;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Macro.Logger.Write("Error occurred in MoveModules", ex);
+                MessageBox.Show(Application.Current.MainWindow, "Error occurred in MoveModules" + ex.Message, "ThorCyte", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                throw;
+            }
+        }
+
 
         #endregion
 
@@ -278,7 +378,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
         {
             var isConnect = false;
 
-            if (startPort==null || endPort == null)
+            if (startPort == null || endPort == null)
             {
                 return false;
             }
@@ -520,6 +620,92 @@ namespace ThorCyte.ProtocolModule.ViewModels
             ImgSource = isRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
             TipStr = isRuning ? "Stop Run" : "Start Run";
             IsAlignEnable = !isRuning;
+        }
+
+
+        /// <summary>
+        /// Copy all Selected modules into clipboard.
+        /// </summary>
+        private void CopyModules()
+        {
+            _clipboard.Clear();
+            foreach (var m in PannelVm.Modules.Where(md => md.IsSelected))
+            {
+                _clipboard.Add(m);
+            }
+
+            IsPasteEnable = _clipboard.Count > 0 && _isAlignEnable;
+        }
+
+        /// <summary>
+        /// Paste modules in clipboard on the pannel.
+        /// </summary>
+        private void PasteModules(object o)
+        {
+            if (_clipboard.Count == 0) return;
+            var tempPoint = new Point(0.0, 0.0);
+            var pOffset = new Point(0.0, 0.0);
+
+            if (o == null)
+            {
+                //click toolbar button
+                pOffset.X = 100.0;
+                pOffset.Y = 100.0;
+            }
+            else
+            {
+                //right cilck mouse
+                pOffset = Mouse.GetPosition(o as UIElement);
+                var pt = Mouse.GetPosition(null);
+                pOffset.X -= pt.X;
+                pOffset.Y -= pt.Y;
+
+                tempPoint = new Point(_clipboard[0].X, _clipboard[0].Y);
+                var l = Math.Pow(_clipboard[0].X, 2) + Math.Pow(_clipboard[0].Y, 2);
+
+                //find least length point
+                foreach (var m in _clipboard)
+                {
+                    var ln = Math.Pow(m.X, 2) + Math.Pow(m.Y, 2);
+
+                    if (ln < l)
+                    {
+                        l = ln;
+                        tempPoint.X = m.X;
+                        tempPoint.Y = m.Y;
+                    }
+                }
+            }
+
+            var refdic = new Dictionary<int, int>();
+            foreach (var m in _clipboard)
+            {
+                var ma = m.Clone() as ModuleBase;
+                refdic.Add(m.Id, ma.Id);
+                ma.X = ma.X - (int)tempPoint.X + (int)pOffset.X;
+                ma.Y = ma.Y - (int)tempPoint.Y + (int)pOffset.Y;
+                m.IsSelected = false;
+                ma.IsSelected = true;
+                PannelVm.Modules.Add(ma);
+            }
+
+            // find connections on these modules and create them
+            foreach (var m in _clipboard)
+            {
+                foreach (var c in m.OutputPort.AttachedConnections)
+                {
+                    if (_clipboard.Contains(c.DestPort.ParentModule))
+                    {
+                        var outMod = m;
+                        var inMod = c.DestPort.ParentModule;
+                        var inportIdx = inMod.InputPorts.IndexOf(c.DestPort);
+                        Macro.CreateConnector(refdic[inMod.Id],refdic[outMod.Id],inportIdx,0);
+                    }
+                }
+            }
+
+
+
         }
 
         #endregion

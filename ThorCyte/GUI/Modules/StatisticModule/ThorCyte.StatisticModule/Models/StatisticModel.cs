@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Abt.Controls.SciChart.Visuals.RenderableSeries;
 
 namespace ThorCyte.Statistic.Models
 {
@@ -37,10 +38,11 @@ namespace ThorCyte.Statistic.Models
             if(pData == null || pData.Count() == 0)
                 return 0;
             var count = pData.Count();
+            var tempData = pData.OrderBy(x => x);
             if (count % 2 == 0)
-                return pData.Skip((count / 2) - 2).Take(2).Average();
+                return tempData.Skip((count / 2) - 1).Take(2).Average();
             else
-                return pData.Skip(((count - 1) / 2) - 1).Take(1).ToArray()[0];  
+                return tempData.Skip(((count - 1) / 2) ).Take(1).ToArray()[0];  
         }
         public static double SD(IEnumerable<float> pData) { 
             if(pData == null || pData.Count() == 0)

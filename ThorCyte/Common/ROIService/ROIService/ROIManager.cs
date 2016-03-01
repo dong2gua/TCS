@@ -113,6 +113,7 @@ namespace ROIService
 
         public void ChangeActiveWells(IList<int> activeWells)
         {
+          
             var n = activeWells.Count;
             _activeWells = activeWells;
             if (n > 0)
@@ -281,14 +282,12 @@ namespace ROIService
             if (!_roiDictionary.ContainsKey(id)) return false;            
             _roiDictionary[id] = region;
             region.Calculate();
-            SetRegionEventsDefaultColor(id);
-          
             if (_activeWells == null) return false;
             var n = _activeWells.Count;
             if (n == 1)
             {
                 int activeWell = _activeWells.First();
-
+                SetRegionEventsDefaultColor(id);
                 UpdateEventsDictionary(id, activeWell, activeWell);              
                 foreach (var key in _roiDictionary.Keys.ToList())
                 {
@@ -297,7 +296,7 @@ namespace ROIService
             }
             else if (n > 1)
             {
-               UpdateRegionOnMultiWells(_activeWells);
+                UpdateRegionOnMultiWells(_activeWells, id);
             }
             return true;
         }
@@ -315,6 +314,7 @@ namespace ROIService
             }
         }
 
+       
         private void SetRegionEventsDefaultColor(string id)
         {
             var evs = _regionEventsDictionary[id];
@@ -347,6 +347,11 @@ namespace ROIService
 
         private void InitRegionEvents(IList<int> activeWells)
         {
+            InitRegionEvents(activeWells, _roiDictionary.Keys);
+        }
+
+        private void InitRegionEvents(IList<int> activeWells, IEnumerable<string> regionIds )
+        {
             var n = activeWells.Count;
             var tasks = new Task<IDictionary<string, IList<BioEvent>>>[n];
             for (var i = 0; i < n; i++)
@@ -357,8 +362,9 @@ namespace ROIService
             }
 
             Task.WaitAll(tasks.Cast<Task>().ToArray());
-            foreach (var key in _regionEventsDictionary.Keys.ToList())
+            foreach (string key in regionIds)
             {
+                SetRegionEventsDefaultColor(key);
                 var events = new List<BioEvent>();
                 for (var i = 0; i < n; i++)
                 {
@@ -424,9 +430,9 @@ namespace ROIService
             _eventAggregator.GetEvent<RemoveRegionsEvent>().Subscribe(OnRemoveRegions);
         }
 
-        private void UpdateRegionOnMultiWells(IList<int> activeWells)
+        private void UpdateRegionOnMultiWells(IList<int> activeWells, string id)
         {
-            InitRegionEvents(activeWells);           
+            InitRegionEvents(activeWells, new[] {id});
         }
 
         private void OnRemoveRegions(IEnumerable<string> ids )
