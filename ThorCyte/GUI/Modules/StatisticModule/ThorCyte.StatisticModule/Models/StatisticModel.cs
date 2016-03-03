@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Abt.Controls.SciChart.Visuals.RenderableSeries;
+using ComponentDataService;
+using Microsoft.Practices.ObjectBuilder2;
+using Microsoft.Practices.Unity;
 
 namespace ThorCyte.Statistic.Models
 {
@@ -324,6 +329,173 @@ namespace ThorCyte.Statistic.Models
         public ComponentRunFeature SelectedComponent { get; set; }
         public List<RunFeature> RunFeatureContainer { get; set; }
         public RunFeature SelectedRunFeature{ get; set; }
+        public int ColumnCount { get; set; }
+
+        [Dependency]
+        public Func<IEnumerable<IComponentDataService>> ComponentDataFactory { get; set;  }
+
+        private IComponentDataService _componentData;
+
+        public IComponentDataService ComponentData
+        {
+            get
+            {
+                if (ComponentDataFactory().Count() > 0)
+                    _componentData = ComponentDataFactory().First();
+                else
+                {
+                    _componentData = ComponentDataManager.Instance;
+                }
+                return _componentData;
+            }
+        }
+
+       private int GetDataIndex(Feature pFeature, Channel pChannel)
+        {
+            if (pFeature.IsPerChannel && pChannel != null)
+            {
+                return pFeature.FeatureIndex + pChannel.Index; 
+            }
+            else
+                return pFeature.FeatureIndex;
+        }
+
+        //to do: get featurelist and channellist in advance, the method can be optimized.
+        private int GetDataIndex(string pComponentName, string pFeature, string pChannel)
+        {
+            var featureList = ComponentData.GetFeatures(pComponentName)
+                .Select(x => new Feature() { Name = x.Name, IsPerChannel = x.IsPerChannel, FeatureIndex = x.Index }).ToList();
+            var feature = featureList.Find(x => x.Name == pFeature);
+
+            Channel channel = null;
+            if (pChannel != "")
+            {
+                var channelList = ComponentData.GetChannels(pComponentName)
+                    .Select(x => new Channel() { Name = x.ChannelName }).ToList();
+                for (int i = 0; i < channelList.Count; i++)
+                {
+                    channelList[i].Index = i + 1;
+                }
+                channel = channelList.Find(x => x.Name == pChannel);
+            }
+
+            if (feature != null && channel != null && feature.IsPerChannel)
+            {
+                return feature.FeatureIndex + channel.Index;
+            }
+            else if (feature != null)
+                return feature.FeatureIndex;
+            else
+                return 0;
+        }
+
+
+        public List<string> GetColumnGroup()
+        {
+            var Header = new List<string> {"Index", "Well", "Label", "Row", "Col"};
+            RunFeatureContainer.ForEach(x => Header.Add(x.Name));
+            return Header;
+        }
+
+        public ObservableCollection<ExpandoObject> GetTableData(string ComponentName, int ObjectCount)
+        {
+            var columncount = 12;
+            var num = Enumerable.Range(0, ObjectCount);
+                    //to do: get the num from WellList, not create it by yourselft
+            var GridViewRowCollection = new ObservableCollection<ExpandoObject>(num.Select(x =>
+            {
+                //to do: get specific region? where is the API
+                var aEvent = ComponentData.GetEvents(ComponentName, x + 1);
+                var items = new ExpandoObject() as IDictionary<string, object>;
+                items.Add("Index", (x + 1).ToString());
+                items.Add("Well",
+                    Convert.ToChar((x / columncount + 1) + 64).ToString() + (x % columncount == 0 ? 1 : x % columncount + 1).ToString());
+                items.Add("Label", "");
+                items.Add("Row", (x / columncount + 1).ToString());
+                items.Add("Col", (x % columncount == 0 ? 1 : x % columncount + 1).ToString());
+
+                foreach (var runFeature in RunFeatureContainer)
+                {
+
+                    StatisticMethod StatisticMethod = runFeature.StatisticMethodContainer[0];
+                    bool IsStatisticCount;
+                    Feature CurrentFeature = null;
+                    if (StatisticMethod.MethodType == EnumStatistic.Count)
+                    {
+                        IsStatisticCount = true;
+                    }
+                    else
+                    {
+                        IsStatisticCount = false;
+                        CurrentFeature = runFeature.FeatureContainer[0];
+                    }
+
+                    //to do: add value dynamic
+                    if (IsStatisticCount)
+                    {
+                        items.Add(runFeature.Name,
+                            string.Format("{0:f4}", StatisticMethod.Method(aEvent.Select(y => 1.0f))));
+                    }
+                    else
+                    {
+                        items.Add(runFeature.Name, string.Format("{0:f4}", StatisticMethod.Method(
+                            aEvent.Select(y =>
+                                y[
+                                    GetDataIndex(CurrentFeature,
+                                        runFeature.HasChannel()
+                                            ?runFeature.ChannelContainer[0]
+                                            : null)]))));
+                    }
+                }
+                return (ExpandoObject)items;
+            }));
+            return GridViewRowCollection;
+        }
+        public List<string> GetComponentColumnGroup()
+        {
+            //to do: add Component Name as Component list   
+            var Header = new List<string> {"Index", "Well", "Label", "CN"};
+            //RunFeatureContainer.ForEach(x => Header.Add(x.Name));
+            Header.Add(RunFeatureContainer[0].Name);
+            return Header;
+        }
+
+        public ObservableCollection<ExpandoObject> GetComponentTableData(string ComponentName, int ObjectCount)
+        {
+            var columncount = 12;
+            var num = Enumerable.Range(0, ObjectCount);
+                    //to do: get the num from WellList, not create it by yourselft
+            var GridViewRowCollection = new ObservableCollection<ExpandoObject>(num.SelectMany(x =>
+            {
+                //to do: get specific region? where is the API
+                var aEvent = ComponentData.GetEvents(ComponentName, x + 1);
+
+                int count = 1;
+                return aEvent.Select(y =>
+                {
+                    var items = new ExpandoObject() as IDictionary<string, object>;
+                    items.Add("Index", (count++).ToString());
+                    items.Add("Well",
+                        Convert.ToChar((x/columncount + 1) + 64).ToString() +
+                        (x%columncount == 0 ? 1 : x%columncount + 1).ToString());
+                    items.Add("Label", "");
+                    items.Add("CN", count-1);
+
+                    //foreach (var runFeature in RunFeatureContainer)
+                    var runFeature = RunFeatureContainer[0];
+                    {
+                           var CurrentFeature = runFeature.FeatureContainer[0];
+                        items.Add(runFeature.Name, string.Format("{0:f4}",
+                            y[
+                                GetDataIndex(CurrentFeature,
+                                    runFeature.HasChannel()
+                                    ? runFeature.ChannelContainer[0]:null)]));
+                    }
+                    return (ExpandoObject) items;
+                });
+            }));
+            return GridViewRowCollection;
+        }
     }
     
     public class ComponentRunFeature

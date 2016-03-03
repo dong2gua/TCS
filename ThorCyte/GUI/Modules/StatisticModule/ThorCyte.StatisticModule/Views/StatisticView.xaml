@@ -167,12 +167,12 @@
                             </Grid.RowDefinitions>
 
                             <DockPanel Margin="{TemplateBinding Padding}">
-                                    <Border DockPanel.Dock="Top" CornerRadius="4" Background="{StaticResource DefaultedBorderBrush}" Padding="0" Margin="0">
-                                <ScrollViewer 
+                                <Border DockPanel.Dock="Top" CornerRadius="4" Background="{StaticResource DefaultedBorderBrush}" VerticalAlignment="Stretch">
+                                    <ScrollViewer 
         							HorizontalScrollBarVisibility="Hidden"
         							VerticalScrollBarVisibility="Hidden"
         							Focusable="false" Foreground="{x:Null}" Background="{TemplateBinding Background}">
-                                        <GridViewHeaderRowPresenter Margin="2,-2"
+                                        <GridViewHeaderRowPresenter Margin="1,-1"
         									Columns="{Binding TemplatedParent.View.Columns, RelativeSource={RelativeSource TemplatedParent}}"
         									ColumnHeaderContainerStyle="{Binding TemplatedParent.View.ColumnHeaderContainerStyle, RelativeSource={RelativeSource TemplatedParent}}"
         									ColumnHeaderTemplate="{Binding TemplatedParent.View.ColumnHeaderTemplate, RelativeSource={RelativeSource TemplatedParent}}"
@@ -182,12 +182,12 @@
         									ColumnHeaderToolTip="{Binding TemplatedParent.View.ColumnHeaderToolTip, RelativeSource={RelativeSource TemplatedParent}}"
         									SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
 
-                                </ScrollViewer>
-                                    </Border>
+                                    </ScrollViewer>
+                                </Border>
                                 <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
         							KeyboardNavigation.DirectionalNavigation="Local"/>
                             </DockPanel>
-                               <ScrollBar x:Name="PART_HorizontalScrollBar"
+                            <ScrollBar x:Name="PART_HorizontalScrollBar"
         						Orientation="Horizontal"
         						Grid.Row="1"
         						Maximum="{TemplateBinding ScrollableWidth}"
@@ -307,7 +307,7 @@
             </Setter>
         </Style>
 
-        <Style TargetType="{x:Type ListViewItem}">
+        <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
             <Setter Property="SnapsToDevicePixels" Value="true"/>
             <Setter Property="OverridesDefaultStyle" Value="true"/>
             <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -343,6 +343,9 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <ItemsPanelTemplate x:Key="ItemsStackPanelTemplate">
+            <views:ZStackPanel ZFactor="0.85"  views:ZoomArrangeAid.IsZoom="True" />
+        </ItemsPanelTemplate>
     </UserControl.Resources>
     <!--<i:Interaction.Triggers>
         <prism:InteractionRequestTrigger SourceObject="{Binding SetupPopup, Mode=OneWay}">
@@ -358,78 +361,110 @@
             <ColumnDefinition Width="450*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-            <Border BorderBrush="White" BorderThickness="1" Grid.Column="0">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150*"/>
-                <ColumnDefinition Width="300"/>
-            </Grid.ColumnDefinitions>
-            <Grid MinWidth="150" Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50*"/>
-                    <RowDefinition Height="8"/>
-                    <RowDefinition Height="50*"/>
-                </Grid.RowDefinitions>
-                <GridSplitter Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" Background="DimGray" Height="2" VerticalAlignment="Center"/>
-                <s:SciChartSurface x:Name="SciChart1" Background="{x:Null}" BorderThickness="0" Margin="5" Padding="8" BorderBrush="#99000000" IsManipulationEnabled="False" 
-    				Grid.Row="0" Grid.Column="0">
-                    <s:SciChartSurface.RenderableSeries>
-                        <s:StackedColumnRenderableSeries DataSeries="{Binding ChartDataSeries}" Foreground="{x:Null}" BorderThickness="0" DataPointWidth="0.8" StrokeThickness="1"  Background="Black" FillBrush="#FF1ECBCE" SeriesColor="#FF1ECBCE"/>
-                    </s:SciChartSurface.RenderableSeries>
-                    <s:SciChartSurface.YAxis>
-                        <s:NumericAxis AxisAlignment="Left" GrowBy="0,0.1" DrawMinorGridLines="True" DrawMinorTicks="False" DrawMajorTicks="True" DrawLabels="True" IsPrimaryAxis="True" Visibility="Visible" DrawMajorGridLines="True" AutoRange="Always"/>
-                    </s:SciChartSurface.YAxis>
-                    <s:SciChartSurface.XAxis>
-                        <s:NumericAxis DrawLabels="True" DrawMajorTicks="False" DrawMinorGridLines="False" DrawMinorTicks="False" Visibility="Visible" DrawMajorGridLines="False"/>
-                    </s:SciChartSurface.XAxis>
-                    <s:SciChartSurface.ChartModifier>
-                        <s:ModifierGroup>
-                            <s:RubberBandXyZoomModifier />
-                            <!--<views:CustomZoomExtentsModifier ExecuteOn="MouseDoubleClick"></views:CustomZoomExtentsModifier>-->
-                            <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick"/>
-                        </s:ModifierGroup>
-                    </s:SciChartSurface.ChartModifier>
-                </s:SciChartSurface>
-                    <ListView BorderThickness="0" Grid.Column="0" Grid.Row="2"
+        <Border BorderBrush="White" BorderThickness="1" Grid.Column="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150*"/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+                <Grid x:Name="grid" MinWidth="150" Grid.Column="0" Background="#FF333333">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50*"/>
+                        <RowDefinition Height="4"/>
+                        <RowDefinition Height="50*"/>
+                    </Grid.RowDefinitions>
+                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" Background="DimGray" Height="2" VerticalAlignment="Center"/>
+                    <Grid Margin="1" Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="300*"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <ListView ItemsSource="{Binding ChartDataSeries, Mode=OneWay}" Grid.Row="0" Background="{x:Null}" BorderThickness="0" Padding="0" BorderBrush="#99000000"
+                    		HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsPanel="{DynamicResource ItemsStackPanelTemplate}"   >
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Height ="{Binding Height, ElementName=grid}" CornerRadius="2" BorderThickness="1" BorderBrush="AliceBlue" Background="#FF333333" >
+                                        <!--<Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Rectangle>-->
+                                        <s:SciChartSurface x:Name="SciChart1" Background="{x:Null}" BorderThickness="0" Margin="5" Padding="8" BorderBrush="#99000000" IsManipulationEnabled="False"  VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                                                   >
+                                            <s:SciChartSurface.RenderableSeries>
+                                                <s:StackedColumnRenderableSeries DataSeries="{Binding Data, Mode=TwoWay}" Foreground="{x:Null}" BorderThickness="0" DataPointWidth="0.8" StrokeThickness="1"  Background="Black" FillBrush="#FF1ECBCE" SeriesColor="#FF1ECBCE"/>
+                                            </s:SciChartSurface.RenderableSeries>
+                                            <s:SciChartSurface.YAxis>
+                                                <s:NumericAxis AxisAlignment="Left" GrowBy="0,0.1" DrawMinorGridLines="True" DrawMinorTicks="False" DrawMajorTicks="True" DrawLabels="True" IsPrimaryAxis="True" Visibility="Visible" DrawMajorGridLines="True" AutoRange="Always"/>
+                                            </s:SciChartSurface.YAxis>
+                                            <s:SciChartSurface.XAxis>
+                                                <s:NumericAxis MajorDelta="1" MinorDelta="0.2"  AutoTicks="False"  />
+                                            </s:SciChartSurface.XAxis>
+                                            <s:SciChartSurface.ChartModifier>
+                                                <s:ModifierGroup>
+                                                    <s:RubberBandXyZoomModifier />
+                                                    <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick"/>
+                                                </s:ModifierGroup>
+                                            </s:SciChartSurface.ChartModifier>
+                                        </s:SciChartSurface>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <Grid Grid.Row="1" Height="40" Visibility="Collapsed" views:ZoomArrangeAid.IsGExtend="True">
+                            <Button Content="Prev" Width="50" Height="30" Margin="30,5,0,5" HorizontalAlignment="Left" Command="{Binding PrevChartCommand}"/>
+                            <Button Content="Next" Height="30" Margin="0,5,30,5" HorizontalAlignment="Right" Width="50" Command="{Binding NextChartCommand}"/>
+                        </Grid>
+                    </Grid>
+                    <TabControl Grid.Row="2" Grid.Column="0" TabStripPlacement="Bottom" Background="{x:Null}" BorderBrush="{x:Null}" >
+                        <TabItem Header="Component Statistic" Background="{x:Null}" BorderBrush="{x:Null}" Margin="0">
+                            <TabControl Background="{x:Null}" Margin="0">
+                                <ListView BorderThickness="0" Grid.Column="0" Grid.Row="2"
     				ItemsSource="{Binding DataCollection}" vm:ListViewBindingBehavior.ColumnsCollection="{Binding GridViewColumns}"
     				AlternationCount="2"
     				Visibility="{Binding IsWellStatisticShow, Converter={StaticResource bool2VisibilityConverter}}"
+                    ItemContainerStyle="{Binding Mode=OneWay, Source={StaticResource ListViewItemStyle}}"
     				IsSynchronizedWithCurrentItem="True" AutomationProperties.AutomationId="PositionSummaryGrid" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Foreground="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}"  />
-                    <ListView BorderThickness="0" Grid.Column="0" Grid.Row="2" 
+                            </TabControl>
+                        </TabItem>
+                    </TabControl>
+                    <!--<ListView BorderThickness="0" Grid.Column="0" Grid.Row="2"
+    				ItemsSource="{Binding DataCollection}" vm:ListViewBindingBehavior.ColumnsCollection="{Binding GridViewColumns}"
+    				AlternationCount="2"
+    				Visibility="{Binding IsWellStatisticShow, Converter={StaticResource bool2VisibilityConverter}}"
+                    ItemContainerStyle="{Binding Mode=OneWay, Source={StaticResource ListViewItemStyle}}"
+    				IsSynchronizedWithCurrentItem="True" AutomationProperties.AutomationId="PositionSummaryGrid" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Foreground="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}"  />-->
+                    <!--<ListView BorderThickness="0" Grid.Column="0" Grid.Row="2" 
     				ItemsSource="{Binding RegionStatisticDataSource}"
     				AlternationCount="2"
     				Visibility="{Binding IsRegionStatisticShow, Converter={StaticResource bool2VisibilityConverter}}"
     				IsSynchronizedWithCurrentItem="True" AutomationProperties.AutomationId="PositionSummaryGrid" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Foreground="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}"  >
-                    <ListView.View>
-                        <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Current positions" >
-                            <GridViewColumn Header="Region" 
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Current positions" >
+                                <GridViewColumn Header="Region" 
     							DisplayMemberBinding="{Binding RegionName}" 
     							Width="65"/>
-                            <GridViewColumn Header="Label"  
+                                <GridViewColumn Header="Label"  
     							DisplayMemberBinding="{Binding Label}"
     							Width="65" />
-                            <GridViewColumn Header="Parameter"  
+                                <GridViewColumn Header="Parameter"  
     							DisplayMemberBinding="{Binding Parameter}"
     							Width="100" />
-                            <GridViewColumn Header="Mean"  
+                                <GridViewColumn Header="Mean"  
     							DisplayMemberBinding="{Binding MeanValue, StringFormat=\{0:f4\}}"
     							Width="85" />
-                            <GridViewColumn Header="Median"  
+                                <GridViewColumn Header="Median"  
     							DisplayMemberBinding="{Binding MedianValue, StringFormat=\{0:f4\}}"
     							Width="85" />
-                            <GridViewColumn Header="CV%"  
+                                <GridViewColumn Header="CV%"  
     							DisplayMemberBinding="{Binding CVValue, StringFormat=\{0:f4\}}"
     							Width="75" />
-                            <!--<GridViewColumn Header="FWHM%"
-							DisplayMemberBinding="{Binding FWHMValue}"  Width="96" />-->
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                                <GridViewColumn Header="FWHM%"
+							DisplayMemberBinding="{Binding FWHMValue}"  Width="96" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>-->
+                </Grid>
+                <Grid VerticalAlignment="Stretch" Background="#FF333333"  Grid.Column="1" >
+                    <views:PropertyBar VerticalAlignment="Top"/>
+                </Grid>
             </Grid>
-            <Grid VerticalAlignment="Stretch" Background="#FF333333"  Grid.Column="1" >
-                <views:PropertyBar VerticalAlignment="Top"  Margin="0,0,0,0"/>
-            </Grid>
-        </Grid>
         </Border>
         <Border  Background="#33333333" CornerRadius="2" BorderBrush="#22222222"  Grid.Column="1">
             <StackPanel Orientation="Vertical" Margin="1,3" >

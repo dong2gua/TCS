@@ -24,7 +24,8 @@ namespace ThorCyte
             _eventAggregator = eventAggregator;
             container.RegisterInstance(typeof(IPopupSetupWindow), new PopupSetupWindow()) ;
             container.RegisterInstance(typeof(IPopupDetailWindow), new PopupDetailWindow()) ;
-            container.RegisterInstance(typeof (StatisticModel), new StatisticModel());
+            container.RegisterType<StatisticModel>(new ContainerControlledLifetimeManager());
+            //container.RegisterInstance(typeof (StatisticModel), new StatisticModel());
         }
 
         public void Initialize()

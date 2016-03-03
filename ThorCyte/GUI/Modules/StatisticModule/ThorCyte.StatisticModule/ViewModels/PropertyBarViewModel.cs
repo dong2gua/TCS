@@ -30,6 +30,9 @@ namespace ThorCyte.Statistic.ViewModels
             ModelAdapter = model;
             ExperimentAdapter = experiment;
         }
+
+        public PropertyBarViewModel()
+        { }
         //internal change name use this field
         private string _RunFeatureName = "";
         //private bool isUserDefineRunFeatureName = false;
@@ -172,7 +175,7 @@ namespace ThorCyte.Statistic.ViewModels
                 if (Directory.Exists(path + StatisticModel.StatisticsPath))
                 {
                     //Directory.CreateDirectory(path + StatisticModel.StatisticsPath);
-                    var statisticFiles = Directory.GetFiles(path + StatisticModel.StatisticsPath);
+                    var statisticFiles = Directory.GetFiles(path + StatisticModel.StatisticsPath).OrderBy(x =>(new  FileInfo(x)).LastWriteTime);
                     var serializer = new XmlSerializer(typeof(RunFeature));
                     runfeaturelist = statisticFiles.Select(x =>
                     {
