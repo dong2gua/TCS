@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-
+using ThorCyte.ImageViewerModule.Model;
 namespace ThorCyte.ImageViewerModule.Control
 {
     public class HistogramPanel:Panel
@@ -57,9 +57,10 @@ namespace ThorCyte.ImageViewerModule.Control
             RefreshChangedData();
             RefreshRawData();
         }
-        public void SetData(ImageData imageData)
+        public void SetData(ChannelImage channelImage)
         {
-            _data = imageData;
+            if (channelImage.ThumbnailImageData == null) channelImage.GetThumbnailData();
+            _data = channelImage.ThumbnailImageData;
             RefreshChangedData();
             RefreshRawData();
         }

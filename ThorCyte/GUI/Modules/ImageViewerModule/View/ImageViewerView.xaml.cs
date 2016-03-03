@@ -12,21 +12,21 @@ namespace ThorCyte.ImageViewerModule.View
         public ImageViewerView()
         {
             InitializeComponent();
-            vm= new ImageViewerViewModel();
+            vm = new ImageViewerViewModel();
             this.DataContext = vm;
         }
         private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             popup.IsOpen = true;
         }
-        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private  void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             popup.IsOpen = false;
             var listView = sender as ListView;
-            vm.OnViewportTypeChange(listView.SelectedIndex);
+             vm.OnViewportTypeChange(listView.SelectedIndex);
             var selection = (listView.SelectedItem as ContentControl).Content as Image;
-            if(selection!=null)
-            imgViewportLayout.Source = selection.Source;
+            if (selection != null)
+                imgViewportLayout.Source = selection.Source;
         }
     }
 }

@@ -14,15 +14,15 @@ namespace ThorCyte.ImageViewerModule.DrawTools
     public class DrawingCanvas : Canvas
     {
         public static readonly DependencyProperty ImageSizeProperty = DependencyProperty.Register("ImageSize", typeof(Size), typeof(DrawingCanvas), new PropertyMetadata(new Size(0, 0)));
-        public static readonly DependencyProperty DisplayImageProperty = DependencyProperty.Register("DisplayImage", typeof(Tuple<ImageSource, Int32Rect>), typeof(DrawingCanvas), new PropertyMetadata(new PropertyChangedCallback(OnDisplayImagePropertyChanged)));
+        public static readonly DependencyProperty DisplayImageProperty = DependencyProperty.Register("DisplayImage", typeof(ImageSource), typeof(DrawingCanvas), new PropertyMetadata(new PropertyChangedCallback(OnDisplayImagePropertyChanged)));
         public Size ImageSize
         {
             get { return (Size)GetValue(ImageSizeProperty); }
             set { SetValue(ImageSizeProperty, value); }
         }
-        public Tuple<ImageSource, Int32Rect> DisplayImage
+        public ImageSource DisplayImage
         {
-            get { return (Tuple<ImageSource, Int32Rect>)GetValue(DisplayImageProperty); }
+            get { return (ImageSource)GetValue(DisplayImageProperty); }
             set { SetValue(DisplayImageProperty, value); }
         }
         private Tuple<double, double, double> _actualScale = new Tuple<double, double, double>(1, 1, 1);
@@ -43,6 +43,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             {
                 if (value == _isShowScaler) return;
                 _isShowScaler = value;
+                if (DisplayImage == null) return;
                 refreshScaler();
             }
         }
@@ -54,6 +55,7 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             {
                 if (value == _isShowThumbnail) return;
                 _isShowThumbnail = value;
+                if (DisplayImage == null) return;
                 refreshThumbnail();
             }
         }
@@ -129,18 +131,17 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         {
             var canvas = property as DrawingCanvas;
             if (canvas == null) return;
-            var value = e.NewValue as Tuple<ImageSource, Int32Rect>;
-            if (value == null)
-            {
-                canvas._graphicsImage.SetImage(null, new Rect(0, 0, 0, 0));
-                canvas._graphicsImage.RefreshDrawing();
-                return;
-            }
-            canvas._graphicsImage.SetImage(value.Item1, new Rect(value.Item2.X, value.Item2.Y, value.Item2.Width, value.Item2.Height));
+            var value = e.NewValue as ImageSource;
+            canvas._graphicsImage.SetImage(value);
             canvas._graphicsImage.RefreshDrawing();
             canvas.refreshThumbnail();
             canvas.refreshScaler();
         }
+        public void SetImageRect(Int32Rect rect)
+        {
+            _graphicsImage.SetRect(new Rect(rect.X, rect.Y, rect.Width, rect.Height));
+        }
+
         public void SetActualScaleOnly(double scale1, double scale2, double scale3)
         {
             ActualScale = new Tuple<double, double, double>(scale1, scale2, scale3);
@@ -401,7 +402,8 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         }
         public void DeleteAll()
         {
-            _graphicsImage.SetImage(null, new Rect(0, 0, 0, 0));
+            _graphicsImage.SetRect(new Rect(0, 0, 0, 0));
+            _graphicsImage.SetImage(null);
             _graphicsImage.RefreshDrawing();
             if (this.GraphicsList.Count <= 0) return;
             this.GraphicsList.Clear();
@@ -442,22 +444,26 @@ namespace ThorCyte.ImageViewerModule.DrawTools
         private async Task RefreshVisualBound()
         {
             TestVisualBound();
-            foreach (var b in GraphicsList.Cast<GraphicsBase>())
-            {
-                b.RefreshDrawing();
-                b.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight));
-            }
-
-            _graphicsImage.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth / ActualScale.Item1, ActualHeight / ActualScale.Item2));
-            _graphicsImage.RefreshDrawing();
-            refreshThumbnail();
-            refreshScaler();
             if (((_canvasDisplyRect.Left < _graphicsImage.Rectangle.Left && _graphicsImage.Rectangle.Left > 0) ||
                 (_canvasDisplyRect.Top < _graphicsImage.Rectangle.Top && _graphicsImage.Rectangle.Top > 0) ||
                 (_canvasDisplyRect.Right > _graphicsImage.Rectangle.Right && _graphicsImage.Rectangle.Right < ImageSize.Width) ||
                 (_canvasDisplyRect.Bottom > _graphicsImage.Rectangle.Bottom && _graphicsImage.Rectangle.Bottom < ImageSize.Height))
                 && UpdateDisplayImage != null)
+            {
+                ReleaseMouseCapture();
+                Console.WriteLine("\n--------------"+_canvasDisplyRect.Top+","+_canvasDisplyRect.Left);
                 await UpdateDisplayImage(_canvasDisplyRect);
+
+            }
+            foreach (var b in GraphicsList.Cast<GraphicsBase>())
+            {
+                b.RefreshDrawing();
+                b.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight));
+            }
+            _graphicsImage.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth / ActualScale.Item1, ActualHeight / ActualScale.Item2));
+            _graphicsImage.RefreshDrawing();
+            refreshThumbnail();
+            refreshScaler();
         }
         private void TestVisualBound()
         {
