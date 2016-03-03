@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Commom\CyteConvert.cs" />
     <Compile Include="Commom\RawDataReader.cs" />
+    <Compile Include="Controls\ColorPicker.cs" />
     <Compile Include="Controls\DoubleClickCollapseGridSplitterBehavior.cs" />
     <Compile Include="Controls\DockPanelSplitter.cs" />
     <Compile Include="Controls\GifImage.cs" />

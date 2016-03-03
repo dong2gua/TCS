@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using ThorCyte.GraphicModule.Models;
+using ThorCyte.GraphicModule.Utils;
 using ThorCyte.GraphicModule.ViewModels;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
@@ -17,17 +18,17 @@ namespace ThorCyte.GraphicModule.Views
 
         private HistogramVm _histogramVm;
         private bool _isEdit;
-        private string _originalName;
+        private OverLayModel _selectedOverlayModel;
 
         #endregion
 
         #region Constructor
 
-        public NewOverlayWnd(HistogramVm vm,string oringinalName = "",bool isEdit = false)
+        public NewOverlayWnd(HistogramVm vm,OverLayModel overlayModel = null,bool isEdit = false)
         {
             InitializeComponent();
             _histogramVm = vm;
-            _originalName = oringinalName;
+            _selectedOverlayModel = overlayModel;
             _isEdit = isEdit;
         }
 
@@ -57,30 +58,38 @@ namespace ThorCyte.GraphicModule.Views
             {
                 return;
             }
-            var name = OverlayInfo.OverlayName;
-            var colorInfo = (ColorInfo)OverlayInfo.CurrentColorInfo.Clone();
-            Close();
+            var name = TbName.Text;
+            var colorInfo = new ColorInfo(new SolidColorBrush(OverlayColor.SelectedColor), string.Empty,
+                ColorType.Normal);
             if (_histogramVm != null)
             {
                 if (!_isEdit)
                 {
                     if (CheckForDuplicates(name, colorInfo.ColorBrush.Color))
                     {
-                        OverlayInfo.Clear();
                         return;
                     }
                     _histogramVm.CreateOverlay(name, colorInfo);
                 }
                 else
                 {
-                    _histogramVm.EditOverlay(_originalName,name,colorInfo);
+                    _histogramVm.EditOverlay(_selectedOverlayModel.Name, name, colorInfo);
                 }
             }
-            OverlayInfo.Clear();
+            Close();
         }
 
         private void WndLoaded(object sender, RoutedEventArgs e)
         {
+            if (_selectedOverlayModel != null)
+            {
+                TbName.Text = _selectedOverlayModel.Name;
+                OverlayColor.SelectedColor = _selectedOverlayModel.OverlayColorInfo.ColorBrush.Color;
+            }
+            else
+            {
+                OverlayColor.SelectedColor = Colors.DarkGray;
+            }
             var name = TbName.Text.TrimStart(' ').TrimEnd(' ');
             OkBtn.IsEnabled = name.Length > 0;
             e.Handled = true;

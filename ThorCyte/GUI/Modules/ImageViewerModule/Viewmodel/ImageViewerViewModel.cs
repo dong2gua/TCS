@@ -431,6 +431,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         private async Task OnDisplay()
         {
+            CurrentViewport.drawCanvas.DeleteAll();
             await _viewportDic[CurrentViewport].Initialization(_data, _scanInfo, _experimentInfo, _scanId, _regionId, _tileId);
             IsDragger = true;
             IsProfile = false;
@@ -690,6 +691,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
             foreach (var o in _viewports)
             {
                 o.viewportBorder.BorderBrush = Brushes.Black;
+                o.drawCanvas.DeleteItem("Profile");
             }
             CurrentViewport.viewportBorder.BorderBrush = Brushes.White;
             if (!_viewportDic[CurrentViewport].IsActive || !_viewportDic[CurrentViewport].IsShown)

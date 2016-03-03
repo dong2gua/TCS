@@ -3292,4 +3292,116 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
+    <Style x:Key="ColorThumbStyle" TargetType="{x:Type Thumb}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Grid Height="8" Background="Transparent" Margin="0,-4">
+                        <Path Data="M0,0L0,8 4,4z" Fill="Black" HorizontalAlignment="Left"/>
+                        <Path Data="M8,0L8,8 4,4z" Fill="Black" HorizontalAlignment="Right"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ListColorItemStyle" TargetType="{x:Type ListViewItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                    <Border Height="30" Width="30" BorderBrush="Black" Margin="2">
+                        <Border.Background>
+                            <SolidColorBrush Color="{Binding}"/>
+                        </Border.Background>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ColorSliderStyle" TargetType="{x:Type  controls:SpectrumSlider}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:SpectrumSlider}">
+                    <Grid>
+                        <Rectangle x:Name="PART_SpectrumDisplay" Width="10"/>
+                        <Track Name="PART_Track">
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource ColorThumbStyle}"/>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Orientation" Value="Vertical"/>
+        <Setter Property="IsMoveToPointEnabled" Value="True"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ColorPicker}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:ColorPicker}">
+                    <Grid>
+                        <Rectangle x:Name="PART_ShowRect">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding SelectedColor, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Popup x:Name="PART_Popup" StaysOpen="False" >
+                            <Grid Background="#3D3D3D">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ListView Grid.Row="0" Grid.ColumnSpan="3" Margin="5" x:Name="PART_ColorList" ItemsSource="{Binding AvailableColors, RelativeSource={RelativeSource TemplatedParent}}" ItemContainerStyle="{StaticResource ListColorItemStyle}">
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                </ListView>
+                                <controls:SVCanvas Grid.Row="1" Grid.Column="0" Margin="5" Height="150" Width="150" x:Name="PART_ColorCanvas"/>
+                                <controls:SpectrumSlider Grid.Row="1" Grid.Column="1" x:Name="PART_ColorSlider"  Value="{Binding H, RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource ColorSliderStyle}"  Margin="5"  Maximum="0" Minimum="-360"/>
+
+                                <Grid Grid.Row="1" Grid.Column="2" Margin="0,5">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="25"/>
+                                        <RowDefinition Height="25"/>
+                                        <RowDefinition Height="25"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="25"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="R" VerticalAlignment="Center"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="G" VerticalAlignment="Center"/>
+                                    <Label Grid.Row="2" Grid.Column="0" Content="B" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Height="20" Width="60" VerticalAlignment="Center" VerticalContentAlignment="Center" Text="{Binding R, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Height="20" Width="60" VerticalAlignment="Center" VerticalContentAlignment="Center" Text="{Binding G, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Height="20" Width="60" VerticalAlignment="Center" VerticalContentAlignment="Center" Text="{Binding B, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Margin="10,5" >
+                                        <Rectangle.Fill>
+                                            <SolidColorBrush Color="{Binding SelectedColor, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <TextBox Grid.Row="4" Grid.ColumnSpan="2" Height="20" Width="90" VerticalContentAlignment="Center" Text="{Binding HexColor, RelativeSource={RelativeSource TemplatedParent}}" IsEnabled="False"/>
+                                </Grid>
+                                <Button Grid.Row="2" Grid.Column="2" Margin="5,0,5,5" Height="20" Width="60" x:Name="PART_OKButton" Content="OK" />
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

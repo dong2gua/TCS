@@ -10,7 +10,7 @@
         xmlns:local="clr-namespace:ThorCyte"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" 
         UsesWindowsFormsHost="False"
-        Title="ThorCyte" Height="600" Width="600" MinWidth="600" MinHeight="600" 
+        Title="ThorCyte" Height="720" Width="900" MinWidth="900" MinHeight="720" 
         Icon="Icons/ThorCyte.ico" Background="{x:Null}" ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen" >
     <Window.Resources>
@@ -125,11 +125,12 @@
                         <controls:DoubleClickCollapseGridSplitterBehavior />
                     </i:Interaction.Behaviors>
                 </GridSplitter>
-                <DockPanel Grid.Column="2">
+                 <ScrollViewer VerticalScrollBarVisibility="Auto"  Grid.Column="2">
+                    <DockPanel>
                         <ContentControl DockPanel.Dock="Top" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ReviewCarrierRegion}"/>
                         <ContentControl DockPanel.Dock="Bottom" regions:RegionManager.RegionName="{x:Static inf:RegionNames.ScanInfoRegion}" />
-                </DockPanel>
-                
+                    </DockPanel>
+                 </ScrollViewer>
             </Grid>
         </DockPanel>
     </Grid>

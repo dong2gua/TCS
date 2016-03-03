@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ctrl="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         xmlns:models="clr-namespace:ThorCyte.GraphicModule.Models"
-        xmlns:controls="clr-namespace:ThorCyte.GraphicModule.Controls"
+        xmlns:controls1="clr-namespace:ThorCyte.Infrastructure.Controls;assembly=ThorCyte.Infrastructure"
         Title="Overlay Properties" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         Width="300"  Height="200" Loaded="WndLoaded">
     <Window.Resources>
@@ -19,28 +19,28 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="50"/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
 
         <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="2" Content="Name :"/>
         <TextBox x:Name="TbName" Grid.Row="0" Grid.Column="1" Margin="2" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="30" Text="{Binding Source={StaticResource OverlayModel},Path=OverlayName}" TextChanged="OnTextChanged"/>
 
         <Label Grid.Row="1" Grid.Column="0" Margin="2" VerticalAlignment="Center" Content="Color :"/>
-        <controls:ComColor  Grid.Row="1" Grid.Column="1" Margin="2" Height="30" VerticalAlignment="Center"  ColorList="{Binding Source={StaticResource OverlayModel}, Path=ColorList}" SelectedColor="{Binding Source={StaticResource OverlayModel}, Path=CurrentColorInfo,Mode=TwoWay}" />
-
+        <controls1:ColorPicker x:Name="OverlayColor" Margin="2" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Height="30"/>
+        
         <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Height="30">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Button x:Name="OkBtn" Grid.Column="0" Margin="5,0" Content="Ok" Click="OnOk"/>
-            <Button Grid.Column="1" Margin="5,0" Content="Cancle" IsCancel="True"/>
+            <Button x:Name="OkBtn" Grid.Column="0" Margin="5,0" Width="100" Content="Ok" Click="OnOk"/>
+            <Button Grid.Column="1" Margin="5,0" Content="Cancle" Width="100" IsCancel="True"/>
         </Grid>
     </Grid>
 </ctrl:CustomWindow>

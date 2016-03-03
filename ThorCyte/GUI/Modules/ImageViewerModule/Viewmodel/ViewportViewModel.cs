@@ -153,7 +153,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         {
             _isAspectRatio = isAspectRatio;
             DrawingCanvas.SetZoomPoint(0.5, 0.5);
-            await CalcZoom();
+            await DrawingCanvas.SetActualScale(VisualScale, VisualScale * AspectRatio, DataScale);
         }
         private async Task CalcZoom()
         {
@@ -204,15 +204,16 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         }
         public async Task FixToViewport()
         {
-            IsLoading = true;
+            //IsLoading = true;
             ActualScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height / AspectRatio));
             await CalcZoom();
-            IsLoading = false;
+            //IsLoading = false;
         }
         public async Task UpdateDisplayImage(Rect canvasRect)
         {
             if (_isTile) return;
             if (CurrentChannelImage == null) return;
+            IsLoading = true;
             var width = (int)Math.Min((canvasRect.Width + 500), ImageSize.Width);
             var height = (int)Math.Min((canvasRect.Height + 500), ImageSize.Height);
             int x, y;
@@ -239,6 +240,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 await getData(CurrentChannelImage, VisualRect, DataScale);
                 UpdateBitmap(CurrentChannelImage);
             }
+            IsLoading = false;
         }
         public ViewportViewModel()
         {
@@ -484,7 +486,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 ImageSize = new Size(width, height);
                 DataScale = 1;
                 VisualScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height / AspectRatio));
-                await DrawingCanvas.SetActualScale(VisualScale, VisualScale * AspectRatio, DataScale);
+                DrawingCanvas.SetActualScaleOnly(VisualScale, VisualScale * AspectRatio, DataScale);
                 ActualScale = DataScale * VisualScale;
                 tileThumbnailDic = new Dictionary<Channel, ImageData>();
             }
@@ -495,7 +497,7 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 ImageSize = new Size(width, height);
                 DataScale = Math.Min(((double)CanvasActualWidth / (double)ImageSize.Width), ((double)CanvasActualHeight / (double)ImageSize.Height / AspectRatio));
                 VisualScale = 1;
-                await DrawingCanvas.SetActualScale(VisualScale, VisualScale * AspectRatio, DataScale);
+                DrawingCanvas.SetActualScaleOnly(VisualScale, VisualScale * AspectRatio, DataScale);
                 ActualScale = DataScale * VisualScale;
             }
             await RefreshChannel();
@@ -510,13 +512,23 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
         public async Task RefreshChannel()
         {
             IsLoading = true;
-            int currentChannelIndex = 0;
-            if (_currentChannelImage != null && _channelImages.Count > 0)
-                currentChannelIndex = _channelImages.IndexOf(CurrentChannelImage);
             var channels = _scanInfo.ChannelList;
             var virtualChannels = _scanInfo.VirtualChannelList;
             var computeColors = _scanInfo.ComputeColorList;
-            Application.Current.Dispatcher.Invoke(() => { _channelImages.Clear(); });
+            int currentChannelIndex = 0;
+            if (_currentChannelImage != null)
+            {
+                if (_currentChannelImage.IsComputeColor)
+                    currentChannelIndex = computeColors.Contains(_currentChannelImage.ComputeColorInfo)?
+                        computeColors.IndexOf(_currentChannelImage.ComputeColorInfo) + channels.Count + virtualChannels.Count:0;
+                else if (_currentChannelImage.ChannelInfo.IsvirtualChannel)
+                    currentChannelIndex = virtualChannels.Contains(_currentChannelImage.ChannelInfo as VirtualChannel) ?
+                        virtualChannels.IndexOf(_currentChannelImage.ChannelInfo as VirtualChannel) + channels.Count : 0;
+                else
+                    currentChannelIndex = channels.Contains(_currentChannelImage.ChannelInfo) ?
+                        channels.IndexOf(_currentChannelImage.ChannelInfo) : 0;
+            }
+             _channelImages.Clear();
             VisualRect = new Int32Rect(0, 0, (int)ImageSize.Width, (int)ImageSize.Height);
             var scale = Math.Min(ThumbnailSize / ImageSize.Width, ThumbnailSize / ImageSize.Height);
             foreach (var o in channels)
@@ -566,6 +578,8 @@ namespace ThorCyte.ImageViewerModule.Viewmodel
                 o.ThumbnailImageData = await getThumbnailData(o, VisualRect, Math.Min(ThumbnailSize / ImageSize.Width, ThumbnailSize / ImageSize.Height));
                 UpdateThumbnail(o);
             }
+            _currentChannelImage.ImageData.Dispose();
+            _currentChannelImage.ImageData = null;
             CurrentChannelImage = _currentChannelImage;
         }
         public async Task AddVirtualChannel(VirtualChannel virtrualChannel)

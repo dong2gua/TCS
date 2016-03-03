@@ -141,6 +141,28 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             canvas.refreshThumbnail();
             canvas.refreshScaler();
         }
+        public void SetActualScaleOnly(double scale1, double scale2, double scale3)
+        {
+            ActualScale = new Tuple<double, double, double>(scale1, scale2, scale3);
+            var ZoomMiddlePoint = _zoomPoint;
+            double width = ActualWidth / ActualScale.Item3 / ActualScale.Item1;
+            double height = ActualHeight / ActualScale.Item3 / ActualScale.Item2;
+            double x = (ImageSize.Width-width) / 2;
+            double y = (ImageSize.Height - height) / 2;
+            _canvasDisplyRect = new Rect(x, y, width, height);
+            TestVisualBound();
+            foreach (var b in GraphicsList.Cast<GraphicsBase>())
+            {
+                b.ActualScale = ActualScale;
+                b.RefreshDrawing();
+                b.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight));
+            }
+            _graphicsImage.ActualScale = ActualScale;
+            _graphicsImage.RefreshDrawing();
+            refreshThumbnail();
+            refreshScaler();
+            _graphicsImage.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth / ActualScale.Item1, ActualHeight / ActualScale.Item2));
+        }
 
         public async Task SetActualScale(double scale1, double scale2, double scale3)
         {
@@ -351,6 +373,22 @@ namespace ThorCyte.ImageViewerModule.DrawTools
                 this[i].IsSelected = false;
             }
         }
+        public void DeleteItem(string item)
+        {
+            switch (item)
+            {
+                case "Profile":
+                    if (GraphicsList.Contains(graphicsProfile))
+                        GraphicsList.Remove(graphicsProfile);
+                    break;
+                case "Ruler":
+                    if (GraphicsList.Contains(graphicsRuler))
+                        GraphicsList.Remove(graphicsRuler);
+                    break;
+                default:
+                    break;
+            }
+        }
         public void DeleteSelection()
         {
 
@@ -411,15 +449,15 @@ namespace ThorCyte.ImageViewerModule.DrawTools
             }
 
             _graphicsImage.Clip = new RectangleGeometry(new Rect(0, 0, ActualWidth / ActualScale.Item1, ActualHeight / ActualScale.Item2));
+            _graphicsImage.RefreshDrawing();
+            refreshThumbnail();
+            refreshScaler();
             if (((_canvasDisplyRect.Left < _graphicsImage.Rectangle.Left && _graphicsImage.Rectangle.Left > 0) ||
                 (_canvasDisplyRect.Top < _graphicsImage.Rectangle.Top && _graphicsImage.Rectangle.Top > 0) ||
                 (_canvasDisplyRect.Right > _graphicsImage.Rectangle.Right && _graphicsImage.Rectangle.Right < ImageSize.Width) ||
                 (_canvasDisplyRect.Bottom > _graphicsImage.Rectangle.Bottom && _graphicsImage.Rectangle.Bottom < ImageSize.Height))
                 && UpdateDisplayImage != null)
                 await UpdateDisplayImage(_canvasDisplyRect);
-            _graphicsImage.RefreshDrawing();
-            refreshThumbnail();
-            refreshScaler();
         }
         private void TestVisualBound()
         {
