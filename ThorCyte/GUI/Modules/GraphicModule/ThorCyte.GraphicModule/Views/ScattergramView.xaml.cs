@@ -40,6 +40,11 @@ namespace ThorCyte.GraphicModule.Views
             ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<GraphUpdateEvent>().Subscribe(Update);
         }
 
+        public ScattergramView(ScattergramVm vm):this()
+        {
+            DataContext = vm;
+        }
+
         #endregion
 
         #region Events

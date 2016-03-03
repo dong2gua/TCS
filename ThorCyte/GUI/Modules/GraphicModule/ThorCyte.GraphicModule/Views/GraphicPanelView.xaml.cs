@@ -28,6 +28,8 @@ namespace ThorCyte.GraphicModule.Views
 
         public static List<GraphicDetailWnd> DetailWndList = new List<GraphicDetailWnd>();
 
+        DragDropHelper<GraphicUcBase> _dragMgr;
+
         #endregion
 
         #region Constructor
@@ -43,6 +45,11 @@ namespace ThorCyte.GraphicModule.Views
                 .Subscribe(OnShowDetail);
             ServiceLocator.Current.GetInstance<IEventAggregator>()
                 .GetEvent<ShowRegionEvent>().Subscribe(OnSwitchTab);
+
+            _dragMgr = new DragDropHelper<GraphicUcBase>(GraphicViewList)
+            {
+                ShowDragAdorner = true
+            };
             Loaded += OnLoaded;
         }
 
@@ -174,10 +181,7 @@ namespace ThorCyte.GraphicModule.Views
                 return;
             }
             var vm = containerVm.CreateScattergram();
-            var scattergram = new ScattergramView
-            {
-                DataContext = vm
-            };
+            var scattergram = new ScattergramView(vm);
             vm.ViewDispatcher = Dispatcher;
             containerVm.GraphicDictionary.Add(vm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(scattergram, vm));
             GraphicModule.GraphicManagerVmInstance.UpdateRegionList();
@@ -198,10 +202,7 @@ namespace ThorCyte.GraphicModule.Views
                 return;
             }
             var vm = containerVm.CreateHistogram();
-            var histogram = new HistogramView()
-            {
-                DataContext = vm
-            };
+            var histogram = new HistogramView(vm);
             vm.ViewDispatcher = Dispatcher;
             containerVm.GraphicDictionary.Add(vm.Id, new Tuple<GraphicUcBase, GraphicVmBase>(histogram, vm));
             GraphicModule.GraphicManagerVmInstance.UpdateRegionList();

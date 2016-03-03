@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\ComColor.cs" />
+    <Compile Include="Controls\DragAdorner.cs" />
     <Compile Include="Controls\GraphicDataTemplateSelector.cs" />
     <Compile Include="Controls\Graphics\GraphicLine.cs" />
     <Compile Include="Controls\Graphics\GraphicQuarant.cs" />
@@ -126,7 +127,9 @@
     <Compile Include="Converts\VisibilityConverter.cs" />
     <Compile Include="Events\EventArgs.cs" />
     <Compile Include="Events\Events.cs" />
+    <Compile Include="Helper\DragDropHelper.cs" />
     <Compile Include="Helper\UIHelper.cs" />
+    <Compile Include="Utils\MouseUtilities.cs" />
     <Compile Include="ViewModels\GraphicManagerVm.cs" />
     <Compile Include="GraphicModule.cs" />
     <Compile Include="Helper\ConstantHelper.cs" />
