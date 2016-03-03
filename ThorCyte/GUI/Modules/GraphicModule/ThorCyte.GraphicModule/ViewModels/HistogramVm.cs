@@ -67,8 +67,7 @@ namespace ThorCyte.GraphicModule.ViewModels
                 {
                     return;
                 }
-                GraphType = value ? GraphStyle.Outline : GraphStyle.BarChart;
-                IsSwitchStyleEnabled = !value;
+                //IsSwitchStyleEnabled = !value;
                 SetProperty(ref _isCheckedOverlay, value);
                 UpdateGraphData();
             }
@@ -220,8 +219,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             get { return _historyDataList; }
             set { _historyDataList = value; }
         }
-
-        public List<Dictionary<int, int>> _colorDataDictionary = new List<Dictionary<int, int>>(); 
 
         #endregion
 
@@ -382,6 +379,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             {
                 overlay.Datas.Add(data);
             }
+            GraphType = GraphStyle.Outline;
             _overlayList.Add(overlay);
             IsCheckedOverlay = true;
             IsEnabledOverlay = true;

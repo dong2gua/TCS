@@ -67,6 +67,8 @@ namespace ThorCyte.GraphicModule.Controls
             MouseDoubleClick += OnShowDetailWnd;
         }
 
+        protected GraphicUcBase(GraphicVmBase vm) { }
+
         #endregion
 
         #region Methods

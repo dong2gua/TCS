@@ -328,7 +328,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             }
         }
 
-        public GraphicVmBase CreateScattergram()
+        public ScattergramVm CreateScattergram()
         {
             var id = _idManager.GetId().ToString(CultureInfo.InvariantCulture);
             var vm = new ScattergramVm{IsNormalizeXyEnabeld = true};
@@ -343,7 +343,7 @@ namespace ThorCyte.GraphicModule.ViewModels
             return vm;
         }
 
-        public GraphicVmBase CreateHistogram()
+        public HistogramVm CreateHistogram()
         {
             var id = _idManager.GetId().ToString(CultureInfo.InvariantCulture);
             var vm = new HistogramVm { IsNormalizeXyEnabeld = true };

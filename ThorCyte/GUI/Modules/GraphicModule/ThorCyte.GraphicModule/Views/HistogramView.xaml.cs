@@ -38,6 +38,11 @@ namespace ThorCyte.GraphicModule.Views
             ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<GraphUpdateEvent>().Subscribe(Update);
         }
 
+        public HistogramView(HistogramVm vm):this()
+        {
+            DataContext = vm;
+        }
+
         #endregion
 
         #region Methods
@@ -186,7 +191,7 @@ namespace ThorCyte.GraphicModule.Views
             }
 
             // Draw overlays if any
-            if (histogramVm.OverlayList.Count > 0 && histogramVm.IsCheckedOverlay)
+            if (histogramVm.GraphType == GraphStyle.Outline && histogramVm.IsCheckedOverlay && histogramVm.OverlayList.Count > 0 )
             {
                 var list = new List<KeyValuePair<Color, XyDataSeries<double, double>>>();
                 foreach (var ovr in histogramVm.OverlayList)

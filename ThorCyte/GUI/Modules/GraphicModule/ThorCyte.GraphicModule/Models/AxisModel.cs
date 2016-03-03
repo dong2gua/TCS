@@ -235,8 +235,8 @@ namespace ThorCyte.GraphicModule.Models
                 if (IsInitialized)
                 {
                     UpdateTitle();
+                    IsNormalize = true;
                 }
-                IsNormalize = true;
                 OnPropertyChanged();
                 OnPropertyChanged("SelectedNumeratorChannel");
                 OnFeatureUpdate();
@@ -254,9 +254,12 @@ namespace ThorCyte.GraphicModule.Models
                 {
                     return;
                 }
-                IsNormalize = true;
+                if (IsInitialized)
+                {
+                    IsNormalize = true;
+                    UpdateTitle();
+                }
                 SetProperty(ref _selectedNumeratorChannel, value);
-                UpdateTitle();
                 OnFeatureUpdate();
             }
         }
@@ -287,8 +290,11 @@ namespace ThorCyte.GraphicModule.Models
                         SelectedDenominatorChannel = null;
                     }
                 }
-                IsNormalize = true;
-                UpdateTitle();
+                if (IsInitialized)
+                {
+                    UpdateTitle();
+                    IsNormalize = true;
+                }
                 OnPropertyChanged();
                 OnFeatureUpdate();
             }
@@ -305,9 +311,12 @@ namespace ThorCyte.GraphicModule.Models
                 {
                     return;
                 }
-                IsNormalize = true;
+                if (IsInitialized)
+                {
+                    IsNormalize = true;
+                    UpdateTitle();
+                }
                 SetProperty(ref _selectedDenominatorChannel, value);
-                UpdateTitle();
                 OnFeatureUpdate();
             }
         }
@@ -768,6 +777,14 @@ namespace ThorCyte.GraphicModule.Models
             IsDefaultLabel = true;
             CalcFeatureIndex();
             UpdateTitle();
+        }
+
+        public void SetFeaturesAndChannels(Feature numeratorFeature, Channel numeratorChannel, Feature denominatorFeature, Channel denominatorChannel)
+        {
+            _selectedNumeratorFeature = numeratorFeature;
+            _selectedNumeratorChannel = numeratorChannel;
+            _selectedDenominatorFeature = denominatorFeature;
+            _selectedDenominatorChannel = denominatorChannel;
         }
 
         #endregion
