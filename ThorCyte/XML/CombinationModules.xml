@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<combination-modules>
+  <combination-module id="0" name="One Primary" category="Predefined" guid="86bd1a79-2be8-4bf5-8b84-b9b79f6dce65" caption-module-id="1" inport1-module-id="1" inport1-index="0" inport1-data-type="MultiChannelImage" outport1-module-id="4" outport1-index="0" outport1-data-type="Event">
+    <create-date>02-26-2016</create-date>
+    <comment>System Predefined One Primary Protocol.</comment>
+    <module id="1" name="Channel" enabled="true" x="20" y="20" scale="0" channel="Long Red" />
+    <module id="2" name="Threshold" enabled="true" x="20" y="100" scale="0" method="Manual" threshold="1200" recalculate="false" />
+    <module id="3" name="Contour" enabled="true" x="20" y="180" scale="0" component="Primary" color="Red" min-area="20" max-area="0" check-max-area="false" unit="Micron" max-unit="Micron" concave="false" cross-boundary="false" />
+    <module id="4" name="Event" enabled="true" x="20" y="260" scale="0" expand-by="3" integral-color="Green" show-id="false" keep-boundary-events="false" peripheral="false" peri-distance="6" peri-width="10" peri-color="Yellow" dynamic-background="true" distance="2" width="3" low="30" high="70" bkgnd-color="Blue">
+      <bk-correction count="3">
+        <channel index="0" label="Long Red" correct="true" />
+        <channel index="1" label="Scatter" correct="true" />
+        <channel index="2" label="scatter shift" correct="true" />
+      </bk-correction>
+    </module>
+    <connector outport-module-id="1" outport-index="0" inport-module-id="2" inport-index="0" />
+    <connector outport-module-id="2" outport-index="0" inport-module-id="3" inport-index="0" />
+    <connector outport-module-id="3" outport-index="0" inport-module-id="4" inport-index="0" />
+  </combination-module>
+</combination-modules>
