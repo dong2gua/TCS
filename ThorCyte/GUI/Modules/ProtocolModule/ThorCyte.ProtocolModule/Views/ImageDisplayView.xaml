@@ -5,7 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:utils="clr-namespace:ThorCyte.ProtocolModule.Utils"
+             xmlns:converts="clr-namespace:ThorCyte.ProtocolModule.Converts"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        
+        <ResourceDictionary>
+            <converts:DoubleToRatioConverter x:Key="ConvDoubleToRatio"/>
+        </ResourceDictionary>
+        
+        
+    </UserControl.Resources>
+    
     <Border Margin="2">
         <Grid Margin="3">
             <Grid.ColumnDefinitions>
@@ -59,19 +69,24 @@
             </Border>
 
             <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0" Text="{Binding Coordinate}" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Text="Zoom:" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="2" Text="{Binding Scale}" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="3" Text="AspectRatio:" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="4" Text="{Binding IsAspectRatio}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text ="Position:     " VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Coordinate}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="Zoom:    " VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Scale, Converter={StaticResource ConvDoubleToRatio}}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="4" Text="AspectRatio:    " VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="5" Text="{Binding IsAspectRatio}" VerticalAlignment="Center"/>
 
             </Grid>
         </Grid>

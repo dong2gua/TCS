@@ -163,7 +163,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             EventAggregator.GetEvent<DisplayImageEvent>().Subscribe(DisplayImage, ThreadOption.UIThread);
 
-            MacroCommnad = new DelegateCommand(SetMacroCommand);
+            MacroCommnad = new DelegateCommand<string>(SetMacroCommand);
             SaveMacroCommand = new DelegateCommand(Macro.Save);
 
             AlignCommnad = new DelegateCommand<string>(SetModulesAlign);
@@ -181,8 +181,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
             RegionCount = 10;
             TileCount = 10;
 
-            _imgSource = IsRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
-            _tipStr = IsRuning ? "Stop Run" : "Start Run";
+            _imgSource = IsRuning ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
+            _tipStr = IsRuning ? "Pause Run" : "Start Run";
             _isAlignEnable = !IsRuning;
         }
 
@@ -314,15 +314,59 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         #region Methods
 
-        private void SetMacroCommand()
+        private void SetMacroCommand(string strparam)
         {
-            if (IsRuning)
+            switch (strparam)
             {
-                Macro.Stop();
-            }
-            else
-            {
-                Macro.Run();
+                case null:
+                    {
+                        if (IsRuning)
+                        {
+                            Macro.Pause();
+                        }
+                        else
+                        {
+                            Macro.Run();
+                        }
+                    }
+                    break;
+
+                case "Next":
+                    {
+
+
+                    }
+                    break;
+
+                case "Previous":
+                    {
+
+
+                    }
+                    break;
+
+                case "Repeat":
+                    {
+
+
+                    }
+                    break;
+
+                case "End":
+                    {
+
+
+                    }
+                    break;
+
+                case "Stop":
+                    {
+                        Macro.Stop();
+                    }
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -498,18 +542,30 @@ namespace ThorCyte.ProtocolModule.ViewModels
             var res = true;
 
             //if (newConnection.SourcePort == null) return false;
-
-            switch (portDraggedOut.PortType)
+            try
             {
-                case PortType.InPort:
-                    res = newConnection.SourcePort.ParentModule != portDraggedOver.ParentModule && newConnection.SourcePort.PortType != portDraggedOver.PortType;
-                    break;
-                case PortType.OutPort:
-                    res = portDraggedOut.ParentModule != portDraggedOver.ParentModule && portDraggedOut.PortType != portDraggedOver.PortType;
-                    break;
-                case PortType.None:
-                    res = false;
-                    break;
+                if (portDraggedOut.PortType == portDraggedOver.PortType)
+                {
+                    return false;
+                }
+
+                switch (portDraggedOut.PortType)
+                {
+                    case PortType.InPort:
+                        res = newConnection.SourcePort.ParentModule != portDraggedOver.ParentModule && newConnection.SourcePort.PortType != portDraggedOver.PortType;
+                        break;
+                    case PortType.OutPort:
+                        res = portDraggedOut.ParentModule != portDraggedOver.ParentModule && portDraggedOut.PortType != portDraggedOver.PortType;
+                        break;
+                    case PortType.None:
+                        res = false;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Macro.Logger.Write("Error Occoured in MacroEditorViewModel.IsConnectionOK", ex);
+                res = false;
             }
 
             return res;
@@ -620,8 +676,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private void SetRuning(bool isRuning)
         {
             IsRuning = isRuning;
-            ImgSource = isRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
-            TipStr = isRuning ? "Stop Run" : "Start Run";
+            ImgSource = isRuning ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
+            TipStr = isRuning ? "Pause Run" : "Start Run";
             IsAlignEnable = !isRuning;
         }
 

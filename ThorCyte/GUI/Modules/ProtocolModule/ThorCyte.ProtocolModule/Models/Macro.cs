@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -48,6 +49,7 @@ namespace ThorCyte.ProtocolModule.Models
 
         private static Thread _tAnalyzeImg;
         private static bool _isAborting;
+
         private static readonly object Syncobj;
         private static readonly MessageBox FrmErrMsg;
 
@@ -123,6 +125,7 @@ namespace ThorCyte.ProtocolModule.Models
                     Clear.Invoke();
                 }
                 CurrentScanId = scanid;
+                ResetRegionTileId();
                 CurrentScanInfo = _exp.GetScanInfo(scanid);
                 var expinfo = _exp.GetExperimentInfo();
                 ImageMaxBits = expinfo.IntensityBits;
@@ -344,7 +347,7 @@ namespace ThorCyte.ProtocolModule.Models
                     module.DisplayName = modInfo.DisplayName;
                     module.ScanNo = CurrentScanId;
                     Modules.Add(module);
-                    return new List<ModuleBase>() {module};
+                    return new List<ModuleBase>() { module };
                 }
 
             }
@@ -403,6 +406,7 @@ namespace ThorCyte.ProtocolModule.Models
                     m.InitialRun();
                 }
                 EventAggregator.GetEvent<MacroRunEvent>().Publish(CurrentScanId);
+                AnalyzeWorkDispacher();
                 _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
                 _tAnalyzeImg.Start();
             }
@@ -440,6 +444,9 @@ namespace ThorCyte.ProtocolModule.Models
             return ret && vail;
         }
 
+        public static void Pause()
+        {
+        }
 
         public static void Stop()
         {
@@ -454,7 +461,7 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
-        private static void AnalyzeImage()
+        private static void AnalyzeImage_bak()
         {
             try
             {
@@ -470,21 +477,15 @@ namespace ThorCyte.ProtocolModule.Models
                         EventAggregator.GetEvent<MacroStartEvnet>()
                             .Publish(new MacroStartEventArgs { WellId = region.WellId, RegionId = CurrentRegionId, TileId = CurrentTileId });
 
-                        GetImagesDic();
-                        //find all channel module 
-                        foreach (var mod in Modules.Where(m => m is ChannelModVm))
-                        {
-                            mod.Execute();
-                            MessageHelper.PostMessage(
-                                string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};", CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
-                        }
-                        //wait all channel executed here
-                        ClearImagesDic();
+
+                        ExecuteImage();
+
+
                         if (_isAborting)
                             break;
-
                         MessageHelper.PostProgress("Tile", -1, CurrentTileId);
                     }
+
                     if (_isAborting)
                         break;
 
@@ -512,12 +513,154 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
+        private static void AnalyzeImage()
+        {
+            try
+            {
+                MessageHelper.SendMacroRuning(true);
+                MessageHelper.PostProgress("Region", CurrentScanInfo.ScanRegionList.Count, 0);
+                var fieldCount = -1;
+                while (true)
+                {
+                    if (_isAborting)
+                    {
+                        break;
+                    }
+
+                    lock (_taskQueue)
+                    {
+                        if (!_taskQueue.Any())
+                        {
+                            break;
+                        }
+                        var rt = _taskQueue.Dequeue();
+
+
+                        var srgn = CurrentScanInfo.ScanRegionList.FirstOrDefault(sr => sr.RegionId == rt.RegionId);
+
+
+                        if (srgn != null)
+                        {
+                            CurrentRegionId = rt.RegionId;
+
+
+                            if (fieldCount != srgn.ScanFieldList.Count)
+                            {
+                                MessageHelper.PostProgress("Tile", srgn.ScanFieldList.Count, 0);
+                                fieldCount = srgn.ScanFieldList.Count;
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        var stile = srgn.ScanFieldList.FirstOrDefault(st => st.ScanFieldId == rt.TileId);
+                        if (stile != null)
+                        {
+                            CurrentTileId = rt.TileId;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+
+                        EventAggregator.GetEvent<MacroStartEvnet>().Publish(new MacroStartEventArgs
+                        {
+                            WellId = srgn.WellId,
+                            RegionId = CurrentRegionId,
+                            TileId = CurrentTileId
+                        });
+
+                        ExecuteImage();
+                        MessageHelper.PostProgress("Tile", -1, CurrentTileId);
+                        MessageHelper.PostProgress("Region", -1, CurrentRegionId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Write("Error occourd in Analyze Image", ex);
+                FrmErrMsg.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
+                {
+                    FrmErrMsg.Text = "Errorr occourred in Analyze Image: " + ex.Message;
+                    FrmErrMsg.Caption = "ThorCyte";
+                    FrmErrMsg.OkButtonContent = "OK";
+                    FrmErrMsg.ShowDialog();
+                }));
+            }
+            finally
+            {
+                if (_imageanalyzed != null)
+                {
+                    _imageanalyzed.Invoke();
+                }
+            }
+        }
+
+
+        private static Queue<RegionTile> _taskQueue = new Queue<RegionTile>();
+        private static void AnalyzeWorkDispacher(RegionTile rt = null)
+        {
+            if (rt == null)
+            {
+                //Start from beginning.
+                rt = new RegionTile
+                {
+                    RegionId = int.MinValue,
+                    TileId = int.MinValue
+                };
+            }
+
+            foreach (var region in CurrentScanInfo.ScanRegionList)
+            {
+                if (region.RegionId < rt.RegionId) continue;
+
+                foreach (var tile in region.ScanFieldList)
+                {
+                    if (tile.ScanFieldId < rt.TileId) continue;
+
+                    var task = new RegionTile
+                    {
+                        RegionId = region.RegionId,
+                        TileId = tile.ScanFieldId
+                    };
+
+                    lock (_taskQueue)
+                    {
+                        _taskQueue.Enqueue(task);
+                    }
+
+                }
+            }
+
+        }
+
+
+        private static void ExecuteImage()
+        {
+            GetImagesDic();
+            //find all channel module 
+            foreach (var mod in Modules.Where(m => m is ChannelModVm))
+            {
+                mod.Execute();
+                MessageHelper.PostMessage(
+                    string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};", CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
+            }
+            //wait all channel executed here
+            ClearImagesDic();
+        }
+
+
+
         private static void ImageAnalyzed()
         {
             if (_isAborting) _isAborting = false;
             MessageHelper.PostMessage("All images analyzed!");
             MessageHelper.SendMacroRuning(false);
             EventAggregator.GetEvent<MacroFinishEvent>().Publish(CurrentScanId);
+            ResetRegionTileId();
         }
 
         private static void ClearImagesDic()
@@ -649,6 +792,17 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
+        private static void SetRegionTileId(int regionId, int tileId)
+        {
+            CurrentRegionId = int.MinValue;
+            CurrentTileId = int.MinValue;
+        }
+
+        private static void ResetRegionTileId()
+        {
+            CurrentRegionId = int.MinValue;
+            CurrentTileId = int.MinValue;
+        }
 
         ~Macro()
         {

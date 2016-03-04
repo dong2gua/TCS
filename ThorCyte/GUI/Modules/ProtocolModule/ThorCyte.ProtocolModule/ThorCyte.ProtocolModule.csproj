@@ -100,6 +100,7 @@
     <Compile Include="Converts\BoolReverseConverter.cs" />
     <Compile Include="Converts\BoolToVisibilityConverter .cs" />
     <Compile Include="Converts\ChannelNameConvert.cs" />
+    <Compile Include="Converts\DoubleToRatioConverter.cs" />
     <Compile Include="Converts\PhantomPatternConvert.cs" />
     <Compile Include="Converts\PointConverter.cs" />
     <Compile Include="Converts\ThresholdMethodConvert.cs" />
@@ -284,6 +285,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\Images\Ratio.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\End.png" />
+    <Resource Include="Resource\Images\Loop.png" />
+    <Resource Include="Resource\Images\Next.png" />
+    <Resource Include="Resource\Images\Pause.png" />
+    <Resource Include="Resource\Images\Previous.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
