@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
@@ -16,6 +17,8 @@ using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
 using ThorCyte.ProtocolModule.Controls;
+using ThorCyte.ProtocolModule.Events;
+using ThorCyte.ProtocolModule.Views;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace ThorCyte.ProtocolModule.ViewModels
@@ -36,8 +39,10 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public ICommand MoveCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
         public ICommand SelectAllCommand { get; private set; }
+        public ICommand SaveTemplateCommand { get; private set; }
 
         private List<ModuleBase> _clipboard = new List<ModuleBase>();
+        private Dictionary<string, ImageDisplayView> _dispImgDic;
 
         private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
@@ -156,7 +161,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             MessageHelper.SetRuning += SetRuning;
             Module.OnSelectionChanged += ModuleOnOnSelectionChanged;
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
-
+            EventAggregator.GetEvent<DisplayImageEvent>().Subscribe(DisplayImage, ThreadOption.UIThread);
 
             MacroCommnad = new DelegateCommand(SetMacroCommand);
             SaveMacroCommand = new DelegateCommand(Macro.Save);
@@ -169,9 +174,10 @@ namespace ThorCyte.ProtocolModule.ViewModels
             DeleteCommand = new DelegateCommand(DeleteModules);
             MoveCommand = new DelegateCommand<string>(MoveModules);
             SelectAllCommand = new DelegateCommand(SelectAllModules);
+            SaveTemplateCommand = new DelegateCommand(SaveTemplate);
 
             _pannelVm = new PannelViewModel();
-
+            _dispImgDic = new Dictionary<string, ImageDisplayView>();
             RegionCount = 10;
             TileCount = 10;
 
@@ -277,7 +283,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     {
                         case "Up":
                             m.Y -= space;
-
                             if (m.Y < 0) m.Y = 0;
 
                             break;
@@ -286,9 +291,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                             break;
                         case "Left":
                             m.X -= space;
-
                             if (m.X < 0) m.X = 0;
-
                             break;
                         case "Right":
                             m.X += space;
@@ -661,19 +664,26 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 pOffset.Y -= pt.Y;
 
                 tempPoint = new Point(_clipboard[0].X, _clipboard[0].Y);
-                var l = Math.Pow(_clipboard[0].X, 2) + Math.Pow(_clipboard[0].Y, 2);
+                //var l = Math.Pow(_clipboard[0].X, 2) + Math.Pow(_clipboard[0].Y, 2);
 
                 //find least length point
                 foreach (var m in _clipboard)
                 {
-                    var ln = Math.Pow(m.X, 2) + Math.Pow(m.Y, 2);
+                    //var ln = Math.Pow(m.X, 2) + Math.Pow(m.Y, 2);
 
-                    if (ln < l)
-                    {
-                        l = ln;
+                    //if (ln < l)
+                    //{
+                    //    l = ln;
+                    //    tempPoint.X = m.X;
+                    //    tempPoint.Y = m.Y;
+                    //}
+
+                    if (m.X < tempPoint.X)
                         tempPoint.X = m.X;
+
+                    if (m.Y < tempPoint.Y)
                         tempPoint.Y = m.Y;
-                    }
+
                 }
             }
 
@@ -699,15 +709,76 @@ namespace ThorCyte.ProtocolModule.ViewModels
                         var outMod = m;
                         var inMod = c.DestPort.ParentModule;
                         var inportIdx = inMod.InputPorts.IndexOf(c.DestPort);
-                        Macro.CreateConnector(refdic[inMod.Id],refdic[outMod.Id],inportIdx,0);
+                        Macro.CreateConnector(refdic[inMod.Id], refdic[outMod.Id], inportIdx, 0);
                     }
                 }
             }
-
-
-
         }
 
+        private void SaveTemplate()
+        {
+            var popupWnd = new CustomWindow
+            {
+                Content = new SaveTemplateView(),
+                Title = "Save as Template",
+                MinWidth = 300,
+                MinHeight = 300,
+                MaxWidth = 600,
+                MaxHeight = 600,
+                ShowInTaskbar = false,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ResizeMode = ResizeMode.NoResize
+            };
+            //choosed modules
+            popupWnd.ShowDialog();
+        }
+
+
+        private void DisplayImage(DisplayImageEventArgs args)
+        {
+            if (!_dispImgDic.ContainsKey(args.Title))
+            {
+                var view = new ImageDisplayView(args);
+                var wnd = new CustomWindow
+                {
+                    Name = args.Title,
+                    Content = view,
+                    Icon = Application.Current.MainWindow.Icon,
+                    Title = args.Title,
+                    //SizeToContent = SizeToContent.WidthAndHeight,
+                    WindowStartupLocation = WindowStartupLocation.Manual,
+                    ShowInTaskbar = true,
+                    ResizeMode = ResizeMode.NoResize,
+                    Height = 600,
+                    Width = 800
+                };
+                wnd.Show();
+                _dispImgDic.Add(args.Title, view);
+            }
+            else
+            {
+                var windtitleLst = (from Window w in Application.Current.Windows select w.Title).ToList();
+
+                if (!windtitleLst.Contains(args.Title))
+                {
+                    var wnd = new CustomWindow
+                    {
+                        Name = args.Title,
+                        Content = _dispImgDic[args.Title],
+                        Icon = Application.Current.MainWindow.Icon,
+                        Title = args.Title,
+                        //SizeToContent = SizeToContent.WidthAndHeight,
+                        WindowStartupLocation = WindowStartupLocation.Manual,
+                        ShowInTaskbar = true,
+                        ResizeMode = ResizeMode.NoResize,
+                        Height = 600,
+                        Width = 800
+                    };
+
+                    wnd.Show();
+                }
+            }
+        }
         #endregion
     }
 

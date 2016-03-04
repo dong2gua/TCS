@@ -18,6 +18,12 @@ namespace ThorCyte.ProtocolModule.Utils
 
         public static SetSelectViewItemHandler UnSelectViewItem;
 
+        //public delegate void MacroTemplateUpdatedHandler();
+
+        public static Action MacroTemplateUpdated;
+
+        public static Action<object> RemoveTreeModuleAction;  
+
         public static void PostMessage(string msg)
         {
             if (SetMessage == null) return;
@@ -47,6 +53,18 @@ namespace ThorCyte.ProtocolModule.Utils
         {
             if (UnSelectViewItem == null) return;
             UnSelectViewItem.Invoke(item);
+        }
+
+        public static void SetMacroTemplateUpdated()
+        {
+            if (MacroTemplateUpdated == null) return;
+            MacroTemplateUpdated.Invoke();
+        }
+
+        public static void SetRemoveTreeModule(object treeviewitem)
+        {
+            if (RemoveTreeModuleAction == null) return;
+            RemoveTreeModuleAction.Invoke(treeviewitem);
         }
     }
 }

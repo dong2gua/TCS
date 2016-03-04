@@ -33,6 +33,7 @@ namespace ThorCyte.ProtocolModule.Views
         public ModuleTree()
         {
             InitializeComponent();
+            MessageHelper.MacroTemplateUpdated += MacroTemplateUpdated;
             MessageHelper.UnSelectViewItem += UnSelectViewItem;
             DataContext = new ModuleTreeViewModel();
             SerTb.Text = DefaultKeyword;
@@ -40,6 +41,11 @@ namespace ThorCyte.ProtocolModule.Views
             ExpLoaded(0);
         }
 
+        private void MacroTemplateUpdated()
+        {
+            SetModuleSelection("A");
+            SetModuleSelection(string.Empty);
+        }
 
         private void ExpLoaded(int scanid)
         {
@@ -93,7 +99,7 @@ namespace ThorCyte.ProtocolModule.Views
             {
                 TreeSelectedItem = tree.SelectedItem as TreeViewItemModel;
 
-                if (TreeSelectedItem != null)
+                if (TreeSelectedItem != null && TreeSelectedItem.IsSelected)
                 {
                     MessageHelper.SetSelectItem(TreeSelectedItem);
                 }
@@ -105,7 +111,7 @@ namespace ThorCyte.ProtocolModule.Views
             if (treeview.SelectedItem != null)
             {
                 TreeSelectedItem.IsSelected = false;
-                MessageHelper.SetSelectItem(TreeSelectedItem);
+                MessageHelper.SetSelectItem(null);
             }
         }
 
@@ -158,6 +164,9 @@ namespace ThorCyte.ProtocolModule.Views
         }
 
 
-
+        private void Treeview_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            UnSelectViewItem(null);
+        }
     }
 }

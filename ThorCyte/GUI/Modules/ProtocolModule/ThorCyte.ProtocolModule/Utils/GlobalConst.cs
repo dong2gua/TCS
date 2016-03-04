@@ -8,6 +8,8 @@
         public const string Systemstr = "System";
 
         public const string OutputCateName = "Output Category";
+        public const string ImageViewModuleName = "Image View";
+
 
         public const string FilterCateName = "Filter Category";
         public const string FilterModuleName = "Filter";

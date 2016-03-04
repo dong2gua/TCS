@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using Prism.Mvvm;
 using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
+using ThorCyte.ProtocolModule.ViewModels.Modules;
+using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace ThorCyte.ProtocolModule.ViewModels
 {
@@ -10,7 +13,51 @@ namespace ThorCyte.ProtocolModule.ViewModels
     {
         public ModuleTreeViewModel()
         {
+            MessageHelper.RemoveTreeModuleAction += RemoveTreeModule;
             Initialize();
+        }
+
+        private void RemoveTreeModule(object obj)
+        {
+            var tvi = obj as TreeViewItemModel;
+            if (tvi == null) return;
+
+            var iscate = ModuleInfoMgr.CombinationModuleDefs.Where(mc => mc.Category == tvi.Name).Any(mc => tvi.ItemType == ModuleType.None);
+            var strprompt = iscate
+                ? string.Format("Remove Module-Template Category {0}\n \nAre you sure?", tvi.Name)
+                : string.Format("Remove Module-Template {0}\n \nAre you sure?", tvi.Name);
+            var res = MessageBox.Show(Application.Current.MainWindow, strprompt, "ThorCyte", MessageBoxButton.OKCancel);
+            if (res != MessageBoxResult.OK) return;
+
+            if (tvi.ItemType != ModuleType.SmtCombinedModule && !iscate)
+            {                
+                MessageBox.Show(Application.Current.MainWindow, "Can not remove this module!", "ThorCyte", MessageBoxButton.OK);
+                return;
+            }
+
+            if (iscate)
+            {
+                var cateallMods = ModuleInfoMgr.CombinationModuleDefs.Where(mc => mc.Category == tvi.Name).ToList();
+
+                foreach (var m in cateallMods)
+                {
+                    ModuleInfoMgr.CombinationModuleDefs.Remove(m);
+
+                }
+            }
+            else
+            {
+                var dm = ModuleInfoMgr.CombinationModuleDefs.Where(mc => mc.Name == tvi.Name && mc.Category == tvi.Category).ToList();
+
+                foreach (var m in dm)
+                {
+                    ModuleInfoMgr.CombinationModuleDefs.Remove(m);
+                }
+            }
+
+            ModuleInfoMgr.Instance.SaveCombinationModuleTemplates();
+            MessageHelper.SetMacroTemplateUpdated();
+            MessageHelper.PostMessage(string.Format("Module-Template {0} Removed!", tvi.Name));
         }
 
         private List<TreeViewItemModel> _listModuleInfos = new List<TreeViewItemModel>
@@ -21,14 +68,20 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 Items = new List<TreeViewItemModel>(),
                 IsExpanded = true
             },
+            new TreeViewItemModel
+            {
+                Name = GlobalConst.MultiNodeStr,
+                Items = new List<TreeViewItemModel>(),
+                IsExpanded = true
+            }
         };
+
 
         public List<TreeViewItemModel> ListModuleInfos
         {
             get { return _listModuleInfos; }
             set { _listModuleInfos = value; }
         }
-
 
         public void Initialize()
         {
@@ -45,6 +98,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 {
                     Name = name,
                     ItemType = ModuleType.None,
+                    Category = ListModuleInfos[0].Name
                 });
             }
 
@@ -63,7 +117,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
                         var tvItem = new TreeViewItemModel()
                         {
                             Name = info.DisplayName,
-                            ItemType = GetModuleType(info.DisplayName)
+                            ItemType = GetModuleType(info.DisplayName),
+                            Category = item.Name
                         };
 
                         if (info.Reference == null || info.Reference.Trim() == string.Empty) tvItem.IsEnabled = false;
@@ -74,8 +129,52 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 }
             }
 
-            MessageHelper.PostMessage("Ready.");
+            // add combination modules
+            foreach (var cmod in ModuleInfoMgr.CombinationModuleDefs)
+                AddCombinationModuleNode(cmod);
 
+            MessageHelper.PostMessage("Ready.");
+        }
+
+        // add combination module node to the tree
+        public void AddCombinationModuleNode(CombinationModule mod)
+        {
+            // try existing categories
+
+            foreach (var node in ListModuleInfos[1].Items)
+            {
+                if (node.Name == mod.Category)
+                {
+                    var cmdNode = new TreeViewItemModel();
+                    cmdNode.Name = mod.DisplayName;
+                    cmdNode.ItemType = ModuleType.SmtCombinedModule;
+                    cmdNode.Category = node.Name;
+
+                    foreach (var m in mod.SubModules)
+                    {
+                        cmdNode.Items.Add(new TreeViewItemModel()
+                        {
+                            Name = m.Name,
+                            ItemType = ModuleType.None,
+                            Category = cmdNode.Name
+                        });
+                    }
+
+                    node.Items.Add(cmdNode);
+                    node.IsExpanded = true;
+                    return;
+                }
+            }
+
+            ListModuleInfos[1].Items.Add(new TreeViewItemModel
+            {
+                Name = mod.Category,
+                ItemType = ModuleType.None,
+                Category = ListModuleInfos[1].Name
+            });
+
+
+            AddCombinationModuleNode(mod);
         }
 
         public void FilterModuleInfo(string mName)
@@ -98,7 +197,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 ListModuleInfos[0].Items.Add(new TreeViewItemModel
                 {
                     Name = name,
-                    ItemType = ModuleType.None
+                    ItemType = ModuleType.None,
+                    Category = ListModuleInfos[0].Name
                 });
             }
 
@@ -120,7 +220,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     var tvItem = new TreeViewItemModel()
                     {
                         Name = info.DisplayName,
-                        ItemType = GetModuleType(info.DisplayName)
+                        ItemType = GetModuleType(info.DisplayName),
+                        Category = item.Name
                     };
 
                     if (info.Reference == null || info.Reference.Trim() == string.Empty) tvItem.IsEnabled = false;
@@ -138,6 +239,11 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     lstModinfo.Items.Remove(item);
                 }
             }
+
+            // add combination modules
+            foreach (var cmod in ModuleInfoMgr.CombinationModuleDefs.Where(cm => cm.Name.ToLower().Contains(mName.ToLower())))
+                AddCombinationModuleNode(cmod);
+
             MessageHelper.PostMessage(string.Format("Searching done for \"{0}\" ...", mName));
         }
 
@@ -146,7 +252,5 @@ namespace ThorCyte.ProtocolModule.ViewModels
             if (string.IsNullOrEmpty(key)) return ModuleType.None;
             return DataDictionary.ModuleTypeDic.ContainsKey(key) ? DataDictionary.ModuleTypeDic[key] : ModuleType.None;
         }
-
-
     }
 }

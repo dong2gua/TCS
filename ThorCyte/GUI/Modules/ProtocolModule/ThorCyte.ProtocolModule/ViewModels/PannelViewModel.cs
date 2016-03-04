@@ -83,8 +83,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
         }
 
         private void SetSelectViewItem(object item)
-        {
-            if (item == null) return;
+        { 
+            //if (item == null) SelectedViewItem = null;
             SelectedViewItem = item as TreeViewItemModel;
         }
 
@@ -125,14 +125,44 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private void CreateModule(Point location)
         {
             var moduleInfo = ModuleInfoMgr.GetModuleInfoByDisplayName(SelectedViewItem.Name);
+
             if (moduleInfo == null)
             {
                 return;
             }
-            var module = Macro.CreateModule(moduleInfo);
-            module.X = (int)location.X;
-            module.Y = (int)location.Y;
-            module.Initialize();
+            moduleInfo.Category = SelectedViewItem.Category;
+            var modules = Macro.CreateModule(moduleInfo);
+
+            if (modules == null || modules.Count < 1) return;
+
+            var tempPoint = new Point(modules[0].X, modules[0].Y);
+            //var l = Math.Pow(modules[0].X, 2) + Math.Pow(modules[0].Y, 2);
+            foreach (var m in modules)
+            {
+                //var ln = Math.Pow(m.X, 2) + Math.Pow(m.Y, 2);
+
+                //if (ln < l)
+                //{
+                //    l = ln;
+                //    tempPoint.X = m.X;
+                //    tempPoint.Y = m.Y;
+                //}
+
+
+                if (m.X < tempPoint.X)
+                    tempPoint.X = m.X;
+
+                if (m.Y < tempPoint.Y)
+                    tempPoint.Y = m.Y;
+            }
+
+            foreach (var mod in modules)
+            {
+                mod.X = mod.X - (int)tempPoint.X + (int)location.X;
+                mod.Y = mod.Y - (int)tempPoint.Y + (int)location.Y;
+                mod.Initialize();
+            }
+
         }
 
         #endregion

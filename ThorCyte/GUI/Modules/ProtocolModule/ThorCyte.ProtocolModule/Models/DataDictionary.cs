@@ -12,6 +12,7 @@ namespace ThorCyte.ProtocolModule.Models
             {GlobalConst.Systemstr,ModuleType.SmtSystemCategory},
 
             {GlobalConst.OutputCateName,ModuleType.SmtOutputCategory},
+            {GlobalConst.ImageViewModuleName,ModuleType.SmtImageViewModule},
 
             {GlobalConst.FilterCateName,ModuleType.SmtFilterCategory},
             {GlobalConst.FilterModuleName,ModuleType.SmtFilterModule},

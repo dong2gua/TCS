@@ -101,7 +101,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         {
             ModType = ModuleType.SmtTransformModule;
             HasImage = true;
-            View = new TransformModule();
             OutputPort.DataType = PortDataType.GrayImage;
             OutputPort.ParentModule = this;
             InputPorts[0].DataType = PortDataType.GrayImage;
@@ -132,33 +131,5 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 RotateDeg = XmlConvert.ToInt32(reader["rotate"]);
             }
         }
-        public override object Clone()
-        {
-            var mod = new TransformModVm();
-            //===============Common======================
-            mod.Name = Name;
-            mod.Id = GetNextModId();
-            mod.DisplayName = DisplayName;
-            mod.ScanNo = ScanNo;
-            mod.Enabled = Enabled;
-            mod.X = X;
-            mod.Y = Y;
-
-            //===============Transform module=====================
-            mod.HasImage = HasImage;
-            mod.View = new TransformModule();
-            mod.ModType = ModType;
-
-            mod.InputPorts[0].DataType = InputPorts[0].DataType;
-            mod.InputPorts[0].ParentModule = mod;
-            mod.OutputPort.DataType = OutputPort.DataType;
-            mod.OutputPort.ParentModule = mod;
-
-            mod.TransX = TransX;
-            mod.TransY = TransY;
-            mod.RotateDeg = RotateDeg;
-            return mod;
-        }
-
     }
 }

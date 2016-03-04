@@ -254,10 +254,8 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void Initialize()
         {
-            View = new EventModule();
             HasImage = false;
             ModType = ModuleType.SmtEventCategory;
-            Name = GlobalConst.EventModuleName;
             InputPorts[0].DataType = PortDataType.Event;
             InputPorts[0].ParentModule = this;
             OutputPort.DataType = PortDataType.Event;
@@ -396,48 +394,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             }
 
         }
-
-        public override object Clone()
-        {
-            var mod = new EventModVm();
-            //===============Common======================
-            mod.Name = Name;
-            mod.Id = GetNextModId();
-            mod.DisplayName = DisplayName;
-            mod.ScanNo = ScanNo;
-            mod.Enabled = Enabled;
-            mod.X = X;
-            mod.Y = Y;
-
-            //===============Event=====================
-            mod.HasImage = HasImage;
-            mod.View = new EventModule();
-            mod.ModType = ModType;
-
-            mod.InputPorts[0].DataType = InputPorts[0].DataType;
-            mod.InputPorts[0].ParentModule = mod;
-            mod.OutputPort.DataType = OutputPort.DataType;
-            mod.OutputPort.ParentModule = mod;
-
-            mod.ExpandBy = ExpandBy;
-            mod.IsKeepsEventsOnBoundary = IsKeepsEventsOnBoundary;
-            mod.IsDynamicBackground = IsDynamicBackground;
-            mod.BkDistance = BkDistance;
-            mod.BkWidth = BkWidth;
-            mod.BkLowPct = BkLowPct;
-            mod.BkHighPct = BkHighPct;
-            mod.IsPeripheral = IsPeripheral;
-            mod.PeriDistance = PeriDistance;
-            mod.PeriWidth = PeriWidth;
-            mod.ChannelCollection.Clear();
-            foreach (var cl in ChannelCollection)
-            {
-                mod.ChannelCollection.Add((ChannelsCorrection)cl.Clone());
-            }
-            return mod;
-        }
-
-
         #endregion
     }
 

@@ -5,7 +5,6 @@ using System.Xml;
 using ImageProcess;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Models;
-using ThorCyte.ProtocolModule.Views.Modules;
 
 namespace ThorCyte.ProtocolModule.ViewModels.Modules
 {
@@ -80,7 +79,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public override void Initialize()
         {
             HasImage = true;
-            View = new ChannelMod();
             ModType = ModuleType.SmtContourCategory;
             OutputPort.DataType = PortDataType.GrayImage;
             OutputPort.ParentModule = this;
@@ -132,33 +130,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             writer.WriteAttributeString("channel", SelectedChannel);
         }
 
-        public override object Clone()
-        {
-            var mod = new ChannelModVm();
-            //===============Common======================
-            mod.Name = Name;
-            mod.Id = GetNextModId();
-            mod.DisplayName = DisplayName;
-            mod.ScanNo = ScanNo;
-            mod.Enabled = Enabled;
-            mod.X = X;
-            mod.Y = Y;
 
-            //===============Channel=====================
-            mod.HasImage = HasImage;
-            mod.View = new ChannelMod();
-            mod.ModType = ModType;
-            mod.OutputPort.DataType = OutputPort.DataType;
-            mod.OutputPort.ParentModule = mod;
-            mod.ChannelNames.Clear();
-            foreach (var ch in ChannelNames)
-            {
-                mod.ChannelNames.Add(ch);
-            }
-            mod.SelectedChannel = SelectedChannel;
-
-            return mod;
-        }
         #endregion
     }
 }

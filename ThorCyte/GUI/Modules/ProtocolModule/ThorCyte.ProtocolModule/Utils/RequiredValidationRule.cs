@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Globalization;
+using System.Windows.Controls;
 using System.Text.RegularExpressions;
 
 namespace ThorCyte.ProtocolModule.Utils
@@ -30,7 +31,20 @@ namespace ThorCyte.ProtocolModule.Utils
         {
             var r = new Regex(@"^-?[0-9]\d*$");
             return r.IsMatch(value);
-        }  
-
+        }
     }
+
+
+    public class RequireNotEmptyValidationRule : ValidationRule
+    {
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            if(value == null) return new ValidationResult(false,null);
+            return value.ToString().Trim().Length == 0
+                ? new ValidationResult(false, "Input can not be empty!")
+                : new ValidationResult(true, null);
+        }
+    }
+
+
 }

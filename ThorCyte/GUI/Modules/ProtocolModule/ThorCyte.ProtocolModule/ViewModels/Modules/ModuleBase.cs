@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows.Controls;
 using System.Xml;
@@ -17,8 +18,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
     public abstract class ModuleBase : BindableBase, ICloneable
     {
         #region Properties
-
-        private static int _modIdCount;
 
         public int ScanNo { get; set; }
         public ModuleType ModType { get; set; }
@@ -145,7 +144,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             get { return _id; }
             set
             {
-                if (value > _modIdCount) _modIdCount = value;                
                 if (_id == value) return;
                 SetProperty(ref _id, value);
             }
@@ -219,7 +217,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         static ModuleBase()
         {
-            _modIdCount = 0;
         }
 
         protected ModuleBase()
@@ -233,7 +230,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         #endregion
 
         #region Virtual Methods and Properties
-        public abstract object Clone();
 
         public virtual void OnSerialize(XmlWriter writer) { }
         public virtual void OnDeserialize(XmlReader reader) { }
@@ -359,6 +355,11 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             return _inputPorts.Count > index ? _inputPorts[index] : null;
         }
 
+        public PortModel GetOutPort()
+        {
+            return _outputPort;
+        }
+
         public void Serialize(XmlWriter writer)
         {
             writer.WriteStartElement("module");
@@ -398,18 +399,52 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public static int GetNextModId()
         {
-            try
+            var i = 0;
+            while (Macro.Modules.Any(m => m.Id == i))
             {
-                return ++_modIdCount;
+                i++;
             }
-            catch (OverflowException)
-            {
-                _modIdCount = 0;
-                return _modIdCount;
-            }
-
+            return i;
         }
 
+        public virtual object Clone()
+        {
+            // serialize instance to string
+            var strWriter = new StringWriter();
+            var writer = new XmlTextWriter(strWriter);
+            Serialize(writer);
+            writer.Close();
+            strWriter.Close();
+            var xmlString = strWriter.ToString();
+
+            // create an instance from the string
+            var strReader = new StringReader(xmlString);
+            var reader = new XmlTextReader(strReader);
+
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Element && reader.Name == "module")
+                    break;
+            }
+            var module = (ModuleBase)Activator.CreateInstance(GetType());
+            module.Name = Name;
+            module.Id = GetNextModId();
+            var info = ModuleInfoMgr.GetModuleInfo(Name);
+            if (!string.IsNullOrEmpty(info.ViewReference))
+            {
+                module.View = (ContentControl)Activator.CreateInstance(Type.GetType(info.ViewReference, true));
+            }
+            module.DisplayName = DisplayName;
+            module.ScanNo = ScanNo;
+            module.Enabled = Convert.ToBoolean(reader["enabled"]);
+            module.X = XmlConvert.ToInt32(reader["x"]);
+            module.Y = XmlConvert.ToInt32(reader["y"]);
+            module.Initialize();
+            module.Deserialize(reader);
+            reader.Close();
+            strReader.Close();
+            return module;
+        }
         #endregion
     }
 }

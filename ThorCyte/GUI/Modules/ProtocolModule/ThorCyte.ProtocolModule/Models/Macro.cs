@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Xml;
 using ComponentDataService;
@@ -29,7 +29,6 @@ namespace ThorCyte.ProtocolModule.Models
             Syncobj = new object();
             FrmErrMsg = new MessageBox();
         }
-
 
         private Macro()
         {
@@ -179,8 +178,8 @@ namespace ThorCyte.ProtocolModule.Models
                                 {
                                     continue;
                                 }
-                                var module = CreateModule(info);
-
+                                var modulelst = CreateModule(info);
+                                var module = modulelst[0];
                                 module.Id = id;
                                 module.Enabled = Convert.ToBoolean(reader["enabled"]);
                                 module.ScanNo = Convert.ToInt32(reader["scale"]);
@@ -294,19 +293,60 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
-        public static ModuleBase CreateModule(ModuleInfo modInfo)
+        public static List<ModuleBase> CreateModule(ModuleInfo modInfo)
         {
             try
             {
-                if (modInfo.IsCombo) throw new CyteException("Macro.CreateModule", "Combination module does not support.");// create combination module
+                if (modInfo.IsCombo)
+                {
+                    // create combination module                    
+                    var cmbmod = ModuleInfoMgr.CombinationModuleDefs.FirstOrDefault(cm => cm.Name == modInfo.Name && cm.Category == modInfo.Category);
+                    var addModLst = new List<ModuleBase>();
+                    if (cmbmod != null)
+                    {
+                        var refdic = new Dictionary<int, int>();
 
-                var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
-                module.Name = modInfo.Name;
-                module.Id = ModuleBase.GetNextModId();
-                module.DisplayName = modInfo.DisplayName;
-                module.ScanNo = CurrentScanId;
-                Modules.Add(module);
-                return module;
+                        foreach (var m in cmbmod.SubModules)
+                        {
+                            var mc = m.Clone() as ModuleBase;
+                            refdic.Add(m.Id, mc.Id);
+                            Modules.Add(mc);
+                            addModLst.Add(mc);
+                        }
+
+                        // find connections on these modules and create them
+                        foreach (var m in cmbmod.SubModules)
+                        {
+                            foreach (var c in m.OutputPort.AttachedConnections)
+                            {
+                                if (cmbmod.SubModules.Contains(c.DestPort.ParentModule))
+                                {
+                                    var outMod = m;
+                                    var inMod = c.DestPort.ParentModule;
+                                    var inportIdx = inMod.InputPorts.IndexOf(c.DestPort);
+                                    CreateConnector(refdic[inMod.Id], refdic[outMod.Id], inportIdx, 0);
+                                }
+                            }
+                        }
+                    }
+
+                    return addModLst;
+                }
+                else
+                {
+                    var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
+                    module.Name = modInfo.Name;
+                    if (!string.IsNullOrEmpty(modInfo.ViewReference))
+                    {
+                        module.View = (UserControl)Activator.CreateInstance(Type.GetType(modInfo.ViewReference, true));
+                    }
+                    module.Id = ModuleBase.GetNextModId();
+                    module.DisplayName = modInfo.DisplayName;
+                    module.ScanNo = CurrentScanId;
+                    Modules.Add(module);
+                    return new List<ModuleBase>() {module};
+                }
+
             }
             catch (Exception ex)
             {
@@ -457,7 +497,7 @@ namespace ThorCyte.ProtocolModule.Models
                 Logger.Write("Error occourd in Analyze Image", ex);
                 FrmErrMsg.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
                 {
-                    FrmErrMsg.Text = "Errorr occourred in Analyze Image: " + ex.Message ;
+                    FrmErrMsg.Text = "Errorr occourred in Analyze Image: " + ex.Message;
                     FrmErrMsg.Caption = "ThorCyte";
                     FrmErrMsg.OkButtonContent = "OK";
                     FrmErrMsg.ShowDialog();

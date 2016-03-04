@@ -17,6 +17,7 @@
             <converts:PointConverter x:Key="PtCvt"/>
 
             <Style TargetType="{x:Type control:Arrow}">
+                <Setter Property="ParentPannelView" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type control:PannelView}}, Path=.}"/>
                 <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderBrush" Value="Transparent" />
@@ -109,14 +110,11 @@
     </UserControl.Resources>
 
     <UserControl.InputBindings>
-        <KeyBinding Key="Delete" Command="{Binding DeleteCommand}"/>
-        <KeyBinding Key="W" Command="{Binding MoveCommand}" CommandParameter="Up"/>
-        <KeyBinding Key="S" Command="{Binding MoveCommand}" CommandParameter="Down"/>
-        <KeyBinding Key="A" Command="{Binding MoveCommand}" CommandParameter="Left"/>
-        <KeyBinding Key="D" Command="{Binding MoveCommand}" CommandParameter="Right"/>
         <KeyBinding Gesture="CTRL+A" Command="{Binding SelectAllCommand}"/>
         <KeyBinding Gesture="CTRL+C" Command="{Binding CopyModulesCommnad}"/>
         <KeyBinding Gesture="CTRL+V" Command="{Binding PasteModulesCommnad}"/>
+        <KeyBinding Key="Delete" Command="{Binding DeleteCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding MacroCommnad}"/>
     </UserControl.InputBindings>
     <Grid x:Name="gridMain">
         <Grid.ColumnDefinitions>
@@ -146,7 +144,14 @@
                 <control:PannelView x:Name="pannel" Background="DimGray" PreviewKeyDown="PannelKeyDown" 
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
-                            ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown">
+                            ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown" MouseRightButtonDown="OnMouseRightDown">
+                    <control:PannelView.InputBindings>
+                        <KeyBinding Key="W" Command="{Binding MoveCommand}" CommandParameter="Up"/>
+                        <KeyBinding Key="S" Command="{Binding MoveCommand}" CommandParameter="Down"/>
+                        <KeyBinding Key="A" Command="{Binding MoveCommand}" CommandParameter="Left"/>
+                        <KeyBinding Key="D" Command="{Binding MoveCommand}" CommandParameter="Right"/>
+
+                    </control:PannelView.InputBindings>
                     <control:PannelView.ContextMenu>
                         <ContextMenu x:Name="testMenu">
                             <MenuItem Header="Copy" Command="{Binding CopyModulesCommnad}" IsEnabled="{Binding IsRemoveEnable}"/>
@@ -155,6 +160,8 @@
                             <Separator/>
                             <MenuItem Header="Vertical Align" Command="{Binding AlignCommnad}" CommandParameter="V" IsEnabled="{Binding IsAlignEnable}"/>
                             <MenuItem Header="Horizontal Align" Command="{Binding AlignCommnad}" CommandParameter="H" IsEnabled="{Binding IsAlignEnable}"/>
+                            <Separator/>
+                            <MenuItem Header="Save as Template..." Command="{Binding SaveTemplateCommand}" IsEnabled="{Binding IsRemoveEnable}"/>
                         </ContextMenu>
                     </control:PannelView.ContextMenu>
                 </control:PannelView>

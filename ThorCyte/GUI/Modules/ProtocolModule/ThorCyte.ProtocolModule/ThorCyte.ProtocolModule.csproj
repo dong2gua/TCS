@@ -41,6 +41,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Bin\ImageProcess.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\..\..\Tools\Prism\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -104,6 +105,7 @@
     <Compile Include="Converts\ThresholdMethodConvert.cs" />
     <Compile Include="Events\ConnectionDragEvents.cs" />
     <Compile Include="Events\ConnectorDragEvents.cs" />
+    <Compile Include="Events\DisplayImageEvent.cs" />
     <Compile Include="Events\ModuleDragCompletedEventArgs.cs" />
     <Compile Include="Events\ModuleDragEventArgs.cs" />
     <Compile Include="Events\ModuleDraggingEventArgs.cs" />
@@ -120,13 +122,17 @@
     <Compile Include="Utils\CollectionItemsChangedEventArgs.cs" />
     <Compile Include="Utils\GlobalConst.cs" />
     <Compile Include="Utils\ImpObservableCollection.cs" />
+    <Compile Include="Utils\InteractiveCommand.cs" />
     <Compile Include="Utils\MessageHelper.cs" />
     <Compile Include="Utils\RequiredValidationRule.cs" />
     <Compile Include="Utils\VisualUtils.cs" />
+    <Compile Include="ViewModels\ImageDisplayViewModel.cs" />
     <Compile Include="ViewModels\MarcoEditorViewModel.cs" />
     <Compile Include="ViewModels\Modules\AddModVm.cs" />
     <Compile Include="ViewModels\Modules\AndModVm.cs" />
     <Compile Include="ViewModels\Modules\BrightContrastModVm.cs" />
+    <Compile Include="ViewModels\Modules\CombinationModVm.cs" />
+    <Compile Include="ViewModels\Modules\ImageViewModVm.cs" />
     <Compile Include="ViewModels\Modules\InvertModVm.cs" />
     <Compile Include="ViewModels\Modules\OrModVm.cs" />
     <Compile Include="ViewModels\Modules\OverlapParentChild2ModVm.cs" />
@@ -143,6 +149,10 @@
     <Compile Include="ViewModels\Modules\XorModVm.cs" />
     <Compile Include="ViewModels\ModuleTreeViewModel.cs" />
     <Compile Include="ViewModels\PannelViewModel.cs" />
+    <Compile Include="ViewModels\SaveTemplateViewModel.cs" />
+    <Compile Include="Views\ImageDisplayView.xaml.cs">
+      <DependentUpon>ImageDisplayView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Modules\BrightContrastModule.xaml.cs">
       <DependentUpon>BrightContrastModule.xaml</DependentUpon>
     </Compile>
@@ -161,6 +171,9 @@
     <Compile Include="Views\Modules\FilterModule.xaml.cs">
       <DependentUpon>FilterModule.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Modules\ImageViewModule.xaml.cs">
+      <DependentUpon>ImageViewModule.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Modules\PhantomModule.xaml.cs">
       <DependentUpon>PhantomModule.xaml</DependentUpon>
     </Compile>
@@ -173,11 +186,18 @@
     <Compile Include="Views\ModuleTree.xaml.cs">
       <DependentUpon>ModuleTree.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SaveTemplateView.xaml.cs">
+      <DependentUpon>SaveTemplateView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ImageDisplayView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Modules\BrightContrastModule.xaml">
       <SubType>Designer</SubType>
@@ -203,6 +223,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Modules\ImageViewModule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Modules\PhantomModule.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -216,6 +240,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ModuleTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SaveTemplateView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -238,9 +266,29 @@
     <Resource Include="Resource\Images\delete.png" />
     <Resource Include="Resource\Images\paste.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Xml\Modules.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Xml\CombinationModules.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\ZoomOut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\ZoomIn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\Ratio.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(ProjectDir)..\..\..\..\Bin\DirectoryModules\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(ProjectDir)..\..\..\..\Bin\DirectoryModules\"
+xcopy /y "$(TargetDir)\Xml\*.xml" "$(ProjectDir)\..\..\..\..\XML\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
