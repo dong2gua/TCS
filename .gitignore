@@ -32,9 +32,4 @@
 /ThorCyte/GUI/Modules/ReviewModule/obj
 /ThorCyte/GUI/Modules/StatisticModule/ThorCyte.StatisticModule/bin
 /ThorCyte/GUI/Modules/StatisticModule/ThorCyte.StatisticModule/obj
-/ThorCyte/Common/LogService/*.vssscc
-/ThorCyte/Common/LogService/LogService/*.vspscc
-/ThorCyte/GUI/Modules/CarrierModule/*.vssscc
-/ThorCyte/GUI/Modules/CarrierModule/ThorCyte.CarrierModule/*.vspscc
-/ThorCyte/GUI/Modules/ProtocolModule/*.vssscc
 /ThorCyte.sln.DotSettings.user
