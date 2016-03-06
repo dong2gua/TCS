@@ -139,7 +139,7 @@
         <GridSplitter x:Name="splitter1" Grid.Column="1" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
 
         <!--Canvas: Create Module-->
-        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="DarkGray" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="DarkGray" IsEnabled="{Binding IsEditEnable}">
             <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="{Binding ElementName=PannelBorder,Path=ActualHeight}" Width="{Binding ElementName=PannelBorder,Path=ActualWidth}">
                 <control:PannelView x:Name="pannel" Background="DimGray" PreviewKeyDown="PannelKeyDown" 
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"

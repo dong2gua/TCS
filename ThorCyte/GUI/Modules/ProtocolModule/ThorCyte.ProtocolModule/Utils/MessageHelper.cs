@@ -13,6 +13,8 @@ namespace ThorCyte.ProtocolModule.Utils
         public delegate void MacroRunningHandler(bool isRuning);
         public static MacroRunningHandler SetRuning;
 
+        public static Action<bool> SetPaused;
+
         public delegate void SetSelectViewItemHandler(object item);
         public static SetSelectViewItemHandler SetSelectViewItem;
 
@@ -41,6 +43,12 @@ namespace ThorCyte.ProtocolModule.Utils
         {
             if(SetRuning == null) return;
             SetRuning.Invoke(isRunding);
+        }
+
+        public static void SendMacroPaused(bool isPaused)
+        {
+            if (SetPaused == null) return;
+            SetPaused.Invoke(isPaused);
         }
 
         public static void SetSelectItem(object item)

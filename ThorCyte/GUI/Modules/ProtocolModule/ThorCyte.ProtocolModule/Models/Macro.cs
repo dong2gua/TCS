@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
 using ComponentDataService;
@@ -18,6 +19,7 @@ using ThorCyte.Infrastructure.Types;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
+using ThreadState = System.Threading.ThreadState;
 
 namespace ThorCyte.ProtocolModule.Models
 {
@@ -29,6 +31,7 @@ namespace ThorCyte.ProtocolModule.Models
         {
             Syncobj = new object();
             FrmErrMsg = new MessageBox();
+
         }
 
         private Macro()
@@ -36,31 +39,31 @@ namespace ThorCyte.ProtocolModule.Models
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             EventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(Save);
 
-
             _imageanalyzed += ImageAnalyzed;
             _isAborting = false;
+            _isPaused = false;
             Connections = new ImpObservableCollection<ConnectorModel>();
             Modules = new ImpObservableCollection<ModuleBase>();
             CurrentImages = new Dictionary<string, ImageData>();
+            _taskQueue = new Queue<RegionTile>();
+            _pauseEvent = new ManualResetEvent(!_isPaused);
         }
+
         #endregion
 
         #region Fields and Properties
 
         private static Thread _tAnalyzeImg;
         private static bool _isAborting;
-
+        private static bool _isPaused;
         private static readonly object Syncobj;
         private static readonly MessageBox FrmErrMsg;
-
         private delegate void ImageAnalyzedCallBackDelegate();
         private static ImageAnalyzedCallBackDelegate _imageanalyzed;
         public delegate void ClearHandler();
         public static ClearHandler Clear;
         private static IExperiment _exp;
-
         private static Macro _uniqueInstance;
-
         public static Macro Instance
         {
             get
@@ -81,9 +84,11 @@ namespace ThorCyte.ProtocolModule.Models
         public static ModuleBase SelectedModuleViewModel;
         private static IData CurrentDataMgr { get; set; }
         public static IComponentDataService CurrentConponentService { get; private set; }
+        private static Queue<RegionTile> _taskQueue;
+        private static ManualResetEvent _pauseEvent;
+
 
         private static IEventAggregator _eventAggregator;
-
         private static IEventAggregator EventAggregator
         {
             get
@@ -409,6 +414,10 @@ namespace ThorCyte.ProtocolModule.Models
                 AnalyzeWorkDispacher();
                 _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
                 _tAnalyzeImg.Start();
+                _pauseEvent.Set();
+                _isPaused = false;
+                MessageHelper.SendMacroPaused(_isPaused);
+
             }
             catch (Exception ex)
             {
@@ -417,9 +426,74 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
+
+        public static void Continue()
+        {
+            try
+            {
+                if (_isPaused)
+                {
+                    _pauseEvent.Set();
+                    _isPaused = false;
+                    MessageHelper.SendMacroPaused(_isPaused);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Continue: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Continue", ex);
+            }
+        }
+
+
+        public static void Pause()
+        {
+            try
+            {
+                if (!_isPaused)
+                {
+                    _pauseEvent.Reset();
+                    _isPaused = true;
+                    MessageHelper.SendMacroPaused(_isPaused);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Pause: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Pause", ex);
+            }
+        }
+
+
+        public static void Stop()
+        {
+            try
+            {
+                if (_tAnalyzeImg == null) return;
+                if (_tAnalyzeImg.IsAlive)
+                {
+                    _isAborting = true;
+
+                    if (_isPaused)
+                    {
+                        _pauseEvent.Set();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Stop: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Stop", ex);
+            }
+        }
+
         private static bool CheckExecutable()
         {
-            var ret = !(_tAnalyzeImg != null && _tAnalyzeImg.IsAlive);
+            //var ret = !(_tAnalyzeImg != null && _tAnalyzeImg.IsAlive);
+            var ret = true;
+
+
             if (!Modules.Any(m => m is ChannelModVm))
             {
                 return false;
@@ -444,21 +518,9 @@ namespace ThorCyte.ProtocolModule.Models
             return ret && vail;
         }
 
-        public static void Pause()
-        {
-        }
 
-        public static void Stop()
-        {
-            if (_tAnalyzeImg == null) return;
-            if (_tAnalyzeImg.IsAlive)
-            {
-                lock (Syncobj)
-                {
-                    _isAborting = true;
-                }
-            }
-        }
+
+
 
 
         private static void AnalyzeImage_bak()
@@ -527,7 +589,9 @@ namespace ThorCyte.ProtocolModule.Models
                         break;
                     }
 
-                    lock (_taskQueue)
+                    _pauseEvent.WaitOne();
+
+                    lock (Syncobj)
                     {
                         if (!_taskQueue.Any())
                         {
@@ -600,9 +664,13 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
-        private static Queue<RegionTile> _taskQueue = new Queue<RegionTile>();
         private static void AnalyzeWorkDispacher(RegionTile rt = null)
         {
+            lock (Syncobj)
+            {
+                _taskQueue.Clear();
+            }
+
             if (rt == null)
             {
                 //Start from beginning.
@@ -611,6 +679,7 @@ namespace ThorCyte.ProtocolModule.Models
                     RegionId = int.MinValue,
                     TileId = int.MinValue
                 };
+
             }
 
             foreach (var region in CurrentScanInfo.ScanRegionList)
@@ -627,7 +696,7 @@ namespace ThorCyte.ProtocolModule.Models
                         TileId = tile.ScanFieldId
                     };
 
-                    lock (_taskQueue)
+                    lock (Syncobj)
                     {
                         _taskQueue.Enqueue(task);
                     }

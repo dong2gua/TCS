@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
@@ -104,7 +102,33 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public bool IsRuning
         {
             get { return _isRuning; }
-            set { SetProperty(ref _isRuning, value); }
+            set
+            {
+                if (_isRuning == value) return;
+                SetProperty(ref _isRuning, value);
+                OnPropertyChanged("IsEditEnable");
+            }
+        }
+
+        private bool _isPaused;
+        public bool IsPaused
+        {
+            get { return _isPaused; }
+            set
+            {
+                if (_isPaused == value) return;
+                SetProperty(ref _isPaused, value);
+                OnPropertyChanged("IsEditEnable");
+            }
+        }
+
+        public bool IsEditEnable
+        {
+            get
+            {
+                var ret = !_isRuning || _isPaused;
+                return ret;
+            }
         }
 
         private string _imgSource;
@@ -159,6 +183,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             MessageHelper.SetMessage += SetMessage;
             MessageHelper.SetProgress += SetProgress;
             MessageHelper.SetRuning += SetRuning;
+            MessageHelper.SetPaused += SetPaused;
             Module.OnSelectionChanged += ModuleOnOnSelectionChanged;
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             EventAggregator.GetEvent<DisplayImageEvent>().Subscribe(DisplayImage, ThreadOption.UIThread);
@@ -181,8 +206,8 @@ namespace ThorCyte.ProtocolModule.ViewModels
             RegionCount = 10;
             TileCount = 10;
 
-            _imgSource = IsRuning ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
-            _tipStr = IsRuning ? "Pause Run" : "Start Run";
+            _imgSource = IsPaused ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
+            _tipStr = IsPaused ? "Pause Run" : "Start Run";
             _isAlignEnable = !IsRuning;
         }
 
@@ -322,7 +347,14 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     {
                         if (IsRuning)
                         {
-                            Macro.Pause();
+                            if (IsPaused)
+                            {
+                                Macro.Continue();
+                            }
+                            else
+                            {
+                                Macro.Pause();
+                            }
                         }
                         else
                         {
@@ -676,9 +708,19 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private void SetRuning(bool isRuning)
         {
             IsRuning = isRuning;
-            ImgSource = isRuning ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
-            TipStr = isRuning ? "Pause Run" : "Start Run";
+            if (!isRuning)
+            {
+                ImgSource = "../Resource/Images/play.png";
+                TipStr = "Start Run";
+            }
             IsAlignEnable = !isRuning;
+        }
+
+        private void SetPaused(bool isPaused)
+        {
+            IsPaused = isPaused;
+            ImgSource = !isPaused ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
+            TipStr = !isPaused ? "Pause Run" : "Start Run";
         }
 
 
