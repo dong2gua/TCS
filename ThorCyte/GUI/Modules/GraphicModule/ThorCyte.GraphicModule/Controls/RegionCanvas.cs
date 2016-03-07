@@ -615,6 +615,37 @@ namespace ThorCyte.GraphicModule.Controls
             }
             return graphicBase;
         }
+
+        public bool HasRegionSelected()
+        {
+            var isSelected = false;
+            foreach (var graphic in Selection)
+            {
+                if ((graphic as GraphicsRectangleBase) != null || (graphic as GraphicsPolygon)!=null)
+                {
+                    isSelected = true;
+                    break;
+                }
+            }
+            return isSelected;
+        }
+
+        public IList<string> GetSelectedRegionList()
+        {
+            var idList = new List<string>();
+            foreach (var graphic in Selection)
+            {
+                if ((graphic as GraphicsRectangleBase) != null || (graphic as GraphicsPolygon) != null)
+                {
+                    if (graphic.Name.StartsWith(ConstantHelper.PrefixRegionName))
+                    {
+                        idList.Add(graphic.Name);
+                    }
+                }
+            }
+            return idList;
+        }
+
         #endregion
 
 

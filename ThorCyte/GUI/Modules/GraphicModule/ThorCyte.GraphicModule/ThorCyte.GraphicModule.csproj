@@ -172,6 +172,9 @@
     <Compile Include="Views\EventTypeTab.xaml.cs">
       <DependentUpon>EventTypeTab.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\RegionEventsViewer.xaml.cs">
+      <DependentUpon>RegionEventsViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GeneralTab.xaml.cs">
       <DependentUpon>GeneralTab.xaml</DependentUpon>
     </Compile>
@@ -240,6 +243,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\EventTypeTab.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\RegionEventsViewer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

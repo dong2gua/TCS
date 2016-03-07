@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,6 +12,8 @@ using ThorCyte.GraphicModule.Controls.Graphics;
 using ThorCyte.GraphicModule.Converts;
 using ThorCyte.GraphicModule.Events;
 using ThorCyte.GraphicModule.ViewModels;
+using ThorCyte.GraphicModule.Views;
+using ThorCyte.Infrastructure.Events;
 using IEventAggregator = Prism.Events.IEventAggregator;
 
 namespace ThorCyte.GraphicModule.Controls
@@ -51,6 +54,8 @@ namespace ThorCyte.GraphicModule.Controls
 
         public XyDataSeries<double, double>[] DataSeriesArray { get; set; }
 
+        protected List<RegionEventsViewer> RegionEventsViewerList { get; set; } 
+
         #endregion
 
         #region Constrcutor
@@ -59,12 +64,15 @@ namespace ThorCyte.GraphicModule.Controls
         {
             IsLoading = true;
             RegionPanel = canvas;
+            RegionEventsViewerList = new List<RegionEventsViewer>();
             RenderableSeriesCount = renderableSeriesCount;
             DataSeriesArray = new XyDataSeries<double, double>[RenderableSeriesCount];
             Loaded += OnLoad;
             RegionPanel.PreviewMouseLeftButtonUp += OnCanvasLeftUp;
             SizeChanged += OnSizeChanged;
             MouseDoubleClick += OnShowDetailWnd;
+            ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<ShowRegionEvent>().Subscribe(OnSwitchTab);
+            ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<ExperimentLoadedEvent>().Subscribe(OnLoadExperiment);
         }
 
         protected GraphicUcBase(GraphicVmBase vm) { }
@@ -186,6 +194,40 @@ namespace ThorCyte.GraphicModule.Controls
         private void OnShowDetailWnd(object sender, MouseButtonEventArgs e)
         {
             ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<ShowDetailGraphicEvent>().Publish(GraphicVm.Id);
+        }
+
+        private void OnLoadExperiment(int scanId)
+        {
+            while (RegionEventsViewerList.Count > 0)
+            {
+                RegionEventsViewerList[0].Close();
+            }
+        }
+
+        public void OnSwitchTab(string tabName)
+        {
+            if (RegionEventsViewerList == null || RegionEventsViewerList.Count == 0)
+            {
+                return;
+            }
+            foreach (var wnd in RegionEventsViewerList)
+            {
+                wnd.Visibility = tabName == "AnalysisModule" ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        protected void ShowRegionEvents(string pre)
+        {
+            var idList = RegionPanel.GetSelectedRegionList();
+            if (idList.Count == 0)
+            {
+                return;
+            }
+            var regionWnd = new RegionEventsViewer();
+            RegionEventsViewerList.Add(regionWnd);
+            regionWnd.Closed += delegate { RegionEventsViewerList.Remove(regionWnd); };
+            regionWnd.Show();
+            regionWnd.Update(string.Format("{0}{1}",pre,Id), GraphicVm.SelectedComponent, idList); 
         }
 
         #endregion
