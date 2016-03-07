@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using Abt.Controls.SciChart;
 using Abt.Controls.SciChart.Visuals.Axes;
 using Abt.Controls.SciChart.Visuals.PointMarkers;
 using Abt.Controls.SciChart.Visuals.RenderableSeries;
 using Microsoft.Practices.ServiceLocation;
+using Microsoft.Win32;
 using ThorCyte.GraphicModule.Controls;
 using ThorCyte.GraphicModule.Events;
 using ThorCyte.GraphicModule.Helper;
@@ -40,7 +42,8 @@ namespace ThorCyte.GraphicModule.Views
             ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<GraphUpdateEvent>().Subscribe(Update);
         }
 
-        public ScattergramView(ScattergramVm vm):this()
+        public ScattergramView(ScattergramVm vm)
+            : this()
         {
             DataContext = vm;
         }
@@ -173,7 +176,7 @@ namespace ThorCyte.GraphicModule.Views
             SciChart.YAxis.VisibleRange = new DoubleRange(GraphicVm.YAxis.MinValue, GraphicVm.YAxis.MaxValue);
         }
 
-        public override void SetCloseButtonState(bool isStandAlone )
+        public override void SetCloseButtonState(bool isStandAlone)
         {
             CloseBtn.Visibility = isStandAlone ? Visibility.Collapsed : Visibility.Visible;
         }
@@ -294,6 +297,27 @@ namespace ThorCyte.GraphicModule.Views
         {
             ServiceLocator.Current.GetInstance<IEventAggregator>()
                 .GetEvent<DelateGraphicEvent>().Publish(Convert.ToInt32(GraphicVm.Id));
+        }
+
+        private void OnMouseRightDown(object sender, MouseButtonEventArgs e)
+        {
+            var hasRegionSelected = RegionPanel.HasRegionSelected();
+            RegionEventsItem.IsEnabled = hasRegionSelected;
+        }
+
+        private void OnShowRegionEvents(object sender, RoutedEventArgs e)
+        {
+            ShowRegionEvents(ConstantHelper.PrefixScattergramName);
+        }
+         
+        private void OnCopy(object sender, RoutedEventArgs e)
+        {
+            CopyToClipboard();
+        }
+
+        private void OnSave(object sender, RoutedEventArgs e)
+        {
+            SaveImage(ConstantHelper.PrefixScattergramName);
         }
 
         #endregion

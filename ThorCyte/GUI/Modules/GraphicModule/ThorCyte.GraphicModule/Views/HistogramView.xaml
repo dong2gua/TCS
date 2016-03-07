@@ -15,7 +15,15 @@
 
     <Grid>
         <!--  Create the chart surface  -->
-        <s:SciChartSurface Name="SciChart" FontSize="16" Background="#595959" GridLinesPanelStyle="{StaticResource GridLinesPanelStyle}" ChartTitle="{Binding Title}" Padding="0,0,20,0"/>
+        <s:SciChartSurface Name="SciChart" FontSize="16" Background="#595959" GridLinesPanelStyle="{StaticResource GridLinesPanelStyle}" ChartTitle="{Binding Title}" Padding="0,0,20,0">
+            <s:SciChartSurface.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="SaveItem" Header="Save" Click="OnSave"/>
+                    <MenuItem x:Name="CopyItem" Header="Copy" Click="OnCopy"/>
+                    <MenuItem x:Name="RegionEventsItem" Header="View Events in Region" Click="OnShowRegionEvents"/>
+                </ContextMenu>
+            </s:SciChartSurface.ContextMenu>
+        </s:SciChartSurface>
         <Button x:Name="CloseBtn" ToolTip="Close" HorizontalAlignment="Right" VerticalAlignment="Top" BorderThickness="0"
                                 Height="24"
                                 Width="24"

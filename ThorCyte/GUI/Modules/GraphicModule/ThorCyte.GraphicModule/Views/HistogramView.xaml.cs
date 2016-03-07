@@ -23,8 +23,11 @@ namespace ThorCyte.GraphicModule.Views
     /// </summary>
     public partial class HistogramView
     {
+        #region Fields
 
-        Timer resizeTimer = new Timer(500) { Enabled = false };
+        private readonly Timer _resizeTimer = new Timer(500) { Enabled = false };
+
+        #endregion
 
         #region Constructor
 
@@ -34,7 +37,7 @@ namespace ThorCyte.GraphicModule.Views
             InitializeComponent();
             Init();
             SciChart.YAxis = YAxis;
-            resizeTimer.Elapsed += OnResize;
+            _resizeTimer.Elapsed += OnResize;
             ServiceLocator.Current.GetInstance<IEventAggregator>().GetEvent<GraphUpdateEvent>().Subscribe(Update);
         }
 
@@ -238,14 +241,14 @@ namespace ThorCyte.GraphicModule.Views
         public override void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             base.OnSizeChanged(sender, e);
-            resizeTimer.Stop();
-            resizeTimer.Start();
+            _resizeTimer.Stop();
+            _resizeTimer.Start();
             e.Handled = true;
         }
 
         private void OnResize(object sender, ElapsedEventArgs e)
         {
-            resizeTimer.Stop();
+            _resizeTimer.Stop();
             if (GraphicVm == null)
             {
                 return;
@@ -272,6 +275,21 @@ namespace ThorCyte.GraphicModule.Views
         public override void ClearHeightBinding()
         {
             BindingOperations.ClearBinding(this, HeightProperty);
+        }
+
+        private void OnShowRegionEvents(object sender, RoutedEventArgs e)
+        {
+            ShowRegionEvents(ConstantHelper.PrefixHistogramName);
+        }
+
+        private void OnCopy(object sender, RoutedEventArgs e)
+        {
+            CopyToClipboard();
+        }
+
+        private void OnSave(object sender, RoutedEventArgs e)
+        {
+            SaveImage(ConstantHelper.PrefixHistogramName);
         }
 
         #endregion

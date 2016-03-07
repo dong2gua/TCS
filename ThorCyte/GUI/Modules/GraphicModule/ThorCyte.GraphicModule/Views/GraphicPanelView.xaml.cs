@@ -46,6 +46,9 @@ namespace ThorCyte.GraphicModule.Views
             ServiceLocator.Current.GetInstance<IEventAggregator>()
                 .GetEvent<ShowRegionEvent>().Subscribe(OnSwitchTab);
 
+            ServiceLocator.Current.GetInstance<IEventAggregator>().
+                GetEvent<ExperimentLoadedEvent>().Subscribe(OnLoadExperiment);
+
             _dragMgr = new DragDropHelper<GraphicUcBase>(GraphicViewList)
             {
                 ShowDragAdorner = true
@@ -377,11 +380,11 @@ namespace ThorCyte.GraphicModule.Views
             }
         }
 
-        public static void CloseAllDetailWindow()
+        private void OnLoadExperiment(int scanid)
         {
-            foreach (var wnd in DetailWndList)
+            while (DetailWndList.Count > 0)
             {
-                wnd.Close();
+                DetailWndList[0].Close();
             }
         }
 

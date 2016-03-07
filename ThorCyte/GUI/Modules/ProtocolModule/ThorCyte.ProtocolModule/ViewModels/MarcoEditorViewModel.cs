@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Commands;
 using Prism.Events;
@@ -365,29 +364,19 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
                 case "Next":
                     {
-
-
+                        Macro.Next();
                     }
                     break;
 
                 case "Previous":
                     {
-
-
+                        Macro.Previous();
                     }
                     break;
 
                 case "Repeat":
                     {
-
-
-                    }
-                    break;
-
-                case "End":
-                    {
-
-
+                        Macro.Repeat();
                     }
                     break;
 
@@ -848,7 +837,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     ShowInTaskbar = true,
                     ResizeMode = ResizeMode.NoResize,
                     Height = 600,
-                    Width = 800
+                    Width = 800,
                 };
                 wnd.Show();
                 _dispImgDic.Add(args.Title, view);
