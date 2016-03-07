@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
 using ComponentDataService;
@@ -18,11 +16,13 @@ using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
+using Xceed.Wpf.Toolkit;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
-using ThreadState = System.Threading.ThreadState;
 
 namespace ThorCyte.ProtocolModule.Models
 {
+    public enum RunDirection { Prev, Repeat, Next };
+
     public class Macro
     {
         #region Constructor
@@ -42,11 +42,14 @@ namespace ThorCyte.ProtocolModule.Models
             _imageanalyzed += ImageAnalyzed;
             _isAborting = false;
             _isPaused = false;
+            _isStep = false;
             Connections = new ImpObservableCollection<ConnectorModel>();
             Modules = new ImpObservableCollection<ModuleBase>();
             CurrentImages = new Dictionary<string, ImageData>();
-            _taskQueue = new Queue<RegionTile>();
+            _currentTaskId = -1;
+            _taskList = new List<RegionTile>();
             _pauseEvent = new ManualResetEvent(!_isPaused);
+            _direction = RunDirection.Next;
         }
 
         #endregion
@@ -56,6 +59,8 @@ namespace ThorCyte.ProtocolModule.Models
         private static Thread _tAnalyzeImg;
         private static bool _isAborting;
         private static bool _isPaused;
+        private static bool _isStep;
+        private static RunDirection _direction;
         private static readonly object Syncobj;
         private static readonly MessageBox FrmErrMsg;
         private delegate void ImageAnalyzedCallBackDelegate();
@@ -75,6 +80,7 @@ namespace ThorCyte.ProtocolModule.Models
         public static int CurrentScanId { get; private set; }
         public static int CurrentRegionId { get; private set; }
         public static int CurrentTileId { get; private set; }
+        private static int _currentTaskId;
         public static int ImageMaxBits { get; private set; }
         private static string AnalysisPath { get; set; }
         public static ScanInfo CurrentScanInfo { get; private set; }
@@ -84,7 +90,7 @@ namespace ThorCyte.ProtocolModule.Models
         public static ModuleBase SelectedModuleViewModel;
         private static IData CurrentDataMgr { get; set; }
         public static IComponentDataService CurrentConponentService { get; private set; }
-        private static Queue<RegionTile> _taskQueue;
+        private static List<RegionTile> _taskList;
         private static ManualResetEvent _pauseEvent;
 
 
@@ -130,7 +136,7 @@ namespace ThorCyte.ProtocolModule.Models
                     Clear.Invoke();
                 }
                 CurrentScanId = scanid;
-                ResetRegionTileId();
+                ResetTask();
                 CurrentScanInfo = _exp.GetScanInfo(scanid);
                 var expinfo = _exp.GetExperimentInfo();
                 ImageMaxBits = expinfo.IntensityBits;
@@ -412,6 +418,7 @@ namespace ThorCyte.ProtocolModule.Models
                 }
                 EventAggregator.GetEvent<MacroRunEvent>().Publish(CurrentScanId);
                 AnalyzeWorkDispacher();
+                _direction = RunDirection.Next;
                 _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
                 _tAnalyzeImg.Start();
                 _pauseEvent.Set();
@@ -433,8 +440,10 @@ namespace ThorCyte.ProtocolModule.Models
             {
                 if (_isPaused)
                 {
+                    _direction = RunDirection.Next;
                     _pauseEvent.Set();
                     _isPaused = false;
+                    _isStep = false;
                     MessageHelper.SendMacroPaused(_isPaused);
                 }
             }
@@ -466,6 +475,87 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
+        public static void Next()
+        {
+            try
+            {
+                if (_tAnalyzeImg == null || !_tAnalyzeImg.IsAlive)
+                {
+                    _isStep = true;
+                    _isPaused = false;
+                    MessageHelper.SendMacroPaused(_isPaused);
+                    _pauseEvent.Set(); //start to run
+                    Run();
+                    return;
+                }
+
+                if (_isPaused)
+                {
+                    _direction = RunDirection.Next;
+                    _isStep = true;
+                    _isPaused = false;
+                    MessageHelper.SendMacroPaused(_isPaused);
+                    _pauseEvent.Set(); //start to run
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Next: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Next", ex);
+            }
+        }
+
+
+        public static void Previous()
+        {
+            try
+            {
+                if (_tAnalyzeImg == null || !_tAnalyzeImg.IsAlive)
+                {
+                    return;
+                }
+
+                if (_isPaused)
+                {
+                    _direction = RunDirection.Prev;
+                    _isStep = true;
+                    _isPaused = false;
+                    MessageHelper.SendMacroPaused(_isPaused);
+                    _pauseEvent.Set(); //start to run
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Previous: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Previous", ex);
+            }
+        }
+
+        public static void Repeat()
+        {
+            try
+            {
+                if (_tAnalyzeImg == null || !_tAnalyzeImg.IsAlive)
+                {
+                    return;
+                }
+
+                if (_isPaused)
+                {
+                    _direction = RunDirection.Repeat;
+                    _isStep = true;
+                    _isPaused = false;
+                    MessageHelper.SendMacroPaused(_isPaused);
+                    _pauseEvent.Set(); //start to run
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Repeat: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Repeat", ex);
+            }
+        }
+
         public static void Stop()
         {
             try
@@ -478,6 +568,7 @@ namespace ThorCyte.ProtocolModule.Models
                     if (_isPaused)
                     {
                         _pauseEvent.Set();
+
                     }
                 }
             }
@@ -492,7 +583,6 @@ namespace ThorCyte.ProtocolModule.Models
         {
             //var ret = !(_tAnalyzeImg != null && _tAnalyzeImg.IsAlive);
             var ret = true;
-
 
             if (!Modules.Any(m => m is ChannelModVm))
             {
@@ -517,11 +607,6 @@ namespace ThorCyte.ProtocolModule.Models
 
             return ret && vail;
         }
-
-
-
-
-
 
         private static void AnalyzeImage_bak()
         {
@@ -593,12 +678,12 @@ namespace ThorCyte.ProtocolModule.Models
 
                     lock (Syncobj)
                     {
-                        if (!_taskQueue.Any())
+                        var rt = GetNextTask();
+
+                        if (rt == null)
                         {
                             break;
                         }
-                        var rt = _taskQueue.Dequeue();
-
 
                         var srgn = CurrentScanInfo.ScanRegionList.FirstOrDefault(sr => sr.RegionId == rt.RegionId);
 
@@ -641,6 +726,11 @@ namespace ThorCyte.ProtocolModule.Models
                         MessageHelper.PostProgress("Tile", -1, CurrentTileId);
                         MessageHelper.PostProgress("Region", -1, CurrentRegionId);
                     }
+
+                    if (_isStep)
+                    {
+                        Pause();
+                    }
                 }
             }
             catch (Exception ex)
@@ -664,11 +754,74 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
+        private static RegionTile GetNextTask()
+        {
+            RegionTile ret;
+
+            switch (_direction)
+            {
+                case RunDirection.Next:
+                    {
+                        if (_currentTaskId < 0)
+                        {
+                            _currentTaskId = 0;
+                        }
+                        else
+                        {
+                            _currentTaskId++;
+                        }
+
+                        if (_currentTaskId < 0 || _currentTaskId > _taskList.Count - 1)
+                        {
+                            _currentTaskId = -1;
+                            return null;
+                        }
+
+                        ret = _taskList[_currentTaskId];
+                    }
+                    break;
+
+                case RunDirection.Prev:
+                    {
+                        _currentTaskId--;
+
+                        if (_currentTaskId < 0 || _currentTaskId > _taskList.Count - 1)
+                        {
+                            _currentTaskId = -1;
+                            return null;
+                        }
+
+                        ret = _taskList[_currentTaskId];
+                    }
+                    break;
+
+                case RunDirection.Repeat:
+                    {
+                        if (_currentTaskId < 0 || _currentTaskId > _taskList.Count - 1)
+                        {
+                            _currentTaskId = -1;
+                            return null;
+                        }
+
+                        ret = _taskList[_currentTaskId];
+                    }
+                    break;
+
+                default:
+                    ret = null;
+                    break;
+            }
+
+            return ret;
+        }
+
+
+
         private static void AnalyzeWorkDispacher(RegionTile rt = null)
         {
             lock (Syncobj)
             {
-                _taskQueue.Clear();
+                _taskList.Clear();
             }
 
             if (rt == null)
@@ -698,9 +851,8 @@ namespace ThorCyte.ProtocolModule.Models
 
                     lock (Syncobj)
                     {
-                        _taskQueue.Enqueue(task);
+                        _taskList.Add(task);
                     }
-
                 }
             }
 
@@ -726,10 +878,11 @@ namespace ThorCyte.ProtocolModule.Models
         private static void ImageAnalyzed()
         {
             if (_isAborting) _isAborting = false;
+            _isStep = false;
             MessageHelper.PostMessage("All images analyzed!");
             MessageHelper.SendMacroRuning(false);
             EventAggregator.GetEvent<MacroFinishEvent>().Publish(CurrentScanId);
-            ResetRegionTileId();
+            ResetTask();
         }
 
         private static void ClearImagesDic()
@@ -860,17 +1013,13 @@ namespace ThorCyte.ProtocolModule.Models
             return result;
         }
 
-
-        private static void SetRegionTileId(int regionId, int tileId)
+        private static void ResetTask()
         {
-            CurrentRegionId = int.MinValue;
-            CurrentTileId = int.MinValue;
-        }
-
-        private static void ResetRegionTileId()
-        {
-            CurrentRegionId = int.MinValue;
-            CurrentTileId = int.MinValue;
+            lock (Syncobj)
+            {
+                _taskList.Clear();
+            }
+            _currentTaskId = -1;
         }
 
         ~Macro()

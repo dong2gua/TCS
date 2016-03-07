@@ -215,20 +215,16 @@
                     <Image Source="{Binding ImgSource}"/>
                 </Button>
 
-                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Next" ToolTip="Next Tile" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Next" ToolTip="Next Tile" IsEnabled="{Binding IsEditEnable}">
                     <Image Source="../Resource/Images/Next.png"/>
                 </Button>
 
-                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Previous" ToolTip="Previous Tile" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Previous" ToolTip="Previous Tile" IsEnabled="{Binding IsEditEnable}">
                     <Image Source="../Resource/Images/Previous.png"/>
                 </Button>
 
-                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Repeat" ToolTip="Repeat this Tile" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Repeat" ToolTip="Repeat this Tile" IsEnabled="{Binding IsPaused}">
                     <Image Source="../Resource/Images/Loop.png"/>
-                </Button>
-
-                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="End" ToolTip="To Last Tile" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
-                    <Image Source="../Resource/Images/End.png"/>
                 </Button>
 
                 <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Stop" ToolTip="Stop Run" IsEnabled="{Binding IsRuning}">
