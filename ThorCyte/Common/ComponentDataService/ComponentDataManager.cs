@@ -256,10 +256,14 @@ namespace ComponentDataService
 
         public void AddComponent(string componentName, IList<Feature> features)
         {
-            AddComponent(componentName, features, false);
+            AddComponent(componentName, features, false, 1);
         }
 
-       
+        public void AddComponent(string componentName, IList<Feature> features, int scanId)
+        {
+            AddComponent(componentName, features, false, scanId);
+        }
+
 
         public void ClearComponents()
         {
@@ -341,11 +345,11 @@ namespace ComponentDataService
 
         
         #endregion
-        public void AddComponent(string componentName, IList<Feature> features, bool isPhantom)
+        public void AddComponent(string componentName, IList<Feature> features, bool isPhantom, int scanId)
         {
             BioComponent component = isPhantom
-                ? (BioComponent)new PhantomComponent(_experiment, componentName)
-                : new RealComponent(_experiment, componentName);
+                ? (BioComponent)new PhantomComponent(_experiment, componentName, scanId)
+                : new RealComponent(_experiment, componentName, scanId);
             component.Update(features);
             _bioComponentDict[componentName] = component;
         }
