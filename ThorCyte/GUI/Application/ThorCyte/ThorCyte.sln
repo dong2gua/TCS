@@ -12,27 +12,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThorCyte.MosicaModule", "MosicaModule\ThorCyte.MosicaModule.csproj", "{7411D5BE-0DF8-4D40-BC2E-F8B3FC4E31AD}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://chn-vm-46:8080/tfs/thorcyteprocessteam
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = ThorCyte\\ThorCyte.csproj
-		SccProjectName1 = ThorCyte
-		SccLocalPath1 = ThorCyte
-		SccProjectUniqueName2 = ..\\..\\..\\Common\\ThorCyteInfrastructure\\ThorCyte.Infrastructure.csproj
-		SccProjectName2 = ../../../Common/ThorCyteInfrastructure
-		SccLocalPath2 = ..\\..\\..\\Common\\ThorCyteInfrastructure
-		SccProjectUniqueName3 = ..\\..\\Modules\\ReviewModule\\ThorCyte.ReviewModule.csproj
-		SccProjectName3 = ../../Modules/ReviewModule
-		SccLocalPath3 = ..\\..\\Modules\\ReviewModule
-		SccProjectUniqueName4 = ..\\..\\Modules\\AnalysisModule\\ThorCyte.AnalysisModule.csproj
-		SccProjectName4 = ../../Modules/AnalysisModule
-		SccLocalPath4 = ..\\..\\Modules\\AnalysisModule
-		SccProjectUniqueName5 = MosicaModule\\ThorCyte.MosicaModule.csproj
-		SccProjectName5 = MosicaModule
-		SccLocalPath5 = MosicaModule
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
