@@ -5,7 +5,7 @@ namespace ThorCyte.Infrastructure.Types
     public enum RegionShape { None, Point, Line, Rectangle, Ellipse, Polygon, Gate }
     public enum ResUnit { None, Inch, Centimeter, Millimetre, Micron, Nanometer, Picometer }
     public enum ScanPathType { None, Serpentine, LeftToRight, RightToLeft }
-    public enum ImageOperator { Add, Subtract, Invert, Min, Max, Multiply, And, Or, Xor, LinearTx, ShiftPeak, MultAdd, Matrix }
+    public enum ImageOperator { Add, Subtract, Invert, Min, Max, Multiply, ShiftPeak }
     public enum ImageFileFormat { None, Jpeg, Flat, Tiff, Raw }
     public enum RegionColorIndex { Red, LawnGreen, Orange, Yellow, Magenta, Cyan, White }
 }
