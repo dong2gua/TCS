@@ -104,12 +104,12 @@ namespace ROIService
             _regionEventsDictionary[id] = EmptyBioEvents;
             region.Calculate();
             AddRelationShip(id);
-            UpdateEventsDictionary(id);
+            if (_activeWells.Count == 1)
+                UpdateEventsDictionary(id);
+            else if (_activeWells.Count > 1)
+                UpdateRegionOnMultiWells(_activeWells, id);
             return true;
         }
-
-
-       
 
         public void ChangeActiveWells(IList<int> activeWells)
         {
@@ -130,8 +130,6 @@ namespace ROIService
                 InitRegionEvents(WellNo, RegionNo);
             }
         }
-
-
 
         public void SetRegion(MaskRegion region)
         {

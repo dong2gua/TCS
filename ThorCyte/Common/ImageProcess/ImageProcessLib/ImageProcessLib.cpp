@@ -552,13 +552,6 @@ LIBCV_API int fnipp_lib_sum_16uC1M(unsigned short* buffer, int width, int height
 LIBCV_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int height, int channels, 
 									 unsigned short* dstBuffer, FilterType type, int maskSize, unsigned short maxValue)
 {
-	string path = "C:\\Users\\root\\Desktop\\Filter output\\Intel IPP\\in c time cost\\";
-    string filename = get_filter_name(type, maskSize) + ".txt";
-	path = path + filename;
-	LARGE_INTEGER f;
-	QueryPerformanceFrequency(&f);
-	LARGE_INTEGER start, end;
-	QueryPerformanceCounter(&start);
 	const Ipp32s* pKernel = get_filter_kernel(type, maskSize);
 	const IppiSize roi = {width, height};
 	IppStatus status;
@@ -593,14 +586,6 @@ LIBCV_API int fnipp_lib_filter_16u(unsigned short* srcBuffer, int width, int hei
 	}
 	ippiFree(srcWithBorder);
 	saturate(dstBuffer, width, height, channels, maxValue);
-	QueryPerformanceCounter(&end);
-	double ms = (end.QuadPart - start.QuadPart)*1000.0/f.QuadPart;
-	FILE* file = nullptr;
-	if(fopen_s(&file, path.c_str(),"a+")==0)
-	{
-		fprintf_s(file, "%0.1f\n",ms);
-		fclose(file);
-	}
 	return status;
 }
 
@@ -716,12 +701,12 @@ LIBCV_API int fncv_lib_findContours_16uC1(unsigned short* srcBuffer, int width, 
 	int count = 0;
 	for(auto iter = contours.begin(); iter!=contours.end(); ++iter, count++)
 	{
-		vector<POINT> contour = *iter;
-		size_t n = contour.size();
+		
+		size_t n = (*iter).size();
 		(*ppPointsCountPerBlob)[count] = static_cast<int>(n);
 		for(size_t j=0; j<n; j++)
 		{
-			POINT point = contour[j];
+			POINT point = (*iter)[j];
 			(*ppBlobs)[index] = point.x;
 			(*ppBlobs)[index+1] = point.y;
 			index += 2;

@@ -205,8 +205,7 @@ list<vector<POINT>> find_contours16U(unsigned short* buffer, int width, int heig
 			int index = 0;
 			for(auto it = contours.begin(); it!=contours.end(); ++it, index++)
 			{
-				vector<POINT> contour = *it;
-				exist = point_on_contour(contour, bound_rects[index], pt);
+				exist = point_on_contour(*it, bound_rects[index], pt);
 				if(exist) break;
 			}
 
@@ -294,7 +293,7 @@ int contour_area(vector<POINT> contour)
     return area;
 }
 
-bool point_on_contour(vector<POINT> contour, RECT bound, POINT point)
+bool point_on_contour(const vector<POINT>& contour, RECT bound, POINT point)
 {
 	if(point.x < bound.left || point.x > bound.right 
 		|| point.y < bound.top || point.y > bound.bottom)

@@ -42,6 +42,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Tools\Prism\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="Prism, Version=6.1.0.0, Culture=neutral, PublicKeyToken=91a96d2a154366d8, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Tools\Prism\Prism.dll</HintPath>
@@ -69,6 +70,9 @@
     <Compile Include="Types\Feature.cs" />
     <Compile Include="Types\FeatureCollection.cs" />
     <Compile Include="Types\FeatureDefinition.cs" />
+    <Compile Include="Types\PhantomComponent.cs" />
+    <Compile Include="Types\PhantomDefine.cs" />
+    <Compile Include="Types\RealComponent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
