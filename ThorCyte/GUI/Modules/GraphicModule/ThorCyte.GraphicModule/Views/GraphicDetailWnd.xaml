@@ -3,5 +3,5 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:System.Windows.Controls;assembly=ThorCyte.Infrastructure"
         Title="GraphicDetailWnd" Width="340" Height="340" MinWidth="340" MinHeight="340"
-        Topmost="True" ShowInTaskbar="True" WindowStartupLocation="CenterScreen" >
+        ShowInTaskbar="True" WindowStartupLocation="CenterScreen" >
 </controls:CustomWindow>

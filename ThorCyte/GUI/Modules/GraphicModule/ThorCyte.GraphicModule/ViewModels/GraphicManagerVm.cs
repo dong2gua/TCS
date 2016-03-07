@@ -156,7 +156,6 @@ namespace ThorCyte.GraphicModule.ViewModels
             _tabIdManager.Clear();
             _activeWellNos.Clear();
             ROIManager.Instance.Clear();
-            GraphicPanelView.CloseAllDetailWindow();
         }
 
         private void OnAddTab()

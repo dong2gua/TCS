@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using Abt.Controls.SciChart;
 using Abt.Controls.SciChart.Visuals.Axes;
@@ -294,6 +295,17 @@ namespace ThorCyte.GraphicModule.Views
         {
             ServiceLocator.Current.GetInstance<IEventAggregator>()
                 .GetEvent<DelateGraphicEvent>().Publish(Convert.ToInt32(GraphicVm.Id));
+        }
+
+        private void OnMouseRightDown(object sender, MouseButtonEventArgs e)
+        {
+            var hasRegionSelected = RegionPanel.HasRegionSelected();
+            RegionEventsItem.IsEnabled = hasRegionSelected;
+        }
+
+        private void OnShowRegionEvents(object sender, RoutedEventArgs e)
+        {
+            ShowRegionEvents(ConstantHelper.PrefixScattergramName);
         }
 
         #endregion
