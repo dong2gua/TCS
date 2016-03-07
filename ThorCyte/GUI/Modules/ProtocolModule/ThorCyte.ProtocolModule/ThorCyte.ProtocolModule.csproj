@@ -141,6 +141,7 @@
     <Compile Include="ViewModels\Modules\FilterModVm.cs" />
     <Compile Include="ViewModels\Modules\ModuleBase.cs" />
     <Compile Include="ViewModels\Modules\PhantomModVm.cs" />
+    <Compile Include="ViewModels\Modules\ScanModVm.cs" />
     <Compile Include="ViewModels\Modules\SubtractModVm.cs" />
     <Compile Include="ViewModels\Modules\ThresholdModVm.cs" />
     <Compile Include="ViewModels\Modules\TransformModVm.cs" />

@@ -115,6 +115,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 _img = InputImage;
 
                 //Todo: Add Implement logic here.
+                //Macro.CurrentConponentService.AddComponent();
 
                 _img.Dispose();
             }
