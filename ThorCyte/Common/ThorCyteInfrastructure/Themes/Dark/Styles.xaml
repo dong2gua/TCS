@@ -22,9 +22,9 @@
 
     <Color x:Key="HighlightColor">#BDBDBD</Color>
     <Color x:Key="HotColor">#525252</Color>
-    
-    
-    
+
+
+
     <!--Brushes-->
     <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}"/>
     <SolidColorBrush x:Key="MouseOverForegroundBrush" Color="{StaticResource DarkBackgroundColor}"/>
@@ -108,9 +108,9 @@
     <SolidColorBrush x:Key="DataGridHeaderBackgroundBrush" Color="{StaticResource DarkBackgroundColor}"/>
     <SolidColorBrush x:Key="DataGridHeaderMouseOverBrush" Color="#AAAAAA"/>
     <SolidColorBrush x:Key="DataGridHeaderBorderBrush" Color="{StaticResource DisabledBackgroundColor}"/>
-	<SolidColorBrush x:Key="DataGridRowBorderBrush" Color="{StaticResource DisabledBackgroundColor}"/>
+    <SolidColorBrush x:Key="DataGridRowBorderBrush" Color="{StaticResource DisabledBackgroundColor}"/>
     <SolidColorBrush x:Key="DataGridRowBackgroundBrush" Color="{StaticResource DarkBackgroundColor}"/>
-	<SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="{StaticResource HighlightColor}"/>
+    <SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="{StaticResource HighlightColor}"/>
     <SolidColorBrush x:Key="GridLinesBrush" Color="Transparent"/>
     <SolidColorBrush x:Key="{x:Static DataGrid.FocusBorderBrushKey}" Color="Red"/>
 
@@ -122,10 +122,19 @@
     <Geometry x:Key="ExpanderNormalArrow">M 1,1.5 L 4.5,5 L 8,1.5</Geometry>
     <Geometry x:Key="ExpanderCheckedArrow">M 1,4.5  L 4.5,1  L 8,4.5</Geometry>
     <Geometry x:Key="TabItemRoundedCorner">M6.5,2.6C4.767,0.973 2.509,0 0,0 0,0 0,19 0,19L23,19z</Geometry>
+    <Geometry x:Key="TabItemRoundedCornerBorder">M23,19
+				L6.5,2.6 
+				C4.767,0.973 
+				2.509,0 
+				0,0 
+				0,0 
+				0,0 
+				0,0
+    </Geometry>
     <Geometry x:Key="RepeatButton">M3.5445026,0 L7.0890052,7.0890053 L3.0459049E-09,7.0890053 z</Geometry>
     <Geometry x:Key="ComboBoxArrow">M-0,6 L-0,8 8,8 8,-0 6,-0 6,6 z</Geometry>
     <Geometry x:Key="ExpanderToggleButtonArrow">M5,-0 L9,5 1,5 z</Geometry>
-    
+
 
     <!--FontStyle-->
     <Style TargetType="{x:Type TextBlock}">
@@ -155,7 +164,7 @@
         <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
     </Style>-->
-  
+
 
     <!--TabControl-->
     <Style TargetType="{x:Type TabControl}">
@@ -265,6 +274,12 @@
                                           Stretch="Fill"
                                           Data="{StaticResource TabItemRoundedCorner}"
                                           Fill="{TemplateBinding Background}" />
+                                    <Path x:Name="RoundedCornerBorder"
+                                          Grid.Column="1"
+                                          Grid.Row="0"
+                                          Width="24"
+                                          Stretch="Fill"
+                                          Data="{StaticResource TabItemRoundedCornerBorder}"/>
                                 </Grid>
                             </Grid>
                             <ControlTemplate.Triggers>
@@ -275,7 +290,10 @@
                                 <Trigger Property="IsSelected" Value="true">
                                     <Setter Property="Panel.ZIndex" Value="1"/>
                                     <Setter Property="Background" TargetName="Bd" Value="{StaticResource TabItemSelectedBackground}"/>
+                                    <Setter Property="BorderThickness" TargetName="Bd" Value="1,1,0,0"/>
+                                    <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PressedButtonBackground}"/>
                                     <Setter Property="Fill"  TargetName="RoundedCorner" Value="{StaticResource TabItemSelectedBackground}"/>
+                                    <Setter Property="Stroke" TargetName="RoundedCornerBorder" Value="{StaticResource PressedButtonBackground}"/>
                                 </Trigger>
                                 <MultiTrigger>
                                     <MultiTrigger.Conditions>
@@ -288,6 +306,7 @@
                                 <Trigger Property="TabStripPlacement" Value="Bottom">
                                     <!--<Setter Property="BorderThickness" TargetName="Bd" Value="1,0,1,1"/>-->
                                     <Setter Property="Style" TargetName="RoundedCorner" Value="{StaticResource BottomStyle}"/>
+                                    <Setter Property="Style" TargetName="RoundedCornerBorder" Value="{StaticResource BottomStyle}"/>
                                     <Setter Property="Style" TargetName="Bd" Value="{StaticResource BottomStyle}"/>
                                     <Setter Property="Style" TargetName="Content" Value="{StaticResource BottomStyle}"/>
                                 </Trigger>
@@ -875,7 +894,7 @@
         </Setter>
     </Style>
 
-    
+
 
     <Style x:Key="ComboBoxReadonlyToggleButton" TargetType="{x:Type ToggleButton}">
         <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -1881,7 +1900,7 @@
     </Style>
     <Style TargetType="{x:Type TreeViewItem}">
         <Setter Property="Background" Value="Transparent"/>
-		<Setter Property="MinHeight" Value="21"/>
+        <Setter Property="MinHeight" Value="21"/>
         <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
         <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
         <Setter Property="Padding" Value="2,4,2,3"/>
@@ -1930,7 +1949,7 @@
                                 <Condition Property="HasHeader" Value="false"/>
                                 <Condition Property="Width" Value="Auto"/>
                             </MultiTrigger.Conditions>
-                            
+
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -2136,7 +2155,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style TargetType="{x:Type StatusBarItem}">
         <Setter Property="Margin" Value="4 0 4 0"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -2192,7 +2211,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <ControlTemplate x:Key="{ComponentResourceKey ResourceId=SubmenuItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
         <Grid SnapsToDevicePixels="true">
             <Rectangle x:Name="Bg" 
@@ -2619,7 +2638,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    
+
     <!-- Separator -->
     <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="{x:Type Separator}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -2633,7 +2652,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!-- ListBox -->
 
     <Style TargetType="{x:Type ListBox}">
@@ -2718,7 +2737,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!-- GroupBox -->
     <BorderGapMaskConverter x:Key="BorderGapMaskConverter"/>
     <Style TargetType="{x:Type GroupBox}">
@@ -2787,9 +2806,9 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!-- DataGrid styles -->
-    
+
     <!-- DataGridSelectAllButtonStyle -->
     <Style x:Key="{ComponentResourceKey ResourceId=DataGridSelectAllButtonStyle, TypeInTargetAssembly={x:Type DataGrid}}" TargetType="{x:Type Button}">
         <Setter Property="Template">
@@ -2816,7 +2835,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!-- DataGrid -->
     <Style TargetType="{x:Type DataGrid}">
         <Setter Property="RowHeight" Value="22" />
@@ -2898,7 +2917,7 @@
             </MultiTrigger>
         </Style.Triggers>
     </Style>
-    
+
     <!-- ColumnHeaderGripperStyle -->
     <Style x:Key="ColumnHeaderGripperStyle" TargetType="{x:Type Thumb}">
         <Setter Property="Width" Value="8"/>
@@ -2912,7 +2931,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!-- DataGridColumnHeader -->
     <Style TargetType="{x:Type DataGridColumnHeader}">
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -2949,7 +2968,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!-- DataGridRow -->
     <Style TargetType="{x:Type DataGridRow}">
         <Setter Property="Background" Value="{DynamicResource DataGridRowBackgroundBrush}"/>
@@ -3020,7 +3039,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    
+
     <!-- DataGridCell -->
     <Style TargetType="{x:Type DataGridCell}">
         <Setter Property="Background" Value="Transparent"/>
@@ -3062,7 +3081,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    
+
     <!-- RowHeaderGripperStyle -->
     <Style x:Key="RowHeaderGripperStyle" TargetType="{x:Type Thumb}">
         <Setter Property="Height" Value="8"/>
@@ -3077,7 +3096,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!-- DataGridRowHeader -->
     <Style TargetType="{x:Type DataGridRowHeader}">
         <Setter Property="Background" Value="{DynamicResource DataGridBackgroundBrush}"/>
@@ -3197,7 +3216,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style TargetType="{x:Type controls:DockPanelSplitter}">
         <Setter Property="Template">
             <Setter.Value>
@@ -3244,21 +3263,21 @@
                                                 Height="24"
                                                 Width="24"
                                                 Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=MinimizeCommand}"
-                                                Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=MinimizeButtonVisibility}">                                                
-                                                 <Path Width="7"
+                                                Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=MinimizeButtonVisibility}">
+                                            <Path Width="7"
                                                   Height="8"
                                                   Data="M 0,4 C0,4 0,5 0,5 0,5 1,5 1,5 1,5 1,6 1,6 1,6 2,6 2,6 2,6 2,7 2,7 2,7 3,7 3,7 3,7 3,8 3,8 3,8 4,8 4,8 4,8 4,7 4,7 4,7 5,7 5,7 5,7 5,6 5,6 5,6 6,6 6,6 6,6 6,5 6,5 6,5 7,5 7,5 7,5 7,4 7,4 7,4 5,4 5,4 5,4 5,5 5,5 5,5 4,5 4,5 4,5 4,6 4,6 4,6 3,6 3,6 3,6 3,5 3,5 3,5 2,5 2,5 2,5 2,4 2,4 2,4 0,4 0,4 zM 0,0 C0,0 0,1 0,1 0,1 1,1 1,1 1,1 1,2 1,2 1,2 2,2 2,2 2,2 2,3 2,3 2,3 3,3 3,3 3,3 3,4 3,4 3,4 4,4 4,4 4,4 4,3 4,3 4,3 5,3 5,3 5,3 5,2 5,2 5,2 6,2 6,2 6,2 6,1 6,1 6,1 7,1 7,1 7,1 7,0 7,0 7,0 5,0 5,0 5,0 5,1 5,1 5,1 4,1 4,1 4,1 4,2 4,2 4,2 3,2 3,2 3,2 3,1 3,1 3,1 2,1 2,1 2,1 2,0 2,0 2,0 0,0 0,0 z"
                                                   Stretch="Fill"
                                                   Fill="White"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center" />
-                                                  </Button>
+                                        </Button>
                                         <Button ToolTip="Restore"
                                                 Height="24"
                                                 Width="24"
                                                 Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=MaximizeCommand}"
                                                 Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=RestoreButtonVisibility}">
-                                                <Path Width="8"
+                                            <Path Width="8"
                                                   Height="8"
                                                   Data="M 1,5 C1,5 2,5 2,5 2,5 5,5 5,5 5,5 5,7 5,7 5,7 1,7 1,7 1,7 1,5 1,5 zM 6,4 C6,4 6,3.87 6,3.87 6,3.39 5.60,3 5.12,3 5.12,3 3,3 3,3 3,3 3,2 3,2 3,2 7,2 7,2 7,2 7,4 7,4 7,4 6,4 6,4 zM 0,4 C0,4 0,8 0,8 0,8 6,8 6,8 6,8 6,5 6,5 6,5 8,5 8,5 8,5 8,1 8,1 8,1 8,0.87 8,0.87 8,0.39 7.60,0 7.12,0 7.12,0 2.87,0 2.87,0 2.39,0 2,0.39 2,0.87 2,0.87 2,1 2,1 2,1 2,3 2,3 2,3 0.87,3 0.87,3 0.39,3 0,3.39 0,3.87 0,3.87 0,4 0,4 z"
                                                   Fill="White" />
@@ -3268,7 +3287,7 @@
                                                 Width="24"
                                                 Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=MaximizeCommand}"
                                                 Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=MaximizeButtonVisibility}">
-                                                            <Path Width="8"
+                                            <Path Width="8"
                                                   Height="7"
                                                   Data="M 1,3 C1,3 7,3 7,3 7,3 7,6 7,6 7,6 1,6 1,6 1,6 1,3 1,3 zM 0,1 C0,1 0,7 0,7 0,7 8,7 8,7 8,7 8,1 8,1 8,1 8,0.87 8,0.87 8,0.39 7.60,0 7.12,0 7.12,0 0.87,0 0.87,0 0.39,0 0,0.39 0,0.87 0,0.87 0,1 0,1 z"
                                                   Fill="White" />
@@ -3277,7 +3296,7 @@
                                          Height="24"
                                          Width="24"
                                         Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:CustomWindow}, Path=CloseCommand}">
-                                                    <Path Width="8"
+                                            <Path Width="8"
                                           Height="7"
                                           Data="M 1,1 C1,1 1,2 1,2 1,2 2,2 2,2 2,2 2,3 2,3 2,3 3,3 3,3 3,3 3,4 3,4 3,4 2,4 2,4 2,4 2,5 2,5 2,5 1,5 1,5 1,5 1,6 1,6 1,6 0,6 0,6 0,6 0,7 0,7 0,7 2,7 2,7 2,7 2,6 2,6 2,6 3,6 3,6 3,6 3,5 3,5 3,5 4,5 4,5 4,5 5,5 5,5 5,5 5,6 5,6 5,6 6,6 6,6 6,6 6,7 6,7 6,7 8,7 8,7 8,7 8,6 8,6 8,6 7,6 7,6 7,6 7,5 7,5 7,5 6,5 6,5 6,5 6,4 6,4 6,4 5,4 5,4 5,4 5,3 5,3 5,3 6,3 6,3 6,3 6,2 6,2 6,2 7,2 7,2 7,2 7,1 7,1 7,1 8,1 8,1 8,1 8,0 8,0 8,0 6,0 6,0 6,0 6,1 6,1 6,1 5,1 5,1 5,1 5,2 5,2 5,2 4,2 4,2 4,2 3,2 3,2 3,2 3,1 3,1 3,1 2,1 2,1 2,1 2,0 2,0 2,0 0,0 0,0 0,0 0,1 0,1 0,1 1,1 1,1 z"
                                           Fill="White" />
@@ -3292,7 +3311,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style x:Key="ColorThumbStyle" TargetType="{x:Type Thumb}">
         <Setter Property="Template">
             <Setter.Value>

@@ -104,6 +104,7 @@
     <Compile Include="Converts\PhantomPatternConvert.cs" />
     <Compile Include="Converts\PointConverter.cs" />
     <Compile Include="Converts\ThresholdMethodConvert.cs" />
+    <Compile Include="Converts\ToolBoxModeToTabIndexConvert.cs" />
     <Compile Include="Events\ConnectionDragEvents.cs" />
     <Compile Include="Events\ConnectorDragEvents.cs" />
     <Compile Include="Events\DisplayImageEvent.cs" />

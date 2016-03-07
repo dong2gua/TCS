@@ -20,6 +20,8 @@ using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace ThorCyte.ProtocolModule.ViewModels
 {
+    public enum ToolBoxMode { Moduletree, Setting }
+
     /// <summary>
     /// The view-model for the main window.
     /// </summary>
@@ -47,6 +49,18 @@ namespace ThorCyte.ProtocolModule.ViewModels
             get
             {
                 return _eventAggregator ?? (_eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>());
+            }
+        }
+
+        private ToolBoxMode _tBoxMode;
+
+        public ToolBoxMode TBoxMode
+        {
+            get { return _tBoxMode; }
+            set
+            {
+                if(_tBoxMode == value) return;
+                SetProperty(ref _tBoxMode, value);
             }
         }
 
@@ -170,6 +184,9 @@ namespace ThorCyte.ProtocolModule.ViewModels
             {
                 if (_isRemoveEnable == value) return;
                 SetProperty(ref _isRemoveEnable, value);
+
+                TBoxMode = _isRemoveEnable ? ToolBoxMode.Setting : ToolBoxMode.Moduletree;
+
             }
         }
 
@@ -204,6 +221,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
             _dispImgDic = new Dictionary<string, ImageDisplayView>();
             RegionCount = 10;
             TileCount = 10;
+            TBoxMode = ToolBoxMode.Moduletree;
 
             _imgSource = IsPaused ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
             _tipStr = IsPaused ? "Pause Run" : "Start Run";
