@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -758,19 +759,12 @@ namespace ThorCyte.CarrierModule.Canvases
 
                 var bh = AnalyzedWells.Contains(rectRoom.Key) ? Brushes.Green : Brushes.SlateGray;
 
-                SolidColorBrush bhcircle;
-                if (AnalyzedWells.Contains(rectRoom.Key))
-                {
-                    bhcircle = Brushes.LimeGreen;
-                }
-                else if (AnalyzingWell == rectRoom.Key)
+                var bhcircle = AnalyzedWells.Contains(rectRoom.Key) ? Brushes.LimeGreen : Brushes.White;
+                if (AnalyzingWell == rectRoom.Key)
                 {
                     bhcircle = Brushes.Lime;
                 }
-                else
-                {
-                    bhcircle = Brushes.White;
-                }
+
 
                 dc.DrawEllipse(bhcircle,
                     new Pen(bh, LineWidth),
