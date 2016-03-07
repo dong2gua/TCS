@@ -145,6 +145,7 @@ namespace ThorCyte.ProtocolModule.Controls
                 {
                     // When the mouse has been dragged more than the threshold value commence drag selection.
                     _isDraggingSelectionRect = true;
+                    Focus();
                     // Clear the current selection.
                     _moduleItemsControl.SelectedItems.Clear();
 

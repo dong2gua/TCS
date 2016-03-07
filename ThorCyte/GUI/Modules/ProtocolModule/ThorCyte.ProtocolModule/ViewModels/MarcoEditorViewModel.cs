@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,6 +15,8 @@ using ThorCyte.ProtocolModule.Models;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
 using ThorCyte.ProtocolModule.Controls;
+using ThorCyte.ProtocolModule.Events;
+using ThorCyte.ProtocolModule.Views;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
 namespace ThorCyte.ProtocolModule.ViewModels
@@ -36,8 +37,10 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public ICommand MoveCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
         public ICommand SelectAllCommand { get; private set; }
+        public ICommand SaveTemplateCommand { get; private set; }
 
         private List<ModuleBase> _clipboard = new List<ModuleBase>();
+        private Dictionary<string, ImageDisplayView> _dispImgDic;
 
         private IEventAggregator _eventAggregator;
         private IEventAggregator EventAggregator
@@ -99,7 +102,33 @@ namespace ThorCyte.ProtocolModule.ViewModels
         public bool IsRuning
         {
             get { return _isRuning; }
-            set { SetProperty(ref _isRuning, value); }
+            set
+            {
+                if (_isRuning == value) return;
+                SetProperty(ref _isRuning, value);
+                OnPropertyChanged("IsEditEnable");
+            }
+        }
+
+        private bool _isPaused;
+        public bool IsPaused
+        {
+            get { return _isPaused; }
+            set
+            {
+                if (_isPaused == value) return;
+                SetProperty(ref _isPaused, value);
+                OnPropertyChanged("IsEditEnable");
+            }
+        }
+
+        public bool IsEditEnable
+        {
+            get
+            {
+                var ret = !_isRuning || _isPaused;
+                return ret;
+            }
         }
 
         private string _imgSource;
@@ -154,11 +183,12 @@ namespace ThorCyte.ProtocolModule.ViewModels
             MessageHelper.SetMessage += SetMessage;
             MessageHelper.SetProgress += SetProgress;
             MessageHelper.SetRuning += SetRuning;
+            MessageHelper.SetPaused += SetPaused;
             Module.OnSelectionChanged += ModuleOnOnSelectionChanged;
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
+            EventAggregator.GetEvent<DisplayImageEvent>().Subscribe(DisplayImage, ThreadOption.UIThread);
 
-
-            MacroCommnad = new DelegateCommand(SetMacroCommand);
+            MacroCommnad = new DelegateCommand<string>(SetMacroCommand);
             SaveMacroCommand = new DelegateCommand(Macro.Save);
 
             AlignCommnad = new DelegateCommand<string>(SetModulesAlign);
@@ -169,14 +199,15 @@ namespace ThorCyte.ProtocolModule.ViewModels
             DeleteCommand = new DelegateCommand(DeleteModules);
             MoveCommand = new DelegateCommand<string>(MoveModules);
             SelectAllCommand = new DelegateCommand(SelectAllModules);
+            SaveTemplateCommand = new DelegateCommand(SaveTemplate);
 
             _pannelVm = new PannelViewModel();
-
+            _dispImgDic = new Dictionary<string, ImageDisplayView>();
             RegionCount = 10;
             TileCount = 10;
 
-            _imgSource = IsRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
-            _tipStr = IsRuning ? "Stop Run" : "Start Run";
+            _imgSource = IsPaused ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
+            _tipStr = IsPaused ? "Pause Run" : "Start Run";
             _isAlignEnable = !IsRuning;
         }
 
@@ -277,7 +308,6 @@ namespace ThorCyte.ProtocolModule.ViewModels
                     {
                         case "Up":
                             m.Y -= space;
-
                             if (m.Y < 0) m.Y = 0;
 
                             break;
@@ -286,9 +316,7 @@ namespace ThorCyte.ProtocolModule.ViewModels
                             break;
                         case "Left":
                             m.X -= space;
-
                             if (m.X < 0) m.X = 0;
-
                             break;
                         case "Right":
                             m.X += space;
@@ -311,15 +339,66 @@ namespace ThorCyte.ProtocolModule.ViewModels
 
         #region Methods
 
-        private void SetMacroCommand()
+        private void SetMacroCommand(string strparam)
         {
-            if (IsRuning)
+            switch (strparam)
             {
-                Macro.Stop();
-            }
-            else
-            {
-                Macro.Run();
+                case null:
+                    {
+                        if (IsRuning)
+                        {
+                            if (IsPaused)
+                            {
+                                Macro.Continue();
+                            }
+                            else
+                            {
+                                Macro.Pause();
+                            }
+                        }
+                        else
+                        {
+                            Macro.Run();
+                        }
+                    }
+                    break;
+
+                case "Next":
+                    {
+
+
+                    }
+                    break;
+
+                case "Previous":
+                    {
+
+
+                    }
+                    break;
+
+                case "Repeat":
+                    {
+
+
+                    }
+                    break;
+
+                case "End":
+                    {
+
+
+                    }
+                    break;
+
+                case "Stop":
+                    {
+                        Macro.Stop();
+                    }
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -495,18 +574,30 @@ namespace ThorCyte.ProtocolModule.ViewModels
             var res = true;
 
             //if (newConnection.SourcePort == null) return false;
-
-            switch (portDraggedOut.PortType)
+            try
             {
-                case PortType.InPort:
-                    res = newConnection.SourcePort.ParentModule != portDraggedOver.ParentModule && newConnection.SourcePort.PortType != portDraggedOver.PortType;
-                    break;
-                case PortType.OutPort:
-                    res = portDraggedOut.ParentModule != portDraggedOver.ParentModule && portDraggedOut.PortType != portDraggedOver.PortType;
-                    break;
-                case PortType.None:
-                    res = false;
-                    break;
+                if (portDraggedOut.PortType == portDraggedOver.PortType)
+                {
+                    return false;
+                }
+
+                switch (portDraggedOut.PortType)
+                {
+                    case PortType.InPort:
+                        res = newConnection.SourcePort.ParentModule != portDraggedOver.ParentModule && newConnection.SourcePort.PortType != portDraggedOver.PortType;
+                        break;
+                    case PortType.OutPort:
+                        res = portDraggedOut.ParentModule != portDraggedOver.ParentModule && portDraggedOut.PortType != portDraggedOver.PortType;
+                        break;
+                    case PortType.None:
+                        res = false;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Macro.Logger.Write("Error Occoured in MacroEditorViewModel.IsConnectionOK", ex);
+                res = false;
             }
 
             return res;
@@ -617,9 +708,19 @@ namespace ThorCyte.ProtocolModule.ViewModels
         private void SetRuning(bool isRuning)
         {
             IsRuning = isRuning;
-            ImgSource = isRuning ? "../Resource/Images/stop.png" : "../Resource/Images/play.png";
-            TipStr = isRuning ? "Stop Run" : "Start Run";
+            if (!isRuning)
+            {
+                ImgSource = "../Resource/Images/play.png";
+                TipStr = "Start Run";
+            }
             IsAlignEnable = !isRuning;
+        }
+
+        private void SetPaused(bool isPaused)
+        {
+            IsPaused = isPaused;
+            ImgSource = !isPaused ? "../Resource/Images/Pause.png" : "../Resource/Images/play.png";
+            TipStr = !isPaused ? "Pause Run" : "Start Run";
         }
 
 
@@ -661,19 +762,26 @@ namespace ThorCyte.ProtocolModule.ViewModels
                 pOffset.Y -= pt.Y;
 
                 tempPoint = new Point(_clipboard[0].X, _clipboard[0].Y);
-                var l = Math.Pow(_clipboard[0].X, 2) + Math.Pow(_clipboard[0].Y, 2);
+                //var l = Math.Pow(_clipboard[0].X, 2) + Math.Pow(_clipboard[0].Y, 2);
 
                 //find least length point
                 foreach (var m in _clipboard)
                 {
-                    var ln = Math.Pow(m.X, 2) + Math.Pow(m.Y, 2);
+                    //var ln = Math.Pow(m.X, 2) + Math.Pow(m.Y, 2);
 
-                    if (ln < l)
-                    {
-                        l = ln;
+                    //if (ln < l)
+                    //{
+                    //    l = ln;
+                    //    tempPoint.X = m.X;
+                    //    tempPoint.Y = m.Y;
+                    //}
+
+                    if (m.X < tempPoint.X)
                         tempPoint.X = m.X;
+
+                    if (m.Y < tempPoint.Y)
                         tempPoint.Y = m.Y;
-                    }
+
                 }
             }
 
@@ -699,15 +807,76 @@ namespace ThorCyte.ProtocolModule.ViewModels
                         var outMod = m;
                         var inMod = c.DestPort.ParentModule;
                         var inportIdx = inMod.InputPorts.IndexOf(c.DestPort);
-                        Macro.CreateConnector(refdic[inMod.Id],refdic[outMod.Id],inportIdx,0);
+                        Macro.CreateConnector(refdic[inMod.Id], refdic[outMod.Id], inportIdx, 0);
                     }
                 }
             }
-
-
-
         }
 
+        private void SaveTemplate()
+        {
+            var popupWnd = new CustomWindow
+            {
+                Content = new SaveTemplateView(),
+                Title = "Save as Template",
+                MinWidth = 300,
+                MinHeight = 300,
+                MaxWidth = 600,
+                MaxHeight = 600,
+                ShowInTaskbar = false,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ResizeMode = ResizeMode.NoResize
+            };
+            //choosed modules
+            popupWnd.ShowDialog();
+        }
+
+
+        private void DisplayImage(DisplayImageEventArgs args)
+        {
+            if (!_dispImgDic.ContainsKey(args.Title))
+            {
+                var view = new ImageDisplayView(args);
+                var wnd = new CustomWindow
+                {
+                    Name = args.Title,
+                    Content = view,
+                    Icon = Application.Current.MainWindow.Icon,
+                    Title = args.Title,
+                    //SizeToContent = SizeToContent.WidthAndHeight,
+                    WindowStartupLocation = WindowStartupLocation.Manual,
+                    ShowInTaskbar = true,
+                    ResizeMode = ResizeMode.NoResize,
+                    Height = 600,
+                    Width = 800
+                };
+                wnd.Show();
+                _dispImgDic.Add(args.Title, view);
+            }
+            else
+            {
+                var windtitleLst = (from Window w in Application.Current.Windows select w.Title).ToList();
+
+                if (!windtitleLst.Contains(args.Title))
+                {
+                    var wnd = new CustomWindow
+                    {
+                        Name = args.Title,
+                        Content = _dispImgDic[args.Title],
+                        Icon = Application.Current.MainWindow.Icon,
+                        Title = args.Title,
+                        //SizeToContent = SizeToContent.WidthAndHeight,
+                        WindowStartupLocation = WindowStartupLocation.Manual,
+                        ShowInTaskbar = true,
+                        ResizeMode = ResizeMode.NoResize,
+                        Height = 600,
+                        Width = 800
+                    };
+
+                    wnd.Show();
+                }
+            }
+        }
         #endregion
     }
 

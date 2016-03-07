@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
 using ComponentDataService;
@@ -17,6 +19,7 @@ using ThorCyte.Infrastructure.Types;
 using ThorCyte.ProtocolModule.Utils;
 using ThorCyte.ProtocolModule.ViewModels.Modules;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
+using ThreadState = System.Threading.ThreadState;
 
 namespace ThorCyte.ProtocolModule.Models
 {
@@ -28,38 +31,39 @@ namespace ThorCyte.ProtocolModule.Models
         {
             Syncobj = new object();
             FrmErrMsg = new MessageBox();
-        }
 
+        }
 
         private Macro()
         {
             EventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(ExpLoaded);
             EventAggregator.GetEvent<SaveAnalysisResultEvent>().Subscribe(Save);
 
-
             _imageanalyzed += ImageAnalyzed;
             _isAborting = false;
+            _isPaused = false;
             Connections = new ImpObservableCollection<ConnectorModel>();
             Modules = new ImpObservableCollection<ModuleBase>();
             CurrentImages = new Dictionary<string, ImageData>();
+            _taskQueue = new Queue<RegionTile>();
+            _pauseEvent = new ManualResetEvent(!_isPaused);
         }
+
         #endregion
 
         #region Fields and Properties
 
         private static Thread _tAnalyzeImg;
         private static bool _isAborting;
+        private static bool _isPaused;
         private static readonly object Syncobj;
         private static readonly MessageBox FrmErrMsg;
-
         private delegate void ImageAnalyzedCallBackDelegate();
         private static ImageAnalyzedCallBackDelegate _imageanalyzed;
         public delegate void ClearHandler();
         public static ClearHandler Clear;
         private static IExperiment _exp;
-
         private static Macro _uniqueInstance;
-
         public static Macro Instance
         {
             get
@@ -80,9 +84,11 @@ namespace ThorCyte.ProtocolModule.Models
         public static ModuleBase SelectedModuleViewModel;
         private static IData CurrentDataMgr { get; set; }
         public static IComponentDataService CurrentConponentService { get; private set; }
+        private static Queue<RegionTile> _taskQueue;
+        private static ManualResetEvent _pauseEvent;
+
 
         private static IEventAggregator _eventAggregator;
-
         private static IEventAggregator EventAggregator
         {
             get
@@ -124,6 +130,7 @@ namespace ThorCyte.ProtocolModule.Models
                     Clear.Invoke();
                 }
                 CurrentScanId = scanid;
+                ResetRegionTileId();
                 CurrentScanInfo = _exp.GetScanInfo(scanid);
                 var expinfo = _exp.GetExperimentInfo();
                 ImageMaxBits = expinfo.IntensityBits;
@@ -179,8 +186,8 @@ namespace ThorCyte.ProtocolModule.Models
                                 {
                                     continue;
                                 }
-                                var module = CreateModule(info);
-
+                                var modulelst = CreateModule(info);
+                                var module = modulelst[0];
                                 module.Id = id;
                                 module.Enabled = Convert.ToBoolean(reader["enabled"]);
                                 module.ScanNo = Convert.ToInt32(reader["scale"]);
@@ -294,19 +301,60 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
-        public static ModuleBase CreateModule(ModuleInfo modInfo)
+        public static List<ModuleBase> CreateModule(ModuleInfo modInfo)
         {
             try
             {
-                if (modInfo.IsCombo) throw new CyteException("Macro.CreateModule", "Combination module does not support.");// create combination module
+                if (modInfo.IsCombo)
+                {
+                    // create combination module                    
+                    var cmbmod = ModuleInfoMgr.CombinationModuleDefs.FirstOrDefault(cm => cm.Name == modInfo.Name && cm.Category == modInfo.Category);
+                    var addModLst = new List<ModuleBase>();
+                    if (cmbmod != null)
+                    {
+                        var refdic = new Dictionary<int, int>();
 
-                var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
-                module.Name = modInfo.Name;
-                module.Id = ModuleBase.GetNextModId();
-                module.DisplayName = modInfo.DisplayName;
-                module.ScanNo = CurrentScanId;
-                Modules.Add(module);
-                return module;
+                        foreach (var m in cmbmod.SubModules)
+                        {
+                            var mc = m.Clone() as ModuleBase;
+                            refdic.Add(m.Id, mc.Id);
+                            Modules.Add(mc);
+                            addModLst.Add(mc);
+                        }
+
+                        // find connections on these modules and create them
+                        foreach (var m in cmbmod.SubModules)
+                        {
+                            foreach (var c in m.OutputPort.AttachedConnections)
+                            {
+                                if (cmbmod.SubModules.Contains(c.DestPort.ParentModule))
+                                {
+                                    var outMod = m;
+                                    var inMod = c.DestPort.ParentModule;
+                                    var inportIdx = inMod.InputPorts.IndexOf(c.DestPort);
+                                    CreateConnector(refdic[inMod.Id], refdic[outMod.Id], inportIdx, 0);
+                                }
+                            }
+                        }
+                    }
+
+                    return addModLst;
+                }
+                else
+                {
+                    var module = (ModuleBase)Activator.CreateInstance(Type.GetType(modInfo.Reference, true));
+                    module.Name = modInfo.Name;
+                    if (!string.IsNullOrEmpty(modInfo.ViewReference))
+                    {
+                        module.View = (UserControl)Activator.CreateInstance(Type.GetType(modInfo.ViewReference, true));
+                    }
+                    module.Id = ModuleBase.GetNextModId();
+                    module.DisplayName = modInfo.DisplayName;
+                    module.ScanNo = CurrentScanId;
+                    Modules.Add(module);
+                    return new List<ModuleBase>() { module };
+                }
+
             }
             catch (Exception ex)
             {
@@ -363,8 +411,13 @@ namespace ThorCyte.ProtocolModule.Models
                     m.InitialRun();
                 }
                 EventAggregator.GetEvent<MacroRunEvent>().Publish(CurrentScanId);
+                AnalyzeWorkDispacher();
                 _tAnalyzeImg = new Thread(AnalyzeImage) { IsBackground = true };
                 _tAnalyzeImg.Start();
+                _pauseEvent.Set();
+                _isPaused = false;
+                MessageHelper.SendMacroPaused(_isPaused);
+
             }
             catch (Exception ex)
             {
@@ -373,9 +426,74 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
+
+        public static void Continue()
+        {
+            try
+            {
+                if (_isPaused)
+                {
+                    _pauseEvent.Set();
+                    _isPaused = false;
+                    MessageHelper.SendMacroPaused(_isPaused);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Continue: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Continue", ex);
+            }
+        }
+
+
+        public static void Pause()
+        {
+            try
+            {
+                if (!_isPaused)
+                {
+                    _pauseEvent.Reset();
+                    _isPaused = true;
+                    MessageHelper.SendMacroPaused(_isPaused);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Pause: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Pause", ex);
+            }
+        }
+
+
+        public static void Stop()
+        {
+            try
+            {
+                if (_tAnalyzeImg == null) return;
+                if (_tAnalyzeImg.IsAlive)
+                {
+                    _isAborting = true;
+
+                    if (_isPaused)
+                    {
+                        _pauseEvent.Set();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageHelper.PostMessage("Error occourd in Macro.Stop: " + ex.Message);
+                Logger.Write("Error occourd in Macro.Stop", ex);
+            }
+        }
+
         private static bool CheckExecutable()
         {
-            var ret = !(_tAnalyzeImg != null && _tAnalyzeImg.IsAlive);
+            //var ret = !(_tAnalyzeImg != null && _tAnalyzeImg.IsAlive);
+            var ret = true;
+
+
             if (!Modules.Any(m => m is ChannelModVm))
             {
                 return false;
@@ -401,20 +519,11 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
-        public static void Stop()
-        {
-            if (_tAnalyzeImg == null) return;
-            if (_tAnalyzeImg.IsAlive)
-            {
-                lock (Syncobj)
-                {
-                    _isAborting = true;
-                }
-            }
-        }
 
 
-        private static void AnalyzeImage()
+
+
+        private static void AnalyzeImage_bak()
         {
             try
             {
@@ -430,21 +539,15 @@ namespace ThorCyte.ProtocolModule.Models
                         EventAggregator.GetEvent<MacroStartEvnet>()
                             .Publish(new MacroStartEventArgs { WellId = region.WellId, RegionId = CurrentRegionId, TileId = CurrentTileId });
 
-                        GetImagesDic();
-                        //find all channel module 
-                        foreach (var mod in Modules.Where(m => m is ChannelModVm))
-                        {
-                            mod.Execute();
-                            MessageHelper.PostMessage(
-                                string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};", CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
-                        }
-                        //wait all channel executed here
-                        ClearImagesDic();
+
+                        ExecuteImage();
+
+
                         if (_isAborting)
                             break;
-
                         MessageHelper.PostProgress("Tile", -1, CurrentTileId);
                     }
+
                     if (_isAborting)
                         break;
 
@@ -457,7 +560,7 @@ namespace ThorCyte.ProtocolModule.Models
                 Logger.Write("Error occourd in Analyze Image", ex);
                 FrmErrMsg.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
                 {
-                    FrmErrMsg.Text = "Errorr occourred in Analyze Image: " + ex.Message ;
+                    FrmErrMsg.Text = "Errorr occourred in Analyze Image: " + ex.Message;
                     FrmErrMsg.Caption = "ThorCyte";
                     FrmErrMsg.OkButtonContent = "OK";
                     FrmErrMsg.ShowDialog();
@@ -472,12 +575,161 @@ namespace ThorCyte.ProtocolModule.Models
             }
         }
 
+        private static void AnalyzeImage()
+        {
+            try
+            {
+                MessageHelper.SendMacroRuning(true);
+                MessageHelper.PostProgress("Region", CurrentScanInfo.ScanRegionList.Count, 0);
+                var fieldCount = -1;
+                while (true)
+                {
+                    if (_isAborting)
+                    {
+                        break;
+                    }
+
+                    _pauseEvent.WaitOne();
+
+                    lock (Syncobj)
+                    {
+                        if (!_taskQueue.Any())
+                        {
+                            break;
+                        }
+                        var rt = _taskQueue.Dequeue();
+
+
+                        var srgn = CurrentScanInfo.ScanRegionList.FirstOrDefault(sr => sr.RegionId == rt.RegionId);
+
+
+                        if (srgn != null)
+                        {
+                            CurrentRegionId = rt.RegionId;
+
+
+                            if (fieldCount != srgn.ScanFieldList.Count)
+                            {
+                                MessageHelper.PostProgress("Tile", srgn.ScanFieldList.Count, 0);
+                                fieldCount = srgn.ScanFieldList.Count;
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        var stile = srgn.ScanFieldList.FirstOrDefault(st => st.ScanFieldId == rt.TileId);
+                        if (stile != null)
+                        {
+                            CurrentTileId = rt.TileId;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+
+                        EventAggregator.GetEvent<MacroStartEvnet>().Publish(new MacroStartEventArgs
+                        {
+                            WellId = srgn.WellId,
+                            RegionId = CurrentRegionId,
+                            TileId = CurrentTileId
+                        });
+
+                        ExecuteImage();
+                        MessageHelper.PostProgress("Tile", -1, CurrentTileId);
+                        MessageHelper.PostProgress("Region", -1, CurrentRegionId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Write("Error occourd in Analyze Image", ex);
+                FrmErrMsg.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
+                {
+                    FrmErrMsg.Text = "Errorr occourred in Analyze Image: " + ex.Message;
+                    FrmErrMsg.Caption = "ThorCyte";
+                    FrmErrMsg.OkButtonContent = "OK";
+                    FrmErrMsg.ShowDialog();
+                }));
+            }
+            finally
+            {
+                if (_imageanalyzed != null)
+                {
+                    _imageanalyzed.Invoke();
+                }
+            }
+        }
+
+
+        private static void AnalyzeWorkDispacher(RegionTile rt = null)
+        {
+            lock (Syncobj)
+            {
+                _taskQueue.Clear();
+            }
+
+            if (rt == null)
+            {
+                //Start from beginning.
+                rt = new RegionTile
+                {
+                    RegionId = int.MinValue,
+                    TileId = int.MinValue
+                };
+
+            }
+
+            foreach (var region in CurrentScanInfo.ScanRegionList)
+            {
+                if (region.RegionId < rt.RegionId) continue;
+
+                foreach (var tile in region.ScanFieldList)
+                {
+                    if (tile.ScanFieldId < rt.TileId) continue;
+
+                    var task = new RegionTile
+                    {
+                        RegionId = region.RegionId,
+                        TileId = tile.ScanFieldId
+                    };
+
+                    lock (Syncobj)
+                    {
+                        _taskQueue.Enqueue(task);
+                    }
+
+                }
+            }
+
+        }
+
+
+        private static void ExecuteImage()
+        {
+            GetImagesDic();
+            //find all channel module 
+            foreach (var mod in Modules.Where(m => m is ChannelModVm))
+            {
+                mod.Execute();
+                MessageHelper.PostMessage(
+                    string.Format("Current Processed - Region: {0}; Tile: {1}; Channel: {2};", CurrentRegionId, CurrentTileId, ((ChannelModVm)mod).SelectedChannel));
+            }
+            //wait all channel executed here
+            ClearImagesDic();
+        }
+
+
+
         private static void ImageAnalyzed()
         {
             if (_isAborting) _isAborting = false;
             MessageHelper.PostMessage("All images analyzed!");
             MessageHelper.SendMacroRuning(false);
             EventAggregator.GetEvent<MacroFinishEvent>().Publish(CurrentScanId);
+            ResetRegionTileId();
         }
 
         private static void ClearImagesDic()
@@ -609,6 +861,17 @@ namespace ThorCyte.ProtocolModule.Models
         }
 
 
+        private static void SetRegionTileId(int regionId, int tileId)
+        {
+            CurrentRegionId = int.MinValue;
+            CurrentTileId = int.MinValue;
+        }
+
+        private static void ResetRegionTileId()
+        {
+            CurrentRegionId = int.MinValue;
+            CurrentTileId = int.MinValue;
+        }
 
         ~Macro()
         {

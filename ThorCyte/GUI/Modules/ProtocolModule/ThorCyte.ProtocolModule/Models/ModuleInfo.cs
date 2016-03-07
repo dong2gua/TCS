@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using ThorCyte.Infrastructure.Exceptions;
 using ThorCyte.ProtocolModule.Utils;
+using ThorCyte.ProtocolModule.ViewModels.Modules;
 
 namespace ThorCyte.ProtocolModule.Models
 {
@@ -32,6 +35,8 @@ namespace ThorCyte.ProtocolModule.Models
 
         public string Reference { get; set; }
 
+        public string ViewReference { get; set; }
+
         public string Description { get; set; }
 
         public Guid Guid { get; set; }
@@ -50,6 +55,7 @@ namespace ThorCyte.ProtocolModule.Models
     {
         #region Constants
         private const string ModuleInfoPath = @".\Xml\Modules.xml";
+        private const string ComModuleInfoPath = @".\Xml\CombinationModules.xml";
         #endregion
 
 
@@ -72,12 +78,19 @@ namespace ThorCyte.ProtocolModule.Models
         {
             get { return _moduleInfos; }
         }
+
+        private static List<CombinationModule> _combinationModuleDefs = new List<CombinationModule>();
+        internal static List<CombinationModule> CombinationModuleDefs
+        {
+            get { return _combinationModuleDefs; }
+        }
         #endregion
 
         #region Constructor
         private ModuleInfoMgr()
         {
             LoadModuleInfos(ModuleInfoPath);
+            LoadCombinationModuleTemplates();
         }
         #endregion
 
@@ -114,6 +127,7 @@ namespace ThorCyte.ProtocolModule.Models
                                     Category = tempstr,
                                     Name = reader["name"],
                                     Reference = reader["reference"] ?? string.Empty,
+                                    ViewReference = reader["viewreference"] ?? string.Empty,
                                     DisplayName = reader["disp-name"] ?? reader["name"]
                                 };
 
@@ -132,7 +146,7 @@ namespace ThorCyte.ProtocolModule.Models
 
                 // read error
                 var msg = string.Format("Error reading {0} at line {1}.", fileName, reader.LineNumber);
-                throw new CyteException("ProtocolModule.LoadModuleInfo", msg);
+                throw new CyteException("ModuleInfo.LoadModuleInfo", msg);
             }
             finally
             {
@@ -141,6 +155,75 @@ namespace ThorCyte.ProtocolModule.Models
                     reader.Close();
                 }
             }
+        }
+
+        public void LoadCombinationModuleTemplates()
+        {
+            if (!File.Exists(ComModuleInfoPath))
+                return;
+
+            XmlTextReader reader = null;
+            try
+            {
+                reader = new XmlTextReader(ComModuleInfoPath);
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "combination-module")
+                    {
+                        var temp = new CombinationModule();
+                        temp.CreateFromXml(reader);
+                        AddCombinationModuleTemplate(temp);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CyteException("ModuleInfo.LoadCombinationModuleDefs", ex.Message);
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
+            }
+        }
+
+        // save combination module definitions to the definition file
+        public void SaveCombinationModuleTemplates()
+        {
+            if (string.IsNullOrEmpty(ComModuleInfoPath))
+                return;
+
+            var writer = new XmlTextWriter(ComModuleInfoPath, new UTF8Encoding());
+            writer.Formatting = Formatting.Indented;
+
+            writer.WriteStartDocument(false);
+            writer.WriteStartElement("combination-modules");
+
+            foreach (CombinationModule cmod in _combinationModuleDefs)
+            {
+                cmod.WriteToXml(writer);
+                AddCombinationModuleTemplate(cmod);
+            }
+
+            writer.WriteEndElement();	// </combination-modules>
+            writer.Close();
+        }
+
+        public static void AddCombinationModuleTemplate(CombinationModule cmod)
+        {
+            if (!_combinationModuleDefs.Contains(cmod))
+            {
+                _combinationModuleDefs.Add(cmod);
+            }
+            
+            var info = new ModuleInfo();
+            info.Category = cmod.Category;
+            info.DisplayName = info.Name = cmod.DisplayName;
+            info.Guid = cmod.Guid;
+            info.IsCombo = true;
+
+            if(!_moduleInfos.Contains(info)) 
+                _moduleInfos.Add(info);
         }
 
         public static ModuleInfo GetModuleInfo(string name)
@@ -152,6 +235,7 @@ namespace ThorCyte.ProtocolModule.Models
         {
             return _moduleInfos.FirstOrDefault(info => info.DisplayName == name);
         }
+
         #endregion
     }
 }

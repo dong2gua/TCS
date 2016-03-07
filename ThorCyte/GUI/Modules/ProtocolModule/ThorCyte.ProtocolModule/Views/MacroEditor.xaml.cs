@@ -115,6 +115,17 @@ namespace ThorCyte.ProtocolModule.Views
         }
 
 
+        private void OnMouseRightDown(object sender, MouseButtonEventArgs e)
+        {
+            var selectedItem = ViewModel.PannelVm.SelectedViewItem;
+            if (selectedItem != null)
+            {
+                MessageHelper.UnSelectItem(selectedItem);
+                ViewModel.PannelVm.SelectedViewItem = null;
+            }
+        }
+
+
         private void PannelKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete)

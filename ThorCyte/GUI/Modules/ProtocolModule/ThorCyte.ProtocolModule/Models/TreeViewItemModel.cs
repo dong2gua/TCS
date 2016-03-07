@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Windows.Input;
+using Prism.Commands;
 using Prism.Mvvm;
+using ThorCyte.ProtocolModule.Utils;
 
 namespace ThorCyte.ProtocolModule.Models
 {
@@ -7,12 +10,21 @@ namespace ThorCyte.ProtocolModule.Models
     {
         #region Properties and Fields
 
+        public ICommand RemoveItemCommand { get; private set; }
+
+        public TreeViewItemModel()
+        {
+            RemoveItemCommand = new DelegateCommand(RemoveItem);
+            Items = new List<TreeViewItemModel>();
+        }
+
+        public string Category { get; set; }
+
         public string Name { get; set; }
 
         public ModuleType ItemType { get; set; }
 
         public List<TreeViewItemModel> Items { get; set; }
-
         private bool _isSelected;
         public bool IsSelected
         {
@@ -34,7 +46,10 @@ namespace ThorCyte.ProtocolModule.Models
             set { SetProperty(ref _isEnabled, value); }
         }
 
-
+        private void RemoveItem()
+        {
+            MessageHelper.SetRemoveTreeModule(this);
+        }
         #endregion
     }
 }

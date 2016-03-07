@@ -12,5 +12,10 @@ namespace ThorCyte.ImageViewerModule.View
         {
             InitializeComponent();
         }
+
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

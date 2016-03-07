@@ -53,32 +53,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
             InputPorts[1].DataType = PortDataType.GrayImage;
             InputPorts[1].ParentModule = this;
         }
-
-        public override object Clone()
-        {
-            var mod = new AddModVm();
-            //===============Common======================
-            mod.Name = Name;
-            mod.Id = GetNextModId();
-            mod.DisplayName = DisplayName;
-            mod.ScanNo = ScanNo;
-            mod.Enabled = Enabled;
-            mod.X = X;
-            mod.Y = Y;
-
-            //===============Add=====================
-            mod.HasImage = HasImage;
-            mod.ModType = ModType;
-            mod.InputPorts[0].DataType = InputPorts[0].DataType;
-            mod.InputPorts[0].ParentModule = mod;
-            mod.InputPorts[1].DataType = InputPorts[1].DataType;
-            mod.InputPorts[1].ParentModule = mod;
-            mod.OutputPort.DataType = OutputPort.DataType;
-            mod.OutputPort.ParentModule = mod;
-
-            return mod;
-        }
-
     }
 
 }

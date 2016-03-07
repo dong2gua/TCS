@@ -17,6 +17,7 @@
             <converts:PointConverter x:Key="PtCvt"/>
 
             <Style TargetType="{x:Type control:Arrow}">
+                <Setter Property="ParentPannelView" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type control:PannelView}}, Path=.}"/>
                 <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderBrush" Value="Transparent" />
@@ -109,14 +110,11 @@
     </UserControl.Resources>
 
     <UserControl.InputBindings>
-        <KeyBinding Key="Delete" Command="{Binding DeleteCommand}"/>
-        <KeyBinding Key="W" Command="{Binding MoveCommand}" CommandParameter="Up"/>
-        <KeyBinding Key="S" Command="{Binding MoveCommand}" CommandParameter="Down"/>
-        <KeyBinding Key="A" Command="{Binding MoveCommand}" CommandParameter="Left"/>
-        <KeyBinding Key="D" Command="{Binding MoveCommand}" CommandParameter="Right"/>
         <KeyBinding Gesture="CTRL+A" Command="{Binding SelectAllCommand}"/>
         <KeyBinding Gesture="CTRL+C" Command="{Binding CopyModulesCommnad}"/>
         <KeyBinding Gesture="CTRL+V" Command="{Binding PasteModulesCommnad}"/>
+        <KeyBinding Key="Delete" Command="{Binding DeleteCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding MacroCommnad}"/>
     </UserControl.InputBindings>
     <Grid x:Name="gridMain">
         <Grid.ColumnDefinitions>
@@ -141,12 +139,19 @@
         <GridSplitter x:Name="splitter1" Grid.Column="1" Grid.Row="1" Width="2" HorizontalAlignment="Center" Background="DimGray"/>
 
         <!--Canvas: Create Module-->
-        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="DarkGray" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+        <Border x:Name="PannelBorder" Grid.Column="2" Grid.Row="1" VerticalAlignment="Top" BorderThickness="1" BorderBrush="DarkGray" IsEnabled="{Binding IsEditEnable}">
             <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="{Binding ElementName=PannelBorder,Path=ActualHeight}" Width="{Binding ElementName=PannelBorder,Path=ActualWidth}">
                 <control:PannelView x:Name="pannel" Background="DimGray" PreviewKeyDown="PannelKeyDown" 
                             ModuleSource="{Binding PannelVm.Modules}" ConnectionsSource="{Binding PannelVm.Connections}"
                             ConnectionDragStarted="networkControl_ConnectionDragStarted" ConnectionDragging="networkControl_ConnectionDragging"
-                            ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown">
+                            ConnectionDragCompleted="networkControl_ConnectionDragCompleted" MouseLeftButtonDown="OnMouseLeftDown" MouseRightButtonDown="OnMouseRightDown">
+                    <control:PannelView.InputBindings>
+                        <KeyBinding Key="W" Command="{Binding MoveCommand}" CommandParameter="Up"/>
+                        <KeyBinding Key="S" Command="{Binding MoveCommand}" CommandParameter="Down"/>
+                        <KeyBinding Key="A" Command="{Binding MoveCommand}" CommandParameter="Left"/>
+                        <KeyBinding Key="D" Command="{Binding MoveCommand}" CommandParameter="Right"/>
+
+                    </control:PannelView.InputBindings>
                     <control:PannelView.ContextMenu>
                         <ContextMenu x:Name="testMenu">
                             <MenuItem Header="Copy" Command="{Binding CopyModulesCommnad}" IsEnabled="{Binding IsRemoveEnable}"/>
@@ -155,6 +160,8 @@
                             <Separator/>
                             <MenuItem Header="Vertical Align" Command="{Binding AlignCommnad}" CommandParameter="V" IsEnabled="{Binding IsAlignEnable}"/>
                             <MenuItem Header="Horizontal Align" Command="{Binding AlignCommnad}" CommandParameter="H" IsEnabled="{Binding IsAlignEnable}"/>
+                            <Separator/>
+                            <MenuItem Header="Save as Template..." Command="{Binding SaveTemplateCommand}" IsEnabled="{Binding IsRemoveEnable}"/>
                         </ContextMenu>
                     </control:PannelView.ContextMenu>
                 </control:PannelView>
@@ -207,6 +214,27 @@
                 <Button  Margin="1" Command="{Binding MacroCommnad}" ToolTip="{Binding TipStr}">
                     <Image Source="{Binding ImgSource}"/>
                 </Button>
+
+                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Next" ToolTip="Next Tile" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+                    <Image Source="../Resource/Images/Next.png"/>
+                </Button>
+
+                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Previous" ToolTip="Previous Tile" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+                    <Image Source="../Resource/Images/Previous.png"/>
+                </Button>
+
+                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Repeat" ToolTip="Repeat this Tile" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+                    <Image Source="../Resource/Images/Loop.png"/>
+                </Button>
+
+                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="End" ToolTip="To Last Tile" IsEnabled="{Binding IsRuning, Converter={StaticResource BoolReverseCvt}}">
+                    <Image Source="../Resource/Images/End.png"/>
+                </Button>
+
+                <Button  Margin="1" Command="{Binding MacroCommnad}" CommandParameter="Stop" ToolTip="Stop Run" IsEnabled="{Binding IsRuning}">
+                    <Image Source="../Resource/Images/stop.png"/>
+                </Button>
+
             </StackPanel>
         </Border>
 

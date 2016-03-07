@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="ThorCyte.ProtocolModule.Views.ImageDisplayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:utils="clr-namespace:ThorCyte.ProtocolModule.Utils"
+             xmlns:converts="clr-namespace:ThorCyte.ProtocolModule.Converts"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        
+        <ResourceDictionary>
+            <converts:DoubleToRatioConverter x:Key="ConvDoubleToRatio"/>
+        </ResourceDictionary>
+        
+        
+    </UserControl.Resources>
+    
+    <Border Margin="2">
+        <Grid Margin="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="1" >
+                <ScrollViewer VerticalScrollBarVisibility="Hidden"  HorizontalScrollBarVisibility="Hidden">
+                    <Image x:Name="img" Source="{Binding DispImage}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseMove">
+                                <i:InvokeCommandAction Command="{Binding GetPositionCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Image}}}"/>
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="MouseWheel">
+                                <utils:InteractiveCommand  Command="{Binding ZoomCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <Image.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform CenterY="{Binding TY}" CenterX="{Binding TX}" ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
+                            </TransformGroup>
+                        </Image.RenderTransform>
+                        <Image.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Reset Scale" Command="{Binding ResetScaleCommand}"/>
+                            </ContextMenu>
+                        </Image.ContextMenu>
+                    </Image>
+                </ScrollViewer>
+            </Border>
+
+            <Border Margin="2,0,0,2" Grid.Row="0" Grid.Column="2" Background="#333333" CornerRadius="2" BorderThickness="1" BorderBrush="#222222">
+                <StackPanel Margin="1,3" Orientation="Vertical" >
+                    <Button  Margin="1" Command="{Binding ZoomInCommand}" ToolTip="Zoom in current image." IsEnabled="{Binding IsZoomInEnable}">
+                        <Image Source="../Resource/Images/ZoomIn.png"/>
+                    </Button>
+                    <Button  Margin="1" Command="{Binding ZoomOutCommand}" ToolTip="Zoom out current image." IsEnabled="{Binding IsZoomOutEnable}">
+                        <Image Source="../Resource/Images/ZoomOut.png"/>
+                    </Button>
+                    <ToggleButton Margin="1" Command="{Binding AspectRatioCommand}" ToolTip="Use aspect ratio" IsChecked="{Binding IsAspectRatio}">
+                        <Image Source="../Resource/Images/Ratio.png"/>
+                    </ToggleButton>
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text ="Position:     " VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Coordinate}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="Zoom:    " VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Scale, Converter={StaticResource ConvDoubleToRatio}}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="4" Text="AspectRatio:    " VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="5" Text="{Binding IsAspectRatio}" VerticalAlignment="Center"/>
+
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

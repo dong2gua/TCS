@@ -169,12 +169,9 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
 
         public override void Initialize()
         {
-            View = new FilterModule();
             ModType = ModuleType.SmtFilterModule;
-            Name = GlobalConst.FilterModuleName;
             HasImage = true;
 
-            
             if (_filters != null && _filters.Count > 0)
             {
                 SelectedFilter = _filters[0];
@@ -215,36 +212,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 PassIndex = XmlConvert.ToInt32(reader["passindex"]);
             }
         }
-
-        public override object Clone()
-        {
-            var mod = new FilterModVm();
-            //===============Common======================
-            mod.Name = Name;
-            mod.Id = GetNextModId();
-            mod.DisplayName = DisplayName;
-            mod.ScanNo = ScanNo;
-            mod.Enabled = Enabled;
-            mod.X = X;
-            mod.Y = Y;
-
-            //===============Filter=====================
-            mod.HasImage = HasImage;
-            mod.View = new FilterModule();
-            mod.ModType = ModType;
-
-            mod.InputPorts[0].DataType = InputPorts[0].DataType;
-            mod.InputPorts[0].ParentModule = mod;
-            mod.OutputPort.DataType = OutputPort.DataType;
-            mod.OutputPort.ParentModule = mod;
-            mod.SelectedFilter = SelectedFilter;
-            mod.SelectedKSize = SelectedKSize;
-            mod.PassIndex = PassIndex;
-
-            return mod;
-        }
-
-
         #endregion
     }
 

@@ -13,10 +13,18 @@ namespace ThorCyte.ProtocolModule.Utils
         public delegate void MacroRunningHandler(bool isRuning);
         public static MacroRunningHandler SetRuning;
 
+        public static Action<bool> SetPaused;
+
         public delegate void SetSelectViewItemHandler(object item);
         public static SetSelectViewItemHandler SetSelectViewItem;
 
         public static SetSelectViewItemHandler UnSelectViewItem;
+
+        //public delegate void MacroTemplateUpdatedHandler();
+
+        public static Action MacroTemplateUpdated;
+
+        public static Action<object> RemoveTreeModuleAction;  
 
         public static void PostMessage(string msg)
         {
@@ -37,6 +45,12 @@ namespace ThorCyte.ProtocolModule.Utils
             SetRuning.Invoke(isRunding);
         }
 
+        public static void SendMacroPaused(bool isPaused)
+        {
+            if (SetPaused == null) return;
+            SetPaused.Invoke(isPaused);
+        }
+
         public static void SetSelectItem(object item)
         {
             if (SetSelectViewItem == null) return;
@@ -47,6 +61,18 @@ namespace ThorCyte.ProtocolModule.Utils
         {
             if (UnSelectViewItem == null) return;
             UnSelectViewItem.Invoke(item);
+        }
+
+        public static void SetMacroTemplateUpdated()
+        {
+            if (MacroTemplateUpdated == null) return;
+            MacroTemplateUpdated.Invoke();
+        }
+
+        public static void SetRemoveTreeModule(object treeviewitem)
+        {
+            if (RemoveTreeModuleAction == null) return;
+            RemoveTreeModuleAction.Invoke(treeviewitem);
         }
     }
 }

@@ -32,10 +32,10 @@
 
         //According to category
         SmtSystemCategory,
-        SmtExperimentModule,
+        SmtScanModule,
 
         SmtOutputCategory,
-
+        SmtImageViewModule,
 
         SmtFilterCategory,
         SmtFilterModule,
@@ -63,7 +63,7 @@
 
         SmtExperimentalCategory,
         SmtAdvancedImageAnalysisCategory,
-        SmtCustomModulesCategory
+        SmtCustomModulesCategory,
         //SmtOutputProcessedImage = 10,
         //SmtOutputImageVIew,
 
@@ -75,6 +75,9 @@
 
         //SmtEventEvent = 50,
         //SmtEventPhantom,
+
+        SmtCombinedModule,
+
     }
 
 }

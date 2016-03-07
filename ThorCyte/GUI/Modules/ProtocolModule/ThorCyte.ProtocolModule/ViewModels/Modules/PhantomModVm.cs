@@ -129,9 +129,7 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
         public override void Initialize()
         {
             HasImage = false;
-            View = new PhantomModule();
             ModType = ModuleType.SmtPhantomModule;
-            Name = GlobalConst.PhantomModuleName;
             InputPorts[0].DataType = PortDataType.MultiChannelImage;
             InputPorts[0].ParentModule = this;
             OutputPort.DataType = PortDataType.Event;
@@ -171,37 +169,6 @@ namespace ThorCyte.ProtocolModule.ViewModels.Modules
                 Count = XmlConvert.ToInt32(reader["count"]);
             }
         }
-
-        public override object Clone()
-        {
-            var mod = new PhantomModVm();
-            //===============Common======================
-            mod.Name = Name;
-            mod.Id = GetNextModId();
-            mod.DisplayName = DisplayName;
-            mod.ScanNo = ScanNo;
-            mod.Enabled = Enabled;
-            mod.X = X;
-            mod.Y = Y;
-
-            //===============Phantom=====================
-            mod.HasImage = HasImage;
-            mod.ModType = ModType;
-            mod.View = new PhantomModule();
-            mod.InputPorts[0].DataType = InputPorts[0].DataType;
-            mod.InputPorts[0].ParentModule = mod;
-            mod.OutputPort.DataType = OutputPort.DataType;
-            mod.OutputPort.ParentModule = mod;
-
-            mod.PhantomName = PhantomName;
-            mod.Pattern = Pattern;
-            mod.Radius = Radius;
-            mod.Distance = Distance;
-            mod.Count = Count;
-
-            return mod;
-        }
-
         #endregion
     }
 }
