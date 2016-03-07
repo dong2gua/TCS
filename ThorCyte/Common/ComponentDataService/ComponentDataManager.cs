@@ -5,7 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Xml;
 using Microsoft.Practices.ServiceLocation;
 using Prism.Events;
@@ -46,7 +50,7 @@ namespace ComponentDataService
 
         private ComponentDataManager()
         {
-            RegisterMessage();
+            //RegisterMessage();
         }
         #endregion
 
@@ -65,9 +69,13 @@ namespace ComponentDataService
 
         private void RegisterMessage()
         {
-            var eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>();
-            eventAggregator.GetEvent<ExperimentLoadedEvent>().Subscribe(e => { _eventSource = EventSource.FromDisk; });
-            eventAggregator.GetEvent<MacroRunEvent>().Subscribe(e => { _eventSource = EventSource.FromMemory; });
+            IEventAggregator eventAggregator = ServiceLocator.Current.GetInstance<IEventAggregator>();
+            if (eventAggregator != null)
+            {
+                eventAggregator.GetEvent<ExperimentLoadedEvent>()
+                    .Subscribe(e => { _eventSource = EventSource.FromDisk; });
+                eventAggregator.GetEvent<MacroRunEvent>().Subscribe(e => { _eventSource = EventSource.FromMemory; });
+            }
         }
 
         private IEnumerable<string> GetComponentNamesFromXml()
@@ -96,8 +104,8 @@ namespace ComponentDataService
         }
 
 
-        private static void Association(IEnumerable<Blob> masterDataBlobs, IList<BioEvent> masterEvents, IList<Blob> slaveDataBlobs,
-            IList<BioEvent> slavEvents)
+        private static void Association(IEnumerable<Blob> masterDataBlobs, IList<BioEvent> masterEvents,
+            IList<Blob> slaveDataBlobs, IList<BioEvent> slavEvents)
         {
             foreach (Blob masterDataBlob in masterDataBlobs)
             {
@@ -117,7 +125,13 @@ namespace ComponentDataService
             }
         }
 
-       
+        private bool CheckPhantomDefine(PhantomDefine define)
+        {
+            if (define.Radius <= 0 || define.Distance <= 0) return false;
+            if (define.Pattern == PhantomDefine.PhantomPattern.Random) return define.Count > 0;
+            return true;
+        }
+
         #endregion
 
         #region Methods in Interface
@@ -139,8 +153,7 @@ namespace ComponentDataService
             IEnumerable<string> componentNames = GetComponentNamesFromXml();       
             foreach (string name in componentNames)
             {
-                _bioComponentDict[name] = new BioComponent(experiment, name);
-
+                _bioComponentDict[name] = new RealComponent(experiment, name);
             }
         }
 
@@ -243,10 +256,10 @@ namespace ComponentDataService
 
         public void AddComponent(string componentName, IList<Feature> features)
         {
-            var component = new BioComponent(_experiment, componentName);
-            component.Update(features);
-            _bioComponentDict[componentName] = component;
+            AddComponent(componentName, features, false);
         }
+
+       
 
         public void ClearComponents()
         {
@@ -258,8 +271,15 @@ namespace ComponentDataService
         {
             if (_bioComponentDict.ContainsKey(componentName) == false)
                 throw new ArgumentException("invaild componenet name", "componentName");
-            BioComponent component = _bioComponentDict[componentName];
-            return component.CreateContourBlobs(wellId, tileId, data, minArea, maxArea);
+            RealComponent component = _bioComponentDict[componentName] as RealComponent;
+            if (component != null)
+            {
+                return component.CreateContourBlobs(wellId, tileId, data, minArea, maxArea);             
+            }
+            else
+            {
+                throw new InvalidOperationException("invaild opeation in phantom");
+            }
         }
 
         public IList<BioEvent> CreateEvents(string componentName, int scanId, int wellId, int tileId,
@@ -312,15 +332,71 @@ namespace ComponentDataService
             Association(masterComponentName, secondSlaveComponentName);
         }
 
-        #endregion
-
-
         public IList<Channel> GetChannels(string componentName)
         {
             if (_bioComponentDict.ContainsKey(componentName) == false)
                 throw new ArgumentException("invaild componenet name", "componentName");
             return _bioComponentDict[componentName].Channels;
         }
+
+        
+        #endregion
+        public void AddComponent(string componentName, IList<Feature> features, bool isPhantom)
+        {
+            BioComponent component = isPhantom
+                ? (BioComponent)new PhantomComponent(_experiment, componentName)
+                : new RealComponent(_experiment, componentName);
+            component.Update(features);
+            _bioComponentDict[componentName] = component;
+        }
+
+        public IList<Blob> CreatePhantomBlobs(string componentName, int wellId, int tileId, PhantomDefine define)
+        {
+            if (_bioComponentDict.ContainsKey(componentName) == false)
+            {
+                throw new ArgumentException("invaild componenet name", "componentName");
+            }
+            PhantomComponent component = _bioComponentDict[componentName] as PhantomComponent;
+            if (component == null)
+                throw new InvalidOperationException("can not CreatePhantomBlobs on non-Phantom component");
+            else if (CheckPhantomDefine(define) == false)
+                throw new ArgumentException("invaild phantom define", "define");
+            return component.CreatePhantomBlobs(wellId, tileId, define);
+        }
+
+
+        public BitmapSource Draw(ImageData data, IList<Blob> blobs, Color color)
+        {
+            throw new NotImplementedException();
+        }
+
+        public BitmapSource Draw(BitmapSource source, IList<Blob> blobs, Color color)
+        {
+            byte[] buffer = source.GetBuffer();
+            int height = source.PixelHeight;
+            int width = source.PixelWidth;
+            int stride = buffer.Length/height;
+            int channels = stride/width;
+           
+            foreach (Blob blob in blobs)
+            {
+                Point[] points = blob.PointsArray;
+                foreach (Point point in points)
+                {
+                    int x = (int) point.X;
+                    int y = (int) point.Y;
+                    int index = y*stride + x*channels;
+                    buffer[index] = color.B;
+                    buffer[index + 1] = color.G;
+                    buffer[index + 2] = color.R;
+                    buffer[index + 3] = byte.MaxValue;
+                }
+            }
+            BitmapSource bmp = BitmapSource.Create(width, height, source.DpiX, source.DpiY, source.Format,
+                source.Palette, buffer, stride);
+            return bmp;
+        }
+
         #endregion
 
     }
@@ -417,6 +493,29 @@ namespace ComponentDataService
             return null;
         }
 
+        #endregion
+
+        #region BitmapSource
+        internal static void GetDataBuffer(this ImageData image, BitmapSource source)
+        {
+            int stride = (source.PixelWidth * source.Format.BitsPerPixel + 7) / 8;
+            // Create data array to hold source pixel data
+            var data = new byte[stride * source.PixelHeight];
+            // Copy source image pixels to the data array
+            source.CopyPixels(data, stride, 0);
+            short[] array = Array.ConvertAll(data, b => (short)(b << 6));
+            Marshal.Copy(array, 0, image.DataBuffer, array.Length);
+        }
+
+        internal static byte[] GetBuffer(this BitmapSource source)
+        {
+            int stride = (source.PixelWidth * source.Format.BitsPerPixel + 7) / 8;
+            // Create data array to hold source pixel data
+            var data = new byte[stride * source.PixelHeight];
+            // Copy source image pixels to the data array
+            source.CopyPixels(data, stride, 0);
+            return data;
+        }
         #endregion
     }
 
