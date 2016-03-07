@@ -12,6 +12,7 @@ using Prism.Commands;
 
 namespace ThorCyte
 {
+//test
     public class StatisticModule : IModule
     {
         private IRegionManager _regionManager;

@@ -4,15 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExperimentDetailModule", "ExperimentDetailModule\ExperimentDetailModule.csproj", "{C9233068-4A01-40BD-9949-45F59DAF9F87}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://chn-vm-46:8080/tfs/thorcyteprocessteam
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = ExperimentDetailModule\\ExperimentDetailModule.csproj
-		SccProjectName1 = ExperimentDetailModule
-		SccLocalPath1 = ExperimentDetailModule
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

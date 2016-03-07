@@ -11,10 +11,6 @@
     <AssemblyName>ThorCyte.ProtocolModule</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -104,6 +100,7 @@
     <Compile Include="Converts\PhantomPatternConvert.cs" />
     <Compile Include="Converts\PointConverter.cs" />
     <Compile Include="Converts\ThresholdMethodConvert.cs" />
+    <Compile Include="Converts\ToolBoxModeToTabIndexConvert.cs" />
     <Compile Include="Events\ConnectionDragEvents.cs" />
     <Compile Include="Events\ConnectorDragEvents.cs" />
     <Compile Include="Events\DisplayImageEvent.cs" />

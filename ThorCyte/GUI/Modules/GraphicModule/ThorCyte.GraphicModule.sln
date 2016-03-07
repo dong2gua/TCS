@@ -4,16 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThorCyte.GraphicModule", "ThorCyte.GraphicModule\ThorCyte.GraphicModule.csproj", "{4C84061B-38B7-41F4-B7E6-F92A516E4B21}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 1
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://chn-vm-46:8080/tfs/thorcyteprocessteam
-		SccProjectUniqueName0 = ThorCyte.GraphicModule\\ThorCyte.GraphicModule.csproj
-		SccProjectName0 = ThorCyte.GraphicModule
-		SccAuxPath0 = http://chn-vm-46:8080/tfs/thorcyteprocessteam
-		SccLocalPath0 = ThorCyte.GraphicModule
-		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
