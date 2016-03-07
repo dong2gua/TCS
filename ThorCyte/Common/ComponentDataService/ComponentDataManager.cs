@@ -256,12 +256,12 @@ namespace ComponentDataService
 
         public void AddComponent(string componentName, IList<Feature> features)
         {
-            AddComponent(componentName, features, false, 1);
+            AddComponent(componentName, 1, features, false);
         }
 
-        public void AddComponent(string componentName, IList<Feature> features, int scanId)
+        public void AddComponent(string componentName, int scanId, IList<Feature> features)
         {
-            AddComponent(componentName, features, false, scanId);
+            AddComponent(componentName, scanId, features, false);
         }
 
 
@@ -345,7 +345,7 @@ namespace ComponentDataService
 
         
         #endregion
-        public void AddComponent(string componentName, IList<Feature> features, bool isPhantom, int scanId)
+        public void AddComponent(string componentName, int scanId, IList<Feature> features, bool isPhantom)
         {
             BioComponent component = isPhantom
                 ? (BioComponent)new PhantomComponent(_experiment, componentName, scanId)

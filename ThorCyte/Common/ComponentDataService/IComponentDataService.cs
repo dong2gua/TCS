@@ -2,6 +2,8 @@
 using ImageProcess;
 using ImageProcess.DataType;
 using System.Collections.Generic;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using ThorCyte.Infrastructure.Interfaces;
 using ThorCyte.Infrastructure.Types;
 
@@ -16,6 +18,8 @@ namespace ComponentDataService
         IList<BioEvent> GetEvents(string componentName, int wellId);
         IList<Feature> GetFeatures(string componentName);
         void AddComponent(string componentName, IList<Feature> features);
+        void AddComponent(string componentName, int scanId, IList<Feature> features);
+        void AddComponent(string componentName, int scanId, IList<Feature> features, bool isPhantom);
         void ClearComponents();
         int GetFeatureIndex(string componentName, FeatureType type, string channelName = null);
         void Save(string fileFolder);
@@ -28,5 +32,7 @@ namespace ComponentDataService
         void Association(string masterComponentName, string slaveComponentName);
         void Association(string masterComponentName, string firstSlaveComponentName, string secondSlaveComponentName);
         IList<Channel> GetChannels(string componentName);
+        IList<Blob> CreatePhantomBlobs(string componentName, int wellId, int tileId, PhantomDefine define);
+        BitmapSource Draw(BitmapSource source, IList<Blob> blobs, Color color);
     }
 }
