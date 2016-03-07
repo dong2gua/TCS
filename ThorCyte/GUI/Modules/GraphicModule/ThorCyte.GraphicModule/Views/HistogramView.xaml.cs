@@ -282,6 +282,16 @@ namespace ThorCyte.GraphicModule.Views
             ShowRegionEvents(ConstantHelper.PrefixHistogramName);
         }
 
+        private void OnCopy(object sender, RoutedEventArgs e)
+        {
+            CopyToClipboard();
+        }
+
+        private void OnSave(object sender, RoutedEventArgs e)
+        {
+            SaveImage(ConstantHelper.PrefixHistogramName);
+        }
+
         #endregion
     }
 }

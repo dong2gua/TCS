@@ -17,6 +17,8 @@
         <s:SciChartSurface Name="SciChart"  Background="#595959" GridLinesPanelStyle="{StaticResource GridLinesPanelStyle}"  FontSize="16" ChartTitle="{Binding Title}" Padding="0,0,20,0" MouseRightButtonDown="OnMouseRightDown">
             <s:SciChartSurface.ContextMenu>
                 <ContextMenu>
+                    <MenuItem x:Name="SaveItem" Header="Save" Click="OnSave"/>
+                    <MenuItem x:Name="CopyItem" Header="Copy" Click="OnCopy"/>
                     <MenuItem x:Name="RegionEventsItem" Header="View Events in Region" Click="OnShowRegionEvents"/>
                 </ContextMenu>
             </s:SciChartSurface.ContextMenu>
