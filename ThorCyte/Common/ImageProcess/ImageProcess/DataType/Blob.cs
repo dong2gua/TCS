@@ -71,6 +71,68 @@ namespace ImageProcess.DataType
 
         #region Public
 
+       
+        public static Blob CreatePhantomBlobs(Point ptCenter, double radius, Size imageSize, Size pixelSize) // jcl-5508
+        {
+            double pixelWidth = pixelSize.Width;
+            double pixelHeight = pixelSize.Height;
+            int imgWidth = (int)imageSize.Width;
+            int imgHeight = (int) imageSize.Height;
+
+            // convert micron to pixel
+            int nXPixels = (int)(radius / pixelWidth);
+            int nYPixels = (int)(radius / pixelHeight);
+
+            double dR2 = radius * radius;
+            double pixelWidth2 = pixelWidth * pixelWidth;
+            int x = (int)ptCenter.X - nXPixels - 1;
+            int xEnd = (int)ptCenter.X + nXPixels;
+
+            if (TouchesEdge(x, (int)ptCenter.Y - nYPixels, 2 * nXPixels + 1, 2 * nYPixels, imageSize))
+                return null;
+
+            Blob blob = new Blob {_shape = RegionShape.Ellipse};
+            int nYMax = 0;
+            for (int j = x + 1; j <= xEnd; j++)
+            {
+                if (j >= imgWidth) break;
+                double dX2 = (ptCenter.X - j) * (ptCenter.X - j) * pixelWidth2;
+                double dYTmp = (dR2 - dX2) > 0 ? Math.Sqrt(dR2 - dX2) : 0;
+                int y = (int)(dYTmp / pixelHeight + 0.1);
+                if (nYMax < y) nYMax = y;
+                int y1 = (int)ptCenter.Y - y;
+                if (y1 < 0) y1 = 0;
+                int y2 = (int)ptCenter.Y + y;
+                if (y2 >= imgHeight)
+                    y2 = imgHeight - 1;
+                VLine line = new VLine(j, y1, y2);
+                blob._lines.Add(line);
+                blob.Area += line.Length;
+            }
+
+            blob._centroid = ptCenter;
+            blob.Bound = new Int32Rect((int) ptCenter.X - nXPixels, (int) ptCenter.Y - nYMax, 2*nXPixels + 1,
+                2*nYMax + 1);
+
+            // create array of points describing blob as polygon
+            int count = blob._lines.Count * 2 + 1;
+            int up = 0;
+            int down = count - 2;
+           
+            var points = new Point[count];
+            foreach (VLine line in blob._lines)
+            {
+                points[up++] = new Point(line.X, line.Y1);
+                points[down--] = new Point(line.X, line.Y2);
+            }
+
+            // repeat the first point
+            VLine ln = blob._lines[0];
+            points[count - 1] = new Point(ln.X, ln.Y1);
+            blob.AddContours(points);
+            return blob;
+        }
+
         public bool Contains(Blob blob)
         {
             return Contains(this, blob);
@@ -362,9 +424,6 @@ namespace ImageProcess.DataType
         // This does the dynamic background method on the pixels within the (typically perimeter) blob.
         public int ComputeDynamicBackground(short[] data, int width, int lowPct, int highPct, int rejectPct)
         {
-            //int xOffset = img.GetOffset(channel);
-            //ushort[,] buf = img.GetBuffer(channel);
-
             // collect all of the pixels in the blob into the array.
             var pixels = new List<ushort>(Area);
 
@@ -382,7 +441,6 @@ namespace ImageProcess.DataType
             int pixelCount = pixels.Count;
             int index;
             pixels.Sort();
-            //Array.Sort(pixels);
             int lowIndex = (pixelCount*lowPct + 50)/100;
             int highIndex = (pixelCount*highPct + 50)/100;
 
@@ -407,59 +465,6 @@ namespace ImageProcess.DataType
             int average = (pixels[highIndex] + pixels[lowIndex])/2 + 1;
 
             if (diff > (average*rejectPct/100)) // background is rejected
-                total = 0;
-
-            return total;
-        }
-
-        // This does the dynamic background method on the pixels within the (typically perimeter) blob.
-        public int ComputeDynamicBackground(ImageData data, int lowPct, int highPct, int rejectPct)
-        {
-            //int xOffset = img.GetOffset(channel);
-            //ushort[,] buf = img.GetBuffer(channel);
-
-            // collect all of the pixels in the blob into the array.
-            var pixels = new List<ushort>(Area);
-
-            foreach (VLine line in _lines)
-            {
-                for (int i = 0; i < line.Length; i++)
-                {
-                    //pixels[index++] = buf[xOffset + line.X, line.Y1 + i];
-                    ushort value = data[(line.Y1 + i) * data.XSize + line.X];
-                    pixels.Add(value);
-                }
-                   
-                    
-            }
-            int pixelCount = pixels.Count;
-            int index;
-            pixels.Sort();
-            //Array.Sort(pixels);
-            int lowIndex = (pixelCount * lowPct + 50) / 100;
-            int highIndex = (pixelCount * highPct + 50) / 100;
-
-            if (highIndex < lowIndex)
-                highIndex = lowIndex;
-
-            if (highIndex >= pixelCount)
-                highIndex = pixelCount - 1;
-
-            if (lowIndex >= pixelCount)
-                lowIndex = pixelCount - 1;
-
-            int total = 0;
-            for (index = lowIndex; index <= highIndex; index++)
-                total += pixels[index];
-
-            int size = highIndex - lowIndex + 1;
-            total += size / 2;
-            total /= size;
-
-            int diff = pixels[highIndex] - pixels[lowIndex];
-            int average = (pixels[highIndex] + pixels[lowIndex]) / 2 + 1;
-
-            if (diff > (average * rejectPct / 100))	// background is rejected
                 total = 0;
 
             return total;
@@ -570,6 +575,13 @@ namespace ImageProcess.DataType
 
         #region Private
 
+        private static bool TouchesEdge(int x, int y, int w, int h, Size imageSize)
+        {
+            int imageWidth = (int) imageSize.Width;
+            int imageHeight = (int) imageSize.Height;
+            return x < 0 || x + w >= imageWidth || y < 0 || y + h >= imageHeight;            
+        }
+
         private void ComputeCentroid()
         {
             int count = _points.Count;
@@ -648,6 +660,7 @@ namespace ImageProcess.DataType
         }
 
 
+/*
         private int SortCornersClockwise(Point a, Point b)
         {
             //  Variables to Store the atans
@@ -664,6 +677,7 @@ namespace ImageProcess.DataType
             else if (aTanA > aTanB) return 1;
             return 0;
         }
+*/
 
         private static bool PointInsidePolygon(Blob blob, Point point)
         {

@@ -8,9 +8,11 @@ using Abt.Controls.SciChart;
 using Abt.Controls.SciChart.Model.DataSeries;
 using Abt.Controls.SciChart.Visuals.Axes;
 using Microsoft.Practices.ServiceLocation;
+using Microsoft.Win32;
 using ThorCyte.GraphicModule.Controls.Graphics;
 using ThorCyte.GraphicModule.Converts;
 using ThorCyte.GraphicModule.Events;
+using ThorCyte.GraphicModule.Helper;
 using ThorCyte.GraphicModule.ViewModels;
 using ThorCyte.GraphicModule.Views;
 using ThorCyte.Infrastructure.Events;
@@ -228,6 +230,25 @@ namespace ThorCyte.GraphicModule.Controls
             regionWnd.Closed += delegate { RegionEventsViewerList.Remove(regionWnd); };
             regionWnd.Show();
             regionWnd.Update(string.Format("{0}{1}",pre,Id), GraphicVm.SelectedComponent, idList); 
+        }
+
+        protected void CopyToClipboard()
+        {
+            UIHelper.CopyUiElementToClipboard(this);
+        }
+
+        protected void SaveImage(string pre)
+        {
+            var saveDialog = new SaveFileDialog()
+            {
+                FileName = string.Format("{0}{1}", pre, Id),
+                Filter = "Graphic File(.png)|*.png"
+            };
+
+            if (saveDialog.ShowDialog(Application.Current.MainWindow) == true)
+            {
+                UIHelper.SaveToImage(this, saveDialog.FileName);
+            }
         }
 
         #endregion

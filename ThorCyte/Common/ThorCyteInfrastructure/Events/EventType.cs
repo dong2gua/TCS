@@ -7,13 +7,6 @@ namespace ThorCyte.Infrastructure.Events
         public int TileId;
     }
 
-    public class LoadExInfo
-    {
-        public int ScanId;
-        public bool WithAnalysisResult;
-    }
-
-
     public class FrameIndex
     {
         public int StreamId { set; get; }
